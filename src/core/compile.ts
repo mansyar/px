@@ -13,10 +13,10 @@
 
 import { SlotCanvas, UNOWNED } from './canvas.js';
 import { PxError, type PxWarning } from './errors.js';
-import { applyOp } from './ops/index.js';
+import { applyOp, type CleanupReport } from './ops/index.js';
 import { buildSlotRoles, buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
 import { type CompiledPart, flattenOwners, partIndex, partNames, partStats } from './parts.js';
-import { profileFor, type ScaleProfile } from './profile.js';
+import { profileFor, profileNumbers, type ScaleProfile } from './profile.js';
 import { type Recipe, recipeParts } from './recipe/types.js';
 
 export interface CompiledLayer {
@@ -32,8 +32,12 @@ export interface CompiledRecipe {
   flattened: Int16Array;
   /** One entry per declared part, in canonical name order; empty without parts. */
   parts: CompiledPart[];
+  /** Part index per pixel, `UNOWNED` where nothing declared owns the pixel. */
+  owners: Int16Array;
   /** The regime every size-sensitive number is read from: override, else canvas. */
   profile: ScaleProfile;
+  /** One entry per cleanup pass that ran, in recipe order; absent when none ran. */
+  cleanup?: CleanupReport[];
   warnings: PxWarning[];
 }
 
@@ -56,6 +60,14 @@ export function flattenLayers(
 
 /** Mirrors MAX_FINDINGS_PER_CODE so a warm-up flood cannot bloat the envelope. */
 const MAX_PART_WARNINGS = 50;
+
+/** Why a cleanup pass had nothing to do, one hint per op. */
+const CLEANUP_NOOP_HINTS: Record<CleanupReport['op'], string> = {
+  seal: 'Enclose a gap first: only transparent holes of 2x2 pixels or smaller are sealed.',
+  strays: 'Nothing in that layer is smaller than the cluster minimum for this profile.',
+  deband:
+    'Equal-width runs need three rows, and the darkest tone of a family has nowhere darker to go.',
+};
 
 function nameList(names: readonly string[]): string {
   if (names.length === 1) {
@@ -81,6 +93,10 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const declared = recipeParts(recipe);
   const names = partNames(declared);
   const indexes = partIndex(declared);
+  const profile = recipe.meta.profile ?? profileFor(width, height);
+  const numbers = profileNumbers(profile);
+  const cleanup: CleanupReport[] = [];
+  let cleanupNoops = 0;
   let partOverwrites = 0;
 
   const layers: CompiledLayer[] = recipe.layers.map((layer) => ({
@@ -124,6 +140,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           owner,
           parts: declared,
           partIndexes: indexes,
+          profile: numbers,
         },
         op,
       );
@@ -157,7 +174,21 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           });
         }
       }
-      if (outcome.noop) {
+      if (outcome.cleanup !== undefined) {
+        cleanup.push(outcome.cleanup);
+        if (outcome.cleanup.changed === 0) {
+          cleanupNoops += 1;
+          if (cleanupNoops <= MAX_PART_WARNINGS) {
+            warnings.push({
+              code: 'W_CLEANUP_NOOP',
+              message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" changed no pixels`,
+              hint: CLEANUP_NOOP_HINTS[outcome.cleanup.op],
+              layer: layer.id,
+              op_index: opIndex,
+            });
+          }
+        }
+      } else if (outcome.noop) {
         warnings.push({
           code: 'W_PASS_NOOP',
           message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" changed no pixels`,
@@ -176,13 +207,16 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
       hint: 'Order ops so each part finishes before the next one paints, or tag both ops with the same part.',
     });
   }
+  if (cleanupNoops > MAX_PART_WARNINGS) {
+    warnings.push({
+      code: 'W_CLEANUP_NOOP',
+      message: `${cleanupNoops} cleanup ops changed no pixels; showing the first ${MAX_PART_WARNINGS}`,
+      hint: 'A cleanup pass that cannot change anything is usually pointed at the wrong layer.',
+    });
+  }
 
-  const parts = partStats(
-    width,
-    height,
-    flattenOwners(layers.map((layer) => layer.canvas)),
-    declared,
-  );
+  const owners = flattenOwners(layers.map((layer) => layer.canvas));
+  const parts = partStats(width, height, owners, declared);
   const empty = parts.find((part) => part.painted === 0);
   if (empty !== undefined) {
     throw new PxError(
@@ -199,7 +233,9 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     layers,
     flattened: flattenLayers(layers, width, height),
     parts,
-    profile: recipe.meta.profile ?? profileFor(width, height),
+    owners,
+    profile,
+    ...(cleanup.length > 0 ? { cleanup } : {}),
     warnings,
   };
 }

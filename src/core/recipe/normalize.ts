@@ -15,6 +15,7 @@ import {
   type AsciiBlitOp,
   type AutoOutlineOp,
   type AutoShadeOp,
+  type DebandOp,
   DITHER_PATTERNS,
   type DitherFillOp,
   type DitherPattern,
@@ -50,8 +51,10 @@ import {
   type RecipeMeta,
   type RectOp,
   type ReplaceSlotOp,
+  type SealOp,
   type SetPixelsOp,
   type SlotRef,
+  type StraysOp,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
@@ -960,6 +963,20 @@ function normalizeReplaceSlot(
   };
 }
 
+/**
+ * Cleanup passes take one optional key. `target_layer` is the layer they read;
+ * they always write into the layer that contains the op.
+ */
+function normalizeCleanup(
+  name: 'seal' | 'strays' | 'deband',
+  raw: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): SealOp | StraysOp | DebandOp {
+  const targetLayer = optionalStringParam(raw, 'target_layer', name, opIndex, layer);
+  return targetLayer === undefined ? { op: name } : { op: name, targetLayer };
+}
+
 function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
   const name = raw[0];
   if (typeof name !== 'string') {
@@ -1115,6 +1132,10 @@ function normalizeOpBody(
       return normalizeLight(raw, opIndex, layer);
     case 'replace_slot':
       return normalizeReplaceSlot(raw, opIndex, layer);
+    case 'seal':
+    case 'strays':
+    case 'deband':
+      return normalizeCleanup(name, raw, opIndex, layer);
   }
 }
 

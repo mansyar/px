@@ -8,6 +8,7 @@ export default defineConfig({
           name: 'unit',
           include: [
             'test/unit/**/*.test.ts',
+            'test/art-lint/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/ops/**/*.test.ts',
             'test/light/**/*.test.ts',

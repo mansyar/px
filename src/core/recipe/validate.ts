@@ -29,6 +29,9 @@ function slotReferences(op: Op): string[] {
     case 'auto_shade':
     case 'ramp_fill':
     case 'light':
+    case 'seal':
+    case 'strays':
+    case 'deband':
       return [];
   }
 }
@@ -88,7 +91,10 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
         op.op === 'auto_outline' ||
         op.op === 'auto_shade' ||
         op.op === 'ramp_fill' ||
-        op.op === 'light'
+        op.op === 'light' ||
+        op.op === 'seal' ||
+        op.op === 'strays' ||
+        op.op === 'deband'
           ? op.targetLayer
           : undefined;
       if (target !== undefined && !layerIds.has(target)) {

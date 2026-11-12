@@ -5,11 +5,17 @@
  */
 
 import type { CompiledRecipe } from '../core/compile.js';
+import type { Rgba } from '../core/palette.js';
 import { outOfBoundsRule } from './bounds.js';
 import { lowContrastRule } from './contrast.js';
 import { jaggyLineRule } from './jaggy.js';
+import { rampNonmonotonicRule } from './monotonic.js';
 import { orphanPixelRule } from './orphan.js';
+import { bandingRule, pillowShadeRule } from './shading.js';
+import { silhouetteLossRule } from './silhouette.js';
+import { clusterThinRule, ditherNoiseRule } from './texture.js';
 import type { LintContext, LintCoord, LintFinding, LintRule, LintSeverity } from './types.js';
+import { valueCollisionRule } from './value.js';
 
 const SEVERITY_RANK: Record<LintSeverity, number> = { error: 0, warning: 1, info: 2 };
 
@@ -19,6 +25,13 @@ export const LINT_RULES: readonly LintRule[] = [
   orphanPixelRule,
   jaggyLineRule,
   lowContrastRule,
+  valueCollisionRule,
+  bandingRule,
+  pillowShadeRule,
+  ditherNoiseRule,
+  clusterThinRule,
+  rampNonmonotonicRule,
+  silhouetteLossRule,
 ];
 
 function firstCoord(finding: LintFinding): LintCoord | null {
@@ -61,7 +74,7 @@ export function lintBlocks(findings: readonly LintFinding[], strict: boolean): b
 }
 
 /** Lint a compiled recipe, the way every surface calls the linter. */
-export function lintCompiled(compiled: CompiledRecipe): LintFinding[] {
+export function lintCompiled(compiled: CompiledRecipe, backdrop?: Rgba): LintFinding[] {
   return lint({
     width: compiled.width,
     height: compiled.height,
@@ -70,6 +83,9 @@ export function lintCompiled(compiled: CompiledRecipe): LintFinding[] {
     layers: compiled.layers.map((layer) => ({ id: layer.id, slots: layer.canvas.slots })),
     warnings: compiled.warnings,
     profile: compiled.profile,
+    owners: compiled.owners,
+    parts: compiled.parts,
+    ...(backdrop === undefined ? {} : { backdrop }),
   });
 }
 

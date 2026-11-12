@@ -10,8 +10,10 @@
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
+import type { ProfileNumbers } from '../profile.js';
 import type { Op, Parts } from '../recipe/types.js';
 import { drawAsciiBlit } from './ascii-blit.js';
+import { type CleanupReport, deband, seal, strays } from './cleanup.js';
 import { drawEllipse } from './ellipse.js';
 import { drawDitherFill, floodFill } from './fills.js';
 import { applyLight } from './light.js';
@@ -43,6 +45,8 @@ export interface OpContext {
   parts: Parts;
   /** Declared part name to owner index, in canonical declaration order. */
   partIndexes: ReadonlyMap<string, number>;
+  /** The numbers the active profile gives every pass, resolved once per compile. */
+  profile: ProfileNumbers;
 }
 
 export interface OpResult {
@@ -50,6 +54,8 @@ export interface OpResult {
   clipped: boolean;
   /** True when a post-pass had nothing to change. */
   noop: boolean;
+  /** Present only for cleanup passes, which report exactly what they changed. */
+  cleanup?: CleanupReport;
 }
 
 const WRITTEN: OpResult = { clipped: false, noop: false };
@@ -275,10 +281,74 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         requiredSlot(context, op.to),
       );
       return WRITTEN;
+    case 'seal': {
+      const changed = seal(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        context.canvas.width,
+        context.canvas.height,
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('seal', changed.length, changed),
+      };
+    }
+    case 'strays': {
+      const changed = strays(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        context.canvas.width,
+        context.canvas.height,
+        context.profile.minCluster,
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('strays', changed.length, changed),
+      };
+    }
+    case 'deband': {
+      const hasParts = context.partIndexes.size > 0;
+      const changed = deband(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        hasParts ? snapshotOwners(context, op.targetLayer) : null,
+        context.partIndexes.size,
+        context.canvas.width,
+        context.canvas.height,
+        context.slots,
+        context.roles,
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('deband', changed.length, changed),
+      };
+    }
   }
 }
 
+/** The report a cleanup pass returns: exact count, coordinates capped at 50. */
+const MAX_CLEANUP_COORDS = 50;
+
+function report(
+  op: CleanupReport['op'],
+  changed: number,
+  coords: CleanupReport['coords'],
+): CleanupReport {
+  return { op, changed, coords: coords.slice(0, MAX_CLEANUP_COORDS) };
+}
+
 export { drawAsciiBlit } from './ascii-blit.js';
+export {
+  type CleanupCoord,
+  type CleanupReport,
+  darkerSlot,
+  deband,
+  seal,
+  strays,
+} from './cleanup.js';
 export { drawEllipse, ellipseRowSpan, ellipseSpans } from './ellipse.js';
 export { BAYER_4, ditherPaints, drawDitherFill, floodFill } from './fills.js';
 export { applyLight, facingRole, towardLight } from './light.js';

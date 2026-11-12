@@ -42,5 +42,19 @@ export const LOW_CONTRAST_MIN_RATIO = SMALL.lowContrastMinRatio;
 /** Mid grey preview backdrop: neither light nor dark, so nothing hides in it. */
 export const DEFAULT_BACKDROP_HEX = '#808080';
 
+/**
+ * Luminance a boundary between two parts must clear before the shapes read as
+ * separate. `0.06` is one synthesis step, so "within one ramp step" from AC-16
+ * is exactly this number.
+ */
+export const VALUE_COLLISION_MIN_DELTA = 0.06;
+
+/**
+ * Checkerboard tiles one part needs before a `DITHER_NOISE` finding is worth
+ * raising. Three tiles is a corner; four is the smallest patch that reads as a
+ * field instead of an accident.
+ */
+export const DITHER_MIN_TILES = 4;
+
 /** The backdrop above, resolved once and shared with the debug sheet's panel B. */
 export const LOW_CONTRAST_BACKDROP: Rgba = { r: 0x80, g: 0x80, b: 0x80, a: 255 };

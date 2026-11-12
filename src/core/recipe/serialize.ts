@@ -170,6 +170,10 @@ function opParams(op: Op): Record<string, unknown> {
       });
     case 'replace_slot':
       return { from: op.from, to: op.to };
+    case 'seal':
+    case 'strays':
+    case 'deband':
+      return defined({ target_layer: op.targetLayer });
   }
 }
 

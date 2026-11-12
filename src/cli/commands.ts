@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
+import type { CleanupReport } from '../core/ops/index.js';
 import {
   buildSlotRoles,
   type buildSlotTable,
@@ -18,6 +19,7 @@ import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
+  isCleanupOp,
   type Op,
   type Palette,
   RAMP_ROLES,
@@ -304,6 +306,26 @@ function parseOpList(value: string): unknown[] {
   return raw;
 }
 
+/**
+ * What the cleanup passes changed, plus the warnings compiling them raised,
+ * when the recipe uses one. Compiling is the only way to know, so recipes
+ * without a cleanup op pay nothing and their responses stay byte-identical.
+ */
+function cleanupOf(recipe: Recipe): {
+  cleanup?: CleanupReport[];
+  warnings: PxWarning[];
+} {
+  const uses = recipe.layers.some((layer) => layer.ops.some((op) => isCleanupOp(op.op)));
+  if (!uses) {
+    return { warnings: [] };
+  }
+  const compiled = compileRecipe(recipe);
+  return {
+    warnings: compiled.warnings,
+    ...(compiled.cleanup === undefined ? {} : { cleanup: compiled.cleanup }),
+  };
+}
+
 export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   const target = resolve(cwd, file);
@@ -349,7 +371,8 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
   const outTarget = resolve(cwd, outFile);
   writeOut(outTarget, text);
 
-  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings);
+  const pass = cleanupOf(parsed.recipe);
+  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings, pass.warnings);
 
   return {
     file: outFile,
@@ -358,6 +381,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layer_ops: nextOps.length,
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
+    ...(pass.cleanup === undefined ? {} : { cleanup: pass.cleanup }),
     ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
@@ -478,7 +502,8 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   const outTarget = resolve(cwd, outFile);
   writeOut(outTarget, text);
 
-  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings);
+  const pass = cleanupOf(parsed.recipe);
+  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings, pass.warnings);
 
   return {
     file: outFile,
@@ -488,6 +513,7 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layer_ops: nextOps.length,
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
+    ...(pass.cleanup === undefined ? {} : { cleanup: pass.cleanup }),
     ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
@@ -662,6 +688,10 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   const outTarget = resolve(cwd, args.out);
   writeOut(outTarget, result.png);
 
+  // Lint against the backdrop the caller asked to check, so a part that melts
+  // into the panel is reported for that panel. Absent means the default grey.
+  const lintBackdrop = typeof backdrop === 'string' ? (parseHex(backdrop) ?? undefined) : undefined;
+
   const payload: Record<string, unknown> = {
     file,
     out: args.out,
@@ -669,7 +699,7 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     height: result.height,
     bytes: result.png.length,
     sha256: sha256Hex(result.png),
-    findings: lintCompiled(result.compiled),
+    findings: lintCompiled(result.compiled, lintBackdrop),
   };
   if (result.compiled.parts.length > 0) {
     payload.parts = result.compiled.parts;
@@ -772,6 +802,7 @@ export function runValidate(args: ParsedArgs, cwd: string): Record<string, unkno
       painted: layer.canvas.paintedCount(),
     })),
     findings: lintCompiled(compiled),
+    ...(compiled.cleanup === undefined ? {} : { cleanup: compiled.cleanup }),
     warnings: [...warnings, ...compiled.warnings],
   };
 }

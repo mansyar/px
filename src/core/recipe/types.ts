@@ -278,7 +278,33 @@ export type Op =
   | AutoShadeOp
   | RampFillOp
   | ReplaceSlotOp
-  | LightOp;
+  | LightOp
+  | SealOp
+  | StraysOp
+  | DebandOp;
+
+export type CleanupOpName = 'seal' | 'strays' | 'deband';
+
+/**
+ * Cleanup passes. Each reads a snapshot of the layer it points at (its own when
+ * `target_layer` is absent) and writes into the active layer, the same contract
+ * the drawing post-passes follow.
+ */
+export interface CleanupOpBase extends OpBase {
+  targetLayer?: string;
+}
+
+export interface SealOp extends CleanupOpBase {
+  op: 'seal';
+}
+
+export interface StraysOp extends CleanupOpBase {
+  op: 'strays';
+}
+
+export interface DebandOp extends CleanupOpBase {
+  op: 'deband';
+}
 
 export type OpName = Op['op'];
 
@@ -304,7 +330,17 @@ export const POST_PASS_OPS: readonly OpName[] = [
   'auto_shade',
   'ramp_fill',
   'light',
+  'seal',
+  'strays',
+  'deband',
 ];
+
+/** The cleanup passes, in one list for the reporter and the CLI. */
+export const CLEANUP_OPS: readonly CleanupOpName[] = ['seal', 'strays', 'deband'];
+
+export function isCleanupOp(name: OpName): name is CleanupOpName {
+  return CLEANUP_OPS.includes(name as CleanupOpName);
+}
 
 export interface Layer {
   id: string;
@@ -361,4 +397,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
   light: ['angle', 'form', 'ao', 'cast', 'cast_offset', 'rim', 'target_layer'],
   replace_slot: ['from', 'to'],
+  seal: ['target_layer'],
+  strays: ['target_layer'],
+  deband: ['target_layer'],
 };
