@@ -67,10 +67,10 @@
 
 - **Goal:** One data table drives thresholds, cluster minimums, dither eligibility, outline thickness and debug zoom from 8 to 256 px.
 - **Depends on:** Phase 2
-- **Covers:** FR-12, FR-13, FR-14, AC-11, AC-12
+- **Covers:** FR-12, FR-13, FR-14, AC-11
 - **Touches:** src/core/profile.ts, src/lint/**, src/render/debug/**, docs/art-profiles.md, test/profiles/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Profile derivation** — covers: FR-12, FR-14
   - [ ] **P3.T1.1:** `tiny`/`small`/`medium`/`large` from canvas size
@@ -107,7 +107,7 @@
 
 - **Goal:** Seven art-direction codes with part attribution, plus deterministic `seal`, `strays` and `deband`.
 - **Depends on:** Phase 4
-- **Covers:** FR-19, FR-20, FR-21, AC-15, AC-16, AC-17
+- **Covers:** FR-19, FR-20, FR-21, AC-12, AC-15, AC-16, AC-17
 - **Touches:** src/lint/**, src/core/ops/cleanup.ts, src/core/ops/index.ts, test/art-lint/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
