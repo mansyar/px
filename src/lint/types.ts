@@ -8,6 +8,7 @@
 
 import type { PxWarning } from '../core/errors.js';
 import type { SlotTable } from '../core/palette.js';
+import type { ScaleProfile } from '../core/profile.js';
 
 export type LintSeverity = 'error' | 'warning' | 'info';
 
@@ -47,6 +48,12 @@ export interface LintContext {
   slots: SlotTable;
   layers: readonly LintLayerView[];
   warnings: readonly PxWarning[];
+  /**
+   * The regime to judge this canvas at. Optional so a hand-built context still
+   * works: absent means "derive it from the canvas size", which is what every
+   * real surface passes.
+   */
+  profile?: ScaleProfile;
 }
 
 export interface LintRule {

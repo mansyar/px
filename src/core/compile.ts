@@ -16,6 +16,7 @@ import { PxError, type PxWarning } from './errors.js';
 import { applyOp } from './ops/index.js';
 import { buildSlotRoles, buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
 import { type CompiledPart, flattenOwners, partIndex, partNames, partStats } from './parts.js';
+import { profileFor, type ScaleProfile } from './profile.js';
 import { type Recipe, recipeParts } from './recipe/types.js';
 
 export interface CompiledLayer {
@@ -31,6 +32,8 @@ export interface CompiledRecipe {
   flattened: Int16Array;
   /** One entry per declared part, in canonical name order; empty without parts. */
   parts: CompiledPart[];
+  /** The regime every size-sensitive number is read from: override, else canvas. */
+  profile: ScaleProfile;
   warnings: PxWarning[];
 }
 
@@ -196,6 +199,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     layers,
     flattened: flattenLayers(layers, width, height),
     parts,
+    profile: recipe.meta.profile ?? profileFor(width, height),
     warnings,
   };
 }

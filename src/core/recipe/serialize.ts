@@ -18,12 +18,18 @@ import {
 } from './types.js';
 
 function canonicalMeta(recipe: Recipe): Record<string, unknown> {
-  return {
+  const meta: Record<string, unknown> = {
     name: recipe.meta.name,
     width: recipe.meta.width,
     height: recipe.meta.height,
     alpha_mode: recipe.meta.alphaMode,
   };
+  // Written only when declared, so a recipe that never named a profile keeps its
+  // exact bytes through a read-write cycle (FR-1).
+  if (recipe.meta.profile !== undefined) {
+    meta.profile = recipe.meta.profile;
+  }
+  return meta;
 }
 
 function canonicalPalette(palette: Palette): Record<string, unknown> {

@@ -69,6 +69,7 @@ export function lintCompiled(compiled: CompiledRecipe): LintFinding[] {
     slots: compiled.slots,
     layers: compiled.layers.map((layer) => ({ id: layer.id, slots: layer.canvas.slots })),
     warnings: compiled.warnings,
+    profile: compiled.profile,
   });
 }
 

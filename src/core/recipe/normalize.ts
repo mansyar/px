@@ -7,6 +7,7 @@
 
 import { PxError, type PxWarning } from '../errors.js';
 import { normalizeFamily } from '../palette.js';
+import { parseScaleProfile, profileWarnings } from '../profile.js';
 import {
   ACCEPTED_VERSIONS,
   type Anchor,
@@ -54,7 +55,7 @@ import {
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
-const META_KEYS = ['name', 'width', 'height', 'alpha_mode'];
+const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
 const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
 const PART_KEYS = ['material', 'gloss', 'z'];
 
@@ -122,7 +123,12 @@ function normalizeMeta(raw: unknown): RecipeMeta {
 
   unknownKeys(raw, META_KEYS, 'E_BAD_META', 'Recipe meta');
 
-  return { name, width: widthValue, height: heightValue, alphaMode: 'binary' };
+  const profile = raw.profile === undefined ? undefined : parseScaleProfile(raw.profile);
+  const meta: RecipeMeta = { name, width: widthValue, height: heightValue, alphaMode: 'binary' };
+  if (profile !== undefined) {
+    meta.profile = profile;
+  }
+  return meta;
 }
 
 function canvasDimension(key: string, value: unknown): number {
@@ -1223,9 +1229,18 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   const meta = normalizeMeta(raw.meta);
   const palette = normalizePalette(raw.palette);
   const parts = normalizeParts(raw.parts);
-  const { anchors, warnings } = normalizeAnchors(raw.anchors, meta.width, meta.height);
+  const { anchors, warnings: anchorWarnings } = normalizeAnchors(
+    raw.anchors,
+    meta.width,
+    meta.height,
+  );
   const layers = normalizeLayers(raw.layers);
   validateOpIds(layers);
+
+  const warnings =
+    meta.profile === undefined
+      ? anchorWarnings
+      : [...profileWarnings(meta.profile, meta.width, meta.height), ...anchorWarnings];
 
   return {
     recipe: { version, meta, palette, parts, anchors, layers },

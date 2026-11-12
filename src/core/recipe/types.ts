@@ -3,6 +3,8 @@
  * compact tuple form is an input convenience handled by the parser.
  */
 
+import type { ScaleProfile } from '../profile.js';
+
 export type RampRole = 'outline' | 'shadow' | 'base' | 'highlight';
 
 /** Role order is fixed: it is both the slot order and the canonical write order. */
@@ -25,6 +27,12 @@ export interface RecipeMeta {
   width: number;
   height: number;
   alphaMode: 'binary';
+  /**
+   * Explicit scale profile (FR-12). Absent means "derive it from the canvas",
+   * which is also the only form older recipes ever had, so it is written back
+   * only when the recipe declared it.
+   */
+  profile?: ScaleProfile;
 }
 
 export type Anchor = [number, number];

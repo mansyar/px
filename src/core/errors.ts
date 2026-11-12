@@ -37,6 +37,7 @@ export type ErrorCode =
   | 'E_EMPTY_PART'
   | 'E_MATERIAL_UNKNOWN'
   | 'E_GLOSS_UNKNOWN'
+  | 'E_PROFILE_UNKNOWN'
   | 'E_LINT_GATE'
   | 'E_INTERNAL';
 
@@ -44,7 +45,8 @@ export type WarningCode =
   | 'W_OUT_OF_BOUNDS'
   | 'W_ANCHOR_OUT_OF_BOUNDS'
   | 'W_PASS_NOOP'
-  | 'W_PART_OVERWRITE';
+  | 'W_PART_OVERWRITE'
+  | 'W_PROFILE_MISMATCH';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -123,6 +125,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_MATERIAL_UNKNOWN:
     'A part material names a palette family; run `px inspect` to see the families this recipe declares.',
   E_GLOSS_UNKNOWN: 'Gloss is one of matte, metal, gem, cloth.',
+  E_PROFILE_UNKNOWN: 'Profile is one of tiny, small, medium, large.',
   E_LINT_GATE:
     'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',

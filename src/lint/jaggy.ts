@@ -9,7 +9,7 @@
  * neighbouring runs that agree with each other. That is what separates a jaggy
  * from the things a silhouette legitimately does:
  *
- * - a straight edge is a long run, cut at `JAGGY_MAX_RUN`;
+ * - a straight edge is a long run, cut at the profile's `jaggyMaxRun`;
  * - a chamfer meeting a straight side is a slope change that stays changed;
  * - a curve changes slope by one line at a time, never back and forth.
  *
@@ -17,13 +17,10 @@
  */
 
 import { TRANSPARENT_SLOT } from '../core/palette.js';
+import { PROFILES, type ProfileNumbers } from '../core/profile.js';
 import { FindingCollector } from './collector.js';
-import {
-  JAGGY_MAX_RUN,
-  JAGGY_MIN_RUNS,
-  JAGGY_STEP_JUMP,
-  MAX_COORDS_PER_FINDING,
-} from './thresholds.js';
+import { lintNumbers } from './context.js';
+import { MAX_COORDS_PER_FINDING } from './thresholds.js';
 import type { LintContext, LintCoord, LintRule } from './types.js';
 
 interface EdgePoint {
@@ -58,11 +55,11 @@ function stepLengths(runs: readonly Run[]): number[] {
 }
 
 /**
- * True when some run leaves two agreeing neighbours for at least
- * `JAGGY_STEP_JUMP` lines. The neighbours must agree within the same constant,
- * because a run between a 1 and a 3 is the edge changing slope, not wobbling.
+ * True when some run leaves two agreeing neighbours for at least `jump` lines.
+ * The neighbours must agree within the same constant, because a run between a 1
+ * and a 3 is the edge changing slope, not wobbling.
  */
-export function hasKink(steps: readonly number[]): boolean {
+export function hasKink(steps: readonly number[], jump = PROFILES.small.jaggyStepJump): boolean {
   for (let index = 1; index + 1 < steps.length; index += 1) {
     const left = steps[index - 1];
     const here = steps[index];
@@ -70,10 +67,10 @@ export function hasKink(steps: readonly number[]): boolean {
     if (left === undefined || here === undefined || right === undefined) {
       continue;
     }
-    if (Math.abs(left - right) >= JAGGY_STEP_JUMP) {
+    if (Math.abs(left - right) >= jump) {
       continue;
     }
-    if (Math.abs(here - left) >= JAGGY_STEP_JUMP || Math.abs(here - right) >= JAGGY_STEP_JUMP) {
+    if (Math.abs(here - left) >= jump || Math.abs(here - right) >= jump) {
       return true;
     }
   }
@@ -82,21 +79,28 @@ export function hasKink(steps: readonly number[]): boolean {
 
 /**
  * Split a sequence into monotone staircase segments and return the ones with a
- * kink. A run longer than `JAGGY_MAX_RUN` is a straight edge: it ends the
- * staircase instead of joining it, so a chamfer that meets a vertical side is
- * two clean pieces. A group needs `JAGGY_MIN_RUNS` runs before it is considered.
+ * kink. A run longer than the profile's `jaggyMaxRun` is a straight edge: it ends
+ * the staircase instead of joining it, so a chamfer that meets a vertical side is
+ * two clean pieces. A group needs `jaggyMinRuns` runs before it is considered.
+ *
+ * The numbers default to the `small` row, which is what the standalone callers
+ * (and the fixtures in `docs/lint-thresholds.md`) were calibrated against; the
+ * rule itself always passes the context's row.
  */
-export function jaggySegments(sequence: readonly (EdgePoint | null)[]): JaggySegment[] {
+export function jaggySegments(
+  sequence: readonly (EdgePoint | null)[],
+  numbers: ProfileNumbers = PROFILES.small,
+): JaggySegment[] {
   const segments: JaggySegment[] = [];
   let runs: Run[] = [];
   let direction = 0;
 
   function report(group: readonly Run[]): void {
-    if (group.length < JAGGY_MIN_RUNS) {
+    if (group.length < numbers.jaggyMinRuns) {
       return;
     }
     const steps = stepLengths(group);
-    if (!hasKink(steps)) {
+    if (!hasKink(steps, numbers.jaggyStepJump)) {
       return;
     }
     const first = group[0];
@@ -116,7 +120,7 @@ export function jaggySegments(sequence: readonly (EdgePoint | null)[]): JaggySeg
   function flush(): void {
     let group: Run[] = [];
     for (const run of runs) {
-      if (run.lastLine - run.firstLine + 1 > JAGGY_MAX_RUN) {
+      if (run.lastLine - run.firstLine + 1 > numbers.jaggyMaxRun) {
         report(group);
         group = [];
         continue;
@@ -215,10 +219,11 @@ export const jaggyLineRule: LintRule = {
   severity: 'info',
   evaluate(context) {
     const collector = new FindingCollector('JAGGY_LINE', 'info');
+    const numbers = lintNumbers(context);
     for (const scan of EDGE_SCANS) {
       const sequence =
         scan.axis === 'row' ? rowEdges(context, scan.side) : columnEdges(context, scan.side);
-      for (const segment of jaggySegments(sequence)) {
+      for (const segment of jaggySegments(sequence, numbers)) {
         const coords: LintCoord[] = [];
         for (let index = 0; index < segment.values.length; index += 1) {
           if (coords.length >= MAX_COORDS_PER_FINDING) {

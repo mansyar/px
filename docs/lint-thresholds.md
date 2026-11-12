@@ -1,10 +1,15 @@
 # Lint thresholds
 
-`src/lint/thresholds.ts` is the only place the linter's numbers live. Every rule
-reads them from there; nothing else hard-codes a limit. This page records each
-value, what it catches, what it deliberately ignores, and the fixtures on both
-sides. Phase 5 calibrated the `JAGGY_LINE` values against the four benchmarks in
-`test/benchmarks/`; the others were checked there and left unchanged.
+The values live in one table, `src/core/profile.ts`, because a threshold that is
+right at 32 px is wrong at 256 px; `docs/art-profiles.md` explains the regimes and
+when to change one. `src/lint/thresholds.ts` keeps the `small` row under the old
+names (`JAGGY_MIN_RUNS` and friends) plus the two response bounds, so existing
+fixtures and prose keep their vocabulary; rules read the table through
+`lintNumbers(context)` and never a module constant. This page records each value
+as it applies to `small`, the compatibility regime — every existing asset is
+between 17 and 48 px — and notes where the other rows differ. Phase 5 calibrated
+the `JAGGY_LINE` values against the four benchmarks in `test/benchmarks/`; the
+others were checked there and left unchanged.
 
 ## How the `JAGGY_LINE` values were chosen
 
@@ -36,7 +41,7 @@ Before, on the committed geometry:
 After: 0 findings on all four, and the fixtures prove the rule still fires on a
 `2,1,3` staircase and on a three-row flat stretch in a one-row staircase.
 
-## `JAGGY_MIN_RUNS` — 3 (unchanged)
+## `JAGGY_MIN_RUNS` — 3 (every profile)
 
 - **Catches:** a step sequence long enough to have a shape. Two runs are a
   corner, not a line.
@@ -45,7 +50,7 @@ After: 0 findings on all four, and the fixtures prove the rule still fires on a
   staircase that leaves its diagonal and returns"); silent — "accepts a four-line
   wall before a curve" (the wall is cut, leaving one run).
 
-## `JAGGY_MAX_RUN` — 3 (new in phase 5)
+## `JAGGY_MAX_RUN` — 3 (`small`; 3 tiny, 4 medium, 6 large)
 
 - **Was:** unbounded — every run length participated in the staircase, so a
   five-row vertical bottle neck (run length 5) was read as a "step" of the
@@ -63,7 +68,7 @@ After: 0 findings on all four, and the fixtures prove the rule still fires on a
   three rows). Four is a straight side by any reading; the boundary fixture fails
   if this becomes 4.
 
-## `JAGGY_STEP_JUMP` — 2 (new in phase 5)
+## `JAGGY_STEP_JUMP` — 2 (`small`; 2 tiny and medium, 3 large)
 
 - **Was:** implicit "any unequal steps", which flagged a curve the moment its
   slope changed — a convex shoulder (`1,2,3`) is not a jaggy.
@@ -79,7 +84,7 @@ After: 0 findings on all four, and the fixtures prove the rule still fires on a
 - **Why 2:** at 1 a clean staircase that alternates two lengths fires on every
   other run; at 3 the canonical `2,1,3` defect stops firing.
 
-## `LOW_CONTRAST_MIN_RATIO` — 1.5 (unchanged)
+## `LOW_CONTRAST_MIN_RATIO` — 1.5 (`small`; 2.0 tiny, 1.35 medium, 1.25 large)
 
 - **Catches:** edge pixels whose WCAG contrast against the default backdrop
   (`#808080`) is below 1.5:1 — art that disappears when the sprite is seen on a
@@ -100,10 +105,13 @@ The backdrop the contrast verdict is measured against, resolved once at module
 load and shared with the debug sheet's 1x panel so the verdict and the picture
 agree. Not tuned: the benchmarks show no sensitivity to it.
 
-## `ORPHAN_NEIGHBOUR_RADIUS` — 2 (new in review round 2)
+## `ORPHAN_NEIGHBOUR_RADIUS` — 2 (every profile; new in review round 2)
 
 - **Was:** 8-way only (radius 1), calibrated against a 1-px `line` and a
   `checker_50` dither.
+- **Not a scale number:** every profile keeps 2, because the radius is set by the
+  sparsest lattice the engine emits, not by the canvas. See
+  `docs/art-profiles.md` for why the one row that looks like an oversight is not.
 - **Catches:** a painted pixel with nothing painted within two pixels in any
   direction — a speck that cannot read as part of a silhouette, a line, or a
   dither fill.
