@@ -142,17 +142,20 @@
 - **Covers:** FR-22, FR-23, FR-24, NFR-4, AC-18, AC-19
 - **Touches:** src/core/**, src/cli/**, src/mcp/**, src/render/debug/**, src/lint/**, test/ergonomics/**, test/mcp/**, docs/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 2c7513f
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-6.md
 
-- [ ] **P6.T1: Named refs** — covers: FR-22
-  - [ ] **P6.T1.1:** `part.top|bottom|left|right|center|edge` and anchor refs with `dx`/`dy`
-  - [ ] **P6.T1.2:** `E_PART_UNKNOWN` for an unknown part
-- [ ] **P6.T2: Diff** — covers: FR-23
-  - [ ] **P6.T2.1:** `px diff` against a PNG or recipe hash: count, bbox, per-part breakdown
-  - [ ] **P6.T2.2:** `px_diff` as the eighth MCP tool, parity asserted
-- [ ] **P6.T3: Per-part statistics** — covers: FR-24
-  - [ ] **P6.T3.1:** Inspect returns bounds, pixel count, tone and value histograms
-  - [ ] **P6.T3.2:** Debug sheet adds per-part crops with bounded output
+- [x] **P6.T1: Named refs** — covers: FR-22
+  - [x] **P6.T1.1:** `part.top|bottom|left|right|center|edge` and anchor refs with `dx`/`dy`
+  - [x] **P6.T1.2:** `E_PART_UNKNOWN` for an unknown part
+- [x] **P6.T2: Diff** — covers: FR-23
+  - [x] **P6.T2.1:** `px diff` against a PNG or recipe hash: count, bbox, per-part breakdown
+  - [x] **P6.T2.2:** `px_diff` as the eighth MCP tool, parity asserted
+- [x] **P6.T3: Per-part statistics** — covers: FR-24
+  - [x] **P6.T3.1:** Inspect returns bounds, pixel count, tone and value histograms
+  - [x] **P6.T3.2:** Debug sheet adds per-part crops with bounded output
 
 ## Phase 7: Benchmarks and Rubric
 
