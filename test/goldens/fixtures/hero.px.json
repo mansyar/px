@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "hero",
+    "width": 16,
+    "height": 16,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "cloth": {
+      "ramp": {
+        "outline": "#1a1c2c",
+        "shadow": "#5d275d",
+        "base": "#b13e53",
+        "highlight": "#ef7d57"
+      }
+    },
+    "skin": {
+      "colors": [
+        "#ffcd75",
+        "#a7f070"
+      ]
+    }
+  },
+  "anchors": {
+    "pivot": [
+      8,
+      8
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "rect",
+          "x": 4,
+          "y": 4,
+          "w": 8,
+          "h": 8,
+          "color": "cloth.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              6,
+              6
+            ],
+            [
+              9,
+              6
+            ]
+          ],
+          "color": "cloth.outline"
+        },
+        {
+          "op": "line",
+          "x1": 4,
+          "y1": 4,
+          "x2": 11,
+          "y2": 11,
+          "color": "cloth.highlight"
+        }
+      ]
+    }
+  ]
+}

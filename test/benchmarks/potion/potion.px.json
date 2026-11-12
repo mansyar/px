@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "potion",
+    "width": 16,
+    "height": 16,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "c0": {
+      "ramp": {
+        "base": "#1a1024",
+        "highlight": "#6e1230"
+      }
+    },
+    "c1": {
+      "ramp": {
+        "outline": "#1a1024",
+        "shadow": "#c22b4a",
+        "base": "#4a7386",
+        "highlight": "#9a6433"
+      }
+    },
+    "c2": {
+      "ramp": {
+        "outline": "#4a7386",
+        "shadow": "#d9a066",
+        "base": "#7fb3c8",
+        "highlight": "#c6e8f2"
+      }
+    },
+    "c3": {
+      "ramp": {
+        "outline": "#7fb3c8",
+        "shadow": "#7fb3c8",
+        "base": "#c6e8f2"
+      }
+    },
+    "c4": {
+      "ramp": {
+        "outline": "#1a1024",
+        "shadow": "#1a1024",
+        "base": "#6e1230",
+        "highlight": "#5a3418"
+      }
+    },
+    "c5": {
+      "ramp": {
+        "outline": "#6e1230",
+        "shadow": "#5a3418",
+        "base": "#c22b4a",
+        "highlight": "#4a7386"
+      }
+    },
+    "c6": {
+      "ramp": {
+        "outline": "#c22b4a",
+        "shadow": "#9a6433",
+        "base": "#ff7a86",
+        "highlight": "#d9a066"
+      }
+    },
+    "c7": {
+      "ramp": {
+        "outline": "#6e1230",
+        "shadow": "#6e1230",
+        "base": "#5a3418",
+        "highlight": "#c22b4a"
+      }
+    },
+    "c8": {
+      "ramp": {
+        "outline": "#5a3418",
+        "shadow": "#4a7386",
+        "base": "#9a6433",
+        "highlight": "#ff7a86"
+      }
+    },
+    "c9": {
+      "ramp": {
+        "outline": "#9a6433",
+        "shadow": "#ff7a86",
+        "base": "#d9a066",
+        "highlight": "#7fb3c8"
+      }
+    }
+  },
+  "anchors": {
+    "base_pivot": [
+      8,
+      14
+    ],
+    "cork_top": [
+      7,
+      1
+    ],
+    "pivot": [
+      8,
+      8
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "ellipse",
+          "x": 3,
+          "y": 6,
+          "w": 10,
+          "h": 9,
+          "color": "c2.base",
+          "fill": true
+        },
+        {
+          "op": "rect",
+          "x": 6,
+          "y": 4,
+          "w": 4,
+          "h": 3,
+          "color": "c2.base"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "inner",
+          "color": "c3.base"
+        },
+        {
+          "op": "flood_fill",
+          "x": 8,
+          "y": 10,
+          "color": "c5.base"
+        },
+        {
+          "op": "rect",
+          "x": 7,
+          "y": 4,
+          "w": 2,
+          "h": 3,
+          "color": "c2.base"
+        },
+        {
+          "op": "rect",
+          "x": 5,
+          "y": 7,
+          "w": 6,
+          "h": 2,
+          "color": "c2.base"
+        },
+        {
+          "op": "line",
+          "x1": 4,
+          "y1": 9,
+          "x2": 11,
+          "y2": 9,
+          "color": "c6.base"
+        },
+        {
+          "op": "line",
+          "x1": 5,
+          "y1": 12,
+          "x2": 10,
+          "y2": 12,
+          "color": "c4.base"
+        },
+        {
+          "op": "line",
+          "x1": 6,
+          "y1": 13,
+          "x2": 9,
+          "y2": 13,
+          "color": "c4.base"
+        },
+        {
+          "op": "line",
+          "x1": 5,
+          "y1": 10,
+          "x2": 5,
+          "y2": 12,
+          "color": "c6.base"
+        },
+        {
+          "op": "rect",
+          "x": 5,
+          "y": 7,
+          "w": 1,
+          "h": 2,
+          "color": "c3.base"
+        },
+        {
+          "op": "dither_fill",
+          "x": 6,
+          "y": 10,
+          "w": 4,
+          "h": 2,
+          "color": "c4.base",
+          "pattern": "checker_50"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              6,
+              10
+            ],
+            [
+              9,
+              11
+            ],
+            [
+              8,
+              13
+            ]
+          ],
+          "color": "c6.base"
+        },
+        {
+          "op": "rect",
+          "x": 6,
+          "y": 1,
+          "w": 4,
+          "h": 3,
+          "color": "c8.base"
+        },
+        {
+          "op": "rect",
+          "x": 6,
+          "y": 1,
+          "w": 1,
+          "h": 2,
+          "color": "c9.base"
+        },
+        {
+          "op": "rect",
+          "x": 9,
+          "y": 1,
+          "w": 1,
+          "h": 2,
+          "color": "c7.base"
+        },
+        {
+          "op": "rect",
+          "x": 6,
+          "y": 3,
+          "w": 4,
+          "h": 1,
+          "color": "c7.base"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "outer",
+          "color": "c0.base"
+        }
+      ]
+    }
+  ]
+}

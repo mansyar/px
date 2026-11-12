@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "meta": {
+    "name": "sword",
+    "width": 32,
+    "height": 32,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "c0": {
+      "ramp": {
+        "base": "#14101c",
+        "highlight": "#4a2a1c"
+      }
+    },
+    "c1": {
+      "ramp": {
+        "outline": "#14101c",
+        "shadow": "#8a5a1e",
+        "base": "#5d6b8a",
+        "highlight": "#d02c3c"
+      }
+    },
+    "c10": {
+      "ramp": {
+        "outline": "#4a2a1c",
+        "shadow": "#4a2a1c",
+        "base": "#7a1a2a",
+        "highlight": "#7e4a2e"
+      }
+    },
+    "c11": {
+      "ramp": {
+        "outline": "#7a1a2a",
+        "shadow": "#5d6b8a",
+        "base": "#d02c3c",
+        "highlight": "#b07a4e"
+      }
+    },
+    "c12": {
+      "ramp": {
+        "outline": "#d02c3c",
+        "shadow": "#b07a4e",
+        "base": "#ff6f7a",
+        "highlight": "#c9973c"
+      }
+    },
+    "c2": {
+      "ramp": {
+        "outline": "#5d6b8a",
+        "shadow": "#c9973c",
+        "base": "#93a7c4",
+        "highlight": "#f2d27a"
+      }
+    },
+    "c3": {
+      "ramp": {
+        "outline": "#93a7c4",
+        "shadow": "#f2d27a",
+        "base": "#e2ecf7"
+      }
+    },
+    "c4": {
+      "ramp": {
+        "outline": "#7e4a2e",
+        "shadow": "#7e4a2e",
+        "base": "#8a5a1e",
+        "highlight": "#5d6b8a"
+      }
+    },
+    "c5": {
+      "ramp": {
+        "outline": "#8a5a1e",
+        "shadow": "#ff6f7a",
+        "base": "#c9973c",
+        "highlight": "#93a7c4"
+      }
+    },
+    "c6": {
+      "ramp": {
+        "outline": "#c9973c",
+        "shadow": "#93a7c4",
+        "base": "#f2d27a",
+        "highlight": "#e2ecf7"
+      }
+    },
+    "c7": {
+      "ramp": {
+        "outline": "#14101c",
+        "shadow": "#14101c",
+        "base": "#4a2a1c",
+        "highlight": "#7a1a2a"
+      }
+    },
+    "c8": {
+      "ramp": {
+        "outline": "#4a2a1c",
+        "shadow": "#7a1a2a",
+        "base": "#7e4a2e",
+        "highlight": "#8a5a1e"
+      }
+    },
+    "c9": {
+      "ramp": {
+        "outline": "#7e4a2e",
+        "shadow": "#d02c3c",
+        "base": "#b07a4e",
+        "highlight": "#ff6f7a"
+      }
+    }
+  },
+  "anchors": {
+    "blade_tip": [
+      15,
+      1
+    ],
+    "grip_pivot": [
+      16,
+      26
+    ],
+    "pivot": [
+      16,
+      16
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "polygon",
+          "points": [
+            [
+              15,
+              1
+            ],
+            [
+              17,
+              1
+            ],
+            [
+              20,
+              10
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              12,
+              21
+            ],
+            [
+              12,
+              10
+            ]
+          ],
+          "color": "c2.base"
+        },
+        {
+          "op": "line",
+          "x1": 12,
+          "y1": 10,
+          "x2": 12,
+          "y2": 20,
+          "color": "c3.base"
+        },
+        {
+          "op": "line",
+          "x1": 19,
+          "y1": 10,
+          "x2": 19,
+          "y2": 20,
+          "color": "c1.base"
+        },
+        {
+          "op": "line",
+          "x1": 15,
+          "y1": 1,
+          "x2": 12,
+          "y2": 10,
+          "color": "c3.base"
+        },
+        {
+          "op": "rect",
+          "x": 15,
+          "y": 10,
+          "w": 2,
+          "h": 10,
+          "color": "c1.base"
+        },
+        {
+          "op": "rect",
+          "x": 8,
+          "y": 21,
+          "w": 16,
+          "h": 1,
+          "color": "c6.base"
+        },
+        {
+          "op": "rect",
+          "x": 8,
+          "y": 22,
+          "w": 16,
+          "h": 1,
+          "color": "c4.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              7,
+              21
+            ],
+            [
+              24,
+              21
+            ]
+          ],
+          "color": "c6.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              7,
+              22
+            ],
+            [
+              24,
+              22
+            ]
+          ],
+          "color": "c4.base"
+        },
+        {
+          "op": "rect",
+          "x": 15,
+          "y": 21,
+          "w": 2,
+          "h": 2,
+          "color": "c11.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              15,
+              21
+            ]
+          ],
+          "color": "c12.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              16,
+              22
+            ]
+          ],
+          "color": "c10.base"
+        },
+        {
+          "op": "rect",
+          "x": 14,
+          "y": 23,
+          "w": 4,
+          "h": 6,
+          "color": "c8.base"
+        },
+        {
+          "op": "rect",
+          "x": 14,
+          "y": 23,
+          "w": 1,
+          "h": 6,
+          "color": "c9.base"
+        },
+        {
+          "op": "line",
+          "x1": 14,
+          "y1": 24,
+          "x2": 17,
+          "y2": 25,
+          "color": "c7.base"
+        },
+        {
+          "op": "line",
+          "x1": 14,
+          "y1": 26,
+          "x2": 17,
+          "y2": 27,
+          "color": "c7.base"
+        },
+        {
+          "op": "rect",
+          "x": 13,
+          "y": 29,
+          "w": 6,
+          "h": 1,
+          "color": "c6.base"
+        },
+        {
+          "op": "rect",
+          "x": 13,
+          "y": 30,
+          "w": 6,
+          "h": 1,
+          "color": "c5.base"
+        },
+        {
+          "op": "set_pixels",
+          "points": [
+            [
+              13,
+              30
+            ],
+            [
+              18,
+              30
+            ]
+          ],
+          "color": "c4.base"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "outer",
+          "color": "c0.base"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+/**
+ * The response envelope. Success is `{ "v": 1, "ok": true, ... }`; failure is
+ * `{ "v": 1, "ok": false, "error": {...} }`. Everything goes to stdout as JSON
+ * so an agent never has to parse prose.
+ */
+
+import { errorPayload, type PxError } from '../core/errors.js';
+import { RESPONSE_VERSION } from '../probe.js';
+
+/** Exit codes are API (FR-23): success, caller fault, engine fault, lint gate. */
+export const EXIT_OK = 0;
+export const EXIT_CALLER = 1;
+export const EXIT_INTERNAL = 2;
+export const EXIT_LINT = 3;
+
+export function formatEnvelope(envelope: Record<string, unknown>, pretty: boolean): string {
+  return `${JSON.stringify(envelope, null, pretty ? 2 : undefined)}\n`;
+}
+
+export function successEnvelope(
+  command: string,
+  payload: Record<string, unknown>,
+  pretty: boolean,
+): string {
+  return formatEnvelope({ v: RESPONSE_VERSION, ok: true, command, ...payload }, pretty);
+}
+
+export function failureEnvelope(command: string, error: PxError, pretty: boolean): string {
+  const envelope: Record<string, unknown> = {
+    v: RESPONSE_VERSION,
+    ok: false,
+    error: errorPayload(error),
+  };
+  if (command !== '') {
+    envelope.command = command;
+  }
+  return formatEnvelope(envelope, pretty);
+}
+
+/**
+ * Failure under the lint gate: `ok: false` with the error and the findings that
+ * caused it. The findings are the point, so they survive the failure.
+ */
+export function gateEnvelope(
+  command: string,
+  error: PxError,
+  payload: Record<string, unknown>,
+  pretty: boolean,
+): string {
+  return formatEnvelope(
+    { v: RESPONSE_VERSION, ok: false, command, error: errorPayload(error), ...payload },
+    pretty,
+  );
+}

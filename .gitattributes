@@ -1,0 +1,10 @@
+# Normalise line endings so every platform checks out the same bytes.
+#
+# Windows git defaults to core.autocrlf=true, which turned every source file
+# into CRLF on the windows-latest runner and failed `biome check .` there while
+# Linux passed. LF everywhere is also the honest default for a project whose
+# output guarantee is byte identity.
+* text=auto eol=lf
+
+# Rendered artifacts and their digests must never be line-ending translated.
+*.png binary

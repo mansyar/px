@@ -32,8 +32,11 @@ Everything else is Node built-ins: `node:zlib`, `node:fs`, `node:process`, `node
 | `@vitest/coverage-v8` | `5.1.0` | Coverage (version-matched to Vitest) |
 | `@biomejs/biome` | `2.6.7` | Lint and format |
 | `tsx` | `4.23.15` | Run TS directly during development |
+| `@types/node` | `24.19.2` | Node typings (`node:fs`, `node:zlib`, …) |
 
 No raster, canvas, or drawing library. The rasterizer is ours, because determinism and pixel-art semantics *are* the product.
+
+> **Change — 2026-11-12:** `@types/node` was added. Phase 1 started with hand-written ambient declarations to avoid the dependency, but `@modelcontextprotocol/sdk`'s own declarations import `node:http`, `node:stream` and `node:process`, so the hand-rolled file made `src/mcp` untypecheckable. It is a dev dependency, so the one-runtime-dependency budget is untouched.
 
 ## Package Manager & Build
 
@@ -52,10 +55,17 @@ src/
   cli/       argument parsing, command wiring, output formatting
   mcp/       MCP tool definitions, transport, response shaping
   meta/      Godot 4 + generic metadata emitters
+  palettes/  curated flat palettes and ramp derivation
 test/
   unit/      per-op and per-rule tests
+  lint/      one file per rule plus the debug sheet
+  ops/       one file per op family
+  mcp/       tool surface, parity, no-network guard
+  palettes/  curated values and derivation
   goldens/   recipe → PNG SHA-256 fixtures
-  benchmarks/ the four calibration assets
+  benchmarks/ the four calibration assets and their transcripts
+docs/        lint threshold rationale
+opencode.json  project MCP registration for `px-mcp`
 ```
 
 ## Data Stores
@@ -68,7 +78,9 @@ None at runtime. MCP transport is **stdio only** in Phase 1, consistent with loc
 
 ## Hosting & Deployment
 
-Local only; not published in Phase 1. Invoked from the repo via `pnpm exec px` or a linked bin.
+Local only; not published in Phase 1. Invoked from the repo as `node dist/cli.js` (after `pnpm build`) or `pnpm exec tsx src/cli.ts` during development.
+
+> **Correction — 2026-11-12:** an earlier revision said `pnpm exec px`. pnpm does not link a package's own bins, so that command fails with `Command "px" not found`; the `px` and `px-mcp` bins are for consumers of a published package, not for this repo. The MCP server is registered in `opencode.json` as `node dist/mcp/server.js` for the same reason.
 
 ## Test, Coverage, Lint, Format, Typecheck
 

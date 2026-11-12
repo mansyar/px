@@ -73,4 +73,4 @@ The engine has no UI, but the debug sheet is a human-facing artifact and must su
 
 **Assumptions:** MCP tool descriptions are the canonical agent-facing documentation, and human docs must not drift from them; a shared source generates both. The `v` envelope field is worth the bytes because it makes additive evolution safe.
 
-**Open:** whether `--strict` should be the default for MCP calls (where no one can pass a flag) or an explicit per-call parameter. Deferred to the MCP design phase.
+**Resolved:** `strict` is an explicit per-call parameter on every MCP tool, defaulting to `false`, because an MCP caller reads the findings in the response and decides; the calibration harness passes `strict: true` so the benchmarks still gate.

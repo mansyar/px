@@ -10,23 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect:
-    name: detect scaffold
-    runs-on: ubuntu-latest
-    outputs:
-      ready: ${{ steps.check.outputs.ready }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: check
-        run: echo "ready=$([ -f package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-
   verify:
     name: verify (${{ matrix.os }})
-    # The repository is initialized before the package scaffolding exists.
-    # Skip cleanly until package.json lands instead of reporting a red build.
-    # Remove the detect job and this condition once the scaffold phase merges.
-    needs: detect
-    if: needs.detect.outputs.ready == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -45,6 +30,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - name: Coverage gate (NFR-7)
+        run: pnpm coverage
       - run: pnpm build
       - name: Determinism (golden hashes)
         run: pnpm vitest run --project goldens

@@ -30,6 +30,11 @@ commands:
 coverage:
   gate: 80
   scope: "new-code"
+  # A separate step, deliberately NOT part of `pnpm verify`.
+  # verify stays fast and safe during task-level iteration; coverage is a
+  # gate at phase acceptance and in CI.
+  enforced_by: "separate-step"
+  runs_in: ["ci", "phase-acceptance"]
 verification:
   layers: ["static", "unit", "integration", "smoke", "determinism"]
   retry: 2
@@ -55,8 +60,15 @@ pr:
   media: "always"
   watch_ci: false
   watch_timeout_minutes: 15
-  merge_method: "squash"
+  merge_method: "merge"
 ```
+
+> **Changed 2026-11-13: merge commits, not squash, for the PR.** Squashing the PR collapsed
+> five phase checkpoints and three review rounds into one opaque commit. Each of those is a
+> decision the project may need to read, revert or bisect later — a golden re-baseline, a spec
+> amendment, a rule redefinition. Phase-internal squashing (`git.phase_squash`) is unchanged: it
+> collapses a subagent's task commits into one reviewable phase commit and does not destroy the
+> phase boundaries themselves.
 
 The coverage gate applies to `src/core/` and `src/lint/` only, enforced through the Vitest coverage `include` list rather than this file. `src/cli/` and `src/mcp/` are wiring and are exercised by the integration and smoke layers instead of by a percentage.
 
