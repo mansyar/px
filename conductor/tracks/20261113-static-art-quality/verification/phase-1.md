@@ -132,3 +132,33 @@ op objects the existing tools already forward.
 - The ownership buffers are per layer and flattened on demand, so a pass that
   needs neighbours' owners (AO, cast shadow) can use `snapshotOwners` as
   `auto_outline` already does without a new cache.
+
+## Primary verification
+
+Independent checks run by the primary on `f238f92`, after squashing the five task
+commits (`0d96d6b` was the subagent's head; the phase commit is `f238f92`, base
+`b327bff`).
+
+- Working tree clean; `git diff --name-only b327bff..HEAD` restricted to
+  `src/core/`, `src/cli/`, `src/mcp/`, `test/parts/`, `vitest.config.ts` and the
+  evidence file — no path outside `Touches`.
+- `git log --merges b327bff..HEAD` empty; five task commits, all reported.
+- `git diff --stat b327bff..HEAD -- test/goldens test/benchmarks` empty, so no
+  rendered byte moved.
+- `pnpm verify` exit 0: typecheck, `biome check .` on 105 files, **45 files / 390
+  tests**, build.
+- `pnpm vitest run --coverage` exit 0: statements **94.72%**, branches **85.90%**,
+  functions 99.10%, lines 94.55% — gate held, nothing lowered.
+- `pnpm vitest run --project goldens --project smoke` exit 0 (3 files / 11 tests),
+  which re-renders the hero against `8d9074…27cb`.
+- Design spot-checks rather than trusting the summary: `src/core/parts.ts` derives
+  masks from a replayed `Int16Array` and stores nothing; `flattenOwners` assigns a
+  cell to the topmost painted pixel, which is the pixel that is actually visible;
+  `serialize.test.ts` asserts `serializeRecipe(parseRecipe(text)) === text` for a
+  1.0 fixture and that an empty `parts` map is never written; `schema.test.ts`
+  rejects `part` on `mirror`, `auto_shade`, `ramp_fill` and `replace_slot`.
+
+One correction carried into `metadata.json`: the plan holds **32** top-level tasks
+across seven phases, not the 34 written at materialisation. `tasks_total` is now
+32; the phase contributed 5.
+

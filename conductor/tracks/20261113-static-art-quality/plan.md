@@ -13,24 +13,27 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3, AC-4, AC-5, AC-6
 - **Touches:** src/core/**, src/cli/**, src/mcp/**, test/parts/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** f238f92
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-1.md
 
-- [ ] **P1.T1: Version 1.1 and types** — covers: FR-1
-  - [ ] **P1.T1.1:** Accept `version: "1.1"`, keep 1.0 loading and rendering unchanged
-  - [ ] **P1.T1.2:** Type the optional `parts` map and the `part` key on painting ops
-- [ ] **P1.T2: Parts and materials validation** — covers: FR-2, FR-5, FR-6
-  - [ ] **P1.T2.1:** `E_PART_UNKNOWN` naming declared parts
-  - [ ] **P1.T2.2:** Material resolves to a palette family; missing role keeps `E_NO_RAMP` with the `--derive-ramps` hint
-  - [ ] **P1.T2.3:** Closed gloss set with `E_GLOSS_UNKNOWN`
-- [ ] **P1.T3: Derived masks and ownership** — covers: FR-3, FR-4
-  - [ ] **P1.T3.1:** Last-writer ownership per pixel, replayed from ops rather than stored
-  - [ ] **P1.T3.2:** `E_EMPTY_PART` and `W_PART_OVERWRITE`
-- [ ] **P1.T4: Canonical serialisation** — covers: FR-1
-  - [ ] **P1.T4.1:** Stable key order for `parts`, materials and gloss on write
-  - [ ] **P1.T4.2:** Round-trip fixture proving a 1.0 recipe serialises identically
-- [ ] **P1.T5: Surface plumbing** — covers: FR-2, FR-3
-  - [ ] **P1.T5.1:** `part` accepted by `px draw` and `px_draw`
-  - [ ] **P1.T5.2:** Inspect and render responses expose part names without breaking the existing envelope
+- [x] **P1.T1: Version 1.1 and types** — covers: FR-1
+  - [x] **P1.T1.1:** Accept `version: "1.1"`, keep 1.0 loading and rendering unchanged
+  - [x] **P1.T1.2:** Type the optional `parts` map and the `part` key on painting ops
+- [x] **P1.T2: Parts and materials validation** — covers: FR-2, FR-5, FR-6
+  - [x] **P1.T2.1:** `E_PART_UNKNOWN` naming declared parts
+  - [x] **P1.T2.2:** Material resolves to a palette family; missing role keeps `E_NO_RAMP` with the `--derive-ramps` hint
+  - [x] **P1.T2.3:** Closed gloss set with `E_GLOSS_UNKNOWN`
+- [x] **P1.T3: Derived masks and ownership** — covers: FR-3, FR-4
+  - [x] **P1.T3.1:** Last-writer ownership per pixel, replayed from ops rather than stored
+  - [x] **P1.T3.2:** `E_EMPTY_PART` and `W_PART_OVERWRITE`
+- [x] **P1.T4: Canonical serialisation** — covers: FR-1
+  - [x] **P1.T4.1:** Stable key order for `parts`, materials and gloss on write
+  - [x] **P1.T4.2:** Round-trip fixture proving a 1.0 recipe serialises identically
+- [x] **P1.T5: Surface plumbing** — covers: FR-2, FR-3
+  - [x] **P1.T5.1:** `part` accepted by `px draw` and `px_draw`
+  - [x] **P1.T5.2:** Inspect and render responses expose part names without breaking the existing envelope
 
 ## Phase 2: Lighting Pass
 
