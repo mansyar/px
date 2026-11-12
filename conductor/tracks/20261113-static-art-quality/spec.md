@@ -97,7 +97,7 @@ renders:
 | FR-10 | Rim highlights the light-facing boundary and shadows the opposite boundary of each part, leaving interiors untouched. `selective` defers to the neighbouring family's `outline`. | must |
 | FR-11 | Gloss rules are deterministic per profile: `metal` emits a hard diagonal specular with no diffuse banding; `gem` a bright core and emissive rim; `cloth` a dithered falloff; `matte` plain stepped bands. | must |
 | FR-12 | A scale profile is derived from canvas size — `tiny` ≤16, `small` 17–48, `medium` 49–128, `large` 129–256 — and may be overridden explicitly in the recipe. | must |
-| FR-13 | The profile governs lint thresholds, minimum cluster size, dither eligibility, outline thickness, expected tone count and debug zoom, all held in one data table. | must |
+| FR-13 | The profile governs lint thresholds, minimum cluster size, dither eligibility, outline thickness and debug zoom, all held in one data table. *(Amended in review round 2: "expected tone count" was withdrawn — a tone budget is a rubric judgement, not an engine threshold, and a field nothing consumed invited the reader to believe it was enforced. Recorded in `docs/art-profiles.md`.)* | must |
 | FR-14 | A profile override that contradicts the canvas size raises `W_PROFILE_MISMATCH` (warning). | must |
 | FR-15 | `synthesize` expands a base colour into N ramp steps (3–6) with documented hue-shift rules, and is canonicalised into the recipe on write so recipes remain explicit. | must |
 | FR-16 | Synthesis operates in OKLCH with no dependency: shadows rotate toward cool, highlights toward warm, chroma is clamped, and a zero-chroma input shifts luminance only. | must |
