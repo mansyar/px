@@ -140,9 +140,9 @@
 - **Goal:** An agent can address pixels by name, prove an edit landed, and read per-part statistics.
 - **Depends on:** Phase 5
 - **Covers:** FR-22, FR-23, FR-24, NFR-4, AC-18, AC-19
-- **Touches:** src/cli/**, src/mcp/**, src/render/debug/**, test/ergonomics/**
+- **Touches:** src/core/**, src/cli/**, src/mcp/**, src/render/debug/**, src/lint/**, test/ergonomics/**, test/mcp/**, docs/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P6.T1: Named refs** — covers: FR-22
   - [ ] **P6.T1.1:** `part.top|bottom|left|right|center|edge` and anchor refs with `dx`/`dy`
