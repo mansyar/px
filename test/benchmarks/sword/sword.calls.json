@@ -1,0 +1,291 @@
+{
+  "asset": "sword",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "init",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--name",
+        "sword",
+        "--width",
+        "32",
+        "--height",
+        "32",
+        "--palette",
+        "#14101c,#5d6b8a,#93a7c4,#e2ecf7,#8a5a1e,#c9973c,#f2d27a,#4a2a1c,#7e4a2e,#b07a4e,#7a1a2a,#d02c3c,#ff6f7a",
+        "--derive-ramps",
+        "--force"
+      ]
+    },
+    {
+      "verb": "draw",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--ops",
+        [
+          {
+            "op": "polygon",
+            "points": [
+              [
+                15,
+                1
+              ],
+              [
+                17,
+                1
+              ],
+              [
+                20,
+                10
+              ],
+              [
+                20,
+                21
+              ],
+              [
+                12,
+                21
+              ],
+              [
+                12,
+                10
+              ]
+            ],
+            "color": "c2.base"
+          },
+          {
+            "op": "line",
+            "x1": 12,
+            "y1": 10,
+            "x2": 12,
+            "y2": 20,
+            "color": "c3.base"
+          },
+          {
+            "op": "line",
+            "x1": 19,
+            "y1": 10,
+            "x2": 19,
+            "y2": 20,
+            "color": "c1.base"
+          },
+          {
+            "op": "line",
+            "x1": 15,
+            "y1": 1,
+            "x2": 12,
+            "y2": 10,
+            "color": "c3.base"
+          },
+          {
+            "op": "rect",
+            "x": 15,
+            "y": 10,
+            "w": 2,
+            "h": 10,
+            "color": "c1.base"
+          }
+        ]
+      ]
+    },
+    {
+      "verb": "draw",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--ops",
+        [
+          {
+            "op": "rect",
+            "x": 8,
+            "y": 21,
+            "w": 16,
+            "h": 1,
+            "color": "c6.base"
+          },
+          {
+            "op": "rect",
+            "x": 8,
+            "y": 22,
+            "w": 16,
+            "h": 1,
+            "color": "c4.base"
+          },
+          {
+            "op": "set_pixels",
+            "points": [
+              [
+                7,
+                21
+              ],
+              [
+                24,
+                21
+              ]
+            ],
+            "color": "c6.base"
+          },
+          {
+            "op": "set_pixels",
+            "points": [
+              [
+                7,
+                22
+              ],
+              [
+                24,
+                22
+              ]
+            ],
+            "color": "c4.base"
+          },
+          {
+            "op": "rect",
+            "x": 15,
+            "y": 21,
+            "w": 2,
+            "h": 2,
+            "color": "c11.base"
+          },
+          {
+            "op": "set_pixels",
+            "points": [
+              [
+                15,
+                21
+              ]
+            ],
+            "color": "c12.base"
+          },
+          {
+            "op": "set_pixels",
+            "points": [
+              [
+                16,
+                22
+              ]
+            ],
+            "color": "c10.base"
+          },
+          {
+            "op": "rect",
+            "x": 14,
+            "y": 23,
+            "w": 4,
+            "h": 6,
+            "color": "c8.base"
+          },
+          {
+            "op": "rect",
+            "x": 14,
+            "y": 23,
+            "w": 1,
+            "h": 6,
+            "color": "c9.base"
+          },
+          {
+            "op": "line",
+            "x1": 14,
+            "y1": 24,
+            "x2": 17,
+            "y2": 25,
+            "color": "c7.base"
+          },
+          {
+            "op": "line",
+            "x1": 14,
+            "y1": 26,
+            "x2": 17,
+            "y2": 27,
+            "color": "c7.base"
+          },
+          {
+            "op": "rect",
+            "x": 13,
+            "y": 29,
+            "w": 6,
+            "h": 1,
+            "color": "c6.base"
+          },
+          {
+            "op": "rect",
+            "x": 13,
+            "y": 30,
+            "w": 6,
+            "h": 1,
+            "color": "c5.base"
+          },
+          {
+            "op": "set_pixels",
+            "points": [
+              [
+                13,
+                30
+              ],
+              [
+                18,
+                30
+              ]
+            ],
+            "color": "c4.base"
+          }
+        ]
+      ]
+    },
+    {
+      "verb": "draw",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--ops",
+        [
+          {
+            "op": "auto_outline",
+            "mode": "4-way",
+            "where": "outer",
+            "color": "c0.base"
+          }
+        ]
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--name",
+        "grip_pivot",
+        "--x",
+        "16",
+        "--y",
+        "26"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--name",
+        "blade_tip",
+        "--x",
+        "15",
+        "--y",
+        "1"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "--file",
+        "sword.px.json",
+        "--out",
+        "sword.png",
+        "--strict"
+      ]
+    }
+  ]
+}

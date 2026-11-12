@@ -33,6 +33,12 @@ export default defineConfig({
           include: ['test/goldens/**/*.test.ts'],
         },
       },
+      {
+        test: {
+          name: 'benchmarks',
+          include: ['test/benchmarks/**/*.test.ts'],
+        },
+      },
     ],
     coverage: {
       provider: 'v8',

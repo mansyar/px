@@ -2,15 +2,28 @@
  * `JAGGY_LINE`.
  *
  * Walks the silhouette one row and one column at a time. A clean 1px diagonal
- * moves by one pixel per row; a hand-drawn one moves in uneven bursts (2, then
- * 1, then 3), which is what a jaggy looks like when someone freehands a line.
- * Only monotone, one-pixel steps are considered, and only `info` is reported:
- * a curve legitimately needs uneven steps, so the threshold is a tuning target.
+ * moves by one pixel per row; a hand-drawn one leaves that line and comes back,
+ * which is what a jaggy looks like when someone freehands a line.
+ *
+ * The walk only reports a *kink*: one run whose length jumps away from two
+ * neighbouring runs that agree with each other. That is what separates a jaggy
+ * from the things a silhouette legitimately does:
+ *
+ * - a straight edge is a long run, cut at `JAGGY_MAX_RUN`;
+ * - a chamfer meeting a straight side is a slope change that stays changed;
+ * - a curve changes slope by one line at a time, never back and forth.
+ *
+ * Only `info` is reported: the geometry is still a judgement call.
  */
 
 import { TRANSPARENT_SLOT } from '../core/palette.js';
 import { FindingCollector } from './collector.js';
-import { JAGGY_MIN_RUNS, MAX_COORDS_PER_FINDING } from './thresholds.js';
+import {
+  JAGGY_MAX_RUN,
+  JAGGY_MIN_RUNS,
+  JAGGY_STEP_JUMP,
+  MAX_COORDS_PER_FINDING,
+} from './thresholds.js';
 import type { LintContext, LintCoord, LintRule } from './types.js';
 
 interface EdgePoint {
@@ -39,32 +52,78 @@ export type EdgeSide = 'near' | 'far';
 
 export type EdgeAxis = 'row' | 'column';
 
+/** Run lengths of a group, in order. */
+function stepLengths(runs: readonly Run[]): number[] {
+  return runs.map((run) => run.lastLine - run.firstLine + 1);
+}
+
 /**
- * Split a sequence into monotone staircase segments and return the ones whose
- * step lengths differ. A segment needs `JAGGY_MIN_RUNS` runs before its steps
- * form a sequence worth reporting.
+ * True when some run leaves two agreeing neighbours for at least
+ * `JAGGY_STEP_JUMP` lines. The neighbours must agree within the same constant,
+ * because a run between a 1 and a 3 is the edge changing slope, not wobbling.
+ */
+export function hasKink(steps: readonly number[]): boolean {
+  for (let index = 1; index + 1 < steps.length; index += 1) {
+    const left = steps[index - 1];
+    const here = steps[index];
+    const right = steps[index + 1];
+    if (left === undefined || here === undefined || right === undefined) {
+      continue;
+    }
+    if (Math.abs(left - right) >= JAGGY_STEP_JUMP) {
+      continue;
+    }
+    if (Math.abs(here - left) >= JAGGY_STEP_JUMP || Math.abs(here - right) >= JAGGY_STEP_JUMP) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Split a sequence into monotone staircase segments and return the ones with a
+ * kink. A run longer than `JAGGY_MAX_RUN` is a straight edge: it ends the
+ * staircase instead of joining it, so a chamfer that meets a vertical side is
+ * two clean pieces. A group needs `JAGGY_MIN_RUNS` runs before it is considered.
  */
 export function jaggySegments(sequence: readonly (EdgePoint | null)[]): JaggySegment[] {
   const segments: JaggySegment[] = [];
   let runs: Run[] = [];
   let direction = 0;
 
-  function flush(): void {
-    const first = runs[0];
-    const last = runs[runs.length - 1];
-    if (runs.length >= JAGGY_MIN_RUNS && first !== undefined && last !== undefined) {
-      const steps = runs.map((run) => run.lastLine - run.firstLine + 1);
-      const step = steps[0];
-      if (step !== undefined && steps.some((entry) => entry !== step)) {
-        const values: number[] = [];
-        for (const run of runs) {
-          for (let line = run.firstLine; line <= run.lastLine; line += 1) {
-            values.push(run.value);
-          }
-        }
-        segments.push({ startLine: first.firstLine, endLine: last.lastLine, steps, values });
+  function report(group: readonly Run[]): void {
+    if (group.length < JAGGY_MIN_RUNS) {
+      return;
+    }
+    const steps = stepLengths(group);
+    if (!hasKink(steps)) {
+      return;
+    }
+    const first = group[0];
+    const last = group[group.length - 1];
+    if (first === undefined || last === undefined) {
+      return;
+    }
+    const values: number[] = [];
+    for (const run of group) {
+      for (let line = run.firstLine; line <= run.lastLine; line += 1) {
+        values.push(run.value);
       }
     }
+    segments.push({ startLine: first.firstLine, endLine: last.lastLine, steps, values });
+  }
+
+  function flush(): void {
+    let group: Run[] = [];
+    for (const run of runs) {
+      if (run.lastLine - run.firstLine + 1 > JAGGY_MAX_RUN) {
+        report(group);
+        group = [];
+        continue;
+      }
+      group.push(run);
+    }
+    report(group);
     runs = [];
     direction = 0;
   }
@@ -171,7 +230,7 @@ export const jaggyLineRule: LintRule = {
         }
         const unit = scan.axis === 'row' ? 'rows' : 'columns';
         collector.add({
-          message: `${scan.label} edge of ${unit} ${segment.startLine}-${segment.endLine} steps ${segment.steps.join(',')}; a 1px diagonal repeats one step length`,
+          message: `${scan.label} edge of ${unit} ${segment.startLine}-${segment.endLine} steps ${segment.steps.join(',')}; a clean line changes slope and stays, a jaggy leaves it and returns`,
           coords,
         });
       }

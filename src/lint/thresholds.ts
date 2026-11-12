@@ -22,6 +22,23 @@ export const MAX_COORDS_PER_FINDING = 50;
  */
 export const JAGGY_MIN_RUNS = 3;
 
+/**
+ * Longest run that still counts as a staircase step. A run of four or more
+ * lines is a straight edge (or a 4:1 slope), and a clean shape changes slope
+ * there rather than wobbling: the segment is cut, so a chamfer meeting a
+ * straight side is never reported. Calibrated on the four benchmarks (see
+ * `docs/lint-thresholds.md`).
+ */
+export const JAGGY_MAX_RUN = 3;
+
+/**
+ * Step-length difference that counts as a kink. A clean diagonal alternates
+ * between two run lengths that differ by one (Bresenham's staircase), so only
+ * a jump of two or more is a wobble — and only when both neighbours agree,
+ * which is what separates a jaggy from a curve that keeps changing slope.
+ */
+export const JAGGY_STEP_JUMP = 2;
+
 /** Contrast floor for silhouette edge pixels against the preview backdrop. */
 export const LOW_CONTRAST_MIN_RATIO = 1.5;
 
