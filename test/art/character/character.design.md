@@ -2,7 +2,7 @@
 
 **Profile** medium (128 px on the long side, 48 on the short). **Parts** 12.
 **Materials** 8. **Light** top-left, `flat` form, AO off, edge rim. **Cleanup** `deband`
-(146 px).
+(56 px).
 
 ## Silhouette intent
 
@@ -53,13 +53,15 @@ one-pixel rim could not. A 2 px gold cross and a 3×3 boss sit on the field.
 
 ## Cleanup
 
-`deband` stepped **146 px** of one-tone runs — mostly the tabard's flat columns and the
-shield field — so the cloth and the field are broken up rather than striped. `strays` was
+`deband` stepped **56 px** of one-tone runs, and the band edges wander a few tenths of the
+part width from row to row so cloth reads as folds rather than as striped columns. The
+`cloth` gloss dithers its shadow band, so the shadow claim is kept to the part's last two
+columns: a dithered rim reads as a soft edge, a dithered field reads as noise. `strays` was
 removed: after the redraw nothing on this sprite is below the medium cluster minimum.
 
 ## Findings
 
-`--strict` clean. Info only: 51 `BANDING`, 12 `CLUSTER_THIN`, 1 `JAGGY_LINE`. The jaggy
+`--strict` clean. Info only: 45 `BANDING`, 12 `CLUSTER_THIN`, 1 `JAGGY_LINE`. The jaggy
 count is the shield's lower curve, which steps two pixels per row by design; the banding
 caps at the 50-per-code limit and is the long vertical runs of a 128-row sprite.
 
