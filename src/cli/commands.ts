@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
+import { diffRgba } from '../core/diff.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
 import type { CleanupReport } from '../core/ops/index.js';
 import {
@@ -15,16 +16,18 @@ import {
   parseHex,
   TRANSPARENT_SLOT,
 } from '../core/palette.js';
+import { partDetails } from '../core/parts.js';
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
   isCleanupOp,
-  type Op,
   type Palette,
   RAMP_ROLES,
+  type RawOp,
   RECIPE_VERSION,
   type Recipe,
+  recipeParts,
 } from '../core/recipe/types.js';
 import { lintCompiled } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
@@ -33,6 +36,7 @@ import { DERIVATION_NOTE, deriveRamps, PALETTE_NAMES, paletteByName } from '../p
 import { applySwaps } from '../palettes/swap.js';
 import { parseStepCount, synthesizeFamily } from '../palettes/synthesize.js';
 import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
+import { decodePng } from '../render/png.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import type { ParsedArgs } from './args.js';
 import { inspectCodes, type Region, renderRegion, usedSlots } from './inspect.js';
@@ -390,7 +394,7 @@ export interface OpIndexEntry {
   index: number;
   id: string | null;
   layer: string;
-  op: Op;
+  op: RawOp;
 }
 
 /**
@@ -628,9 +632,17 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
     painted: layer.canvas.paintedCount(),
   }));
   // Only a recipe that declares parts grows this key, so a part-less envelope
-  // stays exactly what it was before parts existed.
+  // stays exactly what it was before parts existed. FR-24 appends the tone
+  // table and the value histogram to each entry rather than replacing it.
   if (compiled.parts.length > 0) {
-    payload.parts = compiled.parts;
+    payload.parts = partDetails(
+      compiled.width,
+      compiled.height,
+      compiled.owners,
+      compiled.flattened,
+      recipeParts(recipe),
+      compiled.slots,
+    );
   }
   const allWarnings = [...warnings, ...compiled.warnings];
   if (allWarnings.length > 0) {
@@ -713,6 +725,104 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   if (args.metaExport) {
     payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd, effective);
+  }
+  return payload;
+}
+
+/**
+ * `diff` renders the recipe in memory and compares it with a previous PNG or a
+ * previous sha256. A hash can prove that two renders differ but cannot locate
+ * the pixels, so that mode reports `count: null` instead of inventing a diff.
+ */
+export function runDiff(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  if (args.against === undefined || args.against === '') {
+    throw usageError(
+      'Missing --against',
+      'Pass --against prev.png or --against sha256:<64 hex digits>.',
+    );
+  }
+  const { recipe, warnings } = readSource(resolve(cwd, file), file);
+  const result = renderRecipe(recipe);
+  const currentHash = `sha256:${sha256Hex(result.png)}`;
+  const payload: Record<string, unknown> = {};
+
+  if (args.against.startsWith('sha256:')) {
+    const expected = args.against.toLowerCase();
+    if (!/^sha256:[0-9a-f]{64}$/.test(expected)) {
+      throw usageError(
+        `--against "${args.against}" is not a sha256 ref`,
+        'A hash ref is sha256: followed by 64 lowercase hex digits.',
+      );
+    }
+    const identical = expected === currentHash;
+    payload.identical = identical;
+    payload.against = { kind: 'hash', sha256: expected };
+    // A hash proves difference, not location: count stays null unless identical.
+    payload.changed = { count: identical ? 0 : null, bounds: null };
+    if (result.compiled.parts.length > 0) {
+      const parts: Array<{ part: string | null; changed: number | null }> =
+        result.compiled.parts.map((part) => ({
+          part: part.name,
+          changed: identical ? 0 : null,
+        }));
+      parts.push({ part: null, changed: identical ? 0 : null });
+      payload.parts = parts;
+    }
+    if (!identical) {
+      warnings.push({
+        code: 'W_DIFF_HASH_ONLY',
+        message: `The render differs from ${expected}, but a hash cannot say where`,
+        hint: 'Compare against a PNG (--against prev.png) for a changed count, bounds, and per-part breakdown.',
+      });
+    }
+  } else {
+    const target = resolve(cwd, args.against);
+    let bytes: Uint8Array;
+    try {
+      bytes = new Uint8Array(readFileSync(target));
+    } catch (error) {
+      throw new PxError(
+        'E_FILE_NOT_FOUND',
+        `Cannot read comparison image ${args.against}: ${causeMessage(error)}`,
+        'Check the path passed to --against; it is resolved against the working directory.',
+      );
+    }
+    const against = decodePng(bytes);
+    if (against.width !== result.width || against.height !== result.height) {
+      throw new PxError(
+        'E_DIFF_SIZE',
+        `Render is ${result.width}x${result.height} but ${args.against} is ${against.width}x${against.height}`,
+        'Diff compares renders pixel for pixel; compare against a PNG of the same recipe size.',
+      );
+    }
+    const diff = diffRgba(
+      result.width,
+      result.height,
+      result.rgba,
+      against.rgba,
+      result.compiled.owners,
+    );
+    payload.identical = diff.count === 0;
+    payload.against = { kind: 'png', path: args.against, sha256: `sha256:${sha256Hex(bytes)}` };
+    payload.changed = { count: diff.count, bounds: diff.bounds };
+    if (result.compiled.parts.length > 0) {
+      const parts: Array<{ part: string | null; changed: number | null }> =
+        result.compiled.parts.map((part, index) => ({
+          part: part.name,
+          changed: diff.byOwner.get(index) ?? 0,
+        }));
+      parts.push({ part: null, changed: diff.unowned });
+      payload.parts = parts;
+    }
+  }
+
+  if (args.out !== undefined && args.out !== '') {
+    writeOut(resolve(cwd, args.out), result.png);
+    payload.out = args.out;
+  }
+  if (warnings.length > 0) {
+    payload.warnings = warnings;
   }
   return payload;
 }

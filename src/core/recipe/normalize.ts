@@ -8,6 +8,7 @@
 import { PxError, type PxWarning } from '../errors.js';
 import { normalizeFamily } from '../palette.js';
 import { parseScaleProfile, profileWarnings } from '../profile.js';
+import { parseRef, REF_GRAMMAR } from '../refs.js';
 import {
   ACCEPTED_VERSIONS,
   type Anchor,
@@ -15,6 +16,8 @@ import {
   type AsciiBlitOp,
   type AutoOutlineOp,
   type AutoShadeOp,
+  type Coord,
+  type CoordRef,
   type DebandOp,
   DITHER_PATTERNS,
   type DitherFillOp,
@@ -23,6 +26,7 @@ import {
   type FloodFillOp,
   GLOSS_PROFILES,
   type GlossProfile,
+  isCoordRef,
   type Layer,
   LIGHT_DIRS,
   LIGHT_FORMS,
@@ -35,7 +39,6 @@ import {
   MAX_CANVAS_SIZE,
   MIN_CANVAS_SIZE,
   OP_PARAM_ORDER,
-  type Op,
   type OpName,
   OUTLINE_MODES,
   OUTLINE_WHERES,
@@ -47,6 +50,8 @@ import {
   type Parts,
   type PolygonOp,
   type RampFillOp,
+  type RawOf,
+  type RawOp,
   type Recipe,
   type RecipeMeta,
   type RectOp,
@@ -318,6 +323,113 @@ function intParam(
   return value;
 }
 
+/**
+ * A coordinate: an integer, or a ref object resolved against the entry snapshot
+ * at compile time. Refs are stored verbatim, so a read-write cycle never
+ * rewrites one into the number it happened to resolve to.
+ */
+function coordParam(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): Coord {
+  const value = source[key];
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (${opName}) is missing "${key}"`,
+      `Parameters for ${opName} are ${OP_PARAM_ORDER[opName as OpName].join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof value === 'number') {
+    if (!Number.isInteger(value)) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (${opName}) has a non-integer "${key}"`,
+        `"${key}" must be an integer pixel coordinate or a ref object.`,
+        opLocation(layer, opIndex),
+      );
+    }
+    return value;
+  }
+  if (!isCoordRef(value)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a "${key}" that is neither an integer nor a ref object`,
+      `"${key}" must be an integer pixel coordinate or a ref object. ${REF_GRAMMAR}`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return refParam(value, key, opName, opIndex, layer);
+}
+
+function offsetParam(
+  raw: CoordRef,
+  key: 'dx' | 'dy',
+  opName: string,
+  opIndex: number,
+  layer: string,
+): number {
+  const value = raw[key];
+  if (value === undefined) {
+    return 0;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-integer ref "${key}": ${JSON.stringify(value)}`,
+      `A ref offset is an integer pixel delta; "${key}" defaults to 0.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+function refParam(
+  raw: CoordRef,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): CoordRef {
+  const extra = Object.keys(raw).filter(
+    (entry) => entry !== 'ref' && entry !== 'dx' && entry !== 'dy',
+  );
+  if (extra.length > 0) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) "${key}" ref has unknown key${extra.length === 1 ? '' : 's'} ${extra.join(', ')}`,
+      'Accepted keys are ref, dx, dy.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const text: unknown = raw.ref;
+  if (typeof text !== 'string' || text === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a "${key}" ref without a "ref" string`,
+      REF_GRAMMAR,
+      opLocation(layer, opIndex),
+    );
+  }
+  // Grammar only. Whether the part or anchor exists is a question about the
+  // compile snapshot, so `validateReferences` and the compiler answer it.
+  parseRef(text, { layer, opIndex, opName });
+  const ref: CoordRef = { ref: text };
+  const dx = offsetParam(raw, 'dx', opName, opIndex, layer);
+  const dy = offsetParam(raw, 'dy', opName, opIndex, layer);
+  if (dx !== 0) {
+    ref.dx = dx;
+  }
+  if (dy !== 0) {
+    ref.dy = dy;
+  }
+  return ref;
+}
+
 function stringParam(
   source: Record<string, unknown>,
   key: string,
@@ -503,9 +615,9 @@ function regionParams(
   opName: string,
   opIndex: number,
   layer: string,
-): { x: number; y: number; w: number; h: number } {
-  const x = intParam(source, 'x', opName, opIndex, layer);
-  const y = intParam(source, 'y', opName, opIndex, layer);
+): { x: Coord; y: Coord; w: number; h: number } {
+  const x = coordParam(source, 'x', opName, opIndex, layer);
+  const y = coordParam(source, 'y', opName, opIndex, layer);
   const w = intParam(source, 'w', opName, opIndex, layer);
   const h = intParam(source, 'h', opName, opIndex, layer);
   if (w < 1 || h < 1) {
@@ -531,7 +643,11 @@ function normalizeSetPixels(
   };
 }
 
-function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: string): RectOp {
+function normalizeRect(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): RawOf<RectOp> {
   const region = regionParams(source, 'rect', opIndex, layer);
   return {
     op: 'rect',
@@ -540,13 +656,17 @@ function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: 
   };
 }
 
-function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: string): LineOp {
+function normalizeLine(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): RawOf<LineOp> {
   return {
     op: 'line',
-    x1: intParam(source, 'x1', 'line', opIndex, layer),
-    y1: intParam(source, 'y1', 'line', opIndex, layer),
-    x2: intParam(source, 'x2', 'line', opIndex, layer),
-    y2: intParam(source, 'y2', 'line', opIndex, layer),
+    x1: coordParam(source, 'x1', 'line', opIndex, layer),
+    y1: coordParam(source, 'y1', 'line', opIndex, layer),
+    x2: coordParam(source, 'x2', 'line', opIndex, layer),
+    y2: coordParam(source, 'y2', 'line', opIndex, layer),
     color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
 }
@@ -555,9 +675,9 @@ function normalizeEllipse(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): EllipseOp {
+): RawOf<EllipseOp> {
   const region = regionParams(source, 'ellipse', opIndex, layer);
-  const op: EllipseOp = {
+  const op: RawOf<EllipseOp> = {
     op: 'ellipse',
     ...region,
     color: colorParam(source, 'ellipse', opIndex, layer) ?? null,
@@ -584,11 +704,11 @@ function normalizeFloodFill(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): FloodFillOp {
-  const op: FloodFillOp = {
+): RawOf<FloodFillOp> {
+  const op: RawOf<FloodFillOp> = {
     op: 'flood_fill',
-    x: intParam(source, 'x', 'flood_fill', opIndex, layer),
-    y: intParam(source, 'y', 'flood_fill', opIndex, layer),
+    x: coordParam(source, 'x', 'flood_fill', opIndex, layer),
+    y: coordParam(source, 'y', 'flood_fill', opIndex, layer),
     color: colorParam(source, 'flood_fill', opIndex, layer) ?? null,
   };
   const connectivity = source.connectivity;
@@ -612,7 +732,7 @@ function normalizeDitherFill(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): DitherFillOp {
+): RawOf<DitherFillOp> {
   const region = regionParams(source, 'dither_fill', opIndex, layer);
   const pattern = enumParam<DitherPattern>(
     source,
@@ -742,9 +862,9 @@ function normalizeAsciiBlit(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): AsciiBlitOp {
-  const x = intParam(source, 'x', 'ascii_blit', opIndex, layer);
-  const y = intParam(source, 'y', 'ascii_blit', opIndex, layer);
+): RawOf<AsciiBlitOp> {
+  const x = coordParam(source, 'x', 'ascii_blit', opIndex, layer);
+  const y = coordParam(source, 'y', 'ascii_blit', opIndex, layer);
   const grid = gridParam(source, opIndex, layer);
   const legend = legendParam(source, opIndex, layer);
 
@@ -768,7 +888,7 @@ function normalizeAsciiBlit(
   return { op: 'ascii_blit', x, y, grid, legend };
 }
 
-function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, layer: string): Op {
+function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, layer: string): RawOp {
   const axis = enumParam(source, 'axis', 'mirror', opIndex, layer, ['x', 'y'] as const, true);
   const pivot = source.pivot;
   if (pivot === undefined) {
@@ -977,7 +1097,7 @@ function normalizeCleanup(
   return targetLayer === undefined ? { op: name } : { op: name, targetLayer };
 }
 
-function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
+function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): RawOp {
   const name = raw[0];
   if (typeof name !== 'string') {
     throw new PxError(
@@ -1034,7 +1154,7 @@ function opIdParam(
   return value;
 }
 
-function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer: string): Op {
+function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer: string): RawOp {
   const name = raw.op;
   if (typeof name !== 'string') {
     throw new PxError(
@@ -1102,7 +1222,7 @@ function normalizeOpBody(
   raw: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): Op {
+): RawOp {
   switch (name) {
     case 'set_pixels':
       return normalizeSetPixels(raw, opIndex, layer);
@@ -1139,7 +1259,7 @@ function normalizeOpBody(
   }
 }
 
-export function normalizeOp(raw: unknown, opIndex: number, layer: string): Op {
+export function normalizeOp(raw: unknown, opIndex: number, layer: string): RawOp {
   if (Array.isArray(raw)) {
     return normalizeTupleOp(raw, opIndex, layer);
   }

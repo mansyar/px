@@ -15,9 +15,17 @@ import { SlotCanvas, UNOWNED } from './canvas.js';
 import { PxError, type PxWarning } from './errors.js';
 import { applyOp, type CleanupReport } from './ops/index.js';
 import { buildSlotRoles, buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
-import { type CompiledPart, flattenOwners, partIndex, partNames, partStats } from './parts.js';
+import {
+  type CompiledPart,
+  flattenOwners,
+  partHint,
+  partIndex,
+  partNames,
+  partStats,
+} from './parts.js';
 import { profileFor, profileNumbers, type ScaleProfile } from './profile.js';
 import { type Recipe, recipeParts } from './recipe/types.js';
+import { resolveOpCoords } from './refs.js';
 
 export interface CompiledLayer {
   id: string;
@@ -78,13 +86,6 @@ function nameList(names: readonly string[]): string {
   return `parts ${quoted.join(', ')} and ${last}`;
 }
 
-/** The hint every undeclared-part error carries: what the recipe did declare. */
-function partHint(names: readonly string[]): string {
-  return names.length === 0
-    ? 'Declare parts first, e.g. "parts": {"blade": {"material": "steel"}}.'
-    : `Declared parts are ${names.join(', ')}.`;
-}
-
 export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const { width, height } = recipe.meta;
   const slots = buildSlotTable(recipe.palette);
@@ -104,6 +105,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     canvas: new SlotCanvas(width, height),
   }));
   const byId = new Map(layers.map((layer) => [layer.id, layer.canvas]));
+  const canvases = layers.map((layer) => layer.canvas);
 
   recipe.layers.forEach((layer, layerIndex) => {
     const target = layers[layerIndex];
@@ -129,6 +131,17 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
         );
       }
       const owner = op.part === undefined ? UNOWNED : (indexes.get(op.part) ?? UNOWNED);
+      // Refs resolve here, before the op writes anything: the entry snapshot is
+      // the layer state the op found, never geometry it is about to draw (FR-22).
+      const resolved = resolveOpCoords(op, {
+        layers: canvases,
+        width,
+        height,
+        parts: declared,
+        partIndexes: indexes,
+        anchors: recipe.anchors,
+        site: { layer: layer.id, opIndex, opName: op.op },
+      });
       const outcome = applyOp(
         {
           canvas: target.canvas,
@@ -142,7 +155,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           partIndexes: indexes,
           profile: numbers,
         },
-        op,
+        resolved,
       );
       if (outcome.clipped) {
         const warning: PxWarning = {

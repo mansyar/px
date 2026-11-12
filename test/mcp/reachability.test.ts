@@ -145,23 +145,47 @@ const MAPPINGS: Mapping[] = [
   { flag: 'strict', tool: 'px_anchor', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_inspect', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_render', params: { file: 'hero.px.json', strict: true } },
+  { flag: 'strict', tool: 'px_diff', params: { file: 'hero.px.json', strict: true } },
+  {
+    flag: 'against',
+    tool: 'px_diff',
+    params: { file: 'hero.px.json', against: 'prev.png' },
+    value: 'prev.png',
+  },
+  {
+    flag: 'out',
+    tool: 'px_diff',
+    params: { file: 'hero.px.json', against: 'prev.png', out: 'now.png' },
+    value: 'now.png',
+  },
 ];
 
 const NOT_AGENT_FLAGS = new Set([
   'pretty',
   'color',
   'help',
-  // `px synthesize` edits one recipe in place; FR-22 keeps the MCP surface at
-  // seven tools, so agents synthesise at creation time via `px_init.synthesize`.
+  // `px synthesize` edits one recipe in place; agents synthesise at creation
+  // time via `px_init.synthesize`, so the verb has no tool of its own.
   'family',
   'from',
   'steps',
 ]);
 
 describe('MCP flag reachability', () => {
-  it('publishes seven tools, each with a definition', () => {
+  it('publishes eight tools, each with a definition', () => {
     expect([...MCP_TOOLS].sort()).toEqual(TOOL_DEFINITIONS.map((tool) => tool.name).sort());
     expect(MCP_TOOLS).toContain('px_validate');
+    expect(MCP_TOOLS).toContain('px_diff');
+  });
+
+  it('maps px_diff to the diff verb with both comparison sources', () => {
+    expect(argvFor('px_diff', { file: 'hero.px.json', against: 'sha256:abc' })).toEqual([
+      'diff',
+      '--file',
+      'hero.px.json',
+      '--against',
+      'sha256:abc',
+    ]);
   });
 
   it('maps px_validate to the validate verb without writing a PNG', () => {

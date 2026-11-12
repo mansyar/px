@@ -134,6 +134,9 @@ describe('inspect and render', () => {
         z: 0,
         painted: 4,
         bounds: { x: 1, y: 1, w: 2, h: 2 },
+        tones: [{ slot: 'steel.base', count: 4 }],
+        slot_count: 1,
+        values: [0, 4, 0, 0, 0, 0, 0, 0],
       },
     ]);
   });
@@ -213,6 +216,9 @@ describe('px_draw / px_inspect over MCP', () => {
         z: 0,
         painted: 3,
         bounds: { x: 2, y: 2, w: 3, h: 1 },
+        tones: [{ slot: 'steel.base', count: 3 }],
+        slot_count: 1,
+        values: [0, 3, 0, 0, 0, 0, 0, 0],
       },
     ]);
   });

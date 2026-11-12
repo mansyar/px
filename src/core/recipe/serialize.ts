@@ -8,10 +8,11 @@
 
 import {
   type Anchors,
-  type Op,
+  type Coord,
   type Palette,
   type Parts,
   RAMP_ROLES,
+  type RawOp,
   type Recipe,
   type RecipeVersion,
   rampTones,
@@ -107,8 +108,27 @@ function defined(entries: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
+/**
+ * A coordinate as the recipe stores it. Refs keep their key order (`ref`, `dx`,
+ * `dy`) and drop zero offsets the way every other default is dropped, so a ref
+ * recipe is byte-identical after a read-write cycle.
+ */
+function coordJson(coord: Coord): unknown {
+  if (typeof coord === 'number') {
+    return coord;
+  }
+  const out: Record<string, unknown> = { ref: coord.ref };
+  if (coord.dx !== undefined && coord.dx !== 0) {
+    out.dx = coord.dx;
+  }
+  if (coord.dy !== undefined && coord.dy !== 0) {
+    out.dy = coord.dy;
+  }
+  return out;
+}
+
 /** Parameters in `OP_PARAM_ORDER` order. `id` is added by the caller, first. */
-function opParams(op: Op): Record<string, unknown> {
+function opParams(op: RawOp): Record<string, unknown> {
   switch (op.op) {
     case 'set_pixels':
       return {
@@ -116,13 +136,25 @@ function opParams(op: Op): Record<string, unknown> {
         color: op.color,
       };
     case 'rect':
-      return { x: op.x, y: op.y, w: op.w, h: op.h, color: op.color };
+      return {
+        x: coordJson(op.x),
+        y: coordJson(op.y),
+        w: op.w,
+        h: op.h,
+        color: op.color,
+      };
     case 'line':
-      return { x1: op.x1, y1: op.y1, x2: op.x2, y2: op.y2, color: op.color };
+      return {
+        x1: coordJson(op.x1),
+        y1: coordJson(op.y1),
+        x2: coordJson(op.x2),
+        y2: coordJson(op.y2),
+        color: op.color,
+      };
     case 'ellipse':
       return defined({
-        x: op.x,
-        y: op.y,
+        x: coordJson(op.x),
+        y: coordJson(op.y),
         w: op.w,
         h: op.h,
         color: op.color,
@@ -135,15 +167,27 @@ function opParams(op: Op): Record<string, unknown> {
       };
     case 'flood_fill':
       return defined({
-        x: op.x,
-        y: op.y,
+        x: coordJson(op.x),
+        y: coordJson(op.y),
         color: op.color,
         connectivity: op.connectivity,
       });
     case 'dither_fill':
-      return { x: op.x, y: op.y, w: op.w, h: op.h, color: op.color, pattern: op.pattern };
+      return {
+        x: coordJson(op.x),
+        y: coordJson(op.y),
+        w: op.w,
+        h: op.h,
+        color: op.color,
+        pattern: op.pattern,
+      };
     case 'ascii_blit':
-      return { x: op.x, y: op.y, grid: [...op.grid], legend: { ...op.legend } };
+      return {
+        x: coordJson(op.x),
+        y: coordJson(op.y),
+        grid: [...op.grid],
+        legend: { ...op.legend },
+      };
     case 'mirror':
       return { axis: op.axis, pivot: op.pivot };
     case 'auto_outline':
@@ -177,7 +221,7 @@ function opParams(op: Op): Record<string, unknown> {
   }
 }
 
-export function canonicalOp(op: Op): Record<string, unknown> {
+export function canonicalOp(op: RawOp): Record<string, unknown> {
   const out: Record<string, unknown> = { op: op.op };
   if (op.part !== undefined) {
     out.part = op.part;

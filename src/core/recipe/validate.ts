@@ -6,10 +6,11 @@
 
 import { PxError } from '../errors.js';
 import { type SlotTable, slotHint } from '../palette.js';
-import { type Op, type Recipe, recipeParts } from './types.js';
+import { coordRefsOf, parseRef } from '../refs.js';
+import { type RawOp, type Recipe, recipeParts } from './types.js';
 
 /** Slot names an op references, in the order it references them. */
-function slotReferences(op: Op): string[] {
+function slotReferences(op: RawOp): string[] {
   switch (op.op) {
     case 'set_pixels':
     case 'rect':
@@ -86,6 +87,29 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
           unknownPartHint(declared),
           { layer: layer.id, op_index: opIndex },
         );
+      }
+      for (const ref of coordRefsOf(op)) {
+        const target = parseRef(ref.ref, { layer: layer.id, opIndex, opName: op.op });
+        const location = { layer: layer.id, op_index: opIndex };
+        if (target.kind === 'part' && parts[target.part] === undefined) {
+          throw new PxError(
+            'E_PART_UNKNOWN',
+            `Coordinate ref "${ref.ref}" in op ${opIndex} (${op.op}) of layer "${layer.id}" names part "${target.part}", which is not declared`,
+            unknownPartHint(declared),
+            location,
+          );
+        }
+        if (target.kind === 'anchor' && recipe.anchors[target.name] === undefined) {
+          const anchors = Object.keys(recipe.anchors).sort();
+          throw new PxError(
+            'E_BAD_PARAM',
+            `Coordinate ref "${ref.ref}" in op ${opIndex} (${op.op}) of layer "${layer.id}" names anchor "${target.name}", which is not declared`,
+            anchors.length === 0
+              ? 'This recipe declares no anchors; add one with `px anchor --name ...`.'
+              : `Declared anchors are ${anchors.join(', ')}.`,
+            location,
+          );
+        }
       }
       const target =
         op.op === 'auto_outline' ||

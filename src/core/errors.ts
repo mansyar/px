@@ -43,6 +43,7 @@ export type ErrorCode =
   | 'E_FAMILY_UNKNOWN'
   | 'E_SWAP_INCOMPATIBLE'
   | 'E_LINT_GATE'
+  | 'E_DIFF_SIZE'
   | 'E_INTERNAL';
 
 export type WarningCode =
@@ -51,6 +52,7 @@ export type WarningCode =
   | 'W_PASS_NOOP'
   | 'W_PART_OVERWRITE'
   | 'W_CLEANUP_NOOP'
+  | 'W_DIFF_HASH_ONLY'
   | 'W_PROFILE_MISMATCH';
 
 export interface PxErrorLocation {
@@ -139,6 +141,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Swap onto a family that resolves every role or colour index the source provides.',
   E_LINT_GATE:
     'Fix the warnings above, or drop --strict to report them without failing the command.',
+  E_DIFF_SIZE:
+    'Diff compares renders pixel for pixel, so both images must share a canvas size; compare against a render of a recipe with the same width and height.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 

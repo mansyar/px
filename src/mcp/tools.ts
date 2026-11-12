@@ -42,6 +42,7 @@ export const MCP_TOOLS: readonly string[] = [
   'px_inspect',
   'px_validate',
   'px_render',
+  'px_diff',
 ];
 
 const STRICT = {
@@ -192,6 +193,27 @@ export const TOOL_DEFINITIONS: Tool[] = [
       ['file', 'out'],
     ),
   },
+  {
+    name: 'px_diff',
+    description:
+      'Render a recipe and compare it with a previous PNG or a sha256 ref: reports identical, changed count, bounding box and per-part breakdown. A hash can prove difference but not locate it.',
+    inputSchema: schema(
+      {
+        file: FILE,
+        against: {
+          type: 'string',
+          description:
+            'Path to a previous PNG, resolved against the server cwd, or a sha256:<64 hex digits> of a previous render.',
+        },
+        out: {
+          type: 'string',
+          description: 'Optional path for the current render, so the next diff has a baseline.',
+        },
+        strict: STRICT,
+      },
+      ['file', 'against'],
+    ),
+  },
 ];
 
 function str(value: unknown): string | undefined {
@@ -322,6 +344,13 @@ export function argvFor(tool: string, params: Params): string[] {
       }
       booleanFlag(argv, 'export', params.export);
       repeatedFlag(argv, 'swap', params.swap);
+      break;
+    }
+    case 'px_diff': {
+      argv.push('diff');
+      flag(argv, 'file', file);
+      flag(argv, 'against', str(params.against));
+      flag(argv, 'out', str(params.out));
       break;
     }
     default:

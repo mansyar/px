@@ -80,6 +80,38 @@ export type Anchor = [number, number];
 export type Anchors = Record<string, Anchor>;
 
 /**
+ * A coordinate that names geometry instead of counting pixels (FR-22):
+ * `{"ref": "blade.top"}` or `{"ref": "anchor.grip_pivot"}`, with an optional
+ * pixel offset applied after resolution.
+ *
+ * Only the six scalar coordinate fields accept one. `polygon.points` and
+ * `set_pixels.points` stay integer arrays: a ref inside a points array has no
+ * single resolution order (is the whole array resolved at once, or point by
+ * point?), so widening them is a different design and nothing in this phase
+ * needs it.
+ */
+export interface CoordRef {
+  /** `<part>.<where>` or `anchor.<name>`; written back verbatim. */
+  ref: string;
+  dx?: number;
+  dy?: number;
+}
+
+export type Coord = number | CoordRef;
+
+/** The points a part ref can name: a box edge or centre, or its first pixel. */
+export type RefWhere = 'top' | 'bottom' | 'left' | 'right' | 'center' | 'edge';
+
+export const REF_WHERES: readonly RefWhere[] = ['top', 'bottom', 'left', 'right', 'center', 'edge'];
+
+/** The prefix that turns a ref into an anchor lookup instead of a part lookup. */
+export const ANCHOR_REF_PREFIX = 'anchor.';
+
+export function isCoordRef(value: unknown): value is CoordRef {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
  * A gloss profile is the closed set of surface responses the lighting pass can
  * express (FR-6). It is a property of the material, not of the palette: the
  * family supplies colours, the part supplies semantics.
@@ -286,6 +318,30 @@ export type Op =
 export type CleanupOpName = 'seal' | 'strays' | 'deband';
 
 /**
+ * The fields a ref may occupy. `w`, `h`, `pivot`, `bands` and every colour or
+ * name field measure or name something rather than locating a point, so they
+ * stay numbers and strings.
+ */
+export const REF_COORD_FIELDS = ['x', 'y', 'x1', 'y1', 'x2', 'y2'] as const;
+
+export type RefCoordField = (typeof REF_COORD_FIELDS)[number];
+
+type WidenedCoord<O> = O extends unknown
+  ? { [K in keyof O]: K extends RefCoordField ? Coord : O[K] }
+  : never;
+
+/**
+ * An op as a recipe stores it: `Op`, except the six coordinate fields may be
+ * refs. The compiler resolves them against the layer state at the start of the
+ * op and only `Op` reaches the rasterizers, so nothing downstream of resolution
+ * has to know refs exist.
+ */
+export type RawOp = WidenedCoord<Op>;
+
+/** One op's widened form, for code that builds it field by field. */
+export type RawOf<O extends Op> = WidenedCoord<O>;
+
+/**
  * Cleanup passes. Each reads a snapshot of the layer it points at (its own when
  * `target_layer` is absent) and writes into the active layer, the same contract
  * the drawing post-passes follow.
@@ -344,7 +400,7 @@ export function isCleanupOp(name: OpName): name is CleanupOpName {
 
 export interface Layer {
   id: string;
-  ops: Op[];
+  ops: RawOp[];
 }
 
 /**

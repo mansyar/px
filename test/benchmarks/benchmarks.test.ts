@@ -30,7 +30,7 @@ import { runCli } from '../../src/cli/main.js';
 import { compileRecipe } from '../../src/core/compile.js';
 import { TRANSPARENT_SLOT } from '../../src/core/palette.js';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
-import type { Op, Recipe } from '../../src/core/recipe/types.js';
+import type { RawOp, Recipe } from '../../src/core/recipe/types.js';
 import { lintCompiled } from '../../src/lint/index.js';
 import { renderRecipe, sha256Hex } from '../../src/render/render.js';
 
@@ -142,11 +142,11 @@ function paintedPixels(recipe: Recipe): number {
   return painted;
 }
 
-function opTypes(ops: readonly Op[]): string[] {
+function opTypes(ops: readonly RawOp[]): string[] {
   return [...new Set(ops.map((op) => op.op))].sort();
 }
 
-function setPixelPoints(ops: readonly Op[]): number {
+function setPixelPoints(ops: readonly RawOp[]): number {
   return ops.reduce((total, op) => (op.op === 'set_pixels' ? total + op.points.length : total), 0);
 }
 

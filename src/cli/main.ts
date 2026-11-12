@@ -10,6 +10,7 @@ import { probeRuntime } from '../probe.js';
 import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
 import {
   runAnchor,
+  runDiff,
   runDraw,
   runEdit,
   runInit,
@@ -43,6 +44,7 @@ function helpPayload(): Record<string, unknown> {
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]... [--summary]',
       'px render --file <path> --out <png> [--swap from=to]... [--debug [--backdrop hex|null]] [--export]',
+      'px diff --file <path> --against <png|sha256:hex> [--out <png>]',
       'px synthesize --file <path> --family <name> --from <hex> --steps n [--force]',
       'px validate --file <path>',
     ],
@@ -58,6 +60,7 @@ function helpPayload(): Record<string, unknown> {
       '--summary',
       '--derive-ramps',
       '--backdrop',
+      '--against',
       '--family',
       '--from',
       '--steps',
@@ -97,6 +100,8 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runInspect(args, cwd);
     case 'render':
       return runRender(args, cwd);
+    case 'diff':
+      return runDiff(args, cwd);
     case 'synthesize':
       return runSynthesize(args, cwd);
     case 'validate':

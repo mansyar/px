@@ -258,6 +258,34 @@ describe('CLI and MCP parity', () => {
     expect(sheet.equals(bytes(cliDir, 'out/hero.debug.png'))).toBe(true);
   });
 
+  it('diffs the same way in both paths', () => {
+    for (const step of steps) {
+      cliStep(step.cli);
+      mcpStep(step.tool, step.params);
+    }
+    cliStep(['render', '--file', 'hero.px.json', '--out', 'prev.png']);
+    mcpStep('px_render', { file: 'hero.px.json', out: 'prev.png' });
+
+    const cliEnvelope = cliStep(['diff', '--file', 'hero.px.json', '--against', 'prev.png']);
+    const { envelope } = mcpStep('px_diff', { file: 'hero.px.json', against: 'prev.png' });
+    expect(envelope).toEqual(cliEnvelope);
+    expect(envelope.identical).toBe(true);
+
+    // Both paths agree on the hash-only shape too, warning included.
+    const cliHash = cliStep([
+      'diff',
+      '--file',
+      'hero.px.json',
+      '--against',
+      `sha256:${'b'.repeat(64)}`,
+    ]);
+    const hash = mcpStep('px_diff', {
+      file: 'hero.px.json',
+      against: `sha256:${'b'.repeat(64)}`,
+    });
+    expect(hash.envelope).toEqual(cliHash);
+  });
+
   it('fails the same way in both paths', () => {
     for (const step of steps) {
       cliStep(step.cli);
