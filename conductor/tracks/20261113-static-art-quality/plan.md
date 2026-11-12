@@ -13,7 +13,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3, AC-4, AC-5, AC-6
 - **Touches:** src/core/**, src/cli/**, src/mcp/**, test/parts/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Version 1.1 and types** — covers: FR-1
   - [ ] **P1.T1.1:** Accept `version: "1.1"`, keep 1.0 loading and rendering unchanged
