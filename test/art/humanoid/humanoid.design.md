@@ -1,62 +1,64 @@
 # humanoid — 32×32 knight
 
-**Profile** small (32 px). **Parts** 11. **Materials** 7. **Light** top-left, `round`
-form, AO on, no cast, edge rim. **Cleanup** `strays` (2 px).
+**Profile** small (32 px). **Parts** 11. **Materials** 7 (brass, chain, crest, ink,
+leather, skin, steel, tunic). **Light** top-left, `flat` form, AO on, no rim.
+**Cleanup** `deband` (15 px).
 
 ## Silhouette intent
 
-A standing knight: a big plumed helmet over a narrow chain torso, arms hanging clear of
-the body with a gap at each armpit, a sword held point-up beside the right hand, and two
-separated boots. The silhouette depends on the plume rising above the helm and on the
-negative space between the legs — at 1× those are the two features that survive
-thinning, and both are kept at least 2 px wide.
+A single standing figure, one head wide at the helm, shoulders two pixels wider than the
+hips, feet apart. At 1× the read is "armoured figure": a red plume over a grey helm, a
+tan face slit, a dark mail torso, green sleeves and legs, brown boots, a sword held
+point-up on the right. The plume is the only colour above the shoulders, so the head
+still separates from the background when the sprite is downscaled.
 
 ## Materials and gloss
 
 | part | material | gloss | note |
 | --- | --- | --- | --- |
-| `helm` | `steel` | metal | hard specular band across the crown |
-| `plume` | `crest` | matte | red, value-separated from the helm's highlight |
-| `face` | `skin` | matte | two `skin.shadow` eye pixels |
-| `torso` | `chain` | matte | dark mail so the tabard and belt read on top |
-| `arm_l` / `arm_r` | `chain` | matte | sleeves, same family as the torso but not adjacent |
-| `belt` | `brass` | metal | breaks the torso's value run |
-| `legs` | `cloth` | matte | green, the only mid-light cloth in the set |
+| `helm` | `steel` | metal | lit dome, dark right cheek, dark chin line |
+| `plume` | `crest` | cloth | the only saturated colour in the upper third |
+| `face` | `skin` | matte | 4 px opening, one dark visor slit |
+| `torso` | `chain` | metal | mail, lit left column, shadow seam at the waist |
+| `arm_l` / `arm_r` | `tunic` | cloth | lit arm and far arm, gloves in `leather` |
+| `belt` | `brass` | metal | breaks the torso from the legs |
+| `legs` | `tunic` | cloth | left column lit, knee band, dark right column |
 | `boots` | `leather` | matte | darkest mass at the feet |
-| `blade` | `edge` | metal | its own family so it clears the pauldron value test |
-| `hilt` | `brass` | metal | |
+| `blade` | `steel` | metal | one lit edge, one shadowed edge |
+| `hilt` | `brass` | metal | guard, leather grip, pommel |
 
-Every part owns a distinct material: `VALUE_COLLISION` compares part base tones, so
-`helm`/`torso` sharing `steel` reported a 0.000 collision even though the pixels never
-touch.
+`torso` uses `chain` rather than `steel` so it cannot collide with the helm or the blade
+(`VALUE_COLLISION` compares part base tones, not adjacency). `arm_l`/`arm_r` share
+`tunic` with the legs; they never touch, and the pair is one value on purpose.
 
 ## Light
 
-Top-left, `round` form so the helm and torso get a curved highlight band instead of a
-single bevel edge. AO darkens where the helm meets the torso and where the boots meet
-the greaves. No cast: the sprite has no ground plane.
+Top-left, one direction for the whole figure: every part highlights on its top and left
+and shadows on its bottom and right — helm dome, torso column, both sleeves, both legs,
+the blade spine. `flat` form because the light was hand-painted during authoring; the
+`light` op contributes gloss and AO only. AO darkens the belt under the torso and each
+boot under the greave. No rim: a rim would redraw the boundary the outline owns.
 
 ## Anchors
 
-- `foot_origin` (11, 30) — the left boot's sole centre; the sprite's ground point.
-- `hand_weapon` (24, 18) — the right glove, where a held item parents.
+- `foot_origin` (13, 30) — the left boot's sole; the ground point for placement.
+- `hand_weapon` (25, 18) — the right glove, a weapon socket beside the painted sword.
 
 ## Cleanup
 
-`strays` (profile minimum 2) removed **2 px** of dust glints that had been scattered on
-the blade. Reported here rather than silently dropped: the cleanup is the reason the
-blade is a clean 2 px column.
+`deband` stepped **15 px** of one-tone-wide runs in the mail, so the torso's flat columns
+do not read as a stripe. It is the only cleanup pass; `strays` had nothing to remove
+after the redraw.
 
 ## Findings
 
-`--strict` clean. Info only: 28 `BANDING`, 9 `CLUSTER_THIN`, plus one
-`W_PART_OVERWRITE` for the `strays` pass repainting blade pixels.
+`--strict` clean. Info only: 24 `BANDING`, 10 `CLUSTER_THIN`. The banding is the mail's
+column edges and the leg highlights; at 32 px an upright figure is mostly vertical runs.
 
 ## Known weaknesses
 
-The limbs read as attached blocks rather than as anatomy: the arms are straight 3 px
-columns with a 1 px gap at the shoulder, and the legs are two rectangles with a straight
-inner edge. The torso is a dark mass at 1× — the mail reads as one tone and the belt is
-the only thing dividing it. The sword floats beside the hand rather than being gripped:
-the glove wraps the hilt on one diagonal only. A further pass would taper the arm
-columns toward the wrists and cut a 1 px notch where the fingers close on the grip.
+The torso is still a dark mass at 1× — the mail highlight is one column wide, so the chest
+reads as a slab with a seam rather than as a chest over an abdomen. The sleeves are flat
+two-pixel strips with no shoulder cap, and the sword is thin enough that its guard is the
+only part that reads at true size. The face is a tan rectangle plus a visor slit; the
+helmet's brow is a single row and could carry a nose guard.

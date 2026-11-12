@@ -1,16 +1,15 @@
 # scene — 256×256 wishing well
 
-**Profile** large (256 px). **Parts** 6. **Materials** 5. **Light** top-left, `bevel`
-form, AO on, no cast, edge rim. **Cleanup** `strays` (3 px).
+**Profile** large (256 px). **Parts** 6. **Materials** 5 (dirt, water, stone, wood,
+rope). **Light** top-left, `bevel` form, AO on, edge rim. **Cleanup** `deband` (1299 px).
 
 ## Silhouette intent
 
 One environment element filling the frame: a stone wishing well under a shingled gable.
-The sprite is built as three stacked masses — the gable (rows 46–100), the well cylinder
-(rows 108–214) and the dirt apron (rows 196–248) — so the silhouette is a triangle, a
-drum and an ellipse, and each mass has a different edge language. The gable's apex and
-the well's curved mouth are the two shapes that identify it at 1×; the rope and bucket
-are a 1 px vertical that stops the middle of the frame from being empty.
+Three stacked masses — the gable, the well cylinder with its oval mouth, and the dirt
+apron — so the silhouette is a triangle over a drum over an ellipse. At 1× the two shapes
+that identify it are the gable's apex and the well's curved mouth; the rope and bucket are
+the one-pixel vertical that stops the middle of the frame from being empty.
 
 ## Materials and gloss
 
@@ -23,19 +22,28 @@ are a 1 px vertical that stops the middle of the frame from being empty.
 | `rope` | `rope` | `#d8c49a` | cloth |
 | `bucket` | `wood` | `#6a4a2a` | matte |
 
-Six families with a deliberate value ladder: the stone wall is the only *light* mass
-(0.417), the rope is lighter still (0.563) so it reads against the wall, the wood roof
-and bucket sit at 0.081, and the water and dirt are near-black. `rope` is the one
-non-matte gloss (`cloth`, dithered falloff) because a 1 px rope with a hard specular
-band looked like a wire.
+Value ladder: stone is the only light mass, rope lighter still so it reads against the
+wall, wood and the bucket dark, water and dirt darkest except for the apron's lit crown.
 
 ## Light
 
-Top-left, `bevel` form. The gable is painted as two planes by hand — the left slope in
-`wood.base`, the right in `wood.shadow` — and the bevel only shades the silhouette, so
-the roof reads as a lit and a shadowed slope rather than one flat triangle with a light
-rim. AO darkens the wall where the roof sits on it, and the bucket where the rope meets
-it.
+Top-left, one direction for the whole scene. Two things were rebuilt against it:
+
+- **The roof** is no longer a left/right split. Both planes darken from the ridge down —
+  `wood.highlight` at the ridge, `wood.base` through the middle, `wood.shadow` at the
+  eaves — with the right plane taking the darker step half a band earlier. The skyline
+  line is a highlight and the eave is `wood.outline`, so the gable reads as one form lit
+  from above rather than as two materials meeting at the apex.
+- **The wall** is masonry. Mortar is a 2 px `stone.outline` course every 22 rows with
+  staggered 2 px `stone.shadow` joints, so the joints survive the 1× view that a 1 px
+  line did not; each column's top two pixels are `stone.highlight` for the rim, and the
+  cylinder's left edge is a lit column with a shadowed right edge.
+
+The apron is lifted: `dirt.highlight` in the crown near the mouth, `dirt.base` through the
+middle, `dirt.shadow` at the outer rim, plus scattered 3 px pebbles — it reads as ground
+under a light rather than a hole in the frame. The bucket is re-shaded as dark staves with
+two shadowed hoops so the brightest small object in the bottom third is no longer a bright
+grid.
 
 ## Anchors
 
@@ -46,22 +54,20 @@ it.
 
 ## Cleanup
 
-`strays` (large profile minimum 3) removed **4 px** of pebbles from the apron and left
-the 3 px ones in place — the pass is the difference between a gravel apron and noise.
+`deband` stepped **1299 px** of one-tone-wide runs — the long courses of the wall and the
+shingle rows — which is what keeps the masonry from reading as stacked stripes. `strays`
+was removed: nothing on the apron is smaller than the large profile's three-pixel floor,
+so it had become a no-op.
 
 ## Findings
 
-`--strict` clean. Info only: 51 `BANDING`, 4 `CLUSTER_THIN`, 2 `JAGGY_LINE`. At this
-size the banding report caps at the 50-per-code limit; the counts are the long straight
-courses of the wall and the roof rows.
+`--strict` clean. Info only: 51 `BANDING`, 6 `CLUSTER_THIN`, 2 `JAGGY_LINE`. The banding
+cap is the wall's courses and the roof's rows; the jaggy runs are the well's curved mouth.
 
 ## Known weaknesses
 
-The stone wall is a flat pale mass at 1×: the joints are 1 px `stone.shadow` lines that
-disappear when the sprite is scaled down, so the well reads as concrete rather than
-masonry. The dirt apron is nearly black and reads as a hole in the frame instead of
-ground. The gable posts are plain brown rectangles with no bracket or chamfer. The
-bucket's light hoops against the dark water make it the brightest small object in the
-bottom third, which pulls the eye away from the well mouth. If this were re-authored I
-would widen the joints to 2 px and lighten the apron one ramp step so the ellipse reads
-as ground.
+The wall's courses are even — every stone is the same height, and the joints line up
+vertically often enough that the masonry reads as brickwork rather than rubble. The gable
+posts are still plain rectangles with no bracket or chamfer. The rope is a 1 px vertical
+that disappears at true size, and the bucket, now dark, is nearly lost against the water.
+The apron's lit crown is a smooth ellipse with no path or grass breaking it up.

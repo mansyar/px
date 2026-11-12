@@ -23,6 +23,20 @@
         "--file",
         "test/art/scene/scene.px.json",
         "--name",
+        "roof_apex",
+        "--x",
+        "128",
+        "--y",
+        "46"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--name",
         "rope_hook",
         "--x",
         "128",
@@ -42,20 +56,6 @@
         "128",
         "--y",
         "178"
-      ]
-    },
-    {
-      "verb": "anchor",
-      "argv": [
-        "anchor",
-        "--file",
-        "test/art/scene/scene.px.json",
-        "--name",
-        "roof_apex",
-        "--x",
-        "128",
-        "--y",
-        "46"
       ]
     },
     {
