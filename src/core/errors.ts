@@ -21,12 +21,20 @@ export type ErrorCode =
   | 'E_UNKNOWN_SLOT'
   | 'E_UNKNOWN_OP'
   | 'E_MISSING_PARAM'
+  | 'E_MISSING_COLOR'
   | 'E_BAD_PARAM'
   | 'E_BAD_LEGEND'
+  | 'E_BAD_GRID'
+  | 'E_UNKNOWN_GLYPH'
+  | 'E_BAD_POLYGON'
+  | 'E_NO_RAMP'
+  | 'E_BANDS_RANGE'
+  | 'E_NO_SUCH_OP'
+  | 'E_DUPLICATE_OP_ID'
   | 'E_LINT_GATE'
   | 'E_INTERNAL';
 
-export type WarningCode = 'W_OUT_OF_BOUNDS' | 'W_ANCHOR_OUT_OF_BOUNDS';
+export type WarningCode = 'W_OUT_OF_BOUNDS' | 'W_ANCHOR_OUT_OF_BOUNDS' | 'W_PASS_NOOP';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -76,11 +84,24 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_BAD_ALPHA:
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
-  E_UNKNOWN_OP: 'Phase 1 accepts set_pixels, rect, and line.',
+  E_UNKNOWN_OP:
+    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, and replace_slot.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
+  E_MISSING_COLOR:
+    'Pass "color": "<family>.<role>" to paint, or "color": null to erase. An omitted colour is an error.',
   E_BAD_PARAM: 'Check the parameter types and ranges for this op.',
   E_BAD_LEGEND: 'A legend maps single characters to declared palette slots.',
+  E_BAD_GRID: 'Every ascii_blit row has the same number of characters.',
+  E_UNKNOWN_GLYPH:
+    'Add the character to the legend, or use "." for transparency, then re-run the op.',
+  E_BAD_POLYGON: 'A polygon needs at least three points, each an [x, y] integer pair.',
+  E_NO_RAMP:
+    'Declare outline/shadow/base/highlight roles for the family, or derive a ramp from the flat colours with --derive-ramps.',
+  E_BANDS_RANGE:
+    'bands is 2 or 3: a family supplies three shading roles (shadow, base, highlight), so a band count above 3 cannot produce more transitions.',
+  E_NO_SUCH_OP: 'Run `px inspect` or read the op_index map from the last write to find the op.',
+  E_DUPLICATE_OP_ID: 'Op ids are unique across the recipe; rename one of the duplicates.',
   E_LINT_GATE:
     'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',

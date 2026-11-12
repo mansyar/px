@@ -8,7 +8,7 @@ import { lintBlocks } from '../lint/index.js';
 import type { LintFinding } from '../lint/types.js';
 import { probeRuntime } from '../probe.js';
 import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
-import { runDraw, runInit, runInspect, runRender, runValidate } from './commands.js';
+import { runDraw, runEdit, runInit, runInspect, runRender, runValidate } from './commands.js';
 import {
   EXIT_ERROR,
   EXIT_LINT,
@@ -30,6 +30,7 @@ function helpPayload(): Record<string, unknown> {
     usage: [
       'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...] [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
+      'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]',
       'px render --file <path> --out <png> [--debug]',
       'px validate --file <path>',
@@ -61,6 +62,8 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runInit(args, cwd);
     case 'draw':
       return runDraw(args, cwd);
+    case 'edit':
+      return runEdit(args, cwd);
     case 'inspect':
       return runInspect(args, cwd);
     case 'render':

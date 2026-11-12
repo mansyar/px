@@ -6,7 +6,7 @@ import { causeMessage, PxError, type PxWarning } from '../errors.js';
 import { buildSlotTable, type SlotTable } from '../palette.js';
 import { normalizeRecipe } from './normalize.js';
 import type { Recipe } from './types.js';
-import { validateSlots } from './validate.js';
+import { validateReferences } from './validate.js';
 
 export interface ParseResult {
   recipe: Recipe;
@@ -28,6 +28,6 @@ export function parseRecipe(text: string): ParseResult {
 
   const { recipe, warnings } = normalizeRecipe(raw);
   const slots = buildSlotTable(recipe.palette);
-  validateSlots(recipe, slots);
+  validateReferences(recipe, slots);
   return { recipe, slots, warnings };
 }

@@ -181,6 +181,8 @@ export interface FamilySlots {
   name: string;
   letter: string;
   slots: string[];
+  /** A flat family cannot express ramp roles, which `E_NO_RAMP` reports. */
+  kind: 'ramp' | 'flat';
 }
 
 export interface SlotTable {
@@ -213,7 +215,12 @@ export function buildSlotTable(palette: Palette): SlotTable {
       names.push(slot);
       rgba.push(normalized.rgba[index]);
     });
-    families.push({ name, letter, slots: normalized.slots });
+    families.push({
+      name,
+      letter,
+      slots: normalized.slots,
+      kind: isRampFamily(normalized.family) ? 'ramp' : 'flat',
+    });
   });
 
   return {
@@ -225,4 +232,63 @@ export function buildSlotTable(palette: Palette): SlotTable {
       return byName.get(slot);
     },
   };
+}
+
+/** Spell out the roles a family defines, for an unknown-slot hint. */
+export function slotHint(slot: string, slots: SlotTable): string {
+  const separator = slot.lastIndexOf('.');
+  const familyName = separator === -1 ? slot : slot.slice(0, separator);
+  const family = slots.families.find((entry) => entry.name === familyName);
+  if (family !== undefined) {
+    const roles = family.slots.map((name) => name.slice(familyName.length + 1));
+    return `Family "${familyName}" defines ${roles.join(', ')}.`;
+  }
+  const known = slots.familyNames.join(', ');
+  return known === ''
+    ? 'The palette declares no families; add one before drawing.'
+    : `Palette defines ${known}.`;
+}
+
+/**
+ * Slot-index view of the palette. Post-passes resolve a family's ramp role from
+ * the slot they are looking at, so the lookup has to be by index, not by name.
+ */
+export interface SlotRoles {
+  /** Slot index to the index of its family in `SlotTable.families`. */
+  familyOfSlot: number[];
+  /** Family index to its role slots, by role. Empty for flat families. */
+  roleSlots: Array<Partial<Record<RampRole, number>>>;
+}
+
+export function buildSlotRoles(slots: SlotTable): SlotRoles {
+  const familyOfSlot = new Array<number>(slots.names.length).fill(0);
+  const roleSlots: Array<Partial<Record<RampRole, number>>> = [];
+
+  slots.families.forEach((family, familyIndex) => {
+    const roles: Partial<Record<RampRole, number>> = {};
+    for (const slotName of family.slots) {
+      const slotIndex = slots.resolve(slotName);
+      if (slotIndex === undefined) {
+        continue;
+      }
+      familyOfSlot[slotIndex] = familyIndex;
+      const dot = slotName.lastIndexOf('.');
+      const role = slotName.slice(dot + 1);
+      if (family.kind === 'ramp' && RAMP_ROLES.includes(role as RampRole)) {
+        roles[role as RampRole] = slotIndex;
+      }
+    }
+    roleSlots.push(roles);
+  });
+
+  return { familyOfSlot, roleSlots };
+}
+
+/** The slot a family uses for a role, or undefined when it does not define it. */
+export function roleSlot(roles: SlotRoles, slotIndex: number, role: RampRole): number | undefined {
+  const familyIndex = roles.familyOfSlot[slotIndex];
+  if (familyIndex === undefined) {
+    return undefined;
+  }
+  return roles.roleSlots[familyIndex]?.[role];
 }

@@ -10,19 +10,37 @@ import { normalizeFamily } from '../palette.js';
 import {
   type Anchor,
   type Anchors,
+  type AsciiBlitOp,
+  type AutoOutlineOp,
+  type AutoShadeOp,
+  DITHER_PATTERNS,
+  type DitherFillOp,
+  type DitherPattern,
+  type EllipseOp,
+  type FloodFillOp,
   type Layer,
+  LIGHT_DIRS,
+  type LightDir,
   type LineOp,
   MAX_CANVAS_SIZE,
   MIN_CANVAS_SIZE,
   OP_PARAM_ORDER,
   type Op,
   type OpName,
+  OUTLINE_MODES,
+  OUTLINE_WHERES,
+  type OutlineMode,
+  type OutlineWhere,
   type Palette,
+  type PolygonOp,
+  type RampFillOp,
   RECIPE_VERSION,
   type Recipe,
   type RecipeMeta,
   type RectOp,
+  type ReplaceSlotOp,
   type SetPixelsOp,
+  type SlotRef,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
@@ -203,34 +221,133 @@ function intParam(
   return value;
 }
 
+function stringParam(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): string {
+  const value = source[key];
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (${opName}) is missing "${key}"`,
+      `Parameters for ${opName} are ${OP_PARAM_ORDER[opName as OpName].join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof value !== 'string' || value === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-string or empty "${key}"`,
+      `"${key}" is a slot name such as "steel.base".`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+function optionalStringParam(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): string | undefined {
+  if (source[key] === undefined) {
+    return undefined;
+  }
+  return stringParam(source, key, opName, opIndex, layer);
+}
+
+function enumParam<T extends string>(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+  allowed: readonly T[],
+  required: boolean,
+): T | undefined {
+  const value = source[key];
+  if (value === undefined) {
+    if (required) {
+      throw new PxError(
+        'E_MISSING_PARAM',
+        `Op ${opIndex} (${opName}) is missing "${key}"`,
+        `"${key}" is one of ${allowed.join(', ')}.`,
+        opLocation(layer, opIndex),
+      );
+    }
+    return undefined;
+  }
+  const match = typeof value === 'string' ? allowed.find((entry) => entry === value) : undefined;
+  if (match === undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has an invalid "${key}": ${JSON.stringify(value)}`,
+      `"${key}" is one of ${allowed.join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return match;
+}
+
+function boolParam(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): boolean | undefined {
+  const value = source[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'boolean') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-boolean "${key}"`,
+      `"${key}" is true or false.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+/**
+ * Present-and-null is an erase; absent is an error. The presence check is
+ * `'color' in source`, never a truthiness test: `null` is a valid value here and
+ * the whole erase semantics depends on telling the two apart.
+ */
 function colorParam(
   source: Record<string, unknown>,
   opName: string,
   opIndex: number,
   layer: string,
-): string {
-  const value = source.color;
-  if (value === undefined) {
+  required = true,
+): SlotRef | undefined {
+  if (!('color' in source)) {
+    if (!required) {
+      return undefined;
+    }
     throw new PxError(
-      'E_MISSING_PARAM',
+      'E_MISSING_COLOR',
       `Op ${opIndex} (${opName}) is missing "color"`,
-      'Pass a palette slot such as "steel.base".',
+      'Pass "color": "<family>.<role>" to paint, or "color": null to erase.',
       opLocation(layer, opIndex),
     );
   }
+  const value = source.color;
   if (value === null) {
-    throw new PxError(
-      'E_BAD_PARAM',
-      `Op ${opIndex} (${opName}) has "color": null`,
-      'Phase 1 does not accept erase; pass a palette slot such as "steel.base".',
-      opLocation(layer, opIndex),
-    );
+    return null;
   }
-  if (typeof value !== 'string') {
+  if (typeof value !== 'string' || value === '') {
     throw new PxError(
       'E_BAD_PARAM',
       `Op ${opIndex} (${opName}) has a non-string "color"`,
-      'Colour is the palette slot name, e.g. "steel.base".',
+      'Colour is a palette slot name such as "steel.base", or null to erase.',
       opLocation(layer, opIndex),
     );
   }
@@ -239,23 +356,27 @@ function colorParam(
 
 function pointsParam(
   source: Record<string, unknown>,
+  opName: string,
   opIndex: number,
   layer: string,
+  minimum: number,
 ): Array<[number, number]> {
   const value = source.points;
   if (value === undefined) {
     throw new PxError(
       'E_MISSING_PARAM',
-      `Op ${opIndex} (set_pixels) is missing "points"`,
-      'Pass points as [[x, y], ...] with at least one coordinate.',
+      `Op ${opIndex} (${opName}) is missing "points"`,
+      'Pass points as [[x, y], ...].',
       opLocation(layer, opIndex),
     );
   }
-  if (!Array.isArray(value) || value.length === 0) {
+  if (!Array.isArray(value) || value.length < minimum) {
     throw new PxError(
-      'E_BAD_PARAM',
-      `Op ${opIndex} (set_pixels) has no points`,
-      'Pass points as [[x, y], ...] with at least one coordinate.',
+      opName === 'polygon' ? 'E_BAD_POLYGON' : 'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has ${Array.isArray(value) ? value.length : 'no'} points; at least ${minimum} are required`,
+      opName === 'polygon'
+        ? 'A polygon needs at least three points, each an [x, y] integer pair.'
+        : 'Pass points as [[x, y], ...] with at least one coordinate.',
       opLocation(layer, opIndex),
     );
   }
@@ -269,14 +390,36 @@ function pointsParam(
       !Number.isInteger(entry[1])
     ) {
       throw new PxError(
-        'E_BAD_PARAM',
-        `Op ${opIndex} (set_pixels) point ${pointIndex} is not an [x, y] integer pair`,
+        opName === 'polygon' ? 'E_BAD_POLYGON' : 'E_BAD_PARAM',
+        `Op ${opIndex} (${opName}) point ${pointIndex} is not an [x, y] integer pair`,
         'Pass points as [[x, y], ...].',
         opLocation(layer, opIndex),
       );
     }
     return [entry[0], entry[1]];
   });
+}
+
+/** Shared x, y, w, h reader for the rectangle-shaped ops. */
+function regionParams(
+  source: Record<string, unknown>,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): { x: number; y: number; w: number; h: number } {
+  const x = intParam(source, 'x', opName, opIndex, layer);
+  const y = intParam(source, 'y', opName, opIndex, layer);
+  const w = intParam(source, 'w', opName, opIndex, layer);
+  const h = intParam(source, 'h', opName, opIndex, layer);
+  if (w < 1 || h < 1) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-positive size: ${w}x${h}`,
+      `${opName} width and height are at least 1.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return { x, y, w, h };
 }
 
 function normalizeSetPixels(
@@ -286,25 +429,18 @@ function normalizeSetPixels(
 ): SetPixelsOp {
   return {
     op: 'set_pixels',
-    points: pointsParam(source, opIndex, layer),
-    color: colorParam(source, 'set_pixels', opIndex, layer),
+    points: pointsParam(source, 'set_pixels', opIndex, layer, 1),
+    color: colorParam(source, 'set_pixels', opIndex, layer) ?? null,
   };
 }
 
 function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: string): RectOp {
-  const x = intParam(source, 'x', 'rect', opIndex, layer);
-  const y = intParam(source, 'y', 'rect', opIndex, layer);
-  const w = intParam(source, 'w', 'rect', opIndex, layer);
-  const h = intParam(source, 'h', 'rect', opIndex, layer);
-  if (w < 1 || h < 1) {
-    throw new PxError(
-      'E_BAD_PARAM',
-      `Op ${opIndex} (rect) has a non-positive size: ${w}x${h}`,
-      'rect width and height are at least 1.',
-      opLocation(layer, opIndex),
-    );
-  }
-  return { op: 'rect', x, y, w, h, color: colorParam(source, 'rect', opIndex, layer) };
+  const region = regionParams(source, 'rect', opIndex, layer);
+  return {
+    op: 'rect',
+    ...region,
+    color: colorParam(source, 'rect', opIndex, layer) ?? null,
+  };
 }
 
 function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: string): LineOp {
@@ -314,23 +450,361 @@ function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: 
     y1: intParam(source, 'y1', 'line', opIndex, layer),
     x2: intParam(source, 'x2', 'line', opIndex, layer),
     y2: intParam(source, 'y2', 'line', opIndex, layer),
-    color: colorParam(source, 'line', opIndex, layer),
+    color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
-  const pixelPerfect = source.pixel_perfect;
-  if (pixelPerfect !== undefined) {
-    if (typeof pixelPerfect !== 'boolean') {
+  if (boolParam(source, 'pixel_perfect', 'line', opIndex, layer) === true) {
+    op.pixelPerfect = true;
+  }
+  return op;
+}
+
+function normalizeEllipse(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): EllipseOp {
+  const region = regionParams(source, 'ellipse', opIndex, layer);
+  const op: EllipseOp = {
+    op: 'ellipse',
+    ...region,
+    color: colorParam(source, 'ellipse', opIndex, layer) ?? null,
+  };
+  if (boolParam(source, 'fill', 'ellipse', opIndex, layer) === true) {
+    op.fill = true;
+  }
+  return op;
+}
+
+function normalizePolygon(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): PolygonOp {
+  return {
+    op: 'polygon',
+    points: pointsParam(source, 'polygon', opIndex, layer, 3),
+    color: colorParam(source, 'polygon', opIndex, layer) ?? null,
+  };
+}
+
+function normalizeFloodFill(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): FloodFillOp {
+  const op: FloodFillOp = {
+    op: 'flood_fill',
+    x: intParam(source, 'x', 'flood_fill', opIndex, layer),
+    y: intParam(source, 'y', 'flood_fill', opIndex, layer),
+    color: colorParam(source, 'flood_fill', opIndex, layer) ?? null,
+  };
+  const connectivity = source.connectivity;
+  if (connectivity !== undefined) {
+    if (connectivity !== 4 && connectivity !== 8) {
       throw new PxError(
         'E_BAD_PARAM',
-        `Op ${opIndex} (line) has a non-boolean "pixel_perfect"`,
-        'pixel_perfect is true or false.',
+        `Op ${opIndex} (flood_fill) has connectivity ${JSON.stringify(connectivity)}`,
+        'connectivity is 4 or 8; it defaults to 4.',
         opLocation(layer, opIndex),
       );
     }
-    if (pixelPerfect) {
-      op.pixelPerfect = true;
+    if (connectivity === 8) {
+      op.connectivity = 8;
     }
   }
   return op;
+}
+
+function normalizeDitherFill(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): DitherFillOp {
+  const region = regionParams(source, 'dither_fill', opIndex, layer);
+  const pattern = enumParam<DitherPattern>(
+    source,
+    'pattern',
+    'dither_fill',
+    opIndex,
+    layer,
+    DITHER_PATTERNS,
+    true,
+  );
+  return {
+    op: 'dither_fill',
+    ...region,
+    color: colorParam(source, 'dither_fill', opIndex, layer) ?? null,
+    pattern: pattern ?? DITHER_PATTERNS[0],
+  };
+}
+
+function gridParam(source: Record<string, unknown>, opIndex: number, layer: string): string[] {
+  const value = source.grid;
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (ascii_blit) is missing "grid"`,
+      'Pass grid as an array of equal-length strings.',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new PxError(
+      'E_BAD_GRID',
+      `Op ${opIndex} (ascii_blit) has an empty grid`,
+      'Pass at least one row of characters.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const rows: string[] = [];
+  let width = -1;
+  value.forEach((row, rowIndex) => {
+    if (typeof row !== 'string') {
+      throw new PxError(
+        'E_BAD_GRID',
+        `Op ${opIndex} (ascii_blit) row ${rowIndex} is not a string`,
+        'Every grid row is a string of characters.',
+        opLocation(layer, opIndex),
+      );
+    }
+    const length = Array.from(row).length;
+    if (length === 0) {
+      throw new PxError(
+        'E_BAD_GRID',
+        `Op ${opIndex} (ascii_blit) row ${rowIndex} is empty`,
+        'Every row has at least one character.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (width === -1) {
+      width = length;
+    } else if (length !== width) {
+      throw new PxError(
+        'E_BAD_GRID',
+        `Op ${opIndex} (ascii_blit) row ${rowIndex} has ${length} characters; row 0 has ${width}`,
+        'Pad every row to the same length.',
+        opLocation(layer, opIndex),
+      );
+    }
+    rows.push(row);
+  });
+  return rows;
+}
+
+function legendParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): Record<string, string> {
+  const value = source.legend;
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (ascii_blit) is missing "legend"`,
+      'Pass legend as {"#": "steel.outline", ...}.',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (!isRecord(value)) {
+    throw new PxError(
+      'E_BAD_LEGEND',
+      `Op ${opIndex} (ascii_blit) has a non-object legend`,
+      'A legend maps single characters to declared palette slots.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const entries = Object.entries(value);
+  if (entries.length === 0) {
+    throw new PxError(
+      'E_BAD_LEGEND',
+      `Op ${opIndex} (ascii_blit) has an empty legend`,
+      'Map at least one character to a slot.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const legend: Record<string, string> = {};
+  for (const [glyph, slot] of entries) {
+    if (Array.from(glyph).length !== 1) {
+      throw new PxError(
+        'E_BAD_LEGEND',
+        `Op ${opIndex} (ascii_blit) legend key ${JSON.stringify(glyph)} is not a single character`,
+        'Each key is exactly one character.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (typeof slot !== 'string' || slot === '') {
+      throw new PxError(
+        'E_BAD_LEGEND',
+        `Op ${opIndex} (ascii_blit) legend entry "${glyph}" is not a slot name`,
+        'Map each character to a declared palette slot such as "steel.base".',
+        opLocation(layer, opIndex),
+      );
+    }
+    legend[glyph] = slot;
+  }
+  return legend;
+}
+
+function normalizeAsciiBlit(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): AsciiBlitOp {
+  const x = intParam(source, 'x', 'ascii_blit', opIndex, layer);
+  const y = intParam(source, 'y', 'ascii_blit', opIndex, layer);
+  const grid = gridParam(source, opIndex, layer);
+  const legend = legendParam(source, opIndex, layer);
+
+  grid.forEach((row, rowIndex) => {
+    Array.from(row).forEach((glyph, columnIndex) => {
+      // `.` is transparent unless the legend claims it.
+      if (glyph === '.' && legend[glyph] === undefined) {
+        return;
+      }
+      if (legend[glyph] === undefined) {
+        throw new PxError(
+          'E_UNKNOWN_GLYPH',
+          `Op ${opIndex} (ascii_blit) uses character ${JSON.stringify(glyph)} at row ${rowIndex}, column ${columnIndex}, which the legend does not define`,
+          'Add the character to the legend, or use "." for transparency.',
+          opLocation(layer, opIndex),
+        );
+      }
+    });
+  });
+
+  return { op: 'ascii_blit', x, y, grid, legend };
+}
+
+function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, layer: string): Op {
+  const axis = enumParam(source, 'axis', 'mirror', opIndex, layer, ['x', 'y'] as const, true);
+  const pivot = source.pivot;
+  if (pivot === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (mirror) is missing "pivot"`,
+      '"pivot" is an integer or half-integer axis coordinate.',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof pivot !== 'number' || !Number.isFinite(pivot) || !Number.isInteger(pivot * 2)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (mirror) has pivot ${JSON.stringify(pivot)}`,
+      '"pivot" is a whole or half-pixel coordinate, e.g. 7 or 7.5.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return { op: 'mirror', axis: axis ?? 'x', pivot };
+}
+
+function normalizeAutoOutline(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): AutoOutlineOp {
+  const mode = enumParam<OutlineMode>(
+    source,
+    'mode',
+    'auto_outline',
+    opIndex,
+    layer,
+    OUTLINE_MODES,
+    false,
+  );
+  const where = enumParam<OutlineWhere>(
+    source,
+    'where',
+    'auto_outline',
+    opIndex,
+    layer,
+    OUTLINE_WHERES,
+    false,
+  );
+  const selective = boolParam(source, 'selective', 'auto_outline', opIndex, layer);
+  const color = colorParam(source, 'auto_outline', opIndex, layer, selective !== true);
+  const op: AutoOutlineOp = { op: 'auto_outline' };
+  if (mode !== undefined) {
+    op.mode = mode;
+  }
+  if (where !== undefined) {
+    op.where = where;
+  }
+  if (color !== undefined) {
+    op.color = color;
+  }
+  if (selective === true) {
+    op.selective = true;
+  }
+  const targetLayer = optionalStringParam(source, 'target_layer', 'auto_outline', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
+function normalizeAutoShade(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): AutoShadeOp {
+  const lightDir = enumParam<LightDir>(
+    source,
+    'light_dir',
+    'auto_shade',
+    opIndex,
+    layer,
+    LIGHT_DIRS,
+    true,
+  );
+  const op: AutoShadeOp = { op: 'auto_shade', lightDir: lightDir ?? 'top-left' };
+  const targetLayer = optionalStringParam(source, 'target_layer', 'auto_shade', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
+function normalizeRampFill(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): RampFillOp {
+  const bands = intParam(source, 'bands', 'ramp_fill', opIndex, layer);
+  if (bands < 2 || bands > 3) {
+    throw new PxError(
+      'E_BANDS_RANGE',
+      `Op ${opIndex} (ramp_fill) has ${bands} bands`,
+      'bands is 2 or 3: a family supplies three shading roles (shadow, base, highlight), so a band count above 3 cannot produce more transitions.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const lightDir = enumParam<LightDir>(
+    source,
+    'light_dir',
+    'ramp_fill',
+    opIndex,
+    layer,
+    LIGHT_DIRS,
+    true,
+  );
+  const op: RampFillOp = { op: 'ramp_fill', bands, lightDir: lightDir ?? 'top-left' };
+  const targetLayer = optionalStringParam(source, 'target_layer', 'ramp_fill', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
+function normalizeReplaceSlot(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): ReplaceSlotOp {
+  return {
+    op: 'replace_slot',
+    from: stringParam(source, 'from', 'replace_slot', opIndex, layer),
+    to: stringParam(source, 'to', 'replace_slot', opIndex, layer),
+  };
 }
 
 function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
@@ -347,7 +821,7 @@ function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
     throw new PxError(
       'E_UNKNOWN_OP',
       `Unknown op "${name}" in op ${opIndex}`,
-      `Phase 1 accepts ${OP_NAMES.join(', ')}.`,
+      `Ops are ${OP_NAMES.join(', ')}.`,
       opLocation(layer, opIndex),
     );
   }
@@ -370,6 +844,26 @@ function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
   return normalizeOpObject(expanded, opIndex, layer);
 }
 
+function opIdParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): string | undefined {
+  const value = source.id;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} has a non-string or empty "id"`,
+      'An op id is a non-empty string, unique across the recipe.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
 function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer: string): Op {
   const name = raw.op;
   if (typeof name !== 'string') {
@@ -384,16 +878,31 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
     throw new PxError(
       'E_UNKNOWN_OP',
       `Unknown op "${name}" in op ${opIndex}`,
-      `Phase 1 accepts ${OP_NAMES.join(', ')}.`,
+      `Ops are ${OP_NAMES.join(', ')}.`,
       opLocation(layer, opIndex),
     );
   }
   unknownKeys(
     raw,
-    OP_PARAM_ORDER[name as OpName].concat('op'),
+    OP_PARAM_ORDER[name as OpName].concat('op', 'id'),
     'E_BAD_PARAM',
     `Op ${opIndex} (${name})`,
   );
+
+  const id = opIdParam(raw, opIndex, layer);
+  const op = normalizeOpBody(name as OpName, raw, opIndex, layer);
+  if (id !== undefined) {
+    op.id = id;
+  }
+  return op;
+}
+
+function normalizeOpBody(
+  name: OpName,
+  raw: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): Op {
   switch (name) {
     case 'set_pixels':
       return normalizeSetPixels(raw, opIndex, layer);
@@ -401,13 +910,26 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
       return normalizeRect(raw, opIndex, layer);
     case 'line':
       return normalizeLine(raw, opIndex, layer);
-    default:
-      throw new PxError(
-        'E_UNKNOWN_OP',
-        `Unknown op "${name}" in op ${opIndex}`,
-        `Phase 1 accepts ${OP_NAMES.join(', ')}.`,
-        opLocation(layer, opIndex),
-      );
+    case 'ellipse':
+      return normalizeEllipse(raw, opIndex, layer);
+    case 'polygon':
+      return normalizePolygon(raw, opIndex, layer);
+    case 'flood_fill':
+      return normalizeFloodFill(raw, opIndex, layer);
+    case 'dither_fill':
+      return normalizeDitherFill(raw, opIndex, layer);
+    case 'ascii_blit':
+      return normalizeAsciiBlit(raw, opIndex, layer);
+    case 'mirror':
+      return normalizeMirrorOp(raw, opIndex, layer);
+    case 'auto_outline':
+      return normalizeAutoOutline(raw, opIndex, layer);
+    case 'auto_shade':
+      return normalizeAutoShade(raw, opIndex, layer);
+    case 'ramp_fill':
+      return normalizeRampFill(raw, opIndex, layer);
+    case 'replace_slot':
+      return normalizeReplaceSlot(raw, opIndex, layer);
   }
 }
 
@@ -419,7 +941,7 @@ export function normalizeOp(raw: unknown, opIndex: number, layer: string): Op {
     throw new PxError(
       'E_UNKNOWN_OP',
       `Op ${opIndex} is neither an object nor a tuple`,
-      `Object ops declare "op"; tuples start with the op name. Phase 1 accepts ${OP_NAMES.join(', ')}.`,
+      `Object ops declare "op"; tuples start with the op name. Ops are ${OP_NAMES.join(', ')}.`,
       opLocation(layer, opIndex),
     );
   }
@@ -472,6 +994,28 @@ function normalizeLayers(raw: unknown): Layer[] {
   });
 }
 
+/** Op ids address ops across the whole recipe, so they must be unique globally. */
+function validateOpIds(layers: readonly Layer[]): void {
+  const seen = new Map<string, { layer: string; index: number }>();
+  for (const layer of layers) {
+    layer.ops.forEach((op, opIndex) => {
+      if (op.id === undefined) {
+        return;
+      }
+      const previous = seen.get(op.id);
+      if (previous !== undefined) {
+        throw new PxError(
+          'E_DUPLICATE_OP_ID',
+          `Op id "${op.id}" appears more than once: layer "${previous.layer}" op ${previous.index} and layer "${layer.id}" op ${opIndex}`,
+          'Op ids are unique across the recipe; rename one of the duplicates.',
+          opLocation(layer.id, opIndex),
+        );
+      }
+      seen.set(op.id, { layer: layer.id, index: opIndex });
+    });
+  }
+}
+
 export interface NormalizeResult {
   recipe: Recipe;
   warnings: PxWarning[];
@@ -500,6 +1044,7 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   const palette = normalizePalette(raw.palette);
   const { anchors, warnings } = normalizeAnchors(raw.anchors, meta.width, meta.height);
   const layers = normalizeLayers(raw.layers);
+  validateOpIds(layers);
 
   return { recipe: { version: RECIPE_VERSION, meta, palette, anchors, layers }, warnings };
 }

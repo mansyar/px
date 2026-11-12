@@ -11,7 +11,13 @@ import { type buildSlotTable, parseHex, TRANSPARENT_SLOT } from '../core/palette
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
-import { type Palette, RAMP_ROLES, RECIPE_VERSION, type Recipe } from '../core/recipe/types.js';
+import {
+  type Op,
+  type Palette,
+  RAMP_ROLES,
+  RECIPE_VERSION,
+  type Recipe,
+} from '../core/recipe/types.js';
 import { lintCompiled } from '../lint/index.js';
 import { renderDebugSheet } from '../render/debug/sheet.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
@@ -227,6 +233,135 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layer: layerId,
     added: appended.length,
     layer_ops: nextOps.length,
+    op_index: opIndexMap(parsed.recipe),
+    layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
+  };
+}
+
+export interface OpIndexEntry {
+  index: number;
+  id: string | null;
+  layer: string;
+  op: Op;
+}
+
+/**
+ * Where every op sits, flat and in recipe order. Ids are stable addresses, so
+ * this map is what a client edits against instead of re-inspecting the file.
+ * `index` is per layer; `layer` disambiguates it.
+ */
+export function opIndexMap(recipe: Recipe): OpIndexEntry[] {
+  const entries: OpIndexEntry[] = [];
+  for (const layer of recipe.layers) {
+    layer.ops.forEach((op, index) => {
+      entries.push({ index, id: op.id ?? null, layer: layer.id, op });
+    });
+  }
+  return entries;
+}
+
+function parseOpIndex(value: string | undefined, count: number, layer: string): number {
+  if (value === undefined) {
+    throw usageError(
+      'Missing --id or --op-index',
+      'Address the op with --id <op id>, or --layer <layer> --op-index <n>.',
+    );
+  }
+  const index = Number(value);
+  if (!Number.isInteger(index)) {
+    throw usageError(`--op-index is not an integer: "${value}"`, 'Pass a zero-based op index.');
+  }
+  if (index < 0 || index >= count) {
+    throw new PxError(
+      'E_NO_SUCH_OP',
+      `No op at index ${index} in layer "${layer}"`,
+      count === 0 ? `Layer "${layer}" has no ops.` : `Layer "${layer}" has ops 0-${count - 1}.`,
+      { layer, op_index: index },
+    );
+  }
+  return index;
+}
+
+export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const target = resolve(cwd, file);
+  const { recipe } = readSource(target, file);
+
+  const requestedLayer = args.layer ?? recipe.layers[0]?.id;
+  if (requestedLayer === undefined) {
+    throw new PxError(
+      'E_NO_SUCH_LAYER',
+      `Recipe ${file} has no layers to edit`,
+      'Add a layer to the recipe, e.g. {"id": "base", "ops": []}.',
+    );
+  }
+  const layerEntry = recipe.layers.find((entry) => entry.id === requestedLayer);
+  if (layerEntry === undefined) {
+    throw new PxError(
+      'E_NO_SUCH_LAYER',
+      `Layer "${requestedLayer}" does not exist in ${file}`,
+      `Layers are ${recipe.layers.map((entry) => entry.id).join(', ') || 'none'}.`,
+    );
+  }
+
+  let layer = layerEntry;
+  let index: number;
+  if (args.id !== undefined) {
+    const scope =
+      args.layer === undefined
+        ? recipe.layers
+        : recipe.layers.filter((entry) => entry.id === requestedLayer);
+    const found = scope
+      .flatMap((entry) => entry.ops.map((op, opIndex) => ({ layer: entry, op, opIndex })))
+      .find((candidate) => candidate.op.id === args.id);
+    if (found === undefined) {
+      const ids = recipe.layers.flatMap((entry) =>
+        entry.ops.flatMap((op) => (op.id === undefined ? [] : [op.id])),
+      );
+      throw new PxError(
+        'E_NO_SUCH_OP',
+        `No op with id "${args.id}" in ${file}`,
+        ids.length === 0
+          ? 'No op in this recipe has an id; add "id" to an op and re-run.'
+          : `Op ids are ${ids.join(', ')}.`,
+      );
+    }
+    layer = found.layer;
+    index = found.opIndex;
+  } else {
+    index = parseOpIndex(args.opIndex, layerEntry.ops.length, requestedLayer);
+  }
+  const layerId = layer.id;
+
+  if (args.ops === undefined) {
+    throw usageError('Missing --ops', 'Pass --ops as a JSON array of the replacement op(s).');
+  }
+  const replacements = parseOpList(args.ops).map((raw, offset) =>
+    normalizeOp(raw, index + offset, layerId),
+  );
+
+  const nextOps = [...layer.ops.slice(0, index), ...replacements, ...layer.ops.slice(index + 1)];
+  const next: Recipe = {
+    ...recipe,
+    layers: recipe.layers.map((entry) =>
+      entry.id === layerId ? { id: entry.id, ops: nextOps } : entry,
+    ),
+  };
+  const text = serializeRecipe(next);
+  const parsed = parseRecipe(text);
+
+  const outFile = args.out ?? file;
+  const outTarget = resolve(cwd, outFile);
+  ensureParent(outTarget);
+  writeFileSync(outTarget, text, 'utf8');
+
+  return {
+    file: outFile,
+    layer: layerId,
+    replaced: index,
+    added: replacements.length,
+    layer_ops: nextOps.length,
+    op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
   };
 }

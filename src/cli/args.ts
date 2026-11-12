@@ -16,6 +16,8 @@ export interface ParsedArgs {
   width?: string;
   height?: string;
   palette?: string;
+  id?: string;
+  opIndex?: string;
   pretty: boolean;
   force: boolean;
   help: boolean;
@@ -23,7 +25,14 @@ export interface ParsedArgs {
   strict: boolean;
 }
 
-export const COMMANDS: readonly string[] = ['init', 'draw', 'inspect', 'render', 'validate'];
+export const COMMANDS: readonly string[] = [
+  'init',
+  'draw',
+  'edit',
+  'inspect',
+  'render',
+  'validate',
+];
 
 function usageError(message: string, hint: string): PxError {
   return new PxError('E_USAGE', message, hint);
@@ -58,10 +67,16 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'palette':
       parsed.palette = value;
       return;
+    case 'id':
+      parsed.id = value;
+      return;
+    case 'op-index':
+      parsed.opIndex = value;
+      return;
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette.',
+        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index.',
       );
   }
 }

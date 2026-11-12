@@ -6,7 +6,7 @@
  * read-write cycle is byte-identical to what was read.
  */
 
-import { type Op, type Palette, RAMP_ROLES, type Recipe } from './types.js';
+import { type Anchors, type Op, type Palette, RAMP_ROLES, type Recipe } from './types.js';
 
 function canonicalMeta(recipe: Recipe): Record<string, unknown> {
   return {
@@ -37,47 +37,95 @@ function canonicalPalette(palette: Palette): Record<string, unknown> {
   return out;
 }
 
-function canonicalAnchors(recipe: Recipe): Record<string, number[]> {
+function canonicalAnchors(anchors: Anchors): Record<string, number[]> {
   const out: Record<string, number[]> = {};
-  for (const name of Object.keys(recipe.anchors).sort()) {
-    const [x, y] = recipe.anchors[name];
+  for (const name of Object.keys(anchors).sort()) {
+    const [x, y] = anchors[name];
     out[name] = [x, y];
   }
   return out;
 }
 
-export function canonicalOp(op: Op): Record<string, unknown> {
+/** Drop absent optionals so the written form never carries `undefined`. */
+function defined(entries: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(entries)) {
+    if (value !== undefined) {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
+/** Parameters in `OP_PARAM_ORDER` order. `id` is added by the caller, first. */
+function opParams(op: Op): Record<string, unknown> {
   switch (op.op) {
     case 'set_pixels':
       return {
-        op: 'set_pixels',
         points: op.points.map(([x, y]) => [x, y]),
         color: op.color,
       };
     case 'rect':
-      return {
-        op: 'rect',
-        x: op.x,
-        y: op.y,
-        w: op.w,
-        h: op.h,
-        color: op.color,
-      };
-    case 'line': {
-      const value: Record<string, unknown> = {
-        op: 'line',
+      return { x: op.x, y: op.y, w: op.w, h: op.h, color: op.color };
+    case 'line':
+      return defined({
         x1: op.x1,
         y1: op.y1,
         x2: op.x2,
         y2: op.y2,
         color: op.color,
+        pixel_perfect: op.pixelPerfect === true ? true : undefined,
+      });
+    case 'ellipse':
+      return defined({
+        x: op.x,
+        y: op.y,
+        w: op.w,
+        h: op.h,
+        color: op.color,
+        fill: op.fill === true ? true : undefined,
+      });
+    case 'polygon':
+      return {
+        points: op.points.map(([x, y]) => [x, y]),
+        color: op.color,
       };
-      if (op.pixelPerfect === true) {
-        value.pixel_perfect = true;
-      }
-      return value;
-    }
+    case 'flood_fill':
+      return defined({
+        x: op.x,
+        y: op.y,
+        color: op.color,
+        connectivity: op.connectivity,
+      });
+    case 'dither_fill':
+      return { x: op.x, y: op.y, w: op.w, h: op.h, color: op.color, pattern: op.pattern };
+    case 'ascii_blit':
+      return { x: op.x, y: op.y, grid: [...op.grid], legend: { ...op.legend } };
+    case 'mirror':
+      return { axis: op.axis, pivot: op.pivot };
+    case 'auto_outline':
+      return defined({
+        mode: op.mode,
+        where: op.where,
+        color: op.color,
+        selective: op.selective,
+        target_layer: op.targetLayer,
+      });
+    case 'auto_shade':
+      return defined({ light_dir: op.lightDir, target_layer: op.targetLayer });
+    case 'ramp_fill':
+      return defined({ bands: op.bands, light_dir: op.lightDir, target_layer: op.targetLayer });
+    case 'replace_slot':
+      return { from: op.from, to: op.to };
   }
+}
+
+export function canonicalOp(op: Op): Record<string, unknown> {
+  const out: Record<string, unknown> = { op: op.op };
+  if (op.id !== undefined) {
+    out.id = op.id;
+  }
+  return Object.assign(out, opParams(op));
 }
 
 export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
@@ -85,7 +133,7 @@ export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
     version: recipe.version,
     meta: canonicalMeta(recipe),
     palette: canonicalPalette(recipe.palette),
-    anchors: canonicalAnchors(recipe),
+    anchors: canonicalAnchors(recipe.anchors),
     layers: recipe.layers.map((layer) => ({
       id: layer.id,
       ops: layer.ops.map((op) => canonicalOp(op)),

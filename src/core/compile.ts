@@ -2,12 +2,16 @@
  * Recipe compilation: every layer's ops into its own slot buffer, then a single
  * flattened buffer for export and inspection. Warnings are collected per op, so
  * one clipped op reports once regardless of how many pixels fell outside.
+ *
+ * Layers are compiled in recipe order. A post-pass reads `target_layer` — by
+ * default its own layer — as that layer stands when the op runs, which is why
+ * the ordinary direction is a post-pass in a higher layer reading a lower one.
  */
 
 import { SlotCanvas } from './canvas.js';
-import { PxError, type PxWarning } from './errors.js';
+import type { PxWarning } from './errors.js';
 import { applyOp } from './ops/index.js';
-import { buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
+import { buildSlotRoles, buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
 import type { Recipe } from './recipe/types.js';
 
 export interface CompiledLayer {
@@ -44,23 +48,34 @@ export function flattenLayers(
 export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const { width, height } = recipe.meta;
   const slots = buildSlotTable(recipe.palette);
+  const roles = buildSlotRoles(slots);
   const warnings: PxWarning[] = [];
 
-  const layers: CompiledLayer[] = recipe.layers.map((layer) => {
-    const target: CompiledLayer = { id: layer.id, canvas: new SlotCanvas(width, height) };
+  const layers: CompiledLayer[] = recipe.layers.map((layer) => ({
+    id: layer.id,
+    canvas: new SlotCanvas(width, height),
+  }));
+  const byId = new Map(layers.map((layer) => [layer.id, layer.canvas]));
+
+  recipe.layers.forEach((layer, layerIndex) => {
+    const target = layers[layerIndex];
+    if (target === undefined) {
+      return;
+    }
     layer.ops.forEach((op, opIndex) => {
-      const slot = slots.resolve(op.color);
-      if (slot === undefined) {
-        throw new PxError(
-          'E_UNKNOWN_SLOT',
-          `Unknown slot "${op.color}" in op ${opIndex} of layer "${layer.id}"`,
-          'Declare the slot in the palette before compiling.',
-          { layer: layer.id, op_index: opIndex },
-        );
-      }
       target.canvas.clearClipped();
-      const clipped = applyOp(target.canvas, op, slot);
-      if (clipped) {
+      const outcome = applyOp(
+        {
+          canvas: target.canvas,
+          layerId: layer.id,
+          opIndex,
+          slots,
+          roles,
+          layers: byId,
+        },
+        op,
+      );
+      if (outcome.clipped) {
         const warning: PxWarning = {
           code: 'W_OUT_OF_BOUNDS',
           message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" wrote outside the ${width}x${height} canvas and was clipped`,
@@ -73,8 +88,16 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
         }
         warnings.push(warning);
       }
+      if (outcome.noop) {
+        warnings.push({
+          code: 'W_PASS_NOOP',
+          message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" changed no pixels`,
+          hint: 'Draw into the layer it reads first, or point target_layer at a layer that has content.',
+          layer: layer.id,
+          op_index: opIndex,
+        });
+      }
     });
-    return target;
   });
 
   return {
