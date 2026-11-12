@@ -93,18 +93,21 @@
 - **Covers:** FR-15, FR-16, FR-17, FR-18, AC-13, AC-14
 - **Touches:** src/palettes/**, src/core/**, src/render/**, src/meta/**, src/cli/**, src/mcp/**, test/palettes/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** b290764
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-4.md
 
-- [ ] **P4.T1: Synthesis** — covers: FR-15, FR-16
-  - [ ] **P4.T1.1:** sRGB ↔ OKLCH conversion and N-step expansion, no dependency
-  - [ ] **P4.T1.2:** Cool shadows, warm highlights, clamped chroma, grey input shifts luminance only
-- [ ] **P4.T2: Canonicalisation** — covers: FR-15
-  - [ ] **P4.T2.1:** Synthesised steps written explicitly into the recipe
-- [ ] **P4.T3: Step bounds** — covers: FR-17
-  - [ ] **P4.T3.1:** `E_RAMP_STEPS_RANGE` for counts outside 3–6
-- [ ] **P4.T4: Material swap** — covers: FR-18
-  - [ ] **P4.T4.1:** `--swap` in render, export and preview; recipe untouched
-  - [ ] **P4.T4.2:** `E_SWAP_INCOMPATIBLE` on tone-count mismatch
+- [x] **P4.T1: Synthesis** — covers: FR-15, FR-16
+  - [x] **P4.T1.1:** sRGB ↔ OKLCH conversion and N-step expansion, no dependency
+  - [x] **P4.T1.2:** Cool shadows, warm highlights, clamped chroma, grey input shifts luminance only
+- [x] **P4.T2: Canonicalisation** — covers: FR-15
+  - [x] **P4.T2.1:** Synthesised steps written explicitly into the recipe
+- [x] **P4.T3: Step bounds** — covers: FR-17
+  - [x] **P4.T3.1:** `E_RAMP_STEPS_RANGE` for counts outside 3–6
+- [x] **P4.T4: Material swap** — covers: FR-18
+  - [x] **P4.T4.1:** `--swap` in render, export and preview; recipe untouched
+  - [x] **P4.T4.2:** `E_SWAP_INCOMPATIBLE` on tone-count mismatch
 
 ## Phase 5: Art Lint and Cleanup
 

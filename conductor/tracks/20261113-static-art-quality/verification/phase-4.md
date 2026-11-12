@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | P4.T1 | done | `2e4ded0` | `src/palettes/oklch.ts`: hand-written sRGB↔linear (0.04045/12.92/1.055/2.4), linear↔OKLab (Ottosson matrices), OKLab↔OKLCH polar; `src/palettes/synthesize.ts`: `synthesizeRamp`, `toneTargets`, every constant a named export (L step 0.06, floor 0.08, ceiling 0.98, chroma clamp 0.16 with 0.35 floor, light falloff 0.10, dark 0.20, 12°/step toward 250° cool / 60° warm, achromatic threshold 0.004, nudge 0.004). `src/palettes/luminance.ts` now shares the transfer function. |
 | P4.T2 | done | `6de0465` | `RampTone`/`Ramp`/`RAMP_TONE_PATTERN`/`rampTones`/`rampSuffixes` in `recipe/types.ts`; `normalizeFamily` accepts a contiguous `t0…t(n-1)` block and rejects gaps/unknown keys; `buildSlotRoles` derives highlight→`t0`, base→`t(floor((n-1)/2))`, shadow→`t(n-1)` *after* explicit roles, materialised in `roleSlots` (the light pass reads that table directly); `canonicalPalette` writes tones after roles, so a synthesised family round-trips; `px synthesize --file --family --from --steps [--force]` and repeatable `--synthesize name=#hex:steps` on `px init`; `px_init.synthesize` in MCP (seven tools unchanged). |
-| P4.T3 | done | `676bfeb` | `parseStepCount`: non-numeric/fractional → `E_BAD_PARAM`; outside 3–6 → `E_RAMP_STEPS_RANGE` with a hint naming the range and why. Suites `test/palettes/steps.test.ts` (2, 7, 0, 1.5, 3, 6 through the parser, `px init` and `px synthesize`) and `test/palettes/tmp-debug.test.ts` (every tone count at near-black/near-white/saturated extremes either strictly monotonic or a loud `E_INTERNAL`). |
+| P4.T3 | done | `676bfeb` | `parseStepCount`: non-numeric/fractional → `E_BAD_PARAM`; outside 3–6 → `E_RAMP_STEPS_RANGE` with a hint naming the range and why. Suites `test/palettes/steps.test.ts` (2, 7, 0, 1.5, 3, 6 through the parser, `px init` and `px synthesize`) and `test/palettes/ramp-extremes.test.ts` (every tone count at near-black/near-white/saturated extremes either strictly monotonic or a loud `E_INTERNAL`). |
 | P4.T4 | done | `5a2964a` | `src/palettes/swap.ts`: `parseSwapEntries`/`resolveSwapMap`/`applySwaps`; `--swap from=to` (repeatable) on `render`; `px_render.swap` (array or comma string) in MCP; the swapped palette feeds the PNG, the debug sheet and the exported manifest, while `recipe_hash` still hashes the file. `src/meta/index.ts` gained an optional `paletteRecipe` so the manifest describes drawn colours and the hash describes the recipe. |
 
 ## Gates
@@ -90,7 +90,7 @@ which it throws `E_INTERNAL` listing the hexes rather than shipping a broken ram
 
 The floor is load-bearing: at L 0.08 there are only two distinct 8-bit greys left
 below it, so a near-black base genuinely cannot carry six tones. That is why
-`test/palettes/tmp-debug.test.ts` accepts "strictly monotonic **or** loud
+`test/palettes/ramp-extremes.test.ts` accepts "strictly monotonic **or** loud
 `E_INTERNAL`" for 6 steps at the extremes, while `synthesis.test.ts` demands
 strict monotonicity for every base at 3, 4 and 5 steps (AC-13 covers 5).
 
@@ -152,7 +152,7 @@ carries the gold hexes under `steel.*`, the debug PNG sha differs, and
 | --- | --- |
 | `test/mcp/reachability.test.ts` | The suite is exhaustive by design: a new CLI flag with no mapping fails it. Added mappings for `--synthesize` (px_init) and `--swap` (px_render); exempted `family`/`from`/`steps` alongside `pretty`/`color`/`help`, because `px synthesize` has no MCP tool — FR-22 keeps the surface at seven tools and agents synthesise through `px_init.synthesize`. |
 | `test/mcp/anchor.test.ts` | One assertion lists the CLI verbs from `--help`; it now includes `synthesize`. No other line changed. |
-| `test/palettes/tmp-debug.test.ts` | A real extreme-base suite written while diagnosing the monotonicity failures. It could not be deleted or renamed in this sandbox (no delete capability; `Remove-Item`, `git mv` and `git rm --cached` are all permission-denied), so it was committed under its scratch name with a header comment saying it should be renamed `ramp-extremes.test.ts`. **Primary action: rename it.** |
+| `test/palettes/ramp-extremes.test.ts` | A real extreme-base suite written while diagnosing the monotonicity failures. It could not be renamed inside the sandbox, so it was committed under a scratch name; the primary renamed it to `ramp-extremes.test.ts` at acceptance and removed the scratch header note. |
 | `src/meta/index.ts` | `buildMetadata` gained an *optional* fourth argument (`paletteRecipe`) instead of a required one, because `test/mcp/meta.test.ts` and `test/mcp/meta-export.test.ts` (outside `Touches`) call it with three. `recipe_hash` still hashes the recipe file; only the manifest reads the swapped palette. |
 
 No other pre-existing test file changed. `test/palettes/palettes.test.ts` (the six
@@ -172,3 +172,40 @@ existing palette/derivation tests) is untouched and green. No new dependency:
 - Swapping onto a family with *more* tones is legal (superset), swapping onto fewer
   is `E_SWAP_INCOMPATIBLE`. A 5-tone source needs a 5-tone target, which is the
   spec's "fewer steps than the source" edge case made concrete.
+
+## Primary verification
+
+Independently re-checked at the squashed checkpoint `b290764` (four task commits
+over `4a4299c`, no merges):
+
+| Check | Result |
+|---|---|
+| Working tree | clean apart from this evidence file, committed with the checkpoint |
+| Goldens / benchmarks | `git diff --stat 4a4299c..HEAD -- test/goldens test/benchmarks` empty |
+| Dependencies | `git diff 4a4299c..HEAD -- package.json pnpm-lock.yaml` empty — NFR-2 holds |
+| Scope | every path inside `src/palettes/`, `src/core/`, `src/render/`, `src/meta/`, `src/cli/`, `src/mcp/`, `test/palettes/`, `test/mcp/` or `conductor/` |
+| `pnpm verify` | exit 0 (typecheck, biome, **545 tests in 62 files**, build) |
+| `pnpm vitest run --coverage` | exit 0 — statements **94.98%** (1951/2054), branches **86.94%** (1192/1371), functions 98.68% |
+
+Design spot-checks rather than trusting the summary:
+
+- `src/core/palette.ts:291-336` builds `SlotRoles` by deriving `highlight`/`base`/`shadow`
+  from the `t` tones with an explicit-role-wins rule, so a synthesised family stores each
+  colour exactly once — the trap the brief was written to avoid.
+- `src/palettes/synthesize.ts` exposes every constant (`RAMP_ACHROMATIC_CHROMA`,
+  `RAMP_MONOTONIC_NUDGE`, `RAMP_MONOTONIC_LIFT`, `RAMP_MONOTONIC_ATTEMPTS`) and refuses with
+  `E_INTERNAL` rather than emitting an indistinguishable ramp. Near-black bases genuinely
+  cannot carry six distinct tones above the 0.08 floor; the suite asserts the loud refusal
+  instead of hiding it.
+- `src/palettes/swap.ts` compares slot **suffix sets**, not counts, and reports failures
+  per role and per index, so a successful swap can never resurface later as `E_UNKNOWN_SLOT`.
+
+One acceptance action: the subagent could not rename a test file in its sandbox, so it
+committed an extreme-base suite under the scratch name `tmp-debug.test.ts`. The primary
+renamed it to `test/palettes/ramp-extremes.test.ts` and removed the "rename pending"
+header before squashing; both gates were re-run on the renamed tree.
+
+```text
+pnpm verify                -> 0   (545 tests, 62 files)
+pnpm vitest run --coverage -> 0   (94.98 / 86.94 / 98.68 / 94.85)
+```
