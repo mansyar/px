@@ -1,6 +1,6 @@
 # prop — 64×64 brass lantern
 
-**Profile** medium (64 px). **Parts** 4. **Materials** 5. **Light** top-left, `bevel`
+**Profile** medium (64 px). **Parts** 4. **Materials** 4. **Light** top-left, `bevel`
 form, AO on, no cast, 2 px cast offset unused, edge rim.
 
 ## Silhouette intent

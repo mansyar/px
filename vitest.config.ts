@@ -43,6 +43,10 @@ export default defineConfig({
         test: {
           name: 'benchmarks',
           include: ['test/benchmarks/**/*.test.ts'],
+          // The performance proof is a wall-clock measurement: run the benchmark
+          // files one at a time so the transcript replays cannot steal CPU from
+          // the timed renders.
+          fileParallelism: false,
         },
       },
     ],

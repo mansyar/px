@@ -1,6 +1,6 @@
 # potion — 16×16 healing flask
 
-**Profile** tiny (16 px). **Parts** 3. **Materials** 4. **Light** top-left, `round` form,
+**Profile** tiny (16 px). **Parts** 3. **Materials** 3. **Light** top-left, `round` form,
 AO on, cast from `cork`, edge rim.
 
 ## Silhouette intent

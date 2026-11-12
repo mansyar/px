@@ -1,6 +1,6 @@
 # scene — 256×256 wishing well
 
-**Profile** large (256 px). **Parts** 6. **Materials** 6. **Light** top-left, `bevel`
+**Profile** large (256 px). **Parts** 6. **Materials** 5. **Light** top-left, `bevel`
 form, AO on, no cast, edge rim. **Cleanup** `strays` (3 px).
 
 ## Silhouette intent

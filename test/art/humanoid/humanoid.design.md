@@ -1,6 +1,6 @@
 # humanoid — 32×32 knight
 
-**Profile** small (32 px). **Parts** 11. **Materials** 8. **Light** top-left, `round`
+**Profile** small (32 px). **Parts** 11. **Materials** 7. **Light** top-left, `round`
 form, AO on, no cast, edge rim. **Cleanup** `strays` (2 px).
 
 ## Silhouette intent
