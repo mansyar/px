@@ -67,16 +67,23 @@ describe('cli vertical slice', () => {
 
     const inspect = run(['inspect', '--file', 'hero.px.json', '--region', '4,4,8,2']);
     expect(inspect.code).toBe(0);
-    const matrix = inspect.envelope.matrix as string;
+    const regions = inspect.envelope.regions as Array<{
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      matrix: string;
+    }>;
+    expect(regions).toHaveLength(1);
+    expect(regions[0]).toMatchObject({ x: 4, y: 4, w: 8, h: 2 });
+    const matrix = regions[0]?.matrix ?? '';
     expect(matrix.split('\n')).toHaveLength(4);
-    expect(matrix).toContain('a');
+    expect(matrix).toContain('b');
     expect(inspect.envelope.legend).toEqual({
-      a: {
-        family: 'steel',
-        slots: ['steel.outline', 'steel.shadow', 'steel.base', 'steel.highlight'],
-      },
+      b: { family: 'steel', role: 'base', hex: '#b13e53' },
+      h: { family: 'steel', role: 'highlight', hex: '#ef7d57' },
     });
-    expect(inspect.envelope.region).toEqual({ x: 4, y: 4, w: 8, h: 2 });
+    expect(inspect.envelope.summary).toBeUndefined();
   });
 
   it('keeps the recipe canonical on disk after a draw', () => {
@@ -117,7 +124,7 @@ describe('cli vertical slice', () => {
     const pretty = run(['inspect', '--file', 'hero.px.json', '--region', '0,0,2,2', '--pretty']);
     expect(pretty.code).toBe(0);
     expect(pretty.raw.split('\n').length).toBeGreaterThan(5);
-    expect(pretty.envelope.matrix).toBeTypeOf('string');
+    expect(pretty.envelope.regions).toBeTypeOf('object');
   });
 });
 

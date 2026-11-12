@@ -7,7 +7,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
 import { PxError, type PxWarning } from '../core/errors.js';
-import { type buildSlotTable, parseHex, TRANSPARENT_SLOT } from '../core/palette.js';
+import {
+  buildSlotRoles,
+  type buildSlotTable,
+  parseHex,
+  TRANSPARENT_SLOT,
+} from '../core/palette.js';
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
@@ -19,10 +24,13 @@ import {
   type Recipe,
 } from '../core/recipe/types.js';
 import { lintCompiled } from '../lint/index.js';
+import { trimBounds } from '../meta/bounds.js';
+import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
+import { DERIVATION_NOTE, deriveRamps, PALETTE_NAMES, paletteByName } from '../palettes/index.js';
 import { renderDebugSheet } from '../render/debug/sheet.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import type { ParsedArgs } from './args.js';
-import { type Region, renderRegion } from './inspect.js';
+import { inspectCodes, type Region, renderRegion, usedSlots } from './inspect.js';
 
 const DEFAULT_RAMP_COLORS = ['#1a1c2c', '#5d275d', '#b13e53', '#ef7d57'];
 const DEFAULT_LAYER_ID = 'base';
@@ -74,13 +82,29 @@ function intFlag(value: string | undefined, fallback: number, name: string): num
   return parsed;
 }
 
-function paletteFromFlag(value: string | undefined): Palette {
+function paletteFromFlag(value: string | undefined, derive: boolean): Palette {
   if (value === undefined) {
+    if (derive) {
+      return deriveRamps(DEFAULT_RAMP_COLORS, 'steel');
+    }
     const ramp: Record<string, string> = {};
     RAMP_ROLES.forEach((role, index) => {
       ramp[role] = DEFAULT_RAMP_COLORS[index] ?? '#000000';
     });
     return { steel: { ramp } };
+  }
+  const trimmed = value.trim();
+  if (!trimmed.includes('#') && !trimmed.includes(',')) {
+    const named = paletteByName(trimmed);
+    if (named === undefined) {
+      throw usageError(
+        `Unknown palette "${value}"`,
+        `Name one of ${PALETTE_NAMES.join(', ')}, or pass comma-separated hex colours.`,
+      );
+    }
+    return derive
+      ? deriveRamps(named.colors, `${named.name}_`)
+      : { [named.name]: { colors: named.colors } };
   }
   const colors = value
     .split(',')
@@ -99,6 +123,9 @@ function paletteFromFlag(value: string | undefined): Palette {
         'Use #rrggbb or #rrggbbaa.',
       );
     }
+  }
+  if (derive) {
+    return deriveRamps(colors);
   }
   if (colors.length === RAMP_ROLES.length) {
     const ramp: Record<string, string> = {};
@@ -132,7 +159,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const width = intFlag(args.width, 16, 'width');
   const height = intFlag(args.height, 16, 'height');
-  const palette = paletteFromFlag(args.palette);
+  const palette = paletteFromFlag(args.palette, args.deriveRamps);
   const recipe: Recipe = {
     version: RECIPE_VERSION,
     meta: {
@@ -151,7 +178,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   ensureParent(target);
   writeFileSync(target, text, 'utf8');
 
-  return {
+  const payload: Record<string, unknown> = {
     file,
     name: recipe.meta.name,
     width,
@@ -160,6 +187,11 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layers: [DEFAULT_LAYER_ID],
     bytes: text.length,
   };
+  if (args.deriveRamps) {
+    payload.derive_ramps = true;
+    payload.derivation = DERIVATION_NOTE;
+  }
+  return payload;
 }
 
 function parseOpList(value: string): unknown[] {
@@ -366,6 +398,44 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   };
 }
 
+export function runAnchor(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const source = readSource(resolve(cwd, file), file);
+  if (args.name === undefined || args.name === '') {
+    throw usageError('Missing --name', 'Name the anchor, e.g. --name grip_pivot.');
+  }
+  if (args.x === undefined || args.y === undefined) {
+    throw usageError('Missing --x or --y', 'Give the anchor point, e.g. --x 8 --y 23.');
+  }
+  const x = intFlag(args.x, 0, 'x');
+  const y = intFlag(args.y, 0, 'y');
+  const name = args.name;
+  const next: Recipe = {
+    ...source.recipe,
+    anchors: { ...source.recipe.anchors, [name]: [x, y] },
+  };
+  const text = serializeRecipe(next);
+  // Re-parsing is the validation: a non-integer pair would already have been
+  // rejected, and an out-of-canvas pair is reported, never dropped.
+  const parsed = parseRecipe(text);
+  const outFile = args.out ?? file;
+  const target = resolve(cwd, outFile);
+  ensureParent(target);
+  writeFileSync(target, text, 'utf8');
+
+  const payload: Record<string, unknown> = {
+    file: outFile,
+    name,
+    anchor: [x, y],
+    anchors: parsed.recipe.anchors,
+  };
+  const allWarnings = [...source.warnings, ...parsed.warnings];
+  if (allWarnings.length > 0) {
+    payload.warnings = allWarnings;
+  }
+  return payload;
+}
+
 function parseRegionFlag(value: string, width: number, height: number): Region {
   const parts = value.split(',').map((entry) => entry.trim());
   if (parts.length !== 4) {
@@ -396,28 +466,48 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
   const file = requireFile(args);
   const { recipe, warnings } = readSource(resolve(cwd, file), file);
   const compiled = compileRecipe(recipe);
-  const region =
-    args.region === undefined
-      ? { x: 0, y: 0, w: compiled.width, h: compiled.height }
-      : parseRegionFlag(args.region, compiled.width, compiled.height);
-  const { matrix, legend } = renderRegion(
-    compiled.flattened,
-    compiled.width,
-    compiled.slots,
-    region,
+  const regions = args.regions.map((value) =>
+    parseRegionFlag(value, compiled.width, compiled.height),
   );
+  const withSummary = args.summary || regions.length === 0;
+
+  // One code table for the whole response: assign codes from the union of slots
+  // every region shows, then render each region against it. With no regions the
+  // legend describes the full canvas the summary covers.
+  const scanned =
+    regions.length > 0 ? regions : [{ x: 0, y: 0, w: compiled.width, h: compiled.height }];
+  const used = new Set<number>();
+  for (const region of scanned) {
+    for (const slot of usedSlots(compiled.flattened, compiled.width, region)) {
+      used.add(slot);
+    }
+  }
+  const roles = buildSlotRoles(compiled.slots);
+  const { codes, legend } = inspectCodes(compiled.slots, roles, used);
 
   const payload: Record<string, unknown> = {
     file,
     canvas: { width: compiled.width, height: compiled.height },
-    region,
-    matrix,
-    legend,
-    layers: compiled.layers.map((layer) => ({
-      id: layer.id,
-      painted: layer.canvas.paintedCount(),
+    regions: regions.map((region) => ({
+      ...region,
+      matrix: renderRegion(compiled.flattened, compiled.width, region, codes),
     })),
+    legend,
   };
+
+  if (withSummary) {
+    const bounds = trimBounds(compiled.flattened, compiled.width, compiled.height);
+    payload.summary = {
+      canvas: { width: compiled.width, height: compiled.height },
+      bounds,
+      pixel_count: countPainted(compiled.flattened),
+    };
+  }
+
+  payload.layers = compiled.layers.map((layer) => ({
+    id: layer.id,
+    painted: layer.canvas.paintedCount(),
+  }));
   const allWarnings = [...warnings, ...compiled.warnings];
   if (allWarnings.length > 0) {
     payload.warnings = allWarnings;
@@ -453,7 +543,35 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   if (args.debug) {
     payload.debug = writeDebugSheet(args.out, result.compiled, recipe, cwd);
   }
+  if (args.metaExport) {
+    payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd);
+  }
   return payload;
+}
+
+/**
+ * `render --export` writes the metadata beside the PNG, named from the PNG
+ * stem, and reports the same `{out, bytes, sha256}` shape as the debug sheet so
+ * a client never has to guess whether a file was written.
+ */
+function writeMetadata(
+  out: string,
+  recipe: Recipe,
+  compiled: CompiledRecipe,
+  cwd: string,
+): Record<string, unknown> {
+  const metadata = buildMetadata(recipe, compiled, out);
+  const text = serializeMetadata(metadata);
+  const file = metadataPath(out);
+  const target = resolve(cwd, file);
+  ensureParent(target);
+  writeFileSync(target, text, 'utf8');
+  return {
+    out: file,
+    bytes: Buffer.byteLength(text, 'utf8'),
+    sha256: sha256Hex(Buffer.from(text, 'utf8')),
+    recipe_hash: metadata.generic.recipe_hash,
+  };
 }
 
 /** `hero.png` pairs with `hero.debug.png`, so the pair is obvious on disk. */
@@ -487,25 +605,7 @@ export function flattenBounds(
   width: number,
   height: number,
 ): { x: number; y: number; w: number; h: number } | null {
-  let minX = width;
-  let minY = height;
-  let maxX = -1;
-  let maxY = -1;
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      if (flattened[y * width + x] === TRANSPARENT_SLOT) {
-        continue;
-      }
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      maxX = Math.max(maxX, x);
-      maxY = Math.max(maxY, y);
-    }
-  }
-  if (maxX < 0) {
-    return null;
-  }
-  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+  return trimBounds(flattened, width, height);
 }
 
 /** Painted pixels in a flattened grid, without materialising a filtered copy. */

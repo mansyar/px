@@ -8,7 +8,15 @@ import { lintBlocks } from '../lint/index.js';
 import type { LintFinding } from '../lint/types.js';
 import { probeRuntime } from '../probe.js';
 import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
-import { runDraw, runEdit, runInit, runInspect, runRender, runValidate } from './commands.js';
+import {
+  runAnchor,
+  runDraw,
+  runEdit,
+  runInit,
+  runInspect,
+  runRender,
+  runValidate,
+} from './commands.js';
 import {
   EXIT_ERROR,
   EXIT_LINT,
@@ -28,15 +36,26 @@ export interface CliIo {
 function helpPayload(): Record<string, unknown> {
   return {
     usage: [
-      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...] [--force]',
+      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name] [--derive-ramps] [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
-      'px inspect --file <path> [--region x,y,w,h]',
-      'px render --file <path> --out <png> [--debug]',
+      'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
+      'px inspect --file <path> [--region x,y,w,h]... [--summary]',
+      'px render --file <path> --out <png> [--debug] [--export]',
       'px validate --file <path>',
     ],
     commands: COMMANDS,
-    flags: ['--pretty', '--color', '--force', '--help', '--debug', '--strict'],
+    flags: [
+      '--pretty',
+      '--color',
+      '--force',
+      '--help',
+      '--debug',
+      '--strict',
+      '--export',
+      '--summary',
+      '--derive-ramps',
+    ],
     exit_codes: {
       '0': 'success',
       '1': 'caller error',
@@ -64,6 +83,8 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runDraw(args, cwd);
     case 'edit':
       return runEdit(args, cwd);
+    case 'anchor':
+      return runAnchor(args, cwd);
     case 'inspect':
       return runInspect(args, cwd);
     case 'render':

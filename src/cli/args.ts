@@ -10,7 +10,8 @@ export interface ParsedArgs {
   file?: string;
   layer?: string;
   ops?: string;
-  region?: string;
+  regions: string[];
+  summary: boolean;
   out?: string;
   name?: string;
   width?: string;
@@ -18,17 +19,22 @@ export interface ParsedArgs {
   palette?: string;
   id?: string;
   opIndex?: string;
+  x?: string;
+  y?: string;
   pretty: boolean;
   force: boolean;
   help: boolean;
   debug: boolean;
   strict: boolean;
+  metaExport: boolean;
+  deriveRamps: boolean;
 }
 
 export const COMMANDS: readonly string[] = [
   'init',
   'draw',
   'edit',
+  'anchor',
   'inspect',
   'render',
   'validate',
@@ -50,7 +56,7 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
       parsed.ops = value;
       return;
     case 'region':
-      parsed.region = value;
+      parsed.regions.push(value);
       return;
     case 'out':
       parsed.out = value;
@@ -73,10 +79,16 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'op-index':
       parsed.opIndex = value;
       return;
+    case 'x':
+      parsed.x = value;
+      return;
+    case 'y':
+      parsed.y = value;
+      return;
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index.',
+        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y.',
       );
   }
 }
@@ -98,6 +110,15 @@ function setBooleanFlag(parsed: ParsedArgs, name: string): void {
     case 'strict':
       parsed.strict = true;
       return;
+    case 'export':
+      parsed.metaExport = true;
+      return;
+    case 'summary':
+      parsed.summary = true;
+      return;
+    case 'derive-ramps':
+      parsed.deriveRamps = true;
+      return;
     // Accepted for interface parity; px never emits ANSI unless asked, and
     // Phase 1 has no coloured output to emit.
     case 'color':
@@ -114,18 +135,25 @@ function isBooleanFlag(name: string): boolean {
     name === 'help' ||
     name === 'color' ||
     name === 'debug' ||
-    name === 'strict'
+    name === 'strict' ||
+    name === 'export' ||
+    name === 'summary' ||
+    name === 'derive-ramps'
   );
 }
 
 export function parseArgs(argv: readonly string[]): ParsedArgs {
   const parsed: ParsedArgs = {
     command: '',
+    regions: [],
+    summary: false,
     pretty: false,
     force: false,
     help: false,
     debug: false,
     strict: false,
+    metaExport: false,
+    deriveRamps: false,
   };
   const positionals: string[] = [];
   let index = 0;

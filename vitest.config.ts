@@ -6,7 +6,13 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['test/unit/**/*.test.ts', 'test/lint/**/*.test.ts', 'test/ops/**/*.test.ts'],
+          include: [
+            'test/unit/**/*.test.ts',
+            'test/lint/**/*.test.ts',
+            'test/ops/**/*.test.ts',
+            'test/mcp/**/*.test.ts',
+            'test/palettes/**/*.test.ts',
+          ],
         },
       },
       {
@@ -30,7 +36,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      include: ['src/core/**', 'src/lint/**'],
+      include: ['src/core/**', 'src/lint/**', 'src/meta/**', 'src/palettes/**'],
       thresholds: {
         lines: 80,
         functions: 80,
