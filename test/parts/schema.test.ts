@@ -209,4 +209,51 @@ describe('material resolution', () => {
     expect(error.message).toContain('leather');
     expect(error.hint).toContain('--derive-ramps');
   });
+
+  it('rejects a half-built ramp at validation, naming the missing role (AC-5)', () => {
+    const text = recipeText({
+      palette: {
+        steel: { ramp: { outline: '#11151c', shadow: '#333a44', base: '#7d8a9a' } },
+      },
+      parts: { blade: { material: 'steel' } },
+      layers: [
+        {
+          id: 'base',
+          ops: [{ op: 'rect', x: 0, y: 0, w: 8, h: 8, color: 'steel.base', part: 'blade' }],
+        },
+      ],
+    });
+    const error = codeOf(() => parseText(text));
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.message).toContain('steel');
+    expect(error.message).toContain('highlight');
+    expect(error.message).toContain('blade');
+    expect(error.hint).toContain('--derive-ramps');
+  });
+
+  it('reports the first missing shading role in ramp order', () => {
+    const text = recipeText({
+      palette: { steel: { ramp: { base: '#7d8a9a' } } },
+      parts: { blade: { material: 'steel' } },
+    });
+    const error = codeOf(() => parseText(text));
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.message).toContain('shadow');
+  });
+
+  it('accepts a complete ramp, and leaves undeclared families alone', () => {
+    const text = recipeText({
+      layers: [
+        {
+          id: 'base',
+          ops: [{ op: 'rect', x: 0, y: 0, w: 4, h: 4, color: 'steel.base', part: 'blade' }],
+        },
+      ],
+    });
+    const compiled = compileRecipe(parseText(text));
+    expect(compiled.parts[0]?.painted).toBe(16);
+    // `leather` is flat, but nothing declares it as a material, so it is legal.
+    const noParts = recipeText({ parts: {}, layers: [{ id: 'base', ops: [] }] });
+    expect(parseText(noParts).parts).toEqual({});
+  });
 });

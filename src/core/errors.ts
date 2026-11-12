@@ -39,6 +39,7 @@ export type ErrorCode =
   | 'E_GLOSS_UNKNOWN'
   | 'E_PROFILE_UNKNOWN'
   | 'E_RAMP_STEPS_RANGE'
+  | 'E_RAMP_UNSEPARABLE'
   | 'E_FAMILY_EXISTS'
   | 'E_FAMILY_UNKNOWN'
   | 'E_SWAP_INCOMPATIBLE'
@@ -135,6 +136,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_PROFILE_UNKNOWN: 'Profile is one of tiny, small, medium, large.',
   E_RAMP_STEPS_RANGE:
     'Steps is 3 to 6: three tones is the fewest a ramp can shade with, and six is more than any profile expects.',
+  E_RAMP_UNSEPARABLE:
+    'A ramp needs a distinct luminance for every step. Lighten or darken the base colour, or ask for fewer steps.',
   E_FAMILY_EXISTS: 'Pick a new family name, or pass --force to overwrite the existing family.',
   E_FAMILY_UNKNOWN: 'Name a family declared in the recipe palette.',
   E_SWAP_INCOMPATIBLE:

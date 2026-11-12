@@ -60,7 +60,7 @@ function text(
   const recipe = {
     version: '1.1',
     meta: { name: 'stats', width: 16, height: 16, alpha_mode: 'binary' },
-    palette: { ink: { colors: GREYS } },
+    palette: { ink: { ramp: Object.fromEntries(GREYS.map((hex, index) => [`t${index}`, hex])) } },
     ...(Object.keys(parts).length > 0 ? { parts } : {}),
     anchors: {},
     layers: [{ id: 'base', ops }],
@@ -92,7 +92,7 @@ describe('inspect part statistics', () => {
           y: 3,
           w: 4,
           h: 2,
-          color: 'ink.7',
+          color: 'ink.t7',
           part: 'blade',
         },
         {
@@ -101,7 +101,7 @@ describe('inspect part statistics', () => {
             [2, 3],
             [3, 3],
           ],
-          color: 'ink.0',
+          color: 'ink.t0',
           part: 'blade',
         },
       ]),
@@ -113,8 +113,8 @@ describe('inspect part statistics', () => {
     expect(blade?.painted).toBe(8);
     expect(blade?.bounds).toEqual({ x: 2, y: 3, w: 4, h: 2 });
     expect(blade?.tones).toEqual([
-      { slot: 'ink.7', count: 6 },
-      { slot: 'ink.0', count: 2 },
+      { slot: 'ink.t7', count: 6 },
+      { slot: 'ink.t0', count: 2 },
     ]);
     expect(blade?.slot_count).toBe(2);
     expect(blade?.truncated).toBeUndefined();
@@ -125,12 +125,12 @@ describe('inspect part statistics', () => {
   it('orders equal counts by slot name so the table is stable', () => {
     const parts = inspectParts(
       text([
-        { op: 'set_pixels', points: [[1, 1]], color: 'ink.0', part: 'blade' },
-        { op: 'set_pixels', points: [[2, 1]], color: 'ink.1', part: 'blade' },
-        { op: 'set_pixels', points: [[3, 1]], color: 'ink.2', part: 'blade' },
+        { op: 'set_pixels', points: [[1, 1]], color: 'ink.t0', part: 'blade' },
+        { op: 'set_pixels', points: [[2, 1]], color: 'ink.t1', part: 'blade' },
+        { op: 'set_pixels', points: [[3, 1]], color: 'ink.t2', part: 'blade' },
       ]),
     );
-    expect(parts[0]?.tones.map((tone) => tone.slot)).toEqual(['ink.0', 'ink.1', 'ink.2']);
+    expect(parts[0]?.tones.map((tone) => tone.slot)).toEqual(['ink.t0', 'ink.t1', 'ink.t2']);
   });
 
   it('caps the tone table at 24 slots and says how many the part really used', () => {
@@ -142,7 +142,9 @@ describe('inspect part statistics', () => {
       {
         version: '1.1',
         meta: { name: 'many', width: 16, height: 16, alpha_mode: 'binary' },
-        palette: { ink: { colors: many } },
+        palette: {
+          ink: { ramp: Object.fromEntries(many.map((hex, index) => [`t${index}`, hex])) },
+        },
         parts: { blade: { material: 'ink' } },
         anchors: {},
         layers: [
@@ -151,7 +153,7 @@ describe('inspect part statistics', () => {
             ops: many.map((_, index) => ({
               op: 'set_pixels',
               points: [[index % 16, Math.floor(index / 16)]],
-              color: `ink.${index}`,
+              color: `ink.t${index}`,
               part: 'blade',
             })),
           },
@@ -175,14 +177,16 @@ describe('inspect part statistics', () => {
     const ops = Array.from({ length: 2000 }, (_, index) => ({
       op: 'set_pixels',
       points: [[index % 256, Math.floor(index / 256)]],
-      color: `ink.${index % GREYS.length}`,
+      color: `ink.t${index % GREYS.length}`,
       part: 'blade',
     }));
     const source = `${JSON.stringify(
       {
         version: '1.1',
         meta: { name: 'scene', width: 256, height: 256, alpha_mode: 'binary' },
-        palette: { ink: { colors: GREYS } },
+        palette: {
+          ink: { ramp: Object.fromEntries(GREYS.map((hex, index) => [`t${index}`, hex])) },
+        },
         parts: { blade: { material: 'ink' } },
         anchors: {},
         layers: [{ id: 'base', ops }],
@@ -211,7 +215,11 @@ describe('inspect part statistics', () => {
 
   it('leaves a part-less inspect envelope with exactly the keys it always had', () => {
     const path = join(workspace, 'plain.px.json');
-    writeFileSync(path, text([{ op: 'rect', x: 0, y: 0, w: 2, h: 2, color: 'ink.1' }], {}), 'utf8');
+    writeFileSync(
+      path,
+      text([{ op: 'rect', x: 0, y: 0, w: 2, h: 2, color: 'ink.t1' }], {}),
+      'utf8',
+    );
     let raw = '';
     const code = runCli(['inspect', '--file', 'plain.px.json', '--summary'], {
       cwd: workspace,
@@ -245,7 +253,7 @@ function partsRecipe(count: number): Recipe {
     parts[name] = { material: 'ink' };
     ops.push(
       // Descending area, so the ranking is unambiguous.
-      { op: 'rect', x: 0, y: index, w: count - index, h: 1, color: 'ink.1', part: name },
+      { op: 'rect', x: 0, y: index, w: count - index, h: 1, color: 'ink.t1', part: name },
     );
   }
   return parseRecipe(text(ops, parts)).recipe;
@@ -254,7 +262,7 @@ function partsRecipe(count: number): Recipe {
 describe('debug sheet crop strip', () => {
   it('adds no strip and keeps the exact height for a recipe without parts', () => {
     const { recipe } = parseRecipe(
-      text([{ op: 'rect', x: 1, y: 1, w: 2, h: 2, color: 'ink.1' }], {}),
+      text([{ op: 'rect', x: 1, y: 1, w: 2, h: 2, color: 'ink.t1' }], {}),
     );
     const sheet = renderDebugSheet(compileRecipe(recipe), {});
     expect(sheet.strip).toBeUndefined();
@@ -278,7 +286,7 @@ describe('debug sheet crop strip', () => {
     // The strip wraps inside the sheet: width is unchanged by declaring parts.
     const partless = renderDebugSheet(
       compileRecipe(
-        parseRecipe(text([{ op: 'rect', x: 0, y: 0, w: 1, h: 1, color: 'ink.1' }], {})).recipe,
+        parseRecipe(text([{ op: 'rect', x: 0, y: 0, w: 1, h: 1, color: 'ink.t1' }], {})).recipe,
       ),
       {},
     );

@@ -1,5 +1,5 @@
 /**
- * Threshold calibration fixtures (AC-21).
+ * Threshold calibration fixtures (P7.T2.1).
  *
  * Every constant this phase touched keeps a fixture on both sides: one where
  * the rule stays silent because the shape is a deliberate idiom, and one where

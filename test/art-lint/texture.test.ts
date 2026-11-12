@@ -81,14 +81,14 @@ describe('DITHER_NOISE', () => {
   it('fires when the material has fewer tones than a fade needs', () => {
     const compiled = compileSprite(
       [
-        { op: 'rect', x: 2, y: 2, w: 8, h: 8, color: 'steel.base', part: 'orb' },
+        { op: 'rect', x: 2, y: 2, w: 8, h: 8, color: 'steel.t0', part: 'orb' },
         {
           op: 'dither_fill',
           x: 2,
           y: 2,
           w: 8,
           h: 8,
-          color: 'steel.shadow',
+          color: 'steel.t1',
           pattern: 'checker_50',
           part: 'orb',
         },
@@ -96,7 +96,7 @@ describe('DITHER_NOISE', () => {
       {
         width: 32,
         height: 32,
-        palette: { steel: { ramp: { shadow: '#303030', base: '#808080' } } },
+        palette: { steel: { ramp: { t0: '#808080', t1: '#303030' } } },
         parts: ORB,
       },
     );
@@ -131,13 +131,17 @@ describe('DITHER_NOISE', () => {
     expect(ofCode(lintCompiled(compiled), 'DITHER_NOISE')).toEqual([]);
   });
 
-  it('stays silent without declared parts', () => {
+  it('reports dither noise on plain artwork, without naming a part', () => {
     const compiled = compileSprite(checker(10, 10), {
       width: 16,
       height: 16,
       palette: { steel: { ramp: { ...STEEL } } },
     });
-    expect(ofCode(lintCompiled(compiled), 'DITHER_NOISE')).toEqual([]);
+    const findings = ofCode(lintCompiled(compiled), 'DITHER_NOISE');
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.part).toBeUndefined();
+    expect(findings[0]?.message).toContain('The artwork dithers with 81 checkerboard tiles');
+    expect(findings[0]?.message).toContain('over 2 tones');
   });
 });
 
@@ -234,12 +238,15 @@ describe('CLUSTER_THIN', () => {
     const compiled = compileSprite(
       [
         { op: 'set_pixels', points: [[12, 12]], color: 'steel.base', part: 'orb' },
-        { op: 'set_pixels', points: [[40, 40]], color: 'iron.0', part: 'hilt' },
+        { op: 'set_pixels', points: [[40, 40]], color: 'iron.t0', part: 'hilt' },
       ],
       {
         width: 160,
         height: 160,
-        palette: { steel: { ramp: { ...STEEL } }, iron: { colors: ['#202020', '#404040'] } },
+        palette: {
+          steel: { ramp: { ...STEEL } },
+          iron: { ramp: { t0: '#202020', t1: '#404040' } },
+        },
         parts: { orb: { material: 'steel' }, hilt: { material: 'iron' } },
       },
     );
@@ -247,12 +254,19 @@ describe('CLUSTER_THIN', () => {
     expect(findings.map((finding) => finding.part).sort()).toEqual(['hilt', 'orb']);
   });
 
-  it('stays silent without declared parts', () => {
-    const compiled = compileSprite([{ op: 'rect', x: 4, y: 4, w: 6, h: 6, color: 'steel.base' }], {
-      width: 160,
-      height: 160,
-      palette: { steel: { ramp: { ...STEEL } } },
-    });
-    expect(ofCode(lintCompiled(compiled), 'CLUSTER_THIN')).toEqual([]);
+  it('reports thin clusters on plain artwork, without naming a part', () => {
+    const compiled = compileSprite(
+      [{ op: 'set_pixels', points: [[40, 40]], color: 'steel.base' }],
+      {
+        width: 160,
+        height: 160,
+        palette: { steel: { ramp: { ...STEEL } } },
+      },
+    );
+    const findings = ofCode(lintCompiled(compiled), 'CLUSTER_THIN');
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.part).toBeUndefined();
+    expect(findings[0]?.coord).toEqual([40, 40]);
+    expect(findings[0]?.message).toContain('The artwork has 1 cluster(s) smaller than 3 px');
   });
 });

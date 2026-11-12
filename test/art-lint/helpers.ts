@@ -16,7 +16,7 @@ export interface SpriteOptions {
   width?: number;
   height?: number;
   palette?: Palette;
-  parts?: Record<string, { material: string }>;
+  parts?: Record<string, { material: string; gloss?: string; z?: number }>;
   profile?: ScaleProfile;
 }
 
@@ -50,7 +50,9 @@ export function ofCode(findings: readonly LintFinding[], code: LintCode): LintFi
   return findings.filter((finding) => finding.code === code);
 }
 
-/** A family with a single explicit base tone, for value-separation fixtures. */
-export function baseOnly(hex: string): { ramp: { base: string } } {
-  return { ramp: { base: hex } };
+/** A single-tone family: every shading role resolves to the same colour. */
+export function baseOnly(hex: string): {
+  ramp: { shadow: string; base: string; highlight: string };
+} {
+  return { ramp: { shadow: hex, base: hex, highlight: hex } };
 }

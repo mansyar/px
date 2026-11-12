@@ -17,12 +17,14 @@ import {
   TRANSPARENT_SLOT,
 } from '../core/palette.js';
 import { partDetails } from '../core/parts.js';
+import { parseScaleProfile } from '../core/profile.js';
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
   isCleanupOp,
   type Palette,
+  type Parts,
   RAMP_ROLES,
   type RawOp,
   RECIPE_VERSION,
@@ -142,6 +144,32 @@ function paletteFromFlag(value: string | undefined, derive: boolean): Palette {
     return { steel: { ramp } };
   }
   const trimmed = value.trim();
+  if (trimmed.startsWith('{')) {
+    if (derive) {
+      throw usageError(
+        '--derive-ramps does not apply to an object palette',
+        'Name the roles in the object, or pass a flat hex list with --derive-ramps.',
+      );
+    }
+    let raw: unknown;
+    try {
+      raw = JSON.parse(trimmed);
+    } catch (cause) {
+      throw new PxError(
+        'E_BAD_PALETTE',
+        `--palette is not valid JSON: ${causeMessage(cause)}`,
+        'Pass an object of families, e.g. --palette \'{"steel":{"ramp":{"base":"#808080"}}}\'.',
+      );
+    }
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new PxError(
+        'E_BAD_PALETTE',
+        '--palette object must map family names to ramps or colour lists',
+        'Each family is {"ramp": {"outline", "shadow", "base", "highlight"}} or {"colors": [hex, ...]}.',
+      );
+    }
+    return raw as Palette;
+  }
   if (!trimmed.includes('#') && !trimmed.includes(',')) {
     const named = paletteByName(trimmed);
     if (named === undefined) {
@@ -185,6 +213,55 @@ function paletteFromFlag(value: string | undefined, derive: boolean): Palette {
   return { main: { colors } };
 }
 
+/**
+ * `--parts` takes an inline JSON object or a path to a JSON file, so an agent
+ * with no filesystem-free path still gets parts (FR-1, FR-2). The material each
+ * part names is resolved against the palette by `parseRecipe`, so an unknown
+ * material fails at init rather than at the first draw.
+ */
+function partsFromFlag(value: string | undefined, cwd: string): Parts | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    throw usageError(
+      '--parts is empty',
+      'Pass an inline object, e.g. --parts \'{"blade":{"material":"steel"}}\', or a JSON file.',
+    );
+  }
+  let text = trimmed;
+  if (!trimmed.startsWith('{')) {
+    try {
+      text = readFileSync(resolve(cwd, trimmed), 'utf8');
+    } catch (cause) {
+      throw new PxError(
+        'E_FILE_NOT_FOUND',
+        `Cannot read parts file ${trimmed}: ${causeMessage(cause)}`,
+        'Pass a readable JSON file, or an inline object.',
+      );
+    }
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch (cause) {
+    throw new PxError(
+      'E_PARSE',
+      `Parts is not valid JSON: ${causeMessage(cause)}`,
+      'Check for a trailing comma, a missing quote, or an unquoted key.',
+    );
+  }
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      'Parts must be an object of part name to material',
+      'Each part is {"material": "<family>", "gloss": "matte|metal|gem|cloth", "z": 0}.',
+    );
+  }
+  return raw as Parts;
+}
+
 function defaultName(file: string): string {
   const base = basename(file);
   if (base.endsWith('.px.json')) {
@@ -207,22 +284,30 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const width = intFlag(args.width, 16, 'width');
   const height = intFlag(args.height, 16, 'height');
+  const parts = partsFromFlag(args.parts, cwd);
   let palette = paletteFromFlag(args.palette, args.deriveRamps);
   for (const entry of args.synthesize) {
     palette = synthesizeFamily(palette, entry, false);
   }
+  const meta: Recipe['meta'] = {
+    name: args.name ?? defaultName(file),
+    width,
+    height,
+    alphaMode: 'binary',
+  };
+  if (args.profile !== undefined) {
+    meta.profile = parseScaleProfile(args.profile);
+  }
   const recipe: Recipe = {
     version: RECIPE_VERSION,
-    meta: {
-      name: args.name ?? defaultName(file),
-      width,
-      height,
-      alphaMode: 'binary',
-    },
+    meta,
     palette,
     anchors: { pivot: [Math.floor(width / 2), Math.floor(height / 2)] },
     layers: [{ id: DEFAULT_LAYER_ID, ops: [] }],
   };
+  if (parts !== undefined) {
+    recipe.parts = parts;
+  }
 
   const text = serializeRecipe(recipe);
   const parsed = parseRecipe(text);
@@ -243,6 +328,12 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   }
   if (args.synthesize.length > 0) {
     payload.synthesized = args.synthesize.length;
+  }
+  if (args.profile !== undefined) {
+    payload.profile = args.profile;
+  }
+  if (parts !== undefined) {
+    payload.parts = Object.keys(parts).sort();
   }
   return payload;
 }

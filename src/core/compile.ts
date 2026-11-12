@@ -158,10 +158,14 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
         resolved,
       );
       if (outcome.clipped) {
+        const detail = outcome.clippedDetail;
         const warning: PxWarning = {
           code: 'W_OUT_OF_BOUNDS',
-          message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" wrote outside the ${width}x${height} canvas and was clipped`,
-          hint: `Keep coordinates within x 0-${width - 1} and y 0-${height - 1}.`,
+          message:
+            detail === undefined
+              ? `Op ${opIndex} (${op.op}) of layer "${layer.id}" wrote outside the ${width}x${height} canvas and was clipped`
+              : `Op ${opIndex} (${op.op}) of layer "${layer.id}" dropped ${detail.dropped} destination(s) outside the ${width}x${height} canvas`,
+          hint: detail?.hint ?? `Keep coordinates within x 0-${width - 1} and y 0-${height - 1}.`,
           layer: layer.id,
           op_index: opIndex,
         };

@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { PxError } from '../../src/core/errors.js';
 import { parseHex } from '../../src/core/palette.js';
 import { relativeLuminance } from '../../src/palettes/luminance.js';
-import { synthesizeRamp } from '../../src/palettes/synthesize.js';
+import { largestSeparableSteps, synthesizeRamp } from '../../src/palettes/synthesize.js';
 
 const EXTREMES = [
   '#ffffff',
@@ -34,7 +34,9 @@ describe('extreme base ramps', () => {
           tones = synthesizeRamp(base, steps);
         } catch (error) {
           expect(error).toBeInstanceOf(PxError);
-          expect((error as PxError).code).toBe('E_INTERNAL');
+          expect((error as PxError).code).toBe('E_RAMP_UNSEPARABLE');
+          expect((error as PxError).hint).toContain(base);
+          expect((error as PxError).hint).toMatch(/at most \d steps|any step count/);
           continue;
         }
         for (let index = 1; index < tones.length; index += 1) {
@@ -45,5 +47,15 @@ describe('extreme base ramps', () => {
         }
       }
     }
+  });
+
+  it('names the largest step count a base can carry', () => {
+    // The refusal hint quotes this number, so it must be the real ceiling.
+    for (const base of ['#000000', '#010101', '#ffffff', '#b13e53']) {
+      expect(largestSeparableSteps(base, 6)).toBe(6);
+    }
+    // Nothing legal fits under the minimum, and an unparseable base carries none.
+    expect(largestSeparableSteps('#010101', 2)).toBeNull();
+    expect(largestSeparableSteps('not-a-colour', 6)).toBeNull();
   });
 });

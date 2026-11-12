@@ -25,15 +25,45 @@ function indexOf(width: number, x: number, y: number): number {
 }
 
 /**
+ * The owner a sealed hole inherits: the part that supplied most of the winning
+ * tone. A tie prefers an owned pixel over an unowned one, then the lower index,
+ * so replay is deterministic and a hole inside a part never comes out unowned.
+ */
+function adoptedOwner(counts: Map<number, number> | undefined): number {
+  let owner = UNOWNED;
+  let best = 0;
+  if (counts === undefined) {
+    return owner;
+  }
+  for (const [candidate, count] of counts) {
+    const better = candidate !== UNOWNED && (owner === UNOWNED || candidate < owner);
+    if (count > best || (count === best && better)) {
+      owner = candidate;
+      best = count;
+    }
+  }
+  return owner;
+}
+
+/**
  * Fill enclosed transparent holes of at most 2x2 pixels with the tone that
  * already surrounds them. Transparent pixels reachable from the border are open
  * air; only the ones the flood fill cannot reach are holes.
+ *
+ * A sealed pixel takes the ownership of the part whose tone it adopted, the way
+ * an outer `auto_outline` claims the border it draws around (FR-3). Without that
+ * the pixel would be painted but owned by nobody: invisible to per-part counts
+ * and to `diff`, and skipped by `light`, which shades by owner. When the winning
+ * tone is shared by several parts the majority owner wins, ties going to the
+ * lowest index so replay stays deterministic, and a tone no part owns leaves the
+ * pixel unowned.
  */
 export function seal(
   canvas: SlotCanvas,
   source: Int16Array,
   width: number,
   height: number,
+  sourceOwners?: Int16Array,
 ): CleanupCoord[] {
   const open = new Uint8Array(width * height);
   const queue: number[] = [];
@@ -78,6 +108,8 @@ export function seal(
     let maxX = -1;
     let maxY = -1;
     const tally = new Map<number, number>();
+    /** Per tone, how many surrounding pixels of that tone each owner supplied. */
+    const ownersByTone = new Map<number, Map<number, number>>();
     for (let head = 0; head < hole.length; head += 1) {
       const index = hole[head] ?? 0;
       const x = index % width;
@@ -102,6 +134,10 @@ export function seal(
           continue;
         }
         tally.set(tone, (tally.get(tone) ?? 0) + 1);
+        const toneOwner = sourceOwners?.[next] ?? UNOWNED;
+        const ownerTally = ownersByTone.get(tone) ?? new Map<number, number>();
+        ownerTally.set(toneOwner, (ownerTally.get(toneOwner) ?? 0) + 1);
+        ownersByTone.set(tone, ownerTally);
       }
     }
     if (maxX - minX >= 2 || maxY - minY >= 2) {
@@ -118,10 +154,11 @@ export function seal(
     if (fill === undefined) {
       continue;
     }
+    const owner = adoptedOwner(ownersByTone.get(fill));
     for (const member of hole) {
       const x = member % width;
       const y = (member - x) / width;
-      canvas.set(x, y, fill);
+      canvas.set(x, y, fill, owner);
       changed.push([x, y]);
     }
   }

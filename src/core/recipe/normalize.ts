@@ -910,6 +910,30 @@ function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, lay
   return { op: 'mirror', axis: axis ?? 'x', pivot };
 }
 
+/**
+ * `width` is 1-4 px: the border's depth, overriding the profile's outlineWidth
+ * when a recipe wants a heavier or lighter edge than its scale expects.
+ */
+function outlineWidthParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): number | undefined {
+  const value = source.width;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > 4) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (auto_outline) has width ${JSON.stringify(value)}, outside 1-4`,
+      '"width" is an integer from 1 to 4 pixels of border depth.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
 function normalizeAutoOutline(
   source: Record<string, unknown>,
   opIndex: number,
@@ -935,6 +959,7 @@ function normalizeAutoOutline(
   );
   const selective = boolParam(source, 'selective', 'auto_outline', opIndex, layer);
   const color = colorParam(source, 'auto_outline', opIndex, layer, selective !== true);
+  const outlineWidth = outlineWidthParam(source, opIndex, layer);
   const op: AutoOutlineOp = { op: 'auto_outline' };
   if (mode !== undefined) {
     op.mode = mode;
@@ -947,6 +972,9 @@ function normalizeAutoOutline(
   }
   if (selective === true) {
     op.selective = true;
+  }
+  if (outlineWidth !== undefined) {
+    op.width = outlineWidth;
   }
   const targetLayer = optionalStringParam(source, 'target_layer', 'auto_outline', opIndex, layer);
   if (targetLayer !== undefined) {

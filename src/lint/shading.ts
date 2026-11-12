@@ -1,9 +1,11 @@
 /**
  * Shading lint: `BANDING` and `PILLOW_SHADE`.
  *
- * Both read one part's pixels. Banding is a repetition the eye reads as a rule
- * (equal-width parallel runs stacked three deep); pillow shading is a light
- * direction that never made a decision, so the shadow rings every edge.
+ * Both read one region at a time. Banding is a repetition the eye reads as a
+ * rule (equal-width parallel runs stacked three deep); pillow shading is a light
+ * direction that never made a decision, so the shadow rings every edge. A recipe
+ * with declared parts judges each part; a recipe with none judges the flattened
+ * grid as one region, so plain artwork is still linted.
  */
 
 import { type Band, findBands } from '../core/bands.js';
@@ -12,7 +14,7 @@ import type { RampRole } from '../core/recipe/types.js';
 import { FindingCollector } from './collector.js';
 import { MAX_COORDS_PER_FINDING } from './thresholds.js';
 import type { LintContext, LintCoord, LintFinding, LintRule } from './types.js';
-import { type PartView, partViews } from './view.js';
+import { lintRegions, type PartView, subjectOf } from './view.js';
 
 const BANDING = 'BANDING';
 const PILLOW = 'PILLOW_SHADE';
@@ -43,21 +45,18 @@ export const bandingRule: LintRule = {
   code: BANDING,
   severity: 'info',
   evaluate(context: LintContext): LintFinding[] {
-    const { width, height, owners } = context;
-    const views = partViews(context);
+    const { width, height } = context;
+    const regions = lintRegions(context);
     const collector = new FindingCollector(BANDING, 'info');
-    if (owners === undefined || views.length === 0) {
-      return collector.finish();
-    }
     const bands = findBands({
       width,
       height,
       slots: context.flattened,
-      owners,
-      partCount: views.length,
+      owners: regions.owners,
+      partCount: regions.views.length,
     });
     for (const band of bands) {
-      const view = views[band.owner];
+      const view = regions.views[band.owner];
       if (view === undefined) {
         continue;
       }
@@ -65,43 +64,56 @@ export const bandingRule: LintRule = {
       const span = band.to - band.from + 1;
       collector.add({
         message:
-          `Part "${view.name}" stacks ${lines} rows of ${slotName(context, band.tone)} ` +
-          `in equal runs of ${span} px (y ${band.start}-${band.end}): ` +
-          'equal-width parallel runs read as banding',
+          `${subjectOf(view, regions.partScoped)} stacks ${lines} rows of ` +
+          `${slotName(context, band.tone)} in equal runs of ${span} px ` +
+          `(y ${band.start}-${band.end}): equal-width parallel runs read as banding`,
         coord: [band.from, band.start],
         coords: bandCoords(band),
-        part: view.name,
+        ...(regions.partScoped ? { part: view.name } : {}),
       });
     }
     return collector.finish();
   },
 };
 
-/** Role a tone plays in its own family, if it plays one. */
+/** Role a tone plays, in its own family or, on the whole canvas, in any family. */
 function roleOf(roles: SlotRoles, view: PartView, slot: number): RampRole | undefined {
-  if (view.familyIndex === -1) {
+  if (view.familyIndex !== -1) {
+    const family = roles.roleSlots[view.familyIndex];
+    if (family === undefined) {
+      return undefined;
+    }
+    for (const role of ROLE_PRIORITY) {
+      if (family[role] === slot) {
+        return role;
+      }
+    }
     return undefined;
   }
-  const family = roles.roleSlots[view.familyIndex];
-  if (family === undefined) {
-    return undefined;
-  }
-  for (const role of ROLE_PRIORITY) {
-    if (family[role] === slot) {
-      return role;
+  for (const family of roles.roleSlots) {
+    for (const role of ROLE_PRIORITY) {
+      if (family[role] === slot) {
+        return role;
+      }
     }
   }
   return undefined;
 }
 
 /** The sides a boundary pixel sits on: one or two, never more. */
-function sidesOf(context: LintContext, owner: number, x: number, y: number): Side[] {
-  const { width, height, owners } = context;
+function sidesOf(
+  owners: Int16Array,
+  width: number,
+  height: number,
+  owner: number,
+  x: number,
+  y: number,
+): Side[] {
   const outside = (nx: number, ny: number): boolean => {
     if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
       return true;
     }
-    return (owners?.[ny * width + nx] ?? -1) !== owner;
+    return (owners[ny * width + nx] ?? -1) !== owner;
   };
   const sides: Side[] = [];
   if (outside(x, y - 1)) {
@@ -154,24 +166,21 @@ export const pillowShadeRule: LintRule = {
   code: PILLOW,
   severity: 'warning',
   evaluate(context: LintContext): LintFinding[] {
-    const { width, height, owners } = context;
-    const views = partViews(context);
+    const { width, height } = context;
+    const regions = lintRegions(context);
     const collector = new FindingCollector(PILLOW, 'warning');
-    if (owners === undefined || views.length === 0) {
-      return collector.finish();
-    }
     const roles = buildSlotRoles(context.slots);
-    for (const view of views) {
+    for (const view of regions.views) {
       const counts = new Map<Side, Map<RampRole, number>>();
       let boundary = 0;
       let first: LintCoord | undefined;
       for (let y = 0; y < height; y += 1) {
         for (let x = 0; x < width; x += 1) {
           const index = y * width + x;
-          if (owners[index] !== view.owner) {
+          if (regions.owners[index] !== view.owner) {
             continue;
           }
-          const sides = sidesOf(context, view.owner, x, y);
+          const sides = sidesOf(regions.owners, width, height, view.owner, x, y);
           if (sides.length === 0) {
             continue;
           }
@@ -197,10 +206,11 @@ export const pillowShadeRule: LintRule = {
       }
       collector.add({
         message:
-          `Part "${view.name}" is pillow-shaded: shadow dominates the ${listSides(shadow)} ` +
-          'edges; pick a light direction so one side highlights and the opposite one shadows',
+          `${subjectOf(view, regions.partScoped)} is pillow-shaded: shadow dominates the ` +
+          `${listSides(shadow)} edges; pick a light direction so one side highlights ` +
+          'and the opposite one shadows',
         ...(first === undefined ? {} : { coord: first }),
-        part: view.name,
+        ...(regions.partScoped ? { part: view.name } : {}),
       });
     }
     return collector.finish();

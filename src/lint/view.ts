@@ -46,6 +46,62 @@ export function partViews(context: LintContext): PartView[] {
   });
 }
 
+/** The owner index the whole canvas stands in as when no parts are declared. */
+export const WHOLE_CANVAS_OWNER = 0;
+
+/**
+ * The regions a rule judges.
+ *
+ * A recipe with declared parts hands the rule one region per part, exactly as
+ * the ownership buffer says. A recipe with no parts is not a recipe with nothing
+ * to judge: the flattened grid itself is one region, so region-scoped rules keep
+ * working on plain artwork. Such a region carries an empty name and no material,
+ * and its findings never name a part.
+ */
+export interface LintRegions {
+  views: PartView[];
+  owners: Int16Array;
+  /** True when the regions are declared parts; false for the whole canvas. */
+  partScoped: boolean;
+}
+
+export function lintRegions(context: LintContext): LintRegions {
+  const parts = context.parts;
+  if (parts !== undefined && parts.length > 0 && context.owners !== undefined) {
+    return { views: partViews(context), owners: context.owners, partScoped: true };
+  }
+  const { width, height, flattened } = context;
+  const owners = new Int16Array(width * height).fill(UNOWNED);
+  const tones = new Set<number>();
+  for (let index = 0; index < flattened.length; index += 1) {
+    const slot = flattened[index];
+    if (slot === undefined || slot === TRANSPARENT_SLOT) {
+      continue;
+    }
+    owners[index] = WHOLE_CANVAS_OWNER;
+    tones.add(slot);
+  }
+  return {
+    views: [
+      {
+        owner: WHOLE_CANVAS_OWNER,
+        name: '',
+        material: '',
+        familyIndex: -1,
+        baseSlot: undefined,
+        toneCount: tones.size,
+      },
+    ],
+    owners,
+    partScoped: false,
+  };
+}
+
+/** How a rule names what it judges: the part, or the whole artwork. */
+export function subjectOf(view: PartView, partScoped: boolean): string {
+  return partScoped ? `Part "${view.name}"` : 'The artwork';
+}
+
 /** The view for an owner index, or undefined when nothing declared owns it. */
 export function viewAt(views: readonly PartView[], owner: number): PartView | undefined {
   return owner === UNOWNED ? undefined : views[owner];

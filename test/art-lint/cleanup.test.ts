@@ -48,6 +48,16 @@ function at(compiled: ReturnType<typeof compile>, x: number, y: number): number 
   return compiled.flattened[y * compiled.width + x] ?? -2;
 }
 
+/** The part index a pixel's owner buffer holds, or -2 outside it. */
+function ownerAt(compiled: ReturnType<typeof compile>, x: number, y: number): number {
+  return compiled.owners[y * compiled.width + x] ?? -2;
+}
+
+/** A declared part's owner index, in the canonical name order the compiler uses. */
+function ownerOf(compiled: ReturnType<typeof compile>, name: string): number {
+  return compiled.parts.findIndex((part) => part.name === name);
+}
+
 const dirs: string[] = [];
 
 afterAll(() => {
@@ -260,6 +270,97 @@ describe('deband', () => {
     );
     expect(compiled.cleanup?.[0]?.changed).toBe(100);
     expect(compiled.cleanup?.[0]?.coords.length).toBe(50);
+  });
+});
+
+describe('ownership', () => {
+  const BODY = { body: { material: 'steel' } };
+
+  it('gives a sealed pixel to the part whose tone it adopted', () => {
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 2, y: 2, w: 6, h: 6, color: 'steel.base', part: 'body' },
+        { op: 'set_pixels', points: [[4, 4]], color: null },
+        { op: 'seal' },
+      ],
+      { width: 16, height: 16, palette: PALETTE, parts: BODY },
+    );
+    expect(compiled.cleanup).toEqual([{ op: 'seal', changed: 1, coords: [[4, 4]] }]);
+    expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'body'));
+    // The repaired pixel counts toward its part again.
+    expect(compiled.parts[0]?.painted).toBe(36);
+  });
+
+  it('adopts the majority owner when two parts share the winning tone', () => {
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 2, y: 2, w: 6, h: 6, color: 'steel.base', part: 'body' },
+        { op: 'rect', x: 3, y: 4, w: 1, h: 1, color: 'steel.base', part: 'rock' },
+        { op: 'set_pixels', points: [[4, 4]], color: null },
+        { op: 'seal' },
+      ],
+      {
+        width: 16,
+        height: 16,
+        palette: PALETTE,
+        parts: { body: { material: 'steel' }, rock: { material: 'steel' } },
+      },
+    );
+    // Three body neighbours against one rock: the hole joins the majority part.
+    expect(compiled.cleanup?.[0]?.changed).toBe(1);
+    expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'body'));
+  });
+
+  it('keeps the owner of a pixel deband recolours', () => {
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 0, y: 2, w: 10, h: 6, color: 'steel.base', part: 'body' },
+        { op: 'deband' },
+      ],
+      { width: 16, height: 16, palette: PALETTE, parts: BODY },
+    );
+    expect(at(compiled, 0, 4)).toBe(slotOf(compiled, 'steel.shadow'));
+    expect(ownerAt(compiled, 0, 4)).toBe(ownerOf(compiled, 'body'));
+  });
+
+  it('clears the owner of a pixel strays erases', () => {
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 6, y: 6, w: 4, h: 4, color: 'steel.base', part: 'body' },
+        { op: 'set_pixels', points: [[3, 3]], color: 'steel.base', part: 'body' },
+        { op: 'strays' },
+      ],
+      { width: 32, height: 32, palette: PALETTE, parts: BODY },
+    );
+    expect(at(compiled, 3, 3)).toBe(-1);
+    expect(ownerAt(compiled, 3, 3)).toBe(-1);
+    expect(ownerAt(compiled, 6, 6)).toBe(ownerOf(compiled, 'body'));
+  });
+
+  it('shades a sealed pixel instead of skipping it', () => {
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 2, y: 2, w: 6, h: 6, color: 'steel.base', part: 'body' },
+        { op: 'rect', x: 3, y: 4, w: 1, h: 1, color: 'iron.base', part: 'rock' },
+        { op: 'set_pixels', points: [[4, 4]], color: null },
+        { op: 'seal' },
+        { op: 'light', angle: 'top-left', form: 'flat', ao: true, rim: 'none' },
+      ],
+      {
+        width: 16,
+        height: 16,
+        palette: {
+          steel: { ramp: { ...STEEL } },
+          iron: { ramp: { shadow: '#202020', base: '#606060', highlight: '#909090' } },
+        },
+        parts: { body: { material: 'steel' }, rock: { material: 'iron', z: 1 } },
+      },
+    );
+    // The rock's tone differs, so the hole adopts the body's base tone and its
+    // ownership; AO then darkens it one step. Left unowned, `light` would skip
+    // it and the repaired pixel would sit as a flat, unlit speck in the part.
+    expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'body'));
+    expect(at(compiled, 4, 4)).toBe(slotOf(compiled, 'steel.shadow'));
   });
 });
 

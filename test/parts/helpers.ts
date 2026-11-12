@@ -26,7 +26,7 @@ export function recipeText(overrides: RecipeOptions = {}): string {
             highlight: '#c8d4e0',
           },
         },
-        leather: { colors: ['#4a2f1b', '#8a5a30'] },
+        leather: { ramp: { t0: '#4a2f1b', t1: '#8a5a30' } },
       },
       parts: { blade: { material: 'steel' } },
       anchors: {},

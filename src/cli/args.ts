@@ -17,6 +17,8 @@ export interface ParsedArgs {
   width?: string;
   height?: string;
   palette?: string;
+  parts?: string;
+  profile?: string;
   id?: string;
   opIndex?: string;
   x?: string;
@@ -64,6 +66,8 @@ export const VALUE_FLAGS: readonly string[] = [
   'width',
   'height',
   'palette',
+  'parts',
+  'profile',
   'id',
   'op-index',
   'x',
@@ -119,6 +123,12 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'palette':
       parsed.palette = value;
       return;
+    case 'parts':
+      parsed.parts = value;
+      return;
+    case 'profile':
+      parsed.profile = value;
+      return;
     case 'id':
       parsed.id = value;
       return;
@@ -155,7 +165,7 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
+        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --parts, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }

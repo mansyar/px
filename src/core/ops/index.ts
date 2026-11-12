@@ -56,6 +56,11 @@ export interface OpResult {
   noop: boolean;
   /** Present only for cleanup passes, which report exactly what they changed. */
   cleanup?: CleanupReport;
+  /**
+   * Present when a pass dropped destinations that left the canvas for a reason
+   * of its own, so the warning can name the count and the lever that caused it.
+   */
+  clippedDetail?: { dropped: number; hint: string };
 }
 
 const WRITTEN: OpResult = { clipped: false, noop: false };
@@ -225,6 +230,8 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           where: op.where ?? 'outer',
           selective: op.selective === true,
           color: op.color === undefined ? undefined : colorSlot(context, op.color),
+          // The profile recommends a depth for this scale; an explicit width wins.
+          thickness: op.width ?? context.profile.outlineWidth,
         },
         snapshotOwners(context, op.targetLayer),
       );
@@ -271,6 +278,19 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         },
         { opIndex: context.opIndex, layerId: context.layerId },
       );
+      if (outcome.clipped !== null) {
+        // The pass never wrote these pixels, but the caller still asked them
+        // somewhere the canvas cannot hold; report it once, at the first one.
+        context.canvas.clippedAt = outcome.clipped.first;
+        return {
+          clipped: true,
+          noop: outcome.painted === 0,
+          clippedDetail: {
+            dropped: outcome.clipped.count,
+            hint: `cast_offset is ${op.castOffset}; lower it, or set "cast": null to keep the shadow on the canvas.`,
+          },
+        };
+      }
       return { clipped: false, noop: outcome.painted === 0 };
     }
     case 'replace_slot':
@@ -287,6 +307,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         snapshot(context, op.targetLayer),
         context.canvas.width,
         context.canvas.height,
+        snapshotOwners(context, op.targetLayer),
       );
       return {
         clipped: false,

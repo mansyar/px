@@ -6,7 +6,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { lintCompiled } from '../../src/lint/index.js';
+import { buildSlotTable } from '../../src/core/palette.js';
+import { lint, lintCompiled } from '../../src/lint/index.js';
 import { baseOnly, compileSprite, ofCode } from './helpers.js';
 
 const STEEL = baseOnly('#808080');
@@ -90,19 +91,25 @@ describe('VALUE_COLLISION', () => {
   });
 
   it('needs a base role on both materials', () => {
-    const compiled = compileSprite(
-      [
-        { ...BLADE, color: 'steel.shadow' },
-        { ...GUARD, color: 'iron.shadow' },
-      ],
-      {
-        palette: {
-          steel: { ramp: { shadow: '#808080' } },
-          iron: { ramp: { shadow: '#858585' } },
-        },
-        parts: { blade: { material: 'steel' }, guard: { material: 'iron' } },
-      },
-    );
-    expect(ofCode(lintCompiled(compiled), 'VALUE_COLLISION')).toEqual([]);
+    const compiled = colliding([
+      { ...BLADE, color: 'steel.shadow' },
+      { ...GUARD, color: 'iron.shadow' },
+    ]);
+    // Compilation rejects an incomplete material, so the rule's own guard is
+    // exercised against a context that names two families without bases.
+    const findings = lint({
+      width: compiled.width,
+      height: compiled.height,
+      flattened: compiled.flattened,
+      slots: buildSlotTable({
+        steel: { ramp: { shadow: '#808080' } },
+        iron: { ramp: { shadow: '#858585' } },
+      }),
+      layers: compiled.layers.map((layer) => ({ id: layer.id, slots: layer.canvas.slots })),
+      warnings: [],
+      owners: compiled.owners,
+      parts: compiled.parts,
+    });
+    expect(ofCode(findings, 'VALUE_COLLISION')).toEqual([]);
   });
 });

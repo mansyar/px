@@ -55,7 +55,7 @@ function body(
   const base = {
     version: '1.1',
     meta: { name: 'diff', width: options.width ?? 16, height: 16, alpha_mode: 'binary' },
-    palette: { steel: { ramp: { base: '#303030', highlight: '#909090' } } },
+    palette: { steel: { ramp: { shadow: '#101010', base: '#303030', highlight: '#909090' } } },
     anchors: {},
     layers: [
       {
@@ -135,6 +135,32 @@ describe('px diff against a PNG', () => {
     expect(envelope.parts).toEqual([
       { part: 'blade', changed: 1 },
       { part: null, changed: 1 },
+    ]);
+  });
+
+  it('pinpoints a one-pixel edit: a 1x1 box is the coordinate itself', () => {
+    write('hero.px.json', text(body()));
+    expect(run(['render', '--file', 'hero.px.json', '--out', 'prev.png']).code).toBe(0);
+    // Recolour one pixel the rect already paints (5, 6): same shape, one tone
+    // different, so the only evidence is the bounding box.
+    write(
+      'hero.px.json',
+      text(
+        body({
+          ops: [
+            ...bladeOps(),
+            { op: 'set_pixels', points: [[5, 6]], color: 'steel.highlight', part: 'blade' },
+          ],
+        }),
+      ),
+    );
+
+    const { envelope } = run(['diff', '--file', 'hero.px.json', '--against', 'prev.png']);
+    expect(envelope.identical).toBe(false);
+    expect(envelope.changed).toEqual({ count: 1, bounds: { x: 5, y: 6, w: 1, h: 1 } });
+    expect(envelope.parts).toEqual([
+      { part: 'blade', changed: 1 },
+      { part: null, changed: 0 },
     ]);
   });
 

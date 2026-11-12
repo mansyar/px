@@ -148,10 +148,14 @@ function isStrictlyMonotonic(hexes: readonly string[]): boolean {
  * one nudge at a time until it is measurably darker, and re-converts it. A very
  * dark base has walled in the whole ramp — every tone sits on the 0.08 floor —
  * so when a tone runs out of room the ramp is lifted and the pass restarts.
- * Four attempts, then the ramp is a defect and is refused rather than written
- * with indistinguishable steps.
+ * Four attempts and the colour is simply too cramped to carry that many steps:
+ * that is an input limit, so the caller reports it as one rather than as an
+ * engine fault.
+ *
+ * Returns true when the ramp is strictly monotonic, false when this base cannot
+ * hold this many distinguishable tones.
  */
-function enforceMonotonicLuminance(targets: Oklch[], hexes: string[]): void {
+function separateTones(targets: Oklch[], hexes: string[]): boolean {
   for (let attempt = 0; attempt <= RAMP_MONOTONIC_ATTEMPTS; attempt += 1) {
     if (attempt > 0) {
       // The ramp is bunched against the floor: lift it, which moves every tone
@@ -176,13 +180,48 @@ function enforceMonotonicLuminance(targets: Oklch[], hexes: string[]): void {
       }
     }
     if (!exhausted && isStrictlyMonotonic(hexes)) {
-      return;
+      return true;
     }
   }
-  throw new PxError(
-    'E_INTERNAL',
-    `Synthesised ramp is not monotonic after ${RAMP_MONOTONIC_ATTEMPTS} repairs (${hexes.join(', ')})`,
-    'This is an engine defect: report the base colour and step count.',
+  return false;
+}
+
+/**
+ * The largest step count at or below `ceiling` that this base can carry, or
+ * null when even the minimum three tones collapse. This is the number the
+ * refusal hint quotes, so a caller learns the base's real ceiling.
+ */
+export function largestSeparableSteps(baseHex: string, ceiling: number): number | null {
+  const rgba = parseHex(baseHex);
+  if (rgba === null) {
+    return null;
+  }
+  const base = rgbaToOklch(rgba);
+  for (let steps = ceiling; steps >= MIN_RAMP_STEPS; steps -= 1) {
+    const targets = toneTargets(base, steps);
+    const hexes = targets.map(oklchToHex);
+    if (separateTones(targets, hexes)) {
+      return steps;
+    }
+  }
+  return null;
+}
+
+/**
+ * A colour at the edge of the representable range cannot yield `steps` distinct
+ * tones. Name the base and the largest count it can actually carry, so the
+ * caller knows this is a limit of the input rather than a broken engine.
+ */
+function unseparableError(baseHex: string, steps: number): PxError {
+  const largest = largestSeparableSteps(baseHex, steps - 1);
+  const hint =
+    largest === null
+      ? `Base ${baseHex} cannot carry a strictly monotonic ramp at any step count from ${MIN_RAMP_STEPS} to ${MAX_RAMP_STEPS}; move it away from the black/white ends of the range.`
+      : `Base ${baseHex} carries at most ${largest} steps; ask for ${largest} or fewer, or move the base away from the black/white ends of the range.`;
+  return new PxError(
+    'E_RAMP_UNSEPARABLE',
+    `Cannot separate a ${steps}-step ramp from ${baseHex}: too few distinct luminances remain at this lightness`,
+    hint,
   );
 }
 
@@ -215,7 +254,9 @@ export function synthesizeRamp(baseHex: string, steps: number): string[] {
   }
   const targets = toneTargets(rgbaToOklch(rgba), steps);
   const hexes = targets.map(oklchToHex);
-  enforceMonotonicLuminance(targets, hexes);
+  if (!separateTones(targets, hexes)) {
+    throw unseparableError(baseHex, steps);
+  }
   return hexes;
 }
 

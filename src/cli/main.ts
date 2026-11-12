@@ -38,7 +38,7 @@ export interface CliIo {
 function helpPayload(): Record<string, unknown> {
   return {
     usage: [
-      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name] [--derive-ramps] [--synthesize name=#hex:steps]... [--force]',
+      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name|json-object] [--parts json-or-file] [--profile name] [--derive-ramps] [--synthesize name=#hex:steps]... [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
@@ -59,6 +59,8 @@ function helpPayload(): Record<string, unknown> {
       '--export',
       '--summary',
       '--derive-ramps',
+      '--parts',
+      '--profile',
       '--backdrop',
       '--against',
       '--family',

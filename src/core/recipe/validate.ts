@@ -5,9 +5,10 @@
  */
 
 import { PxError } from '../errors.js';
-import { type SlotTable, slotHint } from '../palette.js';
+import { partRampError } from '../ops/pass.js';
+import { buildSlotRoles, type SlotTable, slotHint } from '../palette.js';
 import { coordRefsOf, parseRef } from '../refs.js';
-import { type RawOp, type Recipe, recipeParts } from './types.js';
+import { RAMP_ROLES, type RawOp, type Recipe, recipeParts } from './types.js';
 
 /** Slot names an op references, in the order it references them. */
 function slotReferences(op: RawOp): string[] {
@@ -47,6 +48,7 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
   const layerIds = new Set(recipe.layers.map((layer) => layer.id));
   const parts = recipeParts(recipe);
   const declared = Object.keys(parts).sort();
+  const roles = buildSlotRoles(slots);
 
   for (const [name, part] of Object.entries(parts)) {
     if (!slots.familyNames.includes(part.material)) {
@@ -57,6 +59,19 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
           ? 'The palette declares no families; add one before declaring a part.'
           : `Palette families are ${slots.familyNames.join(', ')}.`,
       );
+    }
+    // A declared part promises it can be shaded, so its material must resolve
+    // every shading role now rather than failing later inside a pass (FR-5,
+    // AC-5). `outline` is not required: selective rim and edges fall back to the
+    // explicit colour when a family has none (AC-9).
+    const familyIndex = slots.familyNames.indexOf(part.material);
+    for (const role of RAMP_ROLES) {
+      if (role === 'outline') {
+        continue;
+      }
+      if (roles.roleSlots[familyIndex]?.[role] === undefined) {
+        throw partRampError(name, part.material, role);
+      }
     }
   }
 

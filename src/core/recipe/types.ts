@@ -254,6 +254,8 @@ export interface AutoOutlineOp extends OpBase {
   /** Required unless `selective` supplies the colour from each family. */
   color?: SlotRef;
   selective?: boolean;
+  /** Border depth in pixels (1-4); defaults to the profile's outlineWidth. */
+  width?: number;
   targetLayer?: string;
 }
 
@@ -448,7 +450,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   dither_fill: ['x', 'y', 'w', 'h', 'color', 'pattern'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
-  auto_outline: ['mode', 'where', 'color', 'selective', 'target_layer'],
+  auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
   light: ['angle', 'form', 'ao', 'cast', 'cast_offset', 'rim', 'target_layer'],

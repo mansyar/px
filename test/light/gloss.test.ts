@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { codeOf, compiled, roleRows } from './helpers.js';
+import { compiled, errorOf, roleRows } from './helpers.js';
 
 function part(gloss: string, extra: Record<string, unknown> = {}, width = 4) {
   return compiled({
@@ -67,17 +67,21 @@ describe('light gloss: metal', () => {
     ]);
   });
 
-  it('writes nothing when the family has no highlight role', () => {
-    const compiledRecipe = compiled({
-      palette: { steel: { ramp: { shadow: '#101820', base: '#8090a0' } } },
-      parts: { body: { material: 'steel', gloss: 'metal' } },
-      ops: [
-        { op: 'rect', x: 1, y: 1, w: 3, h: 3, color: 'steel.base', part: 'body' },
-        { op: 'light', form: 'flat', ao: false, rim: 'none' },
-      ],
-    });
-    expect(codeOf(() => compiledRecipe)).toBe('NO_THROW');
-    expect(roleRows(compiledRecipe)[1]).toBe('.bbb....');
+  it('rejects a metal material whose ramp has no highlight role', () => {
+    const error = errorOf(() =>
+      compiled({
+        palette: { steel: { ramp: { shadow: '#101820', base: '#8090a0' } } },
+        parts: { body: { material: 'steel', gloss: 'metal' } },
+        ops: [
+          { op: 'rect', x: 1, y: 1, w: 3, h: 3, color: 'steel.base', part: 'body' },
+          { op: 'light', form: 'flat', ao: false, rim: 'none' },
+        ],
+      }),
+    );
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.message).toContain('Family "steel"');
+    expect(error.message).toContain('highlight');
+    expect(error.hint).toContain('--derive-ramps');
   });
 });
 

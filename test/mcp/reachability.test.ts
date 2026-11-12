@@ -99,6 +99,24 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', palette: '#000000,#ffffff' },
     value: '#000000,#ffffff',
   },
+  {
+    flag: 'palette',
+    tool: 'px_init',
+    params: { file: 'hero.px.json', palette: { steel: { colors: ['#000000', '#ffffff'] } } },
+    value: '{"steel":{"colors":["#000000","#ffffff"]}}',
+  },
+  {
+    flag: 'parts',
+    tool: 'px_init',
+    params: { file: 'hero.px.json', parts: { blade: { material: 'steel' } } },
+    value: '{"blade":{"material":"steel"}}',
+  },
+  {
+    flag: 'profile',
+    tool: 'px_init',
+    params: { file: 'hero.px.json', profile: 'small' },
+    value: 'small',
+  },
   { flag: 'derive-ramps', tool: 'px_init', params: { file: 'hero.px.json', derive_ramps: true } },
   {
     flag: 'synthesize',

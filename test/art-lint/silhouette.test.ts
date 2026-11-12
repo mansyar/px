@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { parseHex } from '../../src/core/palette.js';
-import { lintCompiled } from '../../src/lint/index.js';
+import { lint, lintCompiled } from '../../src/lint/index.js';
 import { compileSprite, ofCode } from './helpers.js';
 
 const GREY = { ramp: { shadow: '#303030', base: '#808080', highlight: '#c0c0c0' } };
@@ -79,16 +79,29 @@ describe('SILHOUETTE_LOSS', () => {
     expect(ofCode(lintCompiled(compiled), 'SILHOUETTE_LOSS')).toEqual([]);
   });
 
-  it('stays silent when the material has no base role', () => {
+  it('stays silent when the part names a material with no base role', () => {
     const compiled = compileSprite(
-      [{ op: 'rect', x: 4, y: 4, w: 8, h: 8, color: 'ink.0', part: 'dab' }],
+      [{ op: 'rect', x: 4, y: 4, w: 8, h: 8, color: 'steel.base', part: 'dab' }],
       {
         width: 16,
         height: 16,
-        palette: { ink: { colors: ['#808080', '#303030'] } },
-        parts: { dab: { material: 'ink' } },
+        palette: { steel: GREY, ink: { colors: ['#808080', '#303030'] } },
+        parts: { dab: { material: 'steel' } },
       },
     );
-    expect(ofCode(lintCompiled(compiled), 'SILHOUETTE_LOSS')).toEqual([]);
+    // Compilation now rejects an incomplete material, so the rule's own guard is
+    // exercised against a context that still names one.
+    const findings = lint({
+      width: compiled.width,
+      height: compiled.height,
+      flattened: compiled.flattened,
+      slots: compiled.slots,
+      layers: compiled.layers.map((layer) => ({ id: layer.id, slots: layer.canvas.slots })),
+      warnings: [],
+      owners: compiled.owners,
+      parts: compiled.parts.map((part) => ({ ...part, material: 'ink' })),
+      backdrop: backdrop('#808080'),
+    });
+    expect(ofCode(findings, 'SILHOUETTE_LOSS')).toEqual([]);
   });
 });

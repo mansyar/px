@@ -63,16 +63,32 @@ describe('light cast: offset', () => {
 });
 
 describe('light cast: clipping', () => {
-  it('drops a shadow that leaves the canvas without an error', () => {
+  it('drops only the destinations that leave the canvas and says so once', () => {
     const compiledRecipe = compiled({
       parts: ROCK_ONLY,
       ops: [
-        { op: 'set_pixels', points: [[7, 7]], color: 'iron.base', part: 'rock' },
+        {
+          op: 'set_pixels',
+          points: [
+            [7, 7],
+            [6, 6],
+          ],
+          color: 'iron.base',
+          part: 'rock',
+        },
         { op: 'light', form: 'flat', ao: false, rim: 'none', cast: 'rock' },
       ],
     });
-    expect(ownerRows(compiledRecipe)[7]).toBe('.......0');
-    expect(compiledRecipe.warnings.map((warning) => warning.code)).not.toContain('W_OUT_OF_BOUNDS');
+    // (6,6) still lands on (7,7); only (7,7)'s shadow misses at (8,8).
+    const rows = roleRows(compiledRecipe);
+    expect(rows[7]?.[7]).toBe('s');
+    expect(rows[6]?.[6]).toBe('b');
+
+    const clipped = compiledRecipe.warnings.filter((warning) => warning.code === 'W_OUT_OF_BOUNDS');
+    expect(clipped).toHaveLength(1);
+    expect(clipped[0]?.coord).toEqual([8, 8]);
+    expect(clipped[0]?.message).toContain('dropped 1 destination');
+    expect(clipped[0]?.hint).toContain('cast_offset');
   });
 });
 
@@ -163,7 +179,7 @@ describe('light cast: snapshot semantics', () => {
 });
 
 describe('light cast: casters without a shadow role', () => {
-  it('fails with E_NO_RAMP naming the family and the derive hint', () => {
+  it('rejects a caster whose material has no shadow role', () => {
     const error = errorOf(() =>
       compiled({
         palette: { ink: { colors: ['#000000'] }, iron: { ramp: { base: '#a06060' } } },
@@ -177,7 +193,7 @@ describe('light cast: casters without a shadow role', () => {
     expect(error.code).toBe('E_NO_RAMP');
     expect(error.message).toContain('Family "ink"');
     expect(error.message).toContain('"shadow"');
-    expect(error.message).toContain('light');
+    expect(error.message).toContain('rock');
     expect(error.hint).toContain('--derive-ramps');
   });
 });

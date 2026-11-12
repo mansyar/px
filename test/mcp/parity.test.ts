@@ -7,7 +7,7 @@ import { callTool, type ImageBlock, type Params, type TextBlock } from '../../sr
 import { sha256Hex } from '../../src/render/render.js';
 
 /**
- * AC-19: the same recipe through the CLI and through MCP yields the same
+ * P6.T2.2: the same recipe through the CLI and through MCP yields the same
  * output. The two workspaces are separate copies, both driven by the same
  * relative paths, so the only thing under comparison is the engine's answer.
  *
@@ -315,5 +315,84 @@ describe('CLI and MCP parity', () => {
     expect(cliEnvelope.ok).toBe(false);
     expect(mcpEnvelope).toEqual(cliEnvelope);
     expect((mcpEnvelope.error as { code: string }).code).toBe('E_NO_SUCH_LAYER');
+  });
+});
+
+/**
+ * FR-1, FR-2, FR-5: parts and an explicit-role palette are authorable through
+ * either surface. Before phase R1 only `px_draw` could mention `part`, and only
+ * by hand-editing the recipe, so a tool-only agent could not reach any of the
+ * part-scoped art codes at all.
+ */
+const ROLE_PALETTE = {
+  steel: {
+    ramp: { outline: '#101010', shadow: '#303030', base: '#808080', highlight: '#c0c0c0' },
+  },
+  ember: {
+    ramp: { outline: '#2a0d0d', shadow: '#7a2418', base: '#c2452a', highlight: '#ef8a4a' },
+  },
+};
+
+const PARTS = {
+  blade: { material: 'steel', gloss: 'metal', z: 1 },
+  grip: { material: 'ember', gloss: 'cloth' },
+};
+
+const PART_OPS = [
+  { op: 'rect', x: 4, y: 4, w: 14, h: 4, color: 'steel.base', part: 'blade' },
+  { op: 'rect', x: 8, y: 8, w: 6, h: 10, color: 'ember.base', part: 'grip' },
+  { op: 'light', angle: 'top-left', form: 'round', ao: true, rim: 'edge' },
+];
+
+describe('parts and explicit-role palettes through both surfaces', () => {
+  it('declares parts, draws them and lights them identically', () => {
+    const paletteArg = JSON.stringify(ROLE_PALETTE);
+    const partsArg = JSON.stringify(PARTS);
+    const cliInit = cliStep([
+      'init',
+      '--file',
+      'parts.px.json',
+      '--width',
+      '24',
+      '--height',
+      '24',
+      '--palette',
+      paletteArg,
+      '--parts',
+      partsArg,
+      '--profile',
+      'small',
+    ]);
+    const mcpInit = mcpStep('px_init', {
+      file: 'parts.px.json',
+      width: 24,
+      height: 24,
+      palette: ROLE_PALETTE,
+      parts: PARTS,
+      profile: 'small',
+    }).envelope;
+    expect(mcpInit).toEqual(cliInit);
+    expect(cliInit.parts).toEqual(['blade', 'grip']);
+
+    const cliDraw = cliStep(['draw', '--file', 'parts.px.json', '--ops', JSON.stringify(PART_OPS)]);
+    const mcpDraw = mcpStep('px_draw', { file: 'parts.px.json', ops: PART_OPS }).envelope;
+    expect(mcpDraw).toEqual(cliDraw);
+
+    const cliValidate = cliStep(['validate', '--file', 'parts.px.json']);
+    const mcpValidate = mcpStep('px_validate', { file: 'parts.px.json' }).envelope;
+    expect(mcpValidate).toEqual(cliValidate);
+
+    // The parts are really there: inspect reports both, with their bounds.
+    const cliInspect = cliStep(['inspect', '--file', 'parts.px.json', '--region', '0,0,24,24']);
+    const mcpInspect = mcpStep('px_inspect', {
+      file: 'parts.px.json',
+      regions: ['0,0,24,24'],
+    }).envelope;
+    expect(mcpInspect).toEqual(cliInspect);
+    expect((cliInspect.parts as unknown[]).length).toBe(2);
+
+    expect(bytes(cliDir, 'parts.px.json').toString()).toBe(
+      bytes(mcpDir, 'parts.px.json').toString(),
+    );
   });
 });

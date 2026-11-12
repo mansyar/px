@@ -40,10 +40,8 @@ export interface ProfileNumbers {
   readonly ditherAllowed: boolean;
   /** Ramp tones dither needs before it is a fade instead of a speckle. */
   readonly ditherMinTones: number;
-  /** Recommended outline thickness in pixels; a recipe may exceed it. */
+  /** Depth `auto_outline` uses when an op names no width of its own. */
   readonly outlineWidth: number;
-  /** Tones a material is expected to use at this scale. */
-  readonly toneCount: number;
   /** Device pixels per source pixel in the debug sheet's zoom panel. */
   readonly debugZoom: number;
 }
@@ -74,7 +72,6 @@ export const PROFILES: Readonly<Record<ScaleProfile, ProfileNumbers>> = Object.f
     ditherAllowed: false,
     ditherMinTones: 3,
     outlineWidth: 1,
-    toneCount: 3,
     debugZoom: 8,
   }),
   small: row({
@@ -87,7 +84,6 @@ export const PROFILES: Readonly<Record<ScaleProfile, ProfileNumbers>> = Object.f
     ditherAllowed: true,
     ditherMinTones: 3,
     outlineWidth: 1,
-    toneCount: 3,
     debugZoom: 8,
   }),
   medium: row({
@@ -100,7 +96,6 @@ export const PROFILES: Readonly<Record<ScaleProfile, ProfileNumbers>> = Object.f
     ditherAllowed: true,
     ditherMinTones: 3,
     outlineWidth: 1,
-    toneCount: 4,
     debugZoom: 4,
   }),
   large: row({
@@ -113,7 +108,6 @@ export const PROFILES: Readonly<Record<ScaleProfile, ProfileNumbers>> = Object.f
     ditherAllowed: true,
     ditherMinTones: 3,
     outlineWidth: 2,
-    toneCount: 5,
     debugZoom: 2,
   }),
 });
@@ -182,7 +176,7 @@ export function profileWarnings(
     {
       code: 'W_PROFILE_MISMATCH',
       message: `Recipe meta.profile is "${declared}" but the ${width}x${height} canvas derives "${derived}"`,
-      hint: `The override governs lint thresholds, cluster minimums, dither, outline width, tones and debug zoom. Remove "profile" to follow the canvas size, or accept "${declared}".`,
+      hint: `The override governs lint thresholds, cluster minimums, dither, outline thickness and debug zoom. Remove "profile" to follow the canvas size, or accept "${declared}".`,
     },
   ];
 }

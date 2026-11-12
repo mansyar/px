@@ -40,12 +40,11 @@ describe('light rim: edge', () => {
     ).toEqual(['bbbb', 'bbbb', 'bbbb', 'bbbb']);
   });
 
-  it('leaves a boundary alone when its family has no roles to write', () => {
+  it('leaves a boundary alone when no family role can be written', () => {
     const compiledRecipe = compiled({
       palette: { ink: { colors: ['#000000'] } },
-      parts: { body: { material: 'ink' } },
       ops: [
-        { op: 'rect', x: 1, y: 1, w: 4, h: 4, color: 'ink.0', part: 'body' },
+        { op: 'rect', x: 1, y: 1, w: 4, h: 4, color: 'ink.0' },
         { op: 'light', form: 'flat', ao: false, rim: 'edge' },
       ],
     });
@@ -74,12 +73,12 @@ describe('light rim: selective', () => {
     const compiledRecipe = compiled({
       palette: {
         steel: { ramp: { shadow: '#101820', base: '#8090a0', highlight: '#f0f4f8' } },
-        ink: { colors: ['#000000'] },
+        ink: { ramp: { shadow: '#101010', base: '#000000', highlight: '#202020' } },
       },
       parts: { a: { material: 'steel' }, b: { material: 'ink' } },
       ops: [
         { op: 'rect', x: 1, y: 1, w: 3, h: 3, color: 'steel.base', part: 'a' },
-        { op: 'rect', x: 4, y: 1, w: 3, h: 3, color: 'ink.0', part: 'b' },
+        { op: 'rect', x: 4, y: 1, w: 3, h: 3, color: 'ink.base', part: 'b' },
         { op: 'light', form: 'flat', ao: false, rim: 'selective' },
       ],
     });

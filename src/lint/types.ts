@@ -73,9 +73,9 @@ export interface LintContext {
    */
   profile?: ScaleProfile;
   /**
-   * Part index per pixel, from the compiler. Absent on a hand-built context,
-   * where every part-scoped rule stays silent: a canvas with no ownership has
-   * no parts to blame.
+   * Part index per pixel, from the compiler. Absent on a hand-built context:
+   * region-scoped rules then judge the flattened grid as one unnamed region, and
+   * the rules that compare declared parts stay silent.
    */
   owners?: Int16Array;
   /** Declared parts, indexed by owner. Absent or empty means nothing is owned. */

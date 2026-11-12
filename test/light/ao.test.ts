@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compiled, paintedCount, roleRows } from './helpers.js';
+import { compiled, errorOf, paintedCount, roleRows } from './helpers.js';
 
 /** Paint one part's pixels in a single op; the first part painted owns the cell. */
 function paint(part: string, color: string, points: Array<[number, number]>) {
@@ -98,20 +98,23 @@ describe('light ao: role stepping', () => {
     expect(roleRows(compiledRecipe)[1]).toBe('.ob.....');
   });
 
-  it('leaves a family without shading roles alone, and does not fail', () => {
-    const compiledRecipe = compiled({
-      palette: {
-        ink: { colors: ['#000000'] },
-        iron: { ramp: { shadow: '#101010', base: '#303030' } },
-      },
-      parts: { front: { material: 'ink', z: 1 }, back: { material: 'iron', z: 5 } },
-      ops: [
-        paint('front', 'ink.0', [[1, 1]]),
-        paint('back', 'iron.base', [[2, 1]]),
-        { op: 'light', form: 'flat', ao: true, rim: 'none', cast: null },
-      ],
-    });
-    expect(roleRows(compiledRecipe)[1]).toBe('.0b.....');
+  it('rejects a declared part whose family has no shading roles', () => {
+    const error = errorOf(() =>
+      compiled({
+        palette: {
+          ink: { colors: ['#000000'] },
+          iron: { ramp: { shadow: '#101010', base: '#303030' } },
+        },
+        parts: { front: { material: 'ink', z: 1 }, back: { material: 'iron', z: 5 } },
+        ops: [
+          paint('front', 'ink.0', [[1, 1]]),
+          paint('back', 'iron.base', [[2, 1]]),
+          { op: 'light', form: 'flat', ao: true, rim: 'none', cast: null },
+        ],
+      }),
+    );
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.message).toContain('Family "ink"');
   });
 
   it('treats an undeclared part layer as one body that cannot occlude', () => {

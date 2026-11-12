@@ -129,6 +129,12 @@ export interface LightOptions {
 export interface LightResult {
   /** Colours written into the containing layer. */
   painted: number;
+  /**
+   * Cast destinations that left the canvas, with their count and the first one
+   * in scan order; null when nothing was dropped. Landing on a higher-z part is
+   * a deliberate skip, not a drop.
+   */
+  clipped: { count: number; first: [number, number] } | null;
 }
 
 /** What the pass needs to know about one part, resolved once per op. */
@@ -335,6 +341,9 @@ export function applyLight(
     }
   };
 
+  let dropped = 0;
+  let firstDropped: [number, number] | null = null;
+
   const castShadow = (): void => {
     if (options.cast === null) {
       return;
@@ -359,6 +368,10 @@ export function applyLight(
         const targetX = x + dx;
         const targetY = y + dy;
         if (!inside(targetX, targetY)) {
+          // The offset pushed this destination off the canvas; count it so the
+          // op can report one warning instead of silently dropping the shadow.
+          dropped += 1;
+          firstDropped ??= [targetX, targetY];
           continue;
         }
         const occupant = ownerAt(targetX, targetY);
@@ -527,5 +540,8 @@ export function applyLight(
   castShadow();
   rim();
 
-  return { painted };
+  return {
+    painted,
+    clipped: firstDropped === null ? null : { count: dropped, first: firstDropped },
+  };
 }

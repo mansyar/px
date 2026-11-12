@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PxError } from '../../src/core/errors.js';
+import { ERROR_HINTS, PxError } from '../../src/core/errors.js';
 import { parseHex, type Rgba } from '../../src/core/palette.js';
 import { relativeLuminance } from '../../src/palettes/luminance.js';
 import { rgbaToOklch } from '../../src/palettes/oklch.js';
@@ -76,7 +76,9 @@ describe('ramp synthesis', () => {
         tones = synthesizeRamp(base, 6);
       } catch (error) {
         expect(error).toBeInstanceOf(PxError);
-        expect((error as PxError).code).toBe('E_INTERNAL');
+        expect((error as PxError).code).toBe('E_RAMP_UNSEPARABLE');
+        expect((error as PxError).hint).toContain(base);
+        expect((error as PxError).hint).toMatch(/at most \d steps|any step count/);
         continue;
       }
       expect(tones).toHaveLength(6);
@@ -86,6 +88,25 @@ describe('ramp synthesis', () => {
         );
       }
     }
+  });
+
+  it('refuses a ramp it cannot separate as an input limit, not an engine fault', () => {
+    // A refusal is legal and actionable; `E_INTERNAL` would tell the caller to
+    // report a defect. Any base that refuses must be refused this way.
+    for (const base of BASES) {
+      for (const steps of [3, 4, 5, 6]) {
+        try {
+          expect(synthesizeRamp(base, steps)).toHaveLength(steps);
+        } catch (error) {
+          expect(error).toBeInstanceOf(PxError);
+          const fault = error as PxError;
+          expect(fault.code).toBe('E_RAMP_UNSEPARABLE');
+          expect(fault.hint).toContain(base);
+          expect(fault.hint).toMatch(/at most \d steps|any step count|fewer steps/);
+        }
+      }
+    }
+    expect(ERROR_HINTS.E_RAMP_UNSEPARABLE).toContain('fewer steps');
   });
 
   it('spans ±0.06 per index around the base', () => {

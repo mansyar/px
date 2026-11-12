@@ -15,13 +15,6 @@ import {
   profileNumbersFor,
   SCALE_PROFILES,
 } from '../../src/core/profile.js';
-import {
-  JAGGY_MAX_RUN,
-  JAGGY_MIN_RUNS,
-  JAGGY_STEP_JUMP,
-  LOW_CONTRAST_MIN_RATIO,
-  ORPHAN_NEIGHBOUR_RADIUS,
-} from '../../src/lint/thresholds.js';
 
 const ROW_KEYS = [
   'debugZoom',
@@ -34,7 +27,6 @@ const ROW_KEYS = [
   'minCluster',
   'orphanRadius',
   'outlineWidth',
-  'toneCount',
 ];
 
 describe('profile derivation', () => {
@@ -91,7 +83,6 @@ describe('the table', () => {
       ditherAllowed: false,
       ditherMinTones: 3,
       outlineWidth: 1,
-      toneCount: 3,
       debugZoom: 8,
     });
     expect(PROFILES.small).toEqual({
@@ -104,7 +95,6 @@ describe('the table', () => {
       ditherAllowed: true,
       ditherMinTones: 3,
       outlineWidth: 1,
-      toneCount: 3,
       debugZoom: 8,
     });
     expect(PROFILES.medium).toEqual({
@@ -117,7 +107,6 @@ describe('the table', () => {
       ditherAllowed: true,
       ditherMinTones: 3,
       outlineWidth: 1,
-      toneCount: 4,
       debugZoom: 4,
     });
     expect(PROFILES.large).toEqual({
@@ -130,7 +119,6 @@ describe('the table', () => {
       ditherAllowed: true,
       ditherMinTones: 3,
       outlineWidth: 2,
-      toneCount: 5,
       debugZoom: 2,
     });
   });
@@ -138,11 +126,13 @@ describe('the table', () => {
 
 describe('small is the compatibility row', () => {
   it('repeats the constants every 32 px asset was calibrated against', () => {
-    expect(PROFILES.small.jaggyMinRuns).toBe(JAGGY_MIN_RUNS);
-    expect(PROFILES.small.jaggyMaxRun).toBe(JAGGY_MAX_RUN);
-    expect(PROFILES.small.jaggyStepJump).toBe(JAGGY_STEP_JUMP);
-    expect(PROFILES.small.orphanRadius).toBe(ORPHAN_NEIGHBOUR_RADIUS);
-    expect(PROFILES.small.lowContrastMinRatio).toBe(LOW_CONTRAST_MIN_RATIO);
+    // Literals, not the aliases in thresholds.ts: comparing the row with reads of
+    // the same frozen row would pass no matter what the values became.
+    expect(PROFILES.small.jaggyMinRuns).toBe(3);
+    expect(PROFILES.small.jaggyMaxRun).toBe(3);
+    expect(PROFILES.small.jaggyStepJump).toBe(2);
+    expect(PROFILES.small.orphanRadius).toBe(2);
+    expect(PROFILES.small.lowContrastMinRatio).toBe(1.5);
   });
 });
 
@@ -156,7 +146,6 @@ describe('the rows differ in the direction they claim', () => {
     expect(PROFILES.large.jaggyMaxRun).toBeGreaterThan(PROFILES.small.jaggyMaxRun);
     expect(PROFILES.large.jaggyStepJump).toBeGreaterThan(PROFILES.small.jaggyStepJump);
     expect(PROFILES.large.lowContrastMinRatio).toBeLessThan(PROFILES.small.lowContrastMinRatio);
-    expect(PROFILES.large.toneCount).toBeGreaterThan(PROFILES.small.toneCount);
     expect(PROFILES.large.outlineWidth).toBeGreaterThan(PROFILES.small.outlineWidth);
     expect(PROFILES.large.debugZoom).toBeLessThan(PROFILES.small.debugZoom);
   });

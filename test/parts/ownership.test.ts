@@ -51,7 +51,7 @@ describe('derived masks', () => {
             id: 'base',
             ops: [
               { op: 'rect', x: 0, y: 0, w: 2, h: 1, color: 'steel.base', part: 'blade' },
-              { op: 'rect', x: 4, y: 0, w: 2, h: 1, color: 'leather.0', part: 'hilt' },
+              { op: 'rect', x: 4, y: 0, w: 2, h: 1, color: 'leather.t0', part: 'hilt' },
             ],
           },
         ],
@@ -96,7 +96,7 @@ describe('derived masks', () => {
               id: 'base',
               ops: [
                 { op: 'rect', x: 0, y: 0, w: 2, h: 2, color: 'steel.base', part: 'blade' },
-                { op: 'rect', x: 1, y: 0, w: 2, h: 1, color: 'leather.0', part: 'hilt' },
+                { op: 'rect', x: 1, y: 0, w: 2, h: 1, color: 'leather.t0', part: 'hilt' },
               ],
             },
           ],
@@ -125,7 +125,7 @@ describe('derived masks', () => {
             id: 'base',
             ops: [
               { op: 'rect', x: 0, y: 0, w: 2, h: 1, color: 'steel.base', part: 'blade' },
-              { op: 'rect', x: 4, y: 0, w: 1, h: 1, color: 'leather.0', part: 'hilt' },
+              { op: 'rect', x: 4, y: 0, w: 1, h: 1, color: 'leather.t0', part: 'hilt' },
               { op: 'set_pixels', points: [[0, 0]], color: null, part: 'blade' },
             ],
           },
@@ -146,7 +146,7 @@ describe('derived masks', () => {
           id: 'base',
           ops: [
             { op: 'rect', x: 1, y: 1, w: 4, h: 3, color: 'steel.base', part: 'blade' },
-            { op: 'line', x1: 0, y1: 7, x2: 7, y2: 7, color: 'leather.0', part: 'hilt' },
+            { op: 'line', x1: 0, y1: 7, x2: 7, y2: 7, color: 'leather.t0', part: 'hilt' },
             { op: 'mirror', axis: 'x', pivot: 3.5 },
           ],
         },
@@ -173,7 +173,7 @@ describe('derived masks', () => {
             id: 'base',
             ops: [
               { op: 'set_pixels', points: [[0, 0]], color: 'steel.base', part: 'blade' },
-              { op: 'set_pixels', points: [[1, 1]], color: 'leather.0', part: 'hilt' },
+              { op: 'set_pixels', points: [[1, 1]], color: 'leather.t0', part: 'hilt' },
               { op: 'mirror', axis: 'x', pivot: 3.5 },
             ],
           },
@@ -229,7 +229,7 @@ describe('derived masks', () => {
               id: 'base',
               ops: [
                 { op: 'rect', x: 0, y: 0, w: 2, h: 3, color: 'steel.base', part: 'blade' },
-                { op: 'rect', x: 5, y: 5, w: 2, h: 1, color: 'leather.0', part: 'hilt' },
+                { op: 'rect', x: 5, y: 5, w: 2, h: 1, color: 'leather.t0', part: 'hilt' },
               ],
             },
           ],

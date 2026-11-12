@@ -76,11 +76,14 @@ describe('BANDING', () => {
     expect(bands).toEqual([]);
   });
 
-  it('emits nothing without declared parts', () => {
+  it('reports a band on plain artwork, without naming a part', () => {
     const compiled = compileSprite([{ op: 'rect', x: 4, y: 4, w: 8, h: 8, color: 'steel.base' }], {
       palette: { steel: { ramp: { ...RAMP } } },
     });
-    expect(ofCode(lintCompiled(compiled), 'BANDING')).toEqual([]);
+    const bands = ofCode(lintCompiled(compiled), 'BANDING');
+    expect(bands).toHaveLength(1);
+    expect(bands[0]?.part).toBeUndefined();
+    expect(bands[0]?.message).toContain('The artwork stacks');
   });
 
   it('ignores a run that belongs to no declared part', () => {
@@ -189,11 +192,14 @@ describe('PILLOW_SHADE', () => {
     expect(findings).toEqual([]);
   });
 
-  it('emits nothing without declared parts', () => {
+  it('reports pillow shading on plain artwork, without naming a part', () => {
     const compiled = compileSprite(
       [{ op: 'rect', x: 4, y: 4, w: 8, h: 8, color: 'steel.shadow' }],
       { palette: { steel: { ramp: { ...RAMP } } } },
     );
-    expect(ofCode(lintCompiled(compiled), 'PILLOW_SHADE')).toEqual([]);
+    const findings = ofCode(lintCompiled(compiled), 'PILLOW_SHADE');
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.part).toBeUndefined();
+    expect(findings[0]?.message).toContain('The artwork is pillow-shaded');
   });
 });

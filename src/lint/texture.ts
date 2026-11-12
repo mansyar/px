@@ -1,10 +1,12 @@
 /**
  * Texture lint: `DITHER_NOISE` and `CLUSTER_THIN`.
  *
- * Both judge the grain of one part rather than its outline. Dither is a fade
+ * Both judge the grain of one region rather than its outline. Dither is a fade
  * tool; where the material has no tones to fade through, or the profile says the
  * canvas is too small for grain, the same pattern reads as noise. Thin clusters
  * are the other end of the scale: single pixels where the profile expects marks.
+ * Declared parts are judged one by one; a recipe with no parts judges the
+ * flattened grid as one region, counting the tones the artwork actually paints.
  */
 
 import { UNOWNED } from '../core/canvas.js';
@@ -13,7 +15,7 @@ import { FindingCollector } from './collector.js';
 import { lintNumbers } from './context.js';
 import { DITHER_MIN_TILES, MAX_COORDS_PER_FINDING } from './thresholds.js';
 import type { LintContext, LintCoord, LintFinding, LintRule } from './types.js';
-import { partViews } from './view.js';
+import { lintRegions, subjectOf } from './view.js';
 
 const DITHER = 'DITHER_NOISE';
 const CLUSTER = 'CLUSTER_THIN';
@@ -60,14 +62,10 @@ export const ditherNoiseRule: LintRule = {
   severity: 'info',
   evaluate(context: LintContext): LintFinding[] {
     const collector = new FindingCollector(DITHER, 'info');
-    const owners = context.owners;
-    const views = partViews(context);
-    if (owners === undefined || views.length === 0) {
-      return collector.finish();
-    }
+    const regions = lintRegions(context);
     const numbers = lintNumbers(context);
-    for (const view of views) {
-      const tiles = countDitherTiles(context, owners, view.owner);
+    for (const view of regions.views) {
+      const tiles = countDitherTiles(context, regions.owners, view.owner);
       if (tiles < DITHER_MIN_TILES) {
         continue;
       }
@@ -80,9 +78,9 @@ export const ditherNoiseRule: LintRule = {
         : 'this profile does not sanction dithering at all';
       collector.add({
         message:
-          `Part "${view.name}" dithers with ${tiles} checkerboard tiles over ` +
-          `${view.toneCount} tones: ${why}. Dither is a fade, not a texture`,
-        part: view.name,
+          `${subjectOf(view, regions.partScoped)} dithers with ${tiles} checkerboard tiles ` +
+          `over ${view.toneCount} tones: ${why}. Dither is a fade, not a texture`,
+        ...(regions.partScoped ? { part: view.name } : {}),
       });
     }
     return collector.finish();
@@ -148,29 +146,26 @@ export const clusterThinRule: LintRule = {
   severity: 'info',
   evaluate(context: LintContext): LintFinding[] {
     const collector = new FindingCollector(CLUSTER, 'info');
-    const owners = context.owners ?? null;
-    const views = partViews(context);
-    if (owners === null || views.length === 0) {
-      return collector.finish();
-    }
+    const regions = lintRegions(context);
     const minCluster = lintNumbers(context).minCluster;
     const visited = new Uint8Array(context.width * context.height);
-    for (const view of views) {
+    for (const view of regions.views) {
       if (view.owner === UNOWNED) {
         continue;
       }
-      const thin = thinClusters(context, owners, view.owner, minCluster, visited);
+      const thin = thinClusters(context, regions.owners, view.owner, minCluster, visited);
       if (thin.count === 0) {
         continue;
       }
       const capped = thin.count > thin.coords.length;
       collector.add({
         message:
-          `Part "${view.name}" has ${thin.count} cluster(s) smaller than ${minCluster} px: ` +
-          `at this scale pixels under ${minCluster} px read as specks, not marks` +
+          `${subjectOf(view, regions.partScoped)} has ${thin.count} cluster(s) smaller than ` +
+          `${minCluster} px: at this scale pixels under ${minCluster} px read as specks, ` +
+          'not marks' +
           (capped ? `; the first ${MAX_COORDS_PER_FINDING} coordinates are quoted` : ''),
         ...(thin.coords.length > 0 ? { coord: thin.coords[0], coords: thin.coords } : {}),
-        part: view.name,
+        ...(regions.partScoped ? { part: view.name } : {}),
       });
     }
     return collector.finish();

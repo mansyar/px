@@ -195,7 +195,8 @@ agree. Not tuned: the benchmarks show no sensitivity to it.
 - **Fixtures:** `test/art-lint/texture.test.ts` (a 3-tone ramp at tiny, where
   dither is unsanctioned, reports 81 tiles; the same lattice on a 5-step ramp at
   large stays silent; a 2-tone material under small fires on tone count; a 2x2
-  dither stays under the floor).
+  dither stays under the floor; the same lattice with no parts reports once for
+  the artwork).
 
 ## Cluster floor — 1 tiny, 2 small/medium, 3 large (new, AC-12)
 
@@ -209,7 +210,7 @@ agree. Not tuned: the benchmarks show no sensitivity to it.
 - **Fixtures:** `test/art-lint/texture.test.ts` (a 2-pixel mark is silent at tiny
   and reported at large; a component exactly at the floor stays silent; 51
   isolated pixels give one finding with 50 quoted coordinates; two parts report
-  once each).
+  once each; a lone pixel on plain artwork reports once, without a part).
 
 ## Band and edge floor — 3 rows, 8 boundary pixels (new, AC-12)
 
@@ -225,7 +226,25 @@ agree. Not tuned: the benchmarks show no sensitivity to it.
 - **Fixtures:** `test/art-lint/shading.test.ts` (a 4×8 block reports one band;
   two rows report none; a one-row gap splits two bands; different widths stay
   apart; a 4-edge shadow ring is one warning; two edges stay silent; one pixel
-  with 4 boundary pixels is skipped).
+  with 4 boundary pixels is skipped; a plain fill reports one band and a plain
+  shadow ring one pillow warning, both without a `part` field).
+
+## Part scope: what the regional rules judge (new, review round 1 fix F6)
+
+- **One region per part, or the whole canvas.** `BANDING`, `PILLOW_SHADE`,
+  `DITHER_NOISE` and `CLUSTER_THIN` read one region at a time. A recipe that
+  declares parts hands them one region per part. A recipe that declares none is
+  not exempt: the flattened grid is one unnamed region, so plain artwork is still
+  judged. Findings from such a region carry no `part` field and say "The
+  artwork", because there is no declared name to blame.
+- **Tones on plain artwork.** `DITHER_NOISE` compares the profile's
+  `ditherMinTones` with the number of distinct slots the region actually paints.
+  For a part that is the material's slot count; for the whole canvas it is the
+  artwork's own tone count.
+- **The two rules that stay part-scoped.** `VALUE_COLLISION` compares two
+  materials' base tones at a shared boundary, and `SILHOUETTE_LOSS` judges a
+  part's edge against the backdrop; both need declared parts and a material, so
+  both stay silent on artwork that declares none.
 
 ## `RAMP_NONMONOTONIC` — no threshold, strict decrease (new)
 

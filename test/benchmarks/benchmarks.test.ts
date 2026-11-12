@@ -1,5 +1,5 @@
 /**
- * AC-21 calibration harness.
+ * P7.T1.1 calibration harness.
  *
  * Replays each committed authoring transcript through the CLI command layer
  * in-process — no child process, so the call count is exactly the number of

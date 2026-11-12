@@ -94,11 +94,10 @@ describe('light form: round', () => {
 });
 
 describe('light form: role resolution', () => {
-  it('leaves a part alone when its family has no shading roles', () => {
+  it('leaves a layer alone when its family has no shading roles', () => {
     const compiledRecipe = compiled({
       palette: { ink: { colors: ['#000000'] } },
-      parts: { body: { material: 'ink' } },
-      ops: [{ op: 'rect', x: 1, y: 1, w: 4, h: 4, color: 'ink.0', part: 'body' }, { op: 'light' }],
+      ops: [{ op: 'rect', x: 1, y: 1, w: 4, h: 4, color: 'ink.0' }, { op: 'light' }],
     });
     expect(window(roleRows(compiledRecipe))).toEqual(['0000', '0000', '0000', '0000']);
     expect(compiledRecipe.warnings.map((warning) => warning.code)).toContain('W_PASS_NOOP');

@@ -2,9 +2,11 @@
 
 One data table, `src/core/profile.ts`, decides every size-sensitive number the
 engine uses: the lint thresholds, the cluster minimum, dither eligibility, outline
-thickness, the expected tone count and the debug zoom. Nothing else hard-codes a
-limit. `docs/lint-thresholds.md` records what each rule catches; this page records
-which regime gets which number, and why.
+thickness and the debug zoom. Nothing else hard-codes a limit.
+`docs/lint-thresholds.md` records what each rule catches; this page records which
+regime gets which number, and why. A tone budget is not in the table: how many
+tones a material should spend is a judgement about the finished picture, so it
+belongs to the rubric, not to a mechanical rule.
 
 ## Why a table
 
@@ -48,7 +50,6 @@ The boundaries are inclusive on the lower profile: 16 is `tiny` and 17 is `small
 | `ditherAllowed` | false | true | true | true |
 | `ditherMinTones` | 3 | 3 | 3 | 3 |
 | `outlineWidth` | 1 | 1 | 1 | 2 |
-| `toneCount` | 3 | 3 | 4 | 5 |
 | `debugZoom` | 8 | 8 | 4 | 2 |
 
 The table is frozen at load. A rule cannot tune it at runtime, and a test
@@ -75,8 +76,8 @@ if they were not:
 - `tiny` is **stricter** where a small canvas cannot afford noise: the contrast
   floor rises to 2.0 and dithering is not sanctioned at all.
 - `large` is **looser**: longer runs count as staircase steps (6), a step jump has
-  to reach 3 to be a kink, the contrast floor drops to 1.25, and a scene is
-  expected to spend more tones.
+  to reach 3 to be a kink, the contrast floor drops to 1.25, and the default
+  outline thickens to 2 px.
 
 ## `orphanRadius` is 2 in every row, on purpose
 
@@ -120,13 +121,13 @@ reviewer reads and re-renders.
 | `debugZoom` | the debug sheet's zoom panel and its ruler interval |
 | `minCluster` | `strays` and `CLUSTER_THIN` (Phase 5) |
 | `ditherAllowed`, `ditherMinTones` | `DITHER_NOISE` (Phase 5) |
-| `outlineWidth` | a recommendation for `auto_outline`; a recipe may exceed it |
-| `toneCount` | the expected tone budget, used by the tone and palette rules |
+| `outlineWidth` | the depth `auto_outline` uses when an op names no `width` |
 
 `ditherAllowed` does **not** ban `dither_fill`: the op still works at every size.
 It says that at that scale a dither reads as noise rather than as a fade, which is
-what the rule reports. Same for `outlineWidth` — a recommendation the recipe may
-exceed; nothing fails because of a 2 px outline on a 32 px sprite.
+what the rule reports. `outlineWidth` works the same way: it is the *default*
+thickness, so a 32 px sprite can still ask for `"width": 2` on an `auto_outline`
+op, and a large scene gets a 2 px border without saying so.
 
 ## When a finding misfires
 

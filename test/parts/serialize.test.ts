@@ -17,7 +17,7 @@ function oneZeroText(): string {
       version: 1,
       meta: { name: 'legacy', width: 8, height: 8, alpha_mode: 'binary' },
       palette: {
-        leather: { colors: ['#4a2f1b', '#8a5a30'] },
+        leather: { ramp: { t0: '#4a2f1b', t1: '#8a5a30' } },
         steel: {
           ramp: {
             outline: '#11151c',
@@ -33,7 +33,7 @@ function oneZeroText(): string {
           id: 'base',
           ops: [
             { op: 'rect', x: 1, y: 1, w: 2, h: 2, color: 'steel.base' },
-            { op: 'line', x1: 0, y1: 0, x2: 7, y2: 7, color: 'leather.0' },
+            { op: 'line', x1: 0, y1: 0, x2: 7, y2: 7, color: 'leather.t0' },
           ],
         },
       ],
