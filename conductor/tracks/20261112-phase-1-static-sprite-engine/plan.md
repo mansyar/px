@@ -150,7 +150,7 @@
   - [x] **P4.T2.1:** Multi-region queries and full-canvas summary mode
   - [x] **P4.T2.2:** Role-code legend with numeric disambiguation
 - [x] **P4.T3: MCP server** — covers: FR-22, NFR-5, AC-19
-  - [x] **P4.T3.1:** Six tools over stdio with batched ops and optional `strict`
+  - [x] **P4.T3.1:** Seven tools over stdio with batched ops and optional `strict`
   - [x] **P4.T3.2:** 1× PNG plus JSON from `render`; debug sheet opt-in
 - [x] **P4.T4: Curated palettes** — covers: FR-4
   - [x] **P4.T4.1:** PICO-8, Endesga-32, Arne16, Game Boy as flat palettes
@@ -248,10 +248,24 @@
   - [x] **R2.T2.1:** `ORPHAN_PIXEL` searches Chebyshev radius 2, documented as the sparsest lattice the engine emits
   - [x] **R2.T2.2:** `bayer_25`-over-transparency fixture yields zero findings; a lone pixel 3 px from anything still flags
 - [x] **R2.T3: Stale tool counts** — covers: FR-22
-  - [x] **R2.T3.1:** Unknown-tool hint says seven, not six
+  - [x] **R2.T3.1:** Unknown-tool hint is count-free, so the next added tool cannot rot it
 - [x] **R2.T4: Drop the dead classifier** — covers: FR-23
   - [x] **R2.T4.1:** `isUsageError` and its unit test are gone rather than left to invite the old mapping back
 - [x] **R2.T5: Backdrop alpha is binary** — covers: FR-18
   - [x] **R2.T5.1:** `--backdrop` rejects alpha other than `00`/`ff`, and both hint sites state the same accepted forms
 - [x] **R2.T6: Reachability asserts the schema** — covers: FR-22, AC-19
   - [x] **R2.T6.1:** Each mapping must appear in the tool's `inputSchema.properties`, and every declared property must have a mapping
+
+## Phase R3: Review Fixes (Round 3, override)
+
+- **Goal:** close the last two Lows — an unusable hint and an overstated evidence sentence — with no behaviour change.
+- **Depends on:** Phase R2
+- **Covers:** FR-13
+- **Touches:** src/core/ops/ramp.ts, test/ops/ramp-fill.test.ts, conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-R2.md
+- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Status:** in_progress
+
+- [ ] **R3.T1: Actionable hint below two positions** — covers: FR-13
+  - [ ] **R3.T1.1:** `E_REGION_TOO_THIN` at `occupiedCount < 2` no longer suggests a band count the validator rejects
+- [ ] **R3.T2: Four light directions, asserted** — covers: FR-13
+  - [ ] **R3.T2.1:** `bottom-right` parametrized into the rotation fixture, and the evidence sentence corrected to match
