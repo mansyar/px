@@ -42,23 +42,26 @@
 - **Covers:** FR-7, FR-8, FR-9, FR-10, FR-11, AC-7, AC-8, AC-9, AC-10
 - **Touches:** src/core/ops/light.ts, src/core/ops/index.ts, src/core/compile.ts, src/core/errors.ts, test/light/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** afce9a6
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-2.md
 
-- [ ] **P2.T1: Form** — covers: FR-7
-  - [ ] **P2.T1.1:** `flat`, `bevel` and `round` shading of a part's own silhouette
-  - [ ] **P2.T1.2:** Snapshot-then-write so the pass never reads its own output
-- [ ] **P2.T2: Ambient occlusion** — covers: FR-8
-  - [ ] **P2.T2.1:** One ramp step darker at boundaries with a higher `z`
-  - [ ] **P2.T2.2:** Never across transparency; clamp at canvas edges
-- [ ] **P2.T3: Cast shadow** — covers: FR-9
-  - [ ] **P2.T3.1:** Offset along the light vector, 1–4 px, caster family `shadow`
-  - [ ] **P2.T3.2:** Clip at canvas; never overwrite a higher-`z` owner
-- [ ] **P2.T4: Rim** — covers: FR-10
-  - [ ] **P2.T4.1:** `edge` highlights light-facing boundary, shadows opposite
-  - [ ] **P2.T4.2:** `selective` defers to the neighbouring family `outline`
-- [ ] **P2.T5: Gloss profiles** — covers: FR-11
-  - [ ] **P2.T5.1:** `metal` hard diagonal specular, no diffuse banding
-  - [ ] **P2.T5.2:** `gem` core and emissive rim; `cloth` dithered falloff; `matte` stepped bands
+- [x] **P2.T1: Form** — covers: FR-7
+  - [x] **P2.T1.1:** `flat`, `bevel` and `round` shading of a part's own silhouette
+  - [x] **P2.T1.2:** Snapshot-then-write so the pass never reads its own output
+- [x] **P2.T2: Ambient occlusion** — covers: FR-8
+  - [x] **P2.T2.1:** One ramp step darker at boundaries with a higher `z`
+  - [x] **P2.T2.2:** Never across transparency; clamp at canvas edges
+- [x] **P2.T3: Cast shadow** — covers: FR-9
+  - [x] **P2.T3.1:** Offset along the light vector, 1–4 px, caster family `shadow`
+  - [x] **P2.T3.2:** Clip at canvas; never overwrite a higher-`z` owner
+- [x] **P2.T4: Rim** — covers: FR-10
+  - [x] **P2.T4.1:** `edge` highlights light-facing boundary, shadows opposite
+  - [x] **P2.T4.2:** `selective` defers to the neighbouring family `outline`
+- [x] **P2.T5: Gloss profiles** — covers: FR-11
+  - [x] **P2.T5.1:** `metal` hard diagonal specular, no diffuse banding
+  - [x] **P2.T5.2:** `gem` core and emissive rim; `cloth` dithered falloff; `matte` stepped bands
 
 ## Phase 3: Scale Profiles
 

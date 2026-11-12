@@ -128,10 +128,32 @@ existing recipe uses `light`, so the new pass cannot reach them.
 
 ## Primary verification
 
-Re-run from `9766c27`:
+Re-run by the primary at `afce9a6`, after squashing the seven task commits (`9766c27` was the
+subagent's head).
 
+| Check | Result |
+| --- | --- |
+| Working tree | clean; 7 commits, 0 merges |
+| Scope | every path inside `Touches` or a recorded deviation (`recipe/{types,normalize,serialize,validate}.ts`, `ops/ramp.ts`, `vitest.config.ts`) |
+| `git diff --stat 7bc5142..HEAD -- test/goldens test/benchmarks` | empty |
+| `pnpm verify` | exit 0 — 52 files / **457 tests** |
+| `pnpm vitest run --coverage` | exit 0 — **94.99 %** statements / **87.11 %** branches / 99.20 % functions / 94.82 % lines |
+
+Design spot-checks rather than trusting the report:
+
+- `light.ts:504` skips `matte` **before** the gloss dispatch, so matte can never fall through to
+  `clothDither` — the failure mode where a flat material silently gets a dithered falloff.
+- `light.ts:517–528` is literally `bevel/round → gloss → ao → cast → rim`, in that order.
+- `towardLight` negates the shadow step, so a `top-left` light throws toward `(+1,+1)`; the cast
+  destination is the caster pixel plus that step times `cast_offset`.
+- `metal` paints the second-closest occupied rank (`light.ts:452`), which is an iso-projection
+  line — the streak is diagonal by construction, not by hand-placed coordinates.
+- `rankProjections` was extracted in `ramp.ts` and `rampFill` still produces the same output: the
+  four benchmark digests are unchanged, which is the only proof that matters for a refactor there.
+
+```text
+pnpm verify                                              # exit 0, 457 tests
+pnpm vitest run --coverage                               # exit 0, 94.99 / 87.11
+git diff --stat 7bc5142 -- test/goldens test/benchmarks  # no output
 ```
-pnpm verify                          # exit 0, 457 tests
-pnpm vitest run --coverage           # exit 0, 94.99 % statements / 87.11 % branches
-git diff --stat 7bc5142 -- test/goldens test/benchmarks   # no output
-```
+
