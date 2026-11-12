@@ -93,9 +93,9 @@
 - **Depends on:** Phase 2
 - **Covers:** FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-24,
   AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-20
-- **Touches:** `src/core/ops/**`, `src/render/**`, `src/cli/**`, `test/ops/**`
+- **Touches:** `src/core/**`, `src/cli/**`, `test/ops/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Curved and polygonal geometry** — covers: FR-6, AC-5
   - [ ] **P3.T1.1:** `ellipse` via midpoint algorithm, pinned by golden
