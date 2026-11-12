@@ -77,3 +77,53 @@ but not that the parameter is published in `inputSchema` — the exact shape of 
 The last one is the most instructive: R1's fix for F2 built a guard, and round 2 found the guard
 checks the wrong side. Two reviews, two different version of the same failure — surface exists,
 interface hides it.
+
+## Round 3 — 2026-11-13
+
+**Verdict: PASS WITH FINDINGS** — shippable, with two cosmetic Lows left.
+
+Both Mediums are closed *by construction* rather than by fixture, which is the difference that
+matters:
+
+- **M1.** Bands are cut by occupied projections and assigned by rank. For any accepted recipe,
+  `bands ≤ occupiedCount` means the bucket step is 0 or 1 and terminates at `bands − 1`, so every
+  band holds at least one painted pixel. A missing role cannot degrade silently — `roleSlot`
+  returns `undefined` and the op raises `E_NO_RAMP`. There is no remaining path to fewer than
+  N−1 transitions short of a hard error, so AC-12 is unconditional without a qualifier in the
+  spec.
+- **M2.** Radius 2 is justified as the *minimum* rather than a guess: `BAYER_25_CUTOFF = 4` lights
+  a Chebyshev-2 lattice, so radius 1 cannot clear the engine's own pattern and radius 3 would
+  silence a legitimate speck 3 px from art. Fixtures pin both sides, including the boundary at
+  exactly 2 apart.
+
+All five Lows are fixed. L5 earned its keep immediately: the reverse check surfaced four
+parameter declarations that were wired but never published.
+
+**Two Lows remain**, both recorded rather than fixed in round 3:
+
+| ID | Finding | Disposition |
+| --- | --- | --- |
+| F1 | At `occupiedCount === 1` the hint says "pass bands 1 or fewer", but `bands < 2` is rejected with `E_BANDS_RANGE` — an impossible remedy in agent-facing text. | Fixed in R3.T1 |
+| F2 | `verification/phase-R2.md` claims "all four light directions" while `bottom-right` is untested. | Fixed in R3.T2 |
+
+### Override: a third fix round
+
+`workflow.md` caps review-fix rounds at two. This track ran three, by explicit decision, and the
+reasoning is recorded here rather than left implicit:
+
+- Both remaining items are small, non-design changes to agent-facing text and test
+  parametrisation — a hint string and a loop over four values.
+- One is correctness-adjacent: a hint that tells an agent to pass a value the validator rejects
+  costs that agent a wasted call and teaches it something false about the contract.
+- Neither touches behaviour, a contract, a threshold, or a rendered byte; goldens are unaffected
+  by construction.
+- The alternative — shipping with a false remedy in the error text and an overstated evidence
+  file — would have been cheaper and worse.
+
+The cap exists to stop open-ended churn, not to force a shipment with known-wrong text.
+
+### Outstanding
+
+AC-14 and AC-22 are still unproven: both need the CI matrix (ubuntu-latest, windows-latest) on
+this branch, which has never been pushed. That is the last gate before merge, and the reviewer
+asked for exactly that check.
