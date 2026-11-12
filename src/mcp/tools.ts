@@ -65,7 +65,16 @@ export const TOOL_DEFINITIONS: Tool[] = [
         name: { type: 'string' },
         width: { type: 'integer', minimum: 8, maximum: 256 },
         height: { type: 'integer', minimum: 8, maximum: 256 },
-        palette: { type: 'string', description: 'Comma-separated hex colours.' },
+        palette: {
+          description: 'Comma-separated hex colours, or an array of hex strings.',
+          anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+        },
+        derive_ramps: {
+          type: 'boolean',
+          description:
+            'Lift shadow/highlight/outline roles from a flat palette by luminance. Without it a flat palette has positional slots only, and the ramp-dependent ops cannot be used.',
+          default: false,
+        },
         force: { type: 'boolean', default: false },
         strict: STRICT,
       },
@@ -195,6 +204,7 @@ export function argvFor(tool: string, params: Params): string[] {
       flag(argv, 'width', str(params.width));
       flag(argv, 'height', str(params.height));
       flag(argv, 'palette', str(params.palette));
+      booleanFlag(argv, 'derive-ramps', params.derive_ramps);
       booleanFlag(argv, 'force', params.force);
       break;
     }
