@@ -164,8 +164,8 @@
 - **Covers:** FR-25, NFR-3, NFR-7, AC-20
 - **Touches:** test/art/**, test/benchmarks/**, test/benchmarks/performance.test.ts, scripts/**, docs/rubric.md, docs/art-profiles.md, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** blocked
-- **Result:** Tasks delivered, AC-20 **not met**: mean 3.79 against a 4.0 bar, with four criteria below 3 (humanoid lighting; scene lighting, edge_language and cluster_discipline). The bar was not lowered and no pass was selected over another; every pass is recorded in `test/art/scores.json` and checked by `test/art/rubric.test.ts`. Blocked on the decision of whether to ship with the criterion unmet or open a follow-on track for the authoring primitives the failures point at.
+- **Status:** failed
+- **Result:** All five tasks delivered; **AC-20 failed as written** — mean 3.79 against a 4.0 bar, with four criteria below 3 (humanoid lighting; scene lighting, edge_language and cluster_discipline). The bar was not lowered and no pass was selected over another; every pass is recorded in `test/art/scores.json` and checked by `test/art/rubric.test.ts`. The user reviewed the result and chose to ship the engine with AC-20 recorded unmet while a follow-up track takes on the authoring primitives the failures point at (interior plane shading, a stroke op that cleans its own steps, a texture primitive that survives the large-profile cluster floor). Recorded as failed rather than rewritten to pass.
 - **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-7.md, conductor/tracks/20261113-static-art-quality/verification/phase-7-scoring.md
 - **Checkpoint:** see `verification/phase-7-scoring.md`
 
