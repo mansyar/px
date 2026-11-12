@@ -1,0 +1,54 @@
+{
+  "asset": "character",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/character/character.px.json",
+        "--name",
+        "hand",
+        "--x",
+        "36",
+        "--y",
+        "56"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/character/character.px.json",
+        "--name",
+        "foot_origin",
+        "--x",
+        "19",
+        "--y",
+        "109"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/character/character.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/character/character.px.json",
+        "--out",
+        ".conductor/evidence/art/character.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

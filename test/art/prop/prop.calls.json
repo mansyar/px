@@ -1,0 +1,68 @@
+{
+  "asset": "prop",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/prop/prop.px.json",
+        "--name",
+        "handle_top",
+        "--x",
+        "32",
+        "--y",
+        "6"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/prop/prop.px.json",
+        "--name",
+        "flame_core",
+        "--x",
+        "32",
+        "--y",
+        "40"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/prop/prop.px.json",
+        "--name",
+        "base_pivot",
+        "--x",
+        "32",
+        "--y",
+        "60"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/prop/prop.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/prop/prop.px.json",
+        "--out",
+        ".conductor/evidence/art/prop.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

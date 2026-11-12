@@ -1,0 +1,82 @@
+{
+  "asset": "scene",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--name",
+        "well_center",
+        "--x",
+        "128",
+        "--y",
+        "150"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--name",
+        "rope_hook",
+        "--x",
+        "128",
+        "--y",
+        "100"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--name",
+        "bucket_hook",
+        "--x",
+        "128",
+        "--y",
+        "178"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--name",
+        "roof_apex",
+        "--x",
+        "128",
+        "--y",
+        "46"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/scene/scene.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/scene/scene.px.json",
+        "--out",
+        ".conductor/evidence/art/scene.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}
