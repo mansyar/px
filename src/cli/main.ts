@@ -4,10 +4,20 @@
  */
 
 import { internalError, isUsageError, PxError } from '../core/errors.js';
+import { lintBlocks } from '../lint/index.js';
+import type { LintFinding } from '../lint/types.js';
 import { probeRuntime } from '../probe.js';
 import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
-import { runDraw, runInit, runInspect, runRender } from './commands.js';
-import { EXIT_ERROR, EXIT_OK, EXIT_USAGE, failureEnvelope, successEnvelope } from './envelope.js';
+import { runDraw, runInit, runInspect, runRender, runValidate } from './commands.js';
+import {
+  EXIT_ERROR,
+  EXIT_LINT,
+  EXIT_OK,
+  EXIT_USAGE,
+  failureEnvelope,
+  gateEnvelope,
+  successEnvelope,
+} from './envelope.js';
 
 export interface CliIo {
   cwd: string;
@@ -21,18 +31,28 @@ function helpPayload(): Record<string, unknown> {
       'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...] [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]',
-      'px render --file <path> --out <png>',
+      'px render --file <path> --out <png> [--debug]',
+      'px validate --file <path>',
     ],
     commands: COMMANDS,
-    flags: ['--pretty', '--color', '--force', '--help'],
+    flags: ['--pretty', '--color', '--force', '--help', '--debug', '--strict'],
     exit_codes: {
       '0': 'success',
       '1': 'caller error',
       '2': 'usage error',
-      '3': 'lint gate (reserved)',
+      '3': 'lint gate under --strict',
     },
     runtime: probeRuntime(),
   };
+}
+
+/**
+ * Findings the strict gate reads. `render` and `validate` are the only writers
+ * of this key, and they always write a LintFinding array.
+ */
+function payloadFindings(payload: Record<string, unknown>): LintFinding[] {
+  const value = payload.findings;
+  return Array.isArray(value) ? (value as LintFinding[]) : [];
 }
 
 function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string, unknown> {
@@ -45,6 +65,8 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runInspect(args, cwd);
     case 'render':
       return runRender(args, cwd);
+    case 'validate':
+      return runValidate(args, cwd);
     default:
       throw new PxError(
         'E_USAGE',
@@ -63,6 +85,16 @@ export function runCli(argv: readonly string[], io: CliIo): number {
       return EXIT_OK;
     }
     const payload = dispatch(parsed.command, parsed, io.cwd);
+    const findings = payloadFindings(payload);
+    if (parsed.strict && lintBlocks(findings, true)) {
+      const blocking = findings.filter((finding) => finding.severity !== 'info').length;
+      const error = new PxError(
+        'E_LINT_GATE',
+        `${blocking} lint finding${blocking === 1 ? '' : 's'} block under --strict`,
+      );
+      io.stdout(gateEnvelope(parsed.command, error, payload, parsed.pretty));
+      return EXIT_LINT;
+    }
     io.stdout(successEnvelope(parsed.command, payload, parsed.pretty));
     return EXIT_OK;
   } catch (cause) {

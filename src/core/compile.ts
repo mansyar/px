@@ -58,15 +58,20 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           { layer: layer.id, op_index: opIndex },
         );
       }
+      target.canvas.clearClipped();
       const clipped = applyOp(target.canvas, op, slot);
       if (clipped) {
-        warnings.push({
+        const warning: PxWarning = {
           code: 'W_OUT_OF_BOUNDS',
           message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" wrote outside the ${width}x${height} canvas and was clipped`,
           hint: `Keep coordinates within x 0-${width - 1} and y 0-${height - 1}.`,
           layer: layer.id,
           op_index: opIndex,
-        });
+        };
+        if (target.canvas.clippedAt !== null) {
+          warning.coord = target.canvas.clippedAt;
+        }
+        warnings.push(warning);
       }
     });
     return target;

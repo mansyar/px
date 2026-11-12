@@ -5,13 +5,15 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
-import { compileRecipe } from '../core/compile.js';
+import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
 import { PxError, type PxWarning } from '../core/errors.js';
-import { type buildSlotTable, parseHex } from '../core/palette.js';
+import { type buildSlotTable, parseHex, TRANSPARENT_SLOT } from '../core/palette.js';
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import { type Palette, RAMP_ROLES, RECIPE_VERSION, type Recipe } from '../core/recipe/types.js';
+import { lintCompiled } from '../lint/index.js';
+import { renderDebugSheet } from '../render/debug/sheet.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import type { ParsedArgs } from './args.js';
 import { type Region, renderRegion } from './inspect.js';
@@ -307,10 +309,96 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     height: result.height,
     bytes: result.png.length,
     sha256: sha256Hex(result.png),
+    findings: lintCompiled(result.compiled),
   };
   const allWarnings = [...warnings, ...result.warnings];
   if (allWarnings.length > 0) {
     payload.warnings = allWarnings;
   }
+  if (args.debug) {
+    payload.debug = writeDebugSheet(args.out, result.compiled, recipe, cwd);
+  }
   return payload;
+}
+
+/** `hero.png` pairs with `hero.debug.png`, so the pair is obvious on disk. */
+function debugPath(out: string): string {
+  return out.endsWith('.png') ? `${out.slice(0, -'.png'.length)}.debug.png` : `${out}.debug.png`;
+}
+
+function writeDebugSheet(
+  out: string,
+  compiled: CompiledRecipe,
+  recipe: Recipe,
+  cwd: string,
+): Record<string, unknown> {
+  const file = debugPath(out);
+  const sheet = renderDebugSheet(compiled, recipe.anchors);
+  const target = resolve(cwd, file);
+  ensureParent(target);
+  writeFileSync(target, sheet.png);
+  return {
+    out: file,
+    width: sheet.width,
+    height: sheet.height,
+    bytes: sheet.png.length,
+    sha256: sha256Hex(sheet.png),
+  };
+}
+
+/** Tightest rectangle around painted pixels, or null when nothing is painted. */
+export function flattenBounds(
+  flattened: Int16Array,
+  width: number,
+  height: number,
+): { x: number; y: number; w: number; h: number } | null {
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (flattened[y * width + x] === TRANSPARENT_SLOT) {
+        continue;
+      }
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  if (maxX < 0) {
+    return null;
+  }
+  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}
+
+/** Painted pixels in a flattened grid, without materialising a filtered copy. */
+export function countPainted(flattened: Int16Array): number {
+  let count = 0;
+  for (const slot of flattened) {
+    if (slot !== TRANSPARENT_SLOT) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+export function runValidate(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const { recipe, warnings } = readSource(resolve(cwd, file), file);
+  const compiled = compileRecipe(recipe);
+
+  return {
+    file,
+    canvas: { width: compiled.width, height: compiled.height },
+    bounds: flattenBounds(compiled.flattened, compiled.width, compiled.height),
+    pixel_count: countPainted(compiled.flattened),
+    layers: compiled.layers.map((layer) => ({
+      id: layer.id,
+      painted: layer.canvas.paintedCount(),
+    })),
+    findings: lintCompiled(compiled),
+    warnings: [...warnings, ...compiled.warnings],
+  };
 }

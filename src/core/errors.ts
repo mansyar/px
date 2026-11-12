@@ -23,6 +23,7 @@ export type ErrorCode =
   | 'E_MISSING_PARAM'
   | 'E_BAD_PARAM'
   | 'E_BAD_LEGEND'
+  | 'E_LINT_GATE'
   | 'E_INTERNAL';
 
 export type WarningCode = 'W_OUT_OF_BOUNDS' | 'W_ANCHOR_OUT_OF_BOUNDS';
@@ -48,6 +49,8 @@ export interface PxWarning {
   hint: string;
   layer?: string;
   op_index?: number;
+  /** First coordinate the op wrote outside the canvas, when the op clipped. */
+  coord?: [number, number];
 }
 
 /**
@@ -78,6 +81,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_BAD_PARAM: 'Check the parameter types and ranges for this op.',
   E_BAD_LEGEND: 'A legend maps single characters to declared palette slots.',
+  E_LINT_GATE:
+    'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 

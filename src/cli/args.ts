@@ -19,9 +19,11 @@ export interface ParsedArgs {
   pretty: boolean;
   force: boolean;
   help: boolean;
+  debug: boolean;
+  strict: boolean;
 }
 
-export const COMMANDS: readonly string[] = ['init', 'draw', 'inspect', 'render'];
+export const COMMANDS: readonly string[] = ['init', 'draw', 'inspect', 'render', 'validate'];
 
 function usageError(message: string, hint: string): PxError {
   return new PxError('E_USAGE', message, hint);
@@ -75,6 +77,12 @@ function setBooleanFlag(parsed: ParsedArgs, name: string): void {
     case 'help':
       parsed.help = true;
       return;
+    case 'debug':
+      parsed.debug = true;
+      return;
+    case 'strict':
+      parsed.strict = true;
+      return;
     // Accepted for interface parity; px never emits ANSI unless asked, and
     // Phase 1 has no coloured output to emit.
     case 'color':
@@ -85,11 +93,25 @@ function setBooleanFlag(parsed: ParsedArgs, name: string): void {
 }
 
 function isBooleanFlag(name: string): boolean {
-  return name === 'pretty' || name === 'force' || name === 'help' || name === 'color';
+  return (
+    name === 'pretty' ||
+    name === 'force' ||
+    name === 'help' ||
+    name === 'color' ||
+    name === 'debug' ||
+    name === 'strict'
+  );
 }
 
 export function parseArgs(argv: readonly string[]): ParsedArgs {
-  const parsed: ParsedArgs = { command: '', pretty: false, force: false, help: false };
+  const parsed: ParsedArgs = {
+    command: '',
+    pretty: false,
+    force: false,
+    help: false,
+    debug: false,
+    strict: false,
+  };
   const positionals: string[] = [];
   let index = 0;
 

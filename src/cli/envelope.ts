@@ -35,3 +35,19 @@ export function failureEnvelope(command: string, error: PxError, pretty: boolean
   }
   return formatEnvelope(envelope, pretty);
 }
+
+/**
+ * Failure under the lint gate: `ok: false` with the error and the findings that
+ * caused it. The findings are the point, so they survive the failure.
+ */
+export function gateEnvelope(
+  command: string,
+  error: PxError,
+  payload: Record<string, unknown>,
+  pretty: boolean,
+): string {
+  return formatEnvelope(
+    { v: RESPONSE_VERSION, ok: false, command, error: errorPayload(error), ...payload },
+    pretty,
+  );
+}

@@ -9,6 +9,11 @@ export class SlotCanvas {
   readonly width: number;
   readonly height: number;
   readonly slots: Int16Array;
+  /**
+   * First coordinate a write was clipped at since the last reset. The compiler
+   * clears it per op so a clipping warning can name the offending pixel.
+   */
+  clippedAt: [number, number] | null = null;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -20,9 +25,16 @@ export class SlotCanvas {
     return x >= 0 && y >= 0 && x < this.width && y < this.height;
   }
 
+  clearClipped(): void {
+    this.clippedAt = null;
+  }
+
   /** Write one pixel. Returns false when the coordinate was clipped. */
   set(x: number, y: number, slot: number): boolean {
     if (!this.inBounds(x, y)) {
+      if (this.clippedAt === null) {
+        this.clippedAt = [x, y];
+      }
       return false;
     }
     this.slots[y * this.width + x] = slot;
