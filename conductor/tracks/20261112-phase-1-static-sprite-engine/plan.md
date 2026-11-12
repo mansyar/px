@@ -164,9 +164,9 @@
   thresholds are documented.
 - **Depends on:** Phase 4
 - **Covers:** AC-21, NFR-3, NFR-7
-- **Touches:** `test/benchmarks/**`, `test/goldens/**`, `docs/**`
+- **Touches:** `test/benchmarks/**`, `test/goldens/**`, `docs/**`, `src/lint/thresholds.ts`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P5.T1: Benchmark recipes** — covers: AC-21
   - [ ] **P5.T1.1:** 16×16 potion, 32×32 sword, 32×32 humanoid, 48×48 chest as
