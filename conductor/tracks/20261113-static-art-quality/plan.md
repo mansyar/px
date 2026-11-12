@@ -189,15 +189,18 @@
 - **Covers:** F1-F10
 - **Touches:** src/**, test/**, docs/**, conductor/tracks/20261113-static-art-quality/verification/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — all ten findings closed in code and test, with both Highs fixed rather than narrowed
+- **Checkpoint:** 16c33c1
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-R1.md
 
-- [ ] **R1.T1: Seal adopts an owner** - covers: F1, FR-3
-- [ ] **R1.T2: Parts and role palettes authorable through tools** - covers: F2, FR-1, FR-2, FR-5
-- [ ] **R1.T3: Clipped cast shadow warns** - covers: F3
-- [ ] **R1.T4: Profile numbers consumed or removed** - covers: F4, FR-13
-- [ ] **R1.T5: Incomplete ramp fails validation** - covers: F5, FR-5, AC-5
-- [ ] **R1.T6: Art rules run without parts** - covers: F6, FR-19, FR-20
-- [ ] **R1.T7: Correct requirement ids in test headers** - covers: F7
-- [ ] **R1.T8: Replace tautological alias assertions** - covers: F8
-- [ ] **R1.T9: Single-pixel diff fixture** - covers: F9, AC-19
-- [ ] **R1.T10: Unseparable ramp error is an input limit** - covers: F10, FR-15
+- [x] **R1.T1: Seal adopts an owner** - covers: F1, FR-3
+- [x] **R1.T2: Parts and role palettes authorable through tools** - covers: F2, FR-1, FR-2, FR-5
+- [x] **R1.T3: Clipped cast shadow warns** - covers: F3
+- [x] **R1.T4: Profile numbers consumed or removed** - covers: F4, FR-13
+- [x] **R1.T5: Incomplete ramp fails validation** - covers: F5, FR-5, AC-5
+- [x] **R1.T6: Art rules run without parts** - covers: F6, FR-19, FR-20
+- [x] **R1.T7: Correct requirement ids in test headers** - covers: F7
+- [x] **R1.T8: Replace tautological alias assertions** - covers: F8
+- [x] **R1.T9: Single-pixel diff fixture** - covers: F9, AC-19
+- [x] **R1.T10: Unseparable ramp error is an input limit** - covers: F10, FR-15
