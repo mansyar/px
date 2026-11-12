@@ -136,3 +136,29 @@ Per area: `src/core` 97.23% statements / 91.48% branches; `src/core/ops` 95.90% 
   `auto_outline` with `selective: true` falls back to `color` when the neighbour family has no
   `outline` role.
 - No new dependencies, no threshold lowered, no coverage ignore comment added.
+
+## Primary verification
+
+Verified by the primary agent on 2026-11-12, independently of the phase subagent's report.
+
+- Tree state: clean; every path in `git diff --name-only 2036dc5..HEAD` fell inside
+  `src/core/**`, `src/cli/**`, `test/ops/**`, `vitest.config.ts` (pre-approved include-only
+  edit), or the phase's own evidence file. No unexpected paths.
+- `pnpm verify` → exit 0. Typecheck clean, Biome clean on 78 files, 226 tests across 27
+  files passing, build clean.
+- `pnpm vitest run --coverage` → exit 0. Statements 93.77%, branches 85.86%, functions
+  99.41%, lines 93.49%.
+- Golden hash unchanged: `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb`,
+  identical to Phases 1 and 2. Ten new ops landed without altering a single byte of existing
+  rendered output, as required.
+- Squash guard: 13 commits in range, 0 merge commits, all reported. Squashed to `5c455ae`.
+- `ramp_fill` rework verified after the fact: `git show --stat 3546fe1` touched only
+  `src/core/errors.ts`, `src/core/ops/ramp.ts`, `src/core/recipe/normalize.ts`,
+  `src/core/recipe/types.ts`, and `test/ops/ramp-fill.test.ts` — the new `E_BANDS_RANGE`, the
+  removed saturation clamp, and the tests, with no collateral edits.
+- Both gates were re-run by the primary after the rework commit, not only by the subagent.
+
+Reason for the rework: the first pass accepted `bands: 4..6` and silently saturated to two
+transitions, which contradicted AC-12's "exactly N-1 role transitions". AC-12 was left as
+written and its accepted domain narrowed to band counts a three-role family can honour, so the
+criterion is true for every recipe the parser accepts.

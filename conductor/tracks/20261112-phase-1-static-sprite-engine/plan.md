@@ -95,35 +95,38 @@
   AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12, AC-13, AC-20
 - **Touches:** `src/core/**`, `src/cli/**`, `test/ops/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 5c455ae
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-3.md
 
-- [ ] **P3.T1: Curved and polygonal geometry** — covers: FR-6, AC-5
-  - [ ] **P3.T1.1:** `ellipse` via midpoint algorithm, pinned by golden
-  - [ ] **P3.T1.2:** `polygon` scanline fill with a documented half-open edge rule
-- [ ] **P3.T2: Fills** — covers: FR-7, AC-6
-  - [ ] **P3.T2.1:** `flood_fill` with 4/8 connectivity
-  - [ ] **P3.T2.2:** `dither_fill` with `checker_50` and `bayer_25`
-- [ ] **P3.T3: Detail and symmetry ops** — covers: FR-8, FR-9, AC-7, AC-8
-  - [ ] **P3.T3.1:** `ascii_blit` with legend validation
-  - [ ] **P3.T3.2:** `mirror` with integer and half-pixel pivots, seam written once
-- [ ] **P3.T4: Erase via null colour** — covers: FR-10, AC-9
-  - [ ] **P3.T4.1:** Null resolution across every geometry and fill op
-  - [ ] **P3.T4.2:** Distinguish omitted from explicit null at parse time
-- [ ] **P3.T5: Post-pass layer semantics** — covers: FR-15, AC-13
-  - [ ] **P3.T5.1:** `target_layer` read resolution with own-layer writes
-- [ ] **P3.T6: Outlining** — covers: FR-11, AC-10
-  - [ ] **P3.T6.1:** `auto_outline`, 4/8-way, inner and outer
-  - [ ] **P3.T6.2:** Selective outline using family `outline` roles
-- [ ] **P3.T7: Rim shading** — covers: FR-12, AC-11
-  - [ ] **P3.T7.1:** `auto_shade` touching only silhouette-adjacent pixels
-- [ ] **P3.T8: Banded ramps** — covers: FR-13, AC-12
-  - [ ] **P3.T8.1:** `ramp_fill` with band count and light direction
-  - [ ] **P3.T8.2:** `E_NO_RAMP` on flat families with a `--derive-ramps` hint
-- [ ] **P3.T9: Slot remapping** — covers: FR-14
-  - [ ] **P3.T9.1:** `replace_slot` within the active layer
-- [ ] **P3.T10: Op addressing** — covers: FR-24, AC-20
-  - [ ] **P3.T10.1:** Optional `id`, edit by id or index, `E_NO_SUCH_OP`
-  - [ ] **P3.T10.2:** Op index map in every write response
+- [x] **P3.T1: Curved and polygonal geometry** — covers: FR-6, AC-5
+  - [x] **P3.T1.1:** `ellipse` via midpoint algorithm, pinned by golden
+  - [x] **P3.T1.2:** `polygon` scanline fill with a documented half-open edge rule
+- [x] **P3.T2: Fills** — covers: FR-7, AC-6
+  - [x] **P3.T2.1:** `flood_fill` with 4/8 connectivity
+  - [x] **P3.T2.2:** `dither_fill` with `checker_50` and `bayer_25`
+- [x] **P3.T3: Detail and symmetry ops** — covers: FR-8, FR-9, AC-7, AC-8
+  - [x] **P3.T3.1:** `ascii_blit` with legend validation
+  - [x] **P3.T3.2:** `mirror` with integer and half-pixel pivots, seam written once
+- [x] **P3.T4: Erase via null colour** — covers: FR-10, AC-9
+  - [x] **P3.T4.1:** Null resolution across every geometry and fill op
+  - [x] **P3.T4.2:** Distinguish omitted from explicit null at parse time
+- [x] **P3.T5: Post-pass layer semantics** — covers: FR-15, AC-13
+  - [x] **P3.T5.1:** `target_layer` read resolution with own-layer writes
+- [x] **P3.T6: Outlining** — covers: FR-11, AC-10
+  - [x] **P3.T6.1:** `auto_outline`, 4/8-way, inner and outer
+  - [x] **P3.T6.2:** Selective outline using family `outline` roles
+- [x] **P3.T7: Rim shading** — covers: FR-12, AC-11
+  - [x] **P3.T7.1:** `auto_shade` touching only silhouette-adjacent pixels
+- [x] **P3.T8: Banded ramps** — covers: FR-13, AC-12
+  - [x] **P3.T8.1:** `ramp_fill` with band count and light direction
+  - [x] **P3.T8.2:** `E_NO_RAMP` on flat families with a `--derive-ramps` hint
+- [x] **P3.T9: Slot remapping** — covers: FR-14
+  - [x] **P3.T9.1:** `replace_slot` within the active layer
+- [x] **P3.T10: Op addressing** — covers: FR-24, AC-20
+  - [x] **P3.T10.1:** Optional `id`, edit by id or index, `E_NO_SUCH_OP`
+  - [x] **P3.T10.2:** Op index map in every write response
 
 ## Phase 4: Engine Metadata, MCP Parity, Palettes
 
