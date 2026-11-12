@@ -50,3 +50,30 @@ review found `validate` missing over MCP and the lint rule rejecting legitimate 
 1. `validate` over MCP: add a seventh tool (approved) rather than documenting the gap.
 2. `pixel_perfect`: withdraw it (approved) rather than inventing semantics for a flag the spec
    never pinned.
+
+## Round 2 — 2026-11-13
+
+Reviewer re-reviewed `60582b2..HEAD` with emphasis on `7bd6365`, verifying each round-1 finding
+against the code rather than against the new tests.
+
+**Verdict: PASS WITH FINDINGS.** No round-1 fix was cosmetic, nothing previously satisfied
+regressed, every golden and benchmark byte is unchanged, and the spec amendments match the
+implementation. The High is closed with a real proof: `test/integration/internal-error.test.ts`
+injects an engine fault through `renderRecipe` and asserts exit 2, while a missing file stays 1.
+
+Two Mediums survived because R1 narrowed the symptom instead of removing the cause:
+
+| ID | Severity | Finding | Resolution |
+| --- | --- | --- | --- |
+| M1 | Medium | `ramp_fill` derives its guard *and* its denominator from the bounding-box extent, so a region with a **gap** still swallows a band: two 3×1 blocks on one row at x 0–2 and 6–8 with `bands: 3` are accepted (max 9) and paint highlight then shadow, never `base` — one transition where AC-12 promises two, and `phase-R1.md` claimed the promise was unconditional. | R2.T1 — rank painted pixels among *occupied* projections; band from rank; guard on the occupied count |
+| M2 | Medium | `ORPHAN_PIXEL` at 8-way still flags every pixel of `bayer_25`, whose lit cells are 2 px apart in both axes. A sanctioned fade over empty space therefore warns per pixel and hard-fails `--strict`. | R2.T2 — Chebyshev radius 2, documented as the sparsest lattice the engine emits, with fixtures on both sides |
+
+Lows: a stale "six px tools" hint after `px_validate`; `isUsageError` left as a dead classifier
+that invites the old exit-code mapping back; the FR-22 rewrite silently dropped the batching
+clause (restored by the primary); `--backdrop` accepting non-binary alpha, contradicting both the
+product's alpha rule and the other hint site; and a reachability table that proves argv mapping
+but not that the parameter is published in `inputSchema` — the exact shape of the F2 defect.
+
+The last one is the most instructive: R1's fix for F2 built a guard, and round 2 found the guard
+checks the wrong side. Two reviews, two different version of the same failure — surface exists,
+interface hides it.
