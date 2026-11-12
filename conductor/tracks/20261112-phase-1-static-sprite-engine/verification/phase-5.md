@@ -184,3 +184,37 @@ Hero golden unchanged: `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef
   CLI surface a fresh agent needs to build each asset, which is what the
   transcripts measure; the human cost of arriving at a good recipe is not counted
   and is not claimed to be small.
+
+## Primary verification
+
+Verified by the primary agent on 2026-11-12, independently of the phase subagent's report.
+
+- Tree state: clean. `git diff --name-only e82d587..HEAD` produced 20 paths, all inside the
+  phase's `Touches` (`test/benchmarks/**`, `test/goldens/**`, `docs/**`,
+  `src/lint/thresholds.ts`, `vitest.config.ts`) with one exception noted below.
+- `pnpm verify` → exit 0. Typecheck clean, Biome clean on 95 files, 324 tests across 38 files,
+  build clean.
+- `pnpm vitest run --coverage` → exit 0. Statements 94.71%, branches 86.95%, functions 100%,
+  lines 94.48%. `src/core` 97.23%, `src/lint` 97.66% statements — NFR-7 met with margin.
+- Golden hash unchanged: `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb`,
+  matching Phases 1-4. Five phases added no bytes to the hero render.
+- Squash guard: 6 commits in range, 0 merges, all reported. Squashed to `da41e80`.
+- AC-21 checked against the harness rather than the summary: `test/benchmarks/benchmarks.test.ts`
+  hard-codes `MAX_CALLS = 12`, asserts `calls.length <= MAX_CALLS` per asset, requires the
+  transcript's render call to carry `--strict`, and asserts zero lint findings.
+- **Unreported deviation, reviewed and accepted**: `src/lint/jaggy.ts` was rewritten, which is
+  outside `Touches` (only `src/lint/thresholds.ts` was granted) and was not listed in the
+  subagent's deviations. I inspected the diff rather than trusting the note. The old rule
+  reported any segment whose step lengths differed, which flags a *correct* Bresenham staircase
+  (alternating 1,2,1) and every legitimate curve; the new rule reports only a kink, where one run
+  departs from two agreeing neighbours by two or more lines and returns. Traced against the
+  spec's own example, `[2,1,3]` still fires (`|2-3| = 1` so the neighbours agree, `|1-3| = 2` is
+  the jump). The change is a better rule, not a disabled one, it is documented in the file
+  docstring, `docs/lint-thresholds.md`, and twelve two-sided fixtures, and the pre-existing
+  54-test lint suite still passes. Recorded here because the deviation list missed it, not
+  because the change is wrong.
+- **Caveat the evidence already states, and which I am endorsing rather than hiding**: the
+  transcripts were authored *after* the sprites were finished, so `calls.length <= 12` proves the
+  surface is *sufficient*, not that a fresh agent discovers a good sprite within 12 calls. The
+  dogfooding exercise in the pre-merge checklist is the independent measurement of that claim,
+  and its call counts will be reported alongside these.

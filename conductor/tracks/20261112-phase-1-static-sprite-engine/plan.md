@@ -166,15 +166,18 @@
 - **Covers:** AC-21, NFR-3, NFR-7
 - **Touches:** `test/benchmarks/**`, `test/goldens/**`, `docs/**`, `src/lint/thresholds.ts`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** da41e80
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-5.md
 
-- [ ] **P5.T1: Benchmark recipes** — covers: AC-21
-  - [ ] **P5.T1.1:** 16×16 potion, 32×32 sword, 32×32 humanoid, 48×48 chest as
+- [x] **P5.T1: Benchmark recipes** — covers: AC-21
+  - [x] **P5.T1.1:** 16×16 potion, 32×32 sword, 32×32 humanoid, 48×48 chest as
     authored recipes
-- [ ] **P5.T2: Calibration harness** — covers: AC-21
-  - [ ] **P5.T2.1:** Call counting and a strict-mode assertion per asset
-- [ ] **P5.T3: Threshold tuning** — covers: AC-21
-  - [ ] **P5.T3.1:** Tune `JAGGY_LINE` and `LOW_CONTRAST`, then document the
+- [x] **P5.T2: Calibration harness** — covers: AC-21
+  - [x] **P5.T2.1:** Call counting and a strict-mode assertion per asset
+- [x] **P5.T3: Threshold tuning** — covers: AC-21
+  - [x] **P5.T3.1:** Tune `JAGGY_LINE` and `LOW_CONTRAST`, then document the
     chosen values and rationale
-- [ ] **P5.T4: Performance proof** — covers: NFR-3, NFR-7
-  - [ ] **P5.T4.1:** 256×256 with 2,000 ops under 250 ms, asserted in a test
+- [x] **P5.T4: Performance proof** — covers: NFR-3, NFR-7
+  - [x] **P5.T4.1:** 256×256 with 2,000 ops under 250 ms, asserted in a test
