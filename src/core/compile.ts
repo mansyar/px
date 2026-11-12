@@ -6,13 +6,17 @@
  * Layers are compiled in recipe order. A post-pass reads `target_layer` — by
  * default its own layer — as that layer stands when the op runs, which is why
  * the ordinary direction is a post-pass in a higher layer reading a lower one.
+ *
+ * Part ownership rides along in a parallel buffer. It changes no colour and no
+ * byte of output; it only answers "which part owns this pixel" after the fact.
  */
 
-import { SlotCanvas } from './canvas.js';
-import type { PxWarning } from './errors.js';
+import { SlotCanvas, UNOWNED } from './canvas.js';
+import { PxError, type PxWarning } from './errors.js';
 import { applyOp } from './ops/index.js';
 import { buildSlotRoles, buildSlotTable, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
-import type { Recipe } from './recipe/types.js';
+import { type CompiledPart, flattenOwners, partIndex, partNames, partStats } from './parts.js';
+import { type Recipe, recipeParts } from './recipe/types.js';
 
 export interface CompiledLayer {
   id: string;
@@ -25,6 +29,8 @@ export interface CompiledRecipe {
   slots: SlotTable;
   layers: CompiledLayer[];
   flattened: Int16Array;
+  /** One entry per declared part, in canonical name order; empty without parts. */
+  parts: CompiledPart[];
   warnings: PxWarning[];
 }
 
@@ -45,11 +51,27 @@ export function flattenLayers(
   return flattened;
 }
 
+/** Mirrors MAX_FINDINGS_PER_CODE so a warm-up flood cannot bloat the envelope. */
+const MAX_PART_WARNINGS = 50;
+
+function nameList(names: readonly string[]): string {
+  if (names.length === 1) {
+    return `part "${names[0]}"`;
+  }
+  const quoted = names.map((name) => `"${name}"`);
+  const last = quoted.pop();
+  return `parts ${quoted.join(', ')} and ${last}`;
+}
+
 export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const { width, height } = recipe.meta;
   const slots = buildSlotTable(recipe.palette);
   const roles = buildSlotRoles(slots);
   const warnings: PxWarning[] = [];
+  const declared = recipeParts(recipe);
+  const names = partNames(declared);
+  const indexes = partIndex(declared);
+  let partOverwrites = 0;
 
   const layers: CompiledLayer[] = recipe.layers.map((layer) => ({
     id: layer.id,
@@ -64,6 +86,17 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     }
     layer.ops.forEach((op, opIndex) => {
       target.canvas.clearClipped();
+      if (op.part !== undefined && indexes.get(op.part) === undefined) {
+        throw new PxError(
+          'E_PART_UNKNOWN',
+          `Op ${opIndex} (${op.op}) in layer "${layer.id}" names part "${op.part}", which is not declared`,
+          names.length === 0
+            ? 'Declare parts first, e.g. "parts": {"blade": {"material": "steel"}}.'
+            : `Declared parts are ${names.join(', ')}.`,
+          { layer: layer.id, op_index: opIndex },
+        );
+      }
+      const owner = op.part === undefined ? UNOWNED : (indexes.get(op.part) ?? UNOWNED);
       const outcome = applyOp(
         {
           canvas: target.canvas,
@@ -72,6 +105,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           slots,
           roles,
           layers: byId,
+          owner,
         },
         op,
       );
@@ -88,6 +122,23 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
         }
         warnings.push(warning);
       }
+      if (target.canvas.displaced.length > 0) {
+        partOverwrites += 1;
+        if (partOverwrites <= MAX_PART_WARNINGS) {
+          const displaced = target.canvas.displaced
+            .map((index) => names[index])
+            .filter((name): name is string => name !== undefined)
+            .sort();
+          const writer = op.part === undefined ? '' : ` as part "${op.part}"`;
+          warnings.push({
+            code: 'W_PART_OVERWRITE',
+            message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" repainted pixels owned by ${nameList(displaced)}${writer}`,
+            hint: 'Order ops so each part finishes before the next one paints, or tag both ops with the same part.',
+            layer: layer.id,
+            op_index: opIndex,
+          });
+        }
+      }
       if (outcome.noop) {
         warnings.push({
           code: 'W_PASS_NOOP',
@@ -100,12 +151,36 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     });
   });
 
+  if (partOverwrites > MAX_PART_WARNINGS) {
+    warnings.push({
+      code: 'W_PART_OVERWRITE',
+      message: `${partOverwrites} W_PART_OVERWRITE warnings; showing the first ${MAX_PART_WARNINGS}`,
+      hint: 'Order ops so each part finishes before the next one paints, or tag both ops with the same part.',
+    });
+  }
+
+  const parts = partStats(
+    width,
+    height,
+    flattenOwners(layers.map((layer) => layer.canvas)),
+    declared,
+  );
+  const empty = parts.find((part) => part.painted === 0);
+  if (empty !== undefined) {
+    throw new PxError(
+      'E_EMPTY_PART',
+      `Part "${empty.name}" is declared but owns no pixels`,
+      `Paint at least one pixel with "part": "${empty.name}", or remove the declaration from "parts".`,
+    );
+  }
+
   return {
     width,
     height,
     slots,
     layers,
     flattened: flattenLayers(layers, width, height),
+    parts,
     warnings,
   };
 }

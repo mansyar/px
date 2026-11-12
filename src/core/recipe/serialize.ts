@@ -6,7 +6,16 @@
  * read-write cycle is byte-identical to what was read.
  */
 
-import { type Anchors, type Op, type Palette, RAMP_ROLES, type Recipe } from './types.js';
+import {
+  type Anchors,
+  type Op,
+  type Palette,
+  type Parts,
+  RAMP_ROLES,
+  type Recipe,
+  type RecipeVersion,
+  recipeParts,
+} from './types.js';
 
 function canonicalMeta(recipe: Recipe): Record<string, unknown> {
   return {
@@ -44,6 +53,34 @@ function canonicalAnchors(anchors: Anchors): Record<string, number[]> {
     out[name] = [x, y];
   }
   return out;
+}
+
+/**
+ * Parts sorted by name, each writing `material`, then `gloss` (always, so a
+ * matte part stays explicit), then `z` only when it is not zero.
+ */
+function canonicalParts(parts: Parts): Record<string, Record<string, unknown>> {
+  const out: Record<string, Record<string, unknown>> = {};
+  for (const name of Object.keys(parts).sort()) {
+    const part = parts[name];
+    if (part === undefined) {
+      continue;
+    }
+    const entry: Record<string, unknown> = { material: part.material, gloss: part.gloss };
+    if (part.z !== 0) {
+      entry.z = part.z;
+    }
+    out[name] = entry;
+  }
+  return out;
+}
+
+/** A recipe that declares parts is written as 1.1; a part-less one keeps its version. */
+function writtenVersion(recipe: Recipe, hasParts: boolean): RecipeVersion {
+  if (hasParts && (recipe.version === 1 || recipe.version === '1.0')) {
+    return '1.1';
+  }
+  return recipe.version;
 }
 
 /** Drop absent optionals so the written form never carries `undefined`. */
@@ -115,6 +152,9 @@ function opParams(op: Op): Record<string, unknown> {
 
 export function canonicalOp(op: Op): Record<string, unknown> {
   const out: Record<string, unknown> = { op: op.op };
+  if (op.part !== undefined) {
+    out.part = op.part;
+  }
   if (op.id !== undefined) {
     out.id = op.id;
   }
@@ -122,16 +162,22 @@ export function canonicalOp(op: Op): Record<string, unknown> {
 }
 
 export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
-  return {
-    version: recipe.version,
+  const parts = recipeParts(recipe);
+  const hasParts = Object.keys(parts).length > 0;
+  const out: Record<string, unknown> = {
+    version: writtenVersion(recipe, hasParts),
     meta: canonicalMeta(recipe),
     palette: canonicalPalette(recipe.palette),
-    anchors: canonicalAnchors(recipe.anchors),
-    layers: recipe.layers.map((layer) => ({
-      id: layer.id,
-      ops: layer.ops.map((op) => canonicalOp(op)),
-    })),
   };
+  if (hasParts) {
+    out.parts = canonicalParts(parts);
+  }
+  out.anchors = canonicalAnchors(recipe.anchors);
+  out.layers = recipe.layers.map((layer) => ({
+    id: layer.id,
+    ops: layer.ops.map((op) => canonicalOp(op)),
+  }));
+  return out;
 }
 
 export function serializeRecipe(recipe: Recipe): string {

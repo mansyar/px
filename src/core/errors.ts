@@ -33,10 +33,18 @@ export type ErrorCode =
   | 'E_REGION_TOO_THIN'
   | 'E_NO_SUCH_OP'
   | 'E_DUPLICATE_OP_ID'
+  | 'E_PART_UNKNOWN'
+  | 'E_EMPTY_PART'
+  | 'E_MATERIAL_UNKNOWN'
+  | 'E_GLOSS_UNKNOWN'
   | 'E_LINT_GATE'
   | 'E_INTERNAL';
 
-export type WarningCode = 'W_OUT_OF_BOUNDS' | 'W_ANCHOR_OUT_OF_BOUNDS' | 'W_PASS_NOOP';
+export type WarningCode =
+  | 'W_OUT_OF_BOUNDS'
+  | 'W_ANCHOR_OUT_OF_BOUNDS'
+  | 'W_PASS_NOOP'
+  | 'W_PART_OVERWRITE';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -108,6 +116,13 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'A region that occupies fewer light-axis positions than the band count cannot fill every band: reduce bands, or paint more positions along the light direction.',
   E_NO_SUCH_OP: 'Run `px inspect` or read the op_index map from the last write to find the op.',
   E_DUPLICATE_OP_ID: 'Op ids are unique across the recipe; rename one of the duplicates.',
+  E_PART_UNKNOWN:
+    'Declare the part in "parts" with a material, or name one already declared there.',
+  E_EMPTY_PART:
+    'Paint at least one pixel with "part": "<name>", or remove the declaration from "parts".',
+  E_MATERIAL_UNKNOWN:
+    'A part material names a palette family; run `px inspect` to see the families this recipe declares.',
+  E_GLOSS_UNKNOWN: 'Gloss is one of matte, metal, gem, cloth.',
   E_LINT_GATE:
     'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',

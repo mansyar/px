@@ -8,6 +8,7 @@
 import { PxError, type PxWarning } from '../errors.js';
 import { normalizeFamily } from '../palette.js';
 import {
+  ACCEPTED_VERSIONS,
   type Anchor,
   type Anchors,
   type AsciiBlitOp,
@@ -18,6 +19,8 @@ import {
   type DitherPattern,
   type EllipseOp,
   type FloodFillOp,
+  GLOSS_PROFILES,
+  type GlossProfile,
   type Layer,
   LIGHT_DIRS,
   type LightDir,
@@ -31,10 +34,12 @@ import {
   OUTLINE_WHERES,
   type OutlineMode,
   type OutlineWhere,
+  PART_TAGGED_OPS,
   type Palette,
+  type Part,
+  type Parts,
   type PolygonOp,
   type RampFillOp,
-  RECIPE_VERSION,
   type Recipe,
   type RecipeMeta,
   type RectOp,
@@ -45,6 +50,8 @@ import {
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
 const META_KEYS = ['name', 'width', 'height', 'alpha_mode'];
+const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
+const PART_KEYS = ['material', 'gloss', 'z'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -142,6 +149,82 @@ function normalizePalette(raw: unknown): Palette {
     palette[name] = normalizeFamily(name, family).family;
   }
   return palette;
+}
+
+function normalizeParts(raw: unknown): Parts {
+  if (raw === undefined) {
+    return {};
+  }
+  if (!isRecord(raw)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      'Recipe parts is not an object',
+      'Declare "parts": {"blade": {"material": "steel", "gloss": "metal"}}.',
+    );
+  }
+  const parts: Parts = {};
+  for (const [name, value] of Object.entries(raw)) {
+    if (name === '') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        'Recipe parts declares a part with an empty name',
+        'Name each part, e.g. "blade" or "guard".',
+      );
+    }
+    parts[name] = normalizePart(name, value);
+  }
+  return parts;
+}
+
+function normalizePart(name: string, raw: unknown): Part {
+  if (!isRecord(raw)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" is not an object`,
+      'A part is {"material": "<palette family>", "gloss": "matte|metal|gem|cloth", "z": 0}.',
+    );
+  }
+  unknownKeys(raw, PART_KEYS, 'E_BAD_PARAM', `Part "${name}"`);
+
+  const material = raw.material;
+  if (typeof material !== 'string' || material === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has no "material"`,
+      'A part names a palette family, e.g. "material": "steel".',
+    );
+  }
+
+  const z = raw.z;
+  if (z !== undefined && (typeof z !== 'number' || !Number.isInteger(z))) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a non-integer "z": ${JSON.stringify(z)}`,
+      '"z" is an integer; it defaults to 0 and only orders parts for shading.',
+    );
+  }
+
+  return {
+    material,
+    gloss: glossParam(name, raw.gloss),
+    z: z ?? 0,
+  };
+}
+
+function glossParam(name: string, value: unknown): GlossProfile {
+  if (value === undefined) {
+    return 'matte';
+  }
+  const match =
+    typeof value === 'string' ? GLOSS_PROFILES.find((profile) => profile === value) : undefined;
+  if (match === undefined) {
+    throw new PxError(
+      'E_GLOSS_UNKNOWN',
+      `Part "${name}" has an unknown gloss ${JSON.stringify(value)}`,
+      `Gloss is one of ${GLOSS_PROFILES.join(', ')}.`,
+    );
+  }
+  return match;
 }
 
 function normalizeAnchors(
@@ -878,9 +961,10 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
       opLocation(layer, opIndex),
     );
   }
+  const tagged = PART_TAGGED_OPS.includes(name as OpName);
   unknownKeys(
     raw,
-    OP_PARAM_ORDER[name as OpName].concat('op', 'id'),
+    OP_PARAM_ORDER[name as OpName].concat('op', 'id').concat(tagged ? ['part'] : []),
     'E_BAD_PARAM',
     `Op ${opIndex} (${name})`,
   );
@@ -890,7 +974,36 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
   if (id !== undefined) {
     op.id = id;
   }
+  const part = tagged ? partParam(raw, name, opIndex, layer) : undefined;
+  if (part !== undefined) {
+    op.part = part;
+  }
   return op;
+}
+
+/**
+ * `part` is a declared name. It travels inside the op object rather than as a
+ * flag: a batched draw can address several parts at once (FR-2).
+ */
+function partParam(
+  source: Record<string, unknown>,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): string | undefined {
+  const value = source.part;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'string' || value === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-string or empty "part"`,
+      'A part is a name declared in "parts", such as "blade".',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
 }
 
 function normalizeOpBody(
@@ -1022,25 +1135,30 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
     throw new PxError(
       'E_PARSE',
       'Recipe is not a JSON object',
-      'A recipe is a JSON object with version, meta, palette, anchors, and layers.',
+      'A recipe is a JSON object with version, meta, palette, parts, anchors, and layers.',
     );
   }
 
-  if (raw.version !== RECIPE_VERSION) {
+  const version = ACCEPTED_VERSIONS.find((entry) => entry === raw.version);
+  if (version === undefined) {
     throw new PxError(
       'E_BAD_VERSION',
-      `Recipe version is ${String(raw.version)}, expected ${RECIPE_VERSION}`,
-      `Set "version": ${RECIPE_VERSION}.`,
+      `Recipe version is ${String(raw.version)}, expected one of ${ACCEPTED_VERSIONS.map((entry) => JSON.stringify(entry)).join(', ')}`,
+      'Keep "version": 1 for a 1.0 recipe, or set "version": "1.1" to declare parts.',
     );
   }
 
-  unknownKeys(raw, ['version', 'meta', 'palette', 'anchors', 'layers'], 'E_BAD_META', 'Recipe');
+  unknownKeys(raw, RECIPE_KEYS, 'E_BAD_META', 'Recipe');
 
   const meta = normalizeMeta(raw.meta);
   const palette = normalizePalette(raw.palette);
+  const parts = normalizeParts(raw.parts);
   const { anchors, warnings } = normalizeAnchors(raw.anchors, meta.width, meta.height);
   const layers = normalizeLayers(raw.layers);
   validateOpIds(layers);
 
-  return { recipe: { version: RECIPE_VERSION, meta, palette, anchors, layers }, warnings };
+  return {
+    recipe: { version, meta, palette, parts, anchors, layers },
+    warnings,
+  };
 }

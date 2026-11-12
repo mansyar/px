@@ -32,6 +32,28 @@ export type Anchor = [number, number];
 export type Anchors = Record<string, Anchor>;
 
 /**
+ * A gloss profile is the closed set of surface responses the lighting pass can
+ * express (FR-6). It is a property of the material, not of the palette: the
+ * family supplies colours, the part supplies semantics.
+ */
+export type GlossProfile = 'matte' | 'metal' | 'gem' | 'cloth';
+
+export const GLOSS_PROFILES: readonly GlossProfile[] = ['matte', 'metal', 'gem', 'cloth'];
+
+/**
+ * One declared part. `material` names a palette family; `gloss` defaults to
+ * `matte`; `z` orders parts for shading questions and never decides which
+ * pixels exist (FR-3). Part masks are derived on replay, never stored.
+ */
+export interface Part {
+  material: string;
+  gloss: GlossProfile;
+  z: number;
+}
+
+export type Parts = Record<string, Part>;
+
+/**
  * A colour is a palette slot name, or null to erase. The null is significant and
  * must never be confused with an omitted colour, which is a parse error.
  */
@@ -58,6 +80,11 @@ export const DITHER_PATTERNS: readonly DitherPattern[] = ['checker_50', 'bayer_2
 /** Every op may carry a stable id; `px edit` addresses ops by it. */
 export interface OpBase {
   id?: string;
+  /**
+   * The part this op's pixels belong to. Only the pixel-creating ops accept it;
+   * an undeclared name is `E_PART_UNKNOWN`.
+   */
+  part?: string;
 }
 
 export interface SetPixelsOp extends OpBase {
@@ -179,6 +206,22 @@ export type Op =
 
 export type OpName = Op['op'];
 
+/**
+ * The ops that create or change pixels, and therefore accept `part`. Ops that
+ * transform existing pixels or post-process a layer inherit ownership from the
+ * pixels they read, so a `part` key on them stays a validation error (FR-2).
+ */
+export const PART_TAGGED_OPS: readonly OpName[] = [
+  'set_pixels',
+  'line',
+  'rect',
+  'ellipse',
+  'polygon',
+  'flood_fill',
+  'dither_fill',
+  'ascii_blit',
+];
+
 /** Ops that read a source layer and write their own; they can be a no-op. */
 export const POST_PASS_OPS: readonly OpName[] = ['auto_outline', 'auto_shade', 'ramp_fill'];
 
@@ -187,14 +230,35 @@ export interface Layer {
   ops: Op[];
 }
 
+/**
+ * The version literal a recipe was read with. `1` is the legacy numeric form of
+ * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
+ * byte-identical after a read-write cycle (FR-1).
+ */
+export type RecipeVersion = 1 | '1.0' | '1.1';
+
+/** Versions this engine accepts on input. */
+export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1'];
+
+/** The version a recipe is written with once it declares parts. */
+export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';
+
 export interface Recipe {
-  version: 1;
+  version: RecipeVersion;
   meta: RecipeMeta;
   palette: Palette;
+  /** Optional: absent and empty both mean every pixel is unassigned. */
+  parts?: Parts;
   anchors: Anchors;
   layers: Layer[];
 }
 
+/** Declared parts, with the absent case folded to an empty map. */
+export function recipeParts(recipe: Recipe): Parts {
+  return recipe.parts ?? {};
+}
+
+/** The legacy numeric literal `px init` still writes. */
 export const RECIPE_VERSION = 1;
 
 export const MIN_CANVAS_SIZE = 8;

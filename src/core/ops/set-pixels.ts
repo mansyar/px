@@ -6,6 +6,7 @@ export function drawSetPixels(
   canvas: SlotCanvas,
   points: ReadonlyArray<readonly [number, number]>,
   slot: number,
+  owner?: number,
 ): boolean {
-  return writePoints(canvas, points, slot);
+  return writePoints(canvas, points, slot, owner);
 }

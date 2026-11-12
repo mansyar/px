@@ -12,10 +12,11 @@ export function writePoints(
   canvas: SlotCanvas,
   points: ReadonlyArray<readonly [number, number]>,
   slot: number,
+  owner?: number,
 ): boolean {
   let clipped = false;
   for (const [x, y] of points) {
-    if (!canvas.set(x, y, slot)) {
+    if (!canvas.set(x, y, slot, owner)) {
       clipped = true;
     }
   }

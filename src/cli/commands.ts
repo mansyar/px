@@ -550,6 +550,11 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
     id: layer.id,
     painted: layer.canvas.paintedCount(),
   }));
+  // Only a recipe that declares parts grows this key, so a part-less envelope
+  // stays exactly what it was before parts existed.
+  if (compiled.parts.length > 0) {
+    payload.parts = compiled.parts;
+  }
   const allWarnings = [...warnings, ...compiled.warnings];
   if (allWarnings.length > 0) {
     payload.warnings = allWarnings;
@@ -610,6 +615,9 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     sha256: sha256Hex(result.png),
     findings: lintCompiled(result.compiled),
   };
+  if (result.compiled.parts.length > 0) {
+    payload.parts = result.compiled.parts;
+  }
   const allWarnings = [...warnings, ...result.warnings];
   if (allWarnings.length > 0) {
     payload.warnings = allWarnings;

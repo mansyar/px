@@ -7,7 +7,7 @@
  * so nothing consumes its own output and every op is order-independent.
  */
 
-import type { SlotCanvas } from '../canvas.js';
+import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
 import type { Op } from '../recipe/types.js';
@@ -33,6 +33,11 @@ export interface OpContext {
   roles: SlotRoles;
   /** Every layer's buffer, in recipe order. */
   layers: ReadonlyMap<string, SlotCanvas>;
+  /**
+   * Part index this op's pixels belong to, `UNOWNED` when the op carries no
+   * `part`. Painting ops write it; transforms inherit from the pixels they read.
+   */
+  owner: number;
 }
 
 export interface OpResult {
@@ -79,6 +84,15 @@ function requiredSlot(context: OpContext, name: string): number {
 
 /** Snapshot of the layer a post-pass reads, taken before it writes. */
 function snapshot(context: OpContext, targetLayer: string | undefined): Int16Array {
+  return Int16Array.from(sourceCanvas(context, targetLayer).slots);
+}
+
+/** Ownership alongside the colour snapshot, for passes that inherit it. */
+function snapshotOwners(context: OpContext, targetLayer: string | undefined): Int16Array {
+  return Int16Array.from(sourceCanvas(context, targetLayer).owners);
+}
+
+function sourceCanvas(context: OpContext, targetLayer: string | undefined): SlotCanvas {
   const source = targetLayer === undefined ? context.canvas : context.layers.get(targetLayer);
   if (source === undefined) {
     throw new PxError(
@@ -88,19 +102,52 @@ function snapshot(context: OpContext, targetLayer: string | undefined): Int16Arr
       { layer: context.layerId, op_index: context.opIndex },
     );
   }
-  return Int16Array.from(source.slots);
+  return source;
+}
+
+/**
+ * An erase removes both colour and ownership, so a `part` on an erase op must
+ * not leave a mask behind.
+ */
+function ownerFor(context: OpContext, color: string | null): number {
+  return color === null ? UNOWNED : context.owner;
 }
 
 export function applyOp(context: OpContext, op: Op): OpResult {
   const site = { opIndex: context.opIndex, layerId: context.layerId };
   switch (op.op) {
     case 'set_pixels':
-      return result(drawSetPixels(context.canvas, op.points, colorSlot(context, op.color)));
+      return result(
+        drawSetPixels(
+          context.canvas,
+          op.points,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'rect':
-      return result(drawRect(context.canvas, op.x, op.y, op.w, op.h, colorSlot(context, op.color)));
+      return result(
+        drawRect(
+          context.canvas,
+          op.x,
+          op.y,
+          op.w,
+          op.h,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'line':
       return result(
-        drawLine(context.canvas, op.x1, op.y1, op.x2, op.y2, colorSlot(context, op.color)),
+        drawLine(
+          context.canvas,
+          op.x1,
+          op.y1,
+          op.x2,
+          op.y2,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
       );
     case 'ellipse':
       return result(
@@ -112,10 +159,18 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.h,
           colorSlot(context, op.color),
           op.fill === true,
+          ownerFor(context, op.color),
         ),
       );
     case 'polygon':
-      return result(drawPolygon(context.canvas, op.points, colorSlot(context, op.color)));
+      return result(
+        drawPolygon(
+          context.canvas,
+          op.points,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'flood_fill':
       return result(
         floodFill(
@@ -124,6 +179,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.y,
           colorSlot(context, op.color),
           op.connectivity === 8 ? 8 : 4,
+          ownerFor(context, op.color),
         ),
       );
     case 'dither_fill':
@@ -136,6 +192,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.h,
           colorSlot(context, op.color),
           op.pattern,
+          ownerFor(context, op.color),
         ),
       );
     case 'ascii_blit': {
@@ -143,7 +200,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
       for (const [glyph, name] of Object.entries(op.legend)) {
         cells.set(glyph, requiredSlot(context, name));
       }
-      return result(drawAsciiBlit(context.canvas, op.x, op.y, op.grid, cells));
+      return result(drawAsciiBlit(context.canvas, op.x, op.y, op.grid, cells, context.owner));
     }
     case 'mirror':
       return result(drawMirror(context.canvas, op.axis, op.pivot));
@@ -158,6 +215,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           selective: op.selective === true,
           color: op.color === undefined ? undefined : colorSlot(context, op.color),
         },
+        snapshotOwners(context, op.targetLayer),
       );
       return { clipped: false, noop: painted === 0 };
     }

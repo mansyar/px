@@ -50,6 +50,7 @@ export function autoOutline(
   source: Int16Array,
   roles: SlotRoles,
   options: OutlineOptions,
+  sourceOwners?: Int16Array,
 ): number {
   const { width, height } = canvas;
   const neighbours = options.mode === '8-way' ? NEIGHBOURS_8 : NEIGHBOURS_4;
@@ -65,6 +66,7 @@ export function autoOutline(
       }
 
       let write: number | undefined;
+      let owner: number | undefined;
       for (const [dx, dy] of neighbours) {
         const nx = x + dx;
         const ny = y + dy;
@@ -79,6 +81,8 @@ export function autoOutline(
           write = options.selective
             ? (roleSlot(roles, neighbour, 'outline') ?? options.color)
             : options.color;
+          // The border belongs to the part it was drawn around.
+          owner = sourceOwners?.[ny * width + nx];
         } else {
           if (neighbour !== TRANSPARENT_SLOT) {
             continue;
@@ -93,7 +97,13 @@ export function autoOutline(
       if (write === undefined) {
         continue;
       }
-      canvas.set(x, y, write);
+      // An inner outline recolours an owned pixel, so it keeps that ownership;
+      // an outer one claims the pixel for the part it borders.
+      if (outer) {
+        canvas.set(x, y, write, owner);
+      } else {
+        canvas.set(x, y, write);
+      }
       painted += 1;
     }
   }

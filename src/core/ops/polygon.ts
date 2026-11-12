@@ -63,7 +63,12 @@ export function polygonSpans(
   return spans;
 }
 
-export function drawPolygon(canvas: SlotCanvas, points: readonly Point[], slot: number): boolean {
+export function drawPolygon(
+  canvas: SlotCanvas,
+  points: readonly Point[],
+  slot: number,
+  owner?: number,
+): boolean {
   let clipped = false;
   for (const [x, y] of points) {
     if (!canvas.inBounds(x, y)) {
@@ -74,7 +79,7 @@ export function drawPolygon(canvas: SlotCanvas, points: readonly Point[], slot: 
   for (let y = 0; y < canvas.height; y += 1) {
     for (const [first, last] of polygonSpans(points, y)) {
       for (let x = first; x <= last; x += 1) {
-        if (!canvas.set(x, y, slot)) {
+        if (!canvas.set(x, y, slot, owner)) {
           clipped = true;
         }
       }

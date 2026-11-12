@@ -12,6 +12,7 @@ export default defineConfig({
             'test/ops/**/*.test.ts',
             'test/mcp/**/*.test.ts',
             'test/palettes/**/*.test.ts',
+            'test/parts/**/*.test.ts',
           ],
         },
       },

@@ -14,6 +14,7 @@ export function drawAsciiBlit(
   y: number,
   grid: readonly string[],
   cells: ReadonlyMap<string, number>,
+  owner?: number,
 ): boolean {
   let clipped = false;
   grid.forEach((row, rowIndex) => {
@@ -22,7 +23,7 @@ export function drawAsciiBlit(
       if (slot === undefined) {
         return;
       }
-      if (!canvas.set(x + columnIndex, y + rowIndex, slot)) {
+      if (!canvas.set(x + columnIndex, y + rowIndex, slot, owner)) {
         clipped = true;
       }
     });
