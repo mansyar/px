@@ -124,6 +124,35 @@ The cap exists to stop open-ended churn, not to force a shipment with known-wron
 
 ### Outstanding
 
-AC-14 and AC-22 are still unproven: both need the CI matrix (ubuntu-latest, windows-latest) on
-this branch, which has never been pushed. That is the last gate before merge, and the reviewer
-asked for exactly that check.
+~~AC-14 and AC-22 are still unproven: both need the CI matrix (ubuntu-latest,
+windows-latest) on this branch, which has never been pushed.~~ **Proven.** Both jobs passed on
+`4a8c734`, including the determinism step on `windows-latest` reproducing the committed golden
+digests.
+
+## Post-review — the first push failed, and why it counts
+
+The first CI run on this branch failed, on `windows-latest` only. Not the tests — the *lint*:
+
+```
+biome.json  format  ━━━━━━━━━━
+  2  │ - "$schema": "https://biomejs.dev/schemas/2.6.7/schema.json",␍
+     │ + "$schema": "https://biomejs.dev/schemas/2.6.7/schema.json",
+```
+
+Every source file had been checked out CRLF on Windows, because `git` on Windows defaults to
+`core.autocrlf=true` and the repository declared nothing. Linux checked out LF and passed. The
+later steps in the Windows job were skipped rather than broken, which is why the run's step list
+looked worse than the single real fault.
+
+Fixed at the source rather than per-file: `.gitattributes` with `* text=auto eol=lf`, and `*.png
+binary` so rendered artifacts and their digests are never translated. Committed as `4a8c734`;
+both runners then passed.
+
+This is worth recording because it is the one class of defect none of the thirteen review
+findings could have caught, and none of the local gates could either: **local Windows had
+`core.autocrlf=false`, so the developer machine was LF and green while every fresh Windows clone
+would have been CRLF and red.** The CI matrix exists precisely to observe a checkout the
+developer never sees, and it earned its place on the first run.
+
+A repository whose product guarantee is byte identity had not pinned its own line endings. That
+is the same mistake as the exit codes, one layer down: a contract assumed rather than encoded.
