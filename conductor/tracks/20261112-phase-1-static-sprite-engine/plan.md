@@ -13,12 +13,12 @@
   can be inspected as ASCII, end to end through the CLI.
 - **Depends on:** none
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-16, FR-19, FR-21, FR-23,
-  NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3, AC-4, AC-14, AC-22
+  NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3, AC-4, AC-5, AC-14, AC-22
 - **Touches:** `package.json`, `tsconfig*.json`, `biome.json`, `vitest.config.ts`,
   `.node-version`, `src/core/**`, `src/render/**`, `src/cli/**`, `test/**`,
   `.github/workflows/ci.yml`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Package scaffold** — covers: NFR-2, NFR-6
   - [ ] **P1.T1.1:** `package.json` with pinned versions, `engines.node >=24 <25`,
