@@ -125,6 +125,12 @@ describe('cli vertical slice', () => {
       (result) => (result.envelope.debug as { sha256: string }).sha256,
     );
     expect(new Set(hashes).size).toBe(3);
+
+    // The 8-digit form is accepted only when its alpha is one of the two
+    // binary values, so `#102030ff` is the same panel as `#102030`.
+    const opaque = render('opaque.png', ['--backdrop', '#102030ff']);
+    expect(opaque.code).toBe(0);
+    expect((opaque.envelope.debug as { sha256: string }).sha256).toBe(hashes[1]);
   });
 
   it('rejects a backdrop that is not a hex colour or lacks --debug', () => {
@@ -157,6 +163,25 @@ describe('cli vertical slice', () => {
     expect(noDebug.code).toBe(1);
     expect((noDebug.envelope.error as { code: string }).code).toBe('E_USAGE');
     expect((noDebug.envelope.error as { hint: string }).hint).toContain('--debug');
+
+    const translucent = run([
+      'render',
+      '--file',
+      'back.px.json',
+      '--out',
+      'translucent.png',
+      '--debug',
+      '--backdrop',
+      '#10203040',
+    ]);
+    expect(translucent.code).toBe(1);
+    expect((translucent.envelope.error as { code: string }).code).toBe('E_USAGE');
+    expect((translucent.envelope.error as { message: string }).message).toContain(
+      'alpha is binary',
+    );
+    const translucentHint = (translucent.envelope.error as { hint: string }).hint;
+    expect(translucentHint).toContain('alpha is binary');
+    expect(translucentHint).toContain('#rrggbbaa with aa equal to 00 or ff');
   });
 
   it('returns source warnings from draw and edit, not only parse warnings', () => {

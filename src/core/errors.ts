@@ -105,7 +105,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_BANDS_RANGE:
     'bands is 2 or 3: a family supplies three shading roles (shadow, base, highlight), so a band count above 3 cannot produce more transitions.',
   E_REGION_TOO_THIN:
-    "A thin region cannot show every band: reduce bands to at most one more than the painted region's light-axis length, or widen the region.",
+    'A region that occupies fewer light-axis positions than the band count cannot fill every band: reduce bands, or paint more positions along the light direction.',
   E_NO_SUCH_OP: 'Run `px inspect` or read the op_index map from the last write to find the op.',
   E_DUPLICATE_OP_ID: 'Op ids are unique across the recipe; rename one of the duplicates.',
   E_LINT_GATE:
@@ -148,10 +148,6 @@ export function errorPayload(error: PxError): ErrorPayload {
     payload.coord = error.location.coord;
   }
   return payload;
-}
-
-export function isUsageError(error: PxError): boolean {
-  return error.code === 'E_USAGE';
 }
 
 /** Engine faults are the only errors that are not the caller's to fix. */

@@ -5,7 +5,6 @@ import {
   errorPayload,
   internalError,
   isInternalError,
-  isUsageError,
   PxError,
 } from '../../src/core/errors.js';
 
@@ -51,11 +50,6 @@ describe('error registry', () => {
     expect(errorPayload(error).coord).toEqual([9, 4]);
   });
 
-  it('classifies usage errors within the caller-error family', () => {
-    expect(isUsageError(new PxError('E_USAGE', 'bad flag'))).toBe(true);
-    expect(isUsageError(new PxError('E_PARSE', 'bad json'))).toBe(false);
-  });
-
   it('classifies only E_INTERNAL as an engine fault', () => {
     expect(isInternalError(new PxError('E_INTERNAL', 'boom'))).toBe(true);
     expect(isInternalError(new PxError('E_USAGE', 'bad flag'))).toBe(false);
@@ -66,7 +60,6 @@ describe('error registry', () => {
     const error = internalError(new Error('boom'));
     expect(error.code).toBe('E_INTERNAL');
     expect(error.message).toContain('boom');
-    expect(isUsageError(error)).toBe(false);
   });
 
   it('describes a thrown value that is not an Error', () => {

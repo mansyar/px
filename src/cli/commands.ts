@@ -10,6 +10,7 @@ import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
 import {
   buildSlotRoles,
   type buildSlotTable,
+  hasBinaryAlpha,
   parseHex,
   TRANSPARENT_SLOT,
 } from '../core/palette.js';
@@ -27,7 +28,7 @@ import { lintCompiled } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
 import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
 import { DERIVATION_NOTE, deriveRamps, PALETTE_NAMES, paletteByName } from '../palettes/index.js';
-import { renderDebugSheet } from '../render/debug/sheet.js';
+import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import type { ParsedArgs } from './args.js';
 import { inspectCodes, type Region, renderRegion, usedSlots } from './inspect.js';
@@ -559,6 +560,8 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
 /**
  * `--backdrop` fills panel B of the debug sheet: a hex colour, or `null` for a
  * transparent panel so the sheet composites over whatever a client shows it on.
+ * Alpha stays binary, as everywhere else in the engine: `#rrggbb`, or
+ * `#rrggbbaa` with `aa` of `00` or `ff`.
  */
 function backdropFlag(value: string | undefined): string | null | undefined {
   if (value === undefined) {
@@ -567,10 +570,14 @@ function backdropFlag(value: string | undefined): string | null | undefined {
   if (value === 'null') {
     return null;
   }
-  if (parseHex(value) === null) {
+  const parsed = parseHex(value);
+  if (parsed === null) {
+    throw usageError(`--backdrop "${value}" is not a hex colour`, BACKDROP_FORMS);
+  }
+  if (!hasBinaryAlpha(parsed)) {
     throw usageError(
-      `--backdrop "${value}" is not a hex colour`,
-      'Use #rrggbb, #rrggbbaa, or "null" for a transparent panel.',
+      `--backdrop "${value}" has alpha ${parsed.a}; backdrop alpha is binary`,
+      BACKDROP_FORMS,
     );
   }
   return value;

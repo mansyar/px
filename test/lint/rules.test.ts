@@ -122,15 +122,15 @@ describe('ORPHAN_PIXEL', () => {
   });
 
   it('is bounded on a stipple of isolated pixels', () => {
-    // Every other pixel in both axes: 64 dots, none within 8-way reach of
-    // another, so each one is a true orphan and the collector hits its cap.
+    // Every fourth pixel in both axes: 64 dots, four apart, so none is within
+    // reach of another and each one is a true orphan; the collector hits its cap.
     const points: Array<[number, number]> = [];
-    for (let y = 0; y < 16; y += 2) {
-      for (let x = 0; x < 16; x += 2) {
+    for (let y = 0; y < 32; y += 4) {
+      for (let x = 0; x < 32; x += 4) {
         points.push([x, y]);
       }
     }
-    const findings = ofCode(sprite([['set_pixels', points, 'main.0']], 16, 16), 'ORPHAN_PIXEL');
+    const findings = ofCode(sprite([['set_pixels', points, 'main.0']], 32, 32), 'ORPHAN_PIXEL');
 
     expect(findings).toHaveLength(51);
     const marker = findings.at(-1) as LintFinding;
@@ -150,5 +150,48 @@ describe('ORPHAN_PIXEL', () => {
     expect(
       ofCode(sprite([['dither_fill', 0, 0, 8, 8, 'main.0', 'checker_50']]), 'ORPHAN_PIXEL'),
     ).toEqual([]);
+  });
+
+  it('stays silent on a bayer_25 dither over transparency, which the engine draws', () => {
+    // bayer_25 lights (0,0), (2,0), (0,2) and (2,2) of every 4x4 tile, so its
+    // nearest neighbour is two pixels away in both axes. A 1-px radius cannot
+    // tell this sanctioned fade from a defect; the rule's radius of 2 can.
+    expect(
+      ofCode(sprite([['dither_fill', 0, 0, 8, 8, 'main.0', 'bayer_25']]), 'ORPHAN_PIXEL'),
+    ).toEqual([]);
+  });
+
+  it('treats a pixel two away as a neighbour, pinning the radius boundary', () => {
+    expect(
+      ofCode(
+        sprite([
+          [
+            'set_pixels',
+            [
+              [2, 2],
+              [4, 2],
+            ],
+            'main.0',
+          ],
+        ]),
+        'ORPHAN_PIXEL',
+      ),
+    ).toEqual([]);
+  });
+
+  it('flags a lone pixel whose nearest painted pixel is three away in any direction', () => {
+    for (const partner of [
+      [7, 4],
+      [4, 7],
+      [7, 7],
+    ]) {
+      const findings = ofCode(
+        sprite([['set_pixels', [[4, 4], partner], 'main.0']]),
+        'ORPHAN_PIXEL',
+      );
+      // Both pixels sit outside each other's radius-2 neighbourhood, so both
+      // report rather than one rescuing the other.
+      expect(findings.map((finding) => finding.coord)).toEqual([[4, 4], partner]);
+    }
   });
 });

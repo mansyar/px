@@ -193,6 +193,15 @@ describe('debug sheet panels b and c', () => {
     expect(pixelAt(sheetValue, b.x, b.y)).toEqual([16, 32, 48, 255]);
   });
 
+  it('accepts the opaque 8-digit backdrop and rejects a translucent one', () => {
+    const opaque = sheet({ backdrop: '#102030ff', ops: [] });
+    expect(pixelAt(opaque, opaque.panels.b.x, opaque.panels.b.y)).toEqual([16, 32, 48, 255]);
+
+    // FR-18 and the product's alpha rule: a translucent panel would be the one
+    // place the engine emits a partially transparent pixel.
+    expect(() => sheet({ backdrop: '#10203040', ops: [] })).toThrow('alpha is binary');
+  });
+
   it('leaves the 1x panel transparent when the backdrop is null', () => {
     const sheetValue = sheet({ backdrop: null, ops: [] });
     const { b } = sheetValue.panels;

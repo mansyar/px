@@ -14,13 +14,21 @@
 
 import type { CompiledRecipe } from '../../core/compile.js';
 import { PxError } from '../../core/errors.js';
-import { parseHex, type Rgba, TRANSPARENT_SLOT } from '../../core/palette.js';
+import { hasBinaryAlpha, parseHex, type Rgba, TRANSPARENT_SLOT } from '../../core/palette.js';
 import type { Anchors } from '../../core/recipe/types.js';
 import { DEFAULT_BACKDROP_HEX, LOW_CONTRAST_BACKDROP } from '../../lint/thresholds.js';
 import { rasterizeSlots } from '../flatten.js';
 import { encodePng } from '../png.js';
 import { GLYPH_HEIGHT, GLYPH_WIDTH } from './font.js';
 import { PixelBuffer } from './pixels.js';
+
+/**
+ * The accepted backdrop forms, shared with the `--backdrop` flag parser so the
+ * two hints cannot drift apart: a translucent panel would be the one place the
+ * engine emits a partially transparent pixel.
+ */
+export const BACKDROP_FORMS =
+  'Backdrop alpha is binary: use #rrggbb, or #rrggbbaa with aa equal to 00 or ff; pass "null" for a transparent panel.';
 
 /** Device pixels per source pixel in panel A. */
 export const PANEL_SCALE = 8;
@@ -81,7 +89,14 @@ function resolveBackdrop(value: string | null | undefined): Rgba | null {
     throw new PxError(
       'E_BAD_PARAM',
       `Debug backdrop "${value}" is not a hex colour`,
-      `Use #rrggbb, or pass null to leave panel B transparent. The default is ${DEFAULT_BACKDROP_HEX}.`,
+      `${BACKDROP_FORMS} The default is ${DEFAULT_BACKDROP_HEX}.`,
+    );
+  }
+  if (!hasBinaryAlpha(parsed)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Debug backdrop "${value}" has alpha ${parsed.a}; backdrop alpha is binary`,
+      `${BACKDROP_FORMS} The default is ${DEFAULT_BACKDROP_HEX}.`,
     );
   }
   return parsed;

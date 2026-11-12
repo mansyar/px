@@ -100,6 +100,25 @@ The backdrop the contrast verdict is measured against, resolved once at module
 load and shared with the debug sheet's 1x panel so the verdict and the picture
 agree. Not tuned: the benchmarks show no sensitivity to it.
 
+## `ORPHAN_NEIGHBOUR_RADIUS` — 2 (new in review round 2)
+
+- **Was:** 8-way only (radius 1), calibrated against a 1-px `line` and a
+  `checker_50` dither.
+- **Catches:** a painted pixel with nothing painted within two pixels in any
+  direction — a speck that cannot read as part of a silhouette, a line, or a
+  dither fill.
+- **Deliberately ignores:** `bayer_25`, the sparsest lattice the engine emits:
+  it lights (0,0), (2,0), (0,2) and (2,2) of every 4x4 tile, so its lit cells sit
+  two pixels apart in both axes. At radius 1 every one of them was a false
+  positive, and a sanctioned fade hard-failed `--strict`.
+- **Fixtures:** silent — `dither_fill bayer_25` over an 8x8 transparent layer,
+  two pixels exactly two apart, the 1-px diagonal and `checker_50`; fires — a
+  lone pixel, and a pair whose nearest distance is three, horizontally,
+  vertically and diagonally. All in `test/lint/rules.test.ts`.
+- **Why 2:** one cannot separate a sanctioned `bayer_25` fade from noise; three
+  would let a speck three pixels from real art pass, and that is exactly the
+  distance the firing fixture pins.
+
 ## `MAX_FINDINGS_PER_CODE` — 50 (unchanged)
 
 - **Catches:** runaway output. The 51st finding per code becomes one `truncated`

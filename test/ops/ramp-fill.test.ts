@@ -112,6 +112,66 @@ describe('ramp_fill', () => {
     expect(location).toEqual({ layer: 'base', op_index: 1 });
   });
 
+  it('gives every band a turn when the region has a gap', () => {
+    // Two 3x1 blocks on one row at x 0-2 and 6-8. The bounding box spans nine
+    // positions but only six are occupied, so ranking by distance would split
+    // the painted pixels into highlight|shadow and never paint `base`.
+    const { compiled } = compileOps(
+      [
+        { op: 'rect', x: 0, y: 0, w: 3, h: 1, color: 'cloth.base' },
+        { op: 'rect', x: 6, y: 0, w: 3, h: 1, color: 'cloth.base' },
+        { op: 'ramp_fill', bands: 3, light_dir: 'top-left' },
+      ],
+      { palette: SHADED, width: 9, height: 8 },
+    );
+    const row = roleRows(compiled)[0] ?? '';
+    expect(row).toBe('hhb...bss');
+
+    const paintedRoles = [...row].filter((role) => role !== '.');
+    let transitions = 0;
+    for (let i = 1; i < paintedRoles.length; i += 1) {
+      if (paintedRoles[i] !== paintedRoles[i - 1]) {
+        transitions += 1;
+      }
+    }
+    expect(new Set(paintedRoles)).toEqual(new Set(['h', 'b', 's']));
+    expect(transitions).toBe(2);
+  });
+
+  it('guards the occupied count, not the bounding-box extent', () => {
+    // Two pixels three columns apart: the extent is three positions, but only
+    // two positions are painted, so a third band would go unfilled.
+    let code = '';
+    let message = '';
+    let hint = '';
+    try {
+      compileOps(
+        [
+          {
+            op: 'set_pixels',
+            points: [
+              [0, 0],
+              [2, 0],
+            ],
+            color: 'cloth.base',
+          },
+          { op: 'ramp_fill', bands: 3, light_dir: 'top-left' },
+        ],
+        { palette: SHADED, width: 8, height: 8 },
+      );
+    } catch (error) {
+      if (error instanceof PxError) {
+        code = error.code;
+        message = error.message;
+        hint = error.hint;
+      }
+    }
+    expect(code).toBe('E_REGION_TOO_THIN');
+    expect(message).toContain('occupies only 2');
+    expect(message).toContain('supports at most 2');
+    expect(hint).toContain('bands 2 or fewer');
+  });
+
   it('accepts the whole legal domain', () => {
     for (const bands of [2, 3]) {
       expect(codeOf(() => ramp(bands, 'top-left'))).toBe('NO_THROW');

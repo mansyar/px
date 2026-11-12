@@ -2,11 +2,14 @@
  * `ramp_fill`: band the target layer along the light axis.
  *
  * Each non-transparent pixel is projected onto the axis inside the layer's
- * bounding box, normalised to `[0, 1)` and bucketed into `bands` slices. The
- * light-most slice takes `highlight`, the dark-most `shadow`, and every slice
- * between them `base`, resolved from the pixel's own family. All of it is
- * integer arithmetic on `t` and the axis length, so the same input produces the
- * same bands with no per-pixel randomness and no floating-point rounding.
+ * bounding box. The bands are cut by the *occupied* projections, not by the
+ * bounding-box extent: a region with a gap still has to show every band, so a
+ * pixel's band comes from its rank among the distinct positions the layer
+ * actually paints. The light-most band takes `highlight`, the dark-most
+ * `shadow`, and every band between them `base`, resolved from the pixel's own
+ * family. All of it is integer arithmetic on the rank and the band count, so the
+ * same input produces the same bands with no per-pixel randomness and no
+ * floating-point rounding.
  */
 
 import type { SlotCanvas } from '../canvas.js';
@@ -36,6 +39,12 @@ interface Box {
   maxY: number;
 }
 
+interface PaintedCell {
+  x: number;
+  y: number;
+  projection: number;
+}
+
 function boundingBox(source: Int16Array, width: number, height: number): Box | undefined {
   let minX = width;
   let minY = height;
@@ -56,6 +65,26 @@ function boundingBox(source: Int16Array, width: number, height: number): Box | u
     return undefined;
   }
   return { minX, minY, maxX, maxY };
+}
+
+/** Every painted pixel with its projection onto the light axis. */
+function paintedCells(
+  source: Int16Array,
+  width: number,
+  height: number,
+  box: Box,
+  lightDir: LightDir,
+): PaintedCell[] {
+  const cells: PaintedCell[] = [];
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (source[y * width + x] === TRANSPARENT_SLOT) {
+        continue;
+      }
+      cells.push({ x, y, projection: axisProjection(x, y, box, lightDir) });
+    }
+  }
+  return cells;
 }
 
 /**
@@ -90,48 +119,53 @@ export function rampFill(
     return 0;
   }
 
-  const axisLength = box.maxX - box.minX + (box.maxY - box.minY);
-  const maxBands = axisLength + 1;
-  if (bands > maxBands) {
-    // A region shorter than the band count can never occupy the last bucket, so
-    // it would silently deliver fewer transitions than AC-12 promises.
+  const cells = paintedCells(source, width, height, box, lightDir);
+  const occupiedCount = new Set(cells.map((cell) => cell.projection)).size;
+  if (bands > occupiedCount) {
+    // A region with fewer occupied positions than bands can never fill every
+    // band, so it would silently deliver fewer transitions than AC-12 promises.
     throw new PxError(
       'E_REGION_TOO_THIN',
-      `Op ${site.opIndex} (ramp_fill) asked for ${bands} bands, but this region's light axis is ${maxBands} positions long and supports at most ${maxBands}`,
-      `Pass bands ${maxBands} or fewer, or widen the region along the light direction.`,
+      `Op ${site.opIndex} (ramp_fill) asked for ${bands} bands, but this region occupies only ${occupiedCount} light-axis position${occupiedCount === 1 ? '' : 's'} and supports at most ${occupiedCount}`,
+      `Pass bands ${occupiedCount} or fewer, or paint more positions along the light direction.`,
       { layer: site.layerId, op_index: site.opIndex },
     );
   }
-  const denominator = axisLength + 1;
+
+  // Sorting by projection means `rank` only advances when the projection
+  // changes, so it is exactly the index of that projection among the occupied
+  // ones. `band = floor(rank * bands / occupiedCount)` never skips a band,
+  // because the ratio is at most one and the rank spans every value up to
+  // `occupiedCount - 1`: every band therefore contains at least one painted
+  // pixel, so N bands always produce N-1 transitions — AC-12, unqualified.
+  cells.sort((a, b) => a.projection - b.projection);
+  let rank = -1;
+  let previousProjection = Number.NaN;
   let painted = 0;
 
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const here = source[y * width + x] ?? TRANSPARENT_SLOT;
-      if (here === TRANSPARENT_SLOT) {
-        continue;
-      }
-
-      const t = axisProjection(x, y, box, lightDir);
-      // `t` is below `denominator`, so the bucket is always below `bands`.
-      const bucket = Math.floor((t * bands) / denominator);
-      const role = bandRole(bucket, bands);
-
-      const familyIndex = roles.familyOfSlot[here];
-      const family = familyIndex === undefined ? undefined : slots.families[familyIndex];
-      if (family === undefined) {
-        continue;
-      }
-      if (family.kind === 'flat') {
-        throw noRampError('ramp_fill', family.name, role, site, [x, y]);
-      }
-      const target = roleSlot(roles, here, role);
-      if (target === undefined) {
-        throw noRampError('ramp_fill', family.name, role, site, [x, y]);
-      }
-      canvas.set(x, y, target);
-      painted += 1;
+  for (const cell of cells) {
+    if (cell.projection !== previousProjection) {
+      previousProjection = cell.projection;
+      rank += 1;
     }
+    const bucket = Math.floor((rank * bands) / occupiedCount);
+    const role = bandRole(bucket, bands);
+    const here = source[cell.y * width + cell.x] ?? TRANSPARENT_SLOT;
+
+    const familyIndex = roles.familyOfSlot[here];
+    const family = familyIndex === undefined ? undefined : slots.families[familyIndex];
+    if (family === undefined) {
+      continue;
+    }
+    if (family.kind === 'flat') {
+      throw noRampError('ramp_fill', family.name, role, site, [cell.x, cell.y]);
+    }
+    const target = roleSlot(roles, here, role);
+    if (target === undefined) {
+      throw noRampError('ramp_fill', family.name, role, site, [cell.x, cell.y]);
+    }
+    canvas.set(cell.x, cell.y, target);
+    painted += 1;
   }
 
   return painted;

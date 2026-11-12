@@ -41,7 +41,7 @@ export function createPxServer(): Server {
               error: {
                 code: 'E_USAGE',
                 message: `Unknown tool "${name}"`,
-                hint: 'Call tools/list to see the six px tools.',
+                hint: 'Call tools/list for the tool names and their parameters.',
               },
             }),
           },

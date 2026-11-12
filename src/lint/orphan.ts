@@ -1,14 +1,17 @@
 /**
  * `ORPHAN_PIXEL`.
  *
- * A painted pixel with no painted neighbour reads as noise: it cannot be part
- * of a silhouette, a line, or a dithered fill. All eight neighbours count, so a
- * 1-px diagonal `line` and a checkerboard `dither_fill` — both of which the
- * engine produces — stay clean. Only a genuinely isolated pixel is flagged.
+ * A painted pixel with no painted neighbour nearby reads as noise: it cannot be
+ * part of a silhouette, a line, or a dithered fill. The search reaches
+ * `ORPHAN_NEIGHBOUR_RADIUS` in every direction, so everything the engine draws
+ * stays clean — a 1-px diagonal `line`, a checkerboard `dither_fill`, and the
+ * quarter-coverage `bayer_25` lattice, whose lit cells are two pixels apart.
+ * Only a pixel with nothing painted inside that radius is flagged.
  */
 
 import { TRANSPARENT_SLOT } from '../core/palette.js';
 import { FindingCollector } from './collector.js';
+import { ORPHAN_NEIGHBOUR_RADIUS } from './thresholds.js';
 import type { LintContext, LintRule } from './types.js';
 
 function painted(context: LintContext, x: number, y: number): boolean {
@@ -19,16 +22,17 @@ function painted(context: LintContext, x: number, y: number): boolean {
 }
 
 function hasNeighbour(context: LintContext, x: number, y: number): boolean {
-  return (
-    painted(context, x - 1, y - 1) ||
-    painted(context, x, y - 1) ||
-    painted(context, x + 1, y - 1) ||
-    painted(context, x - 1, y) ||
-    painted(context, x + 1, y) ||
-    painted(context, x - 1, y + 1) ||
-    painted(context, x, y + 1) ||
-    painted(context, x + 1, y + 1)
-  );
+  for (let dy = -ORPHAN_NEIGHBOUR_RADIUS; dy <= ORPHAN_NEIGHBOUR_RADIUS; dy += 1) {
+    for (let dx = -ORPHAN_NEIGHBOUR_RADIUS; dx <= ORPHAN_NEIGHBOUR_RADIUS; dx += 1) {
+      if (dx === 0 && dy === 0) {
+        continue;
+      }
+      if (painted(context, x + dx, y + dy)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export const orphanPixelRule: LintRule = {
@@ -42,7 +46,7 @@ export const orphanPixelRule: LintRule = {
           continue;
         }
         collector.add({
-          message: `Pixel (${x}, ${y}) is isolated: no 8-way painted neighbour`,
+          message: `Pixel (${x}, ${y}) is isolated: no painted neighbour within ${ORPHAN_NEIGHBOUR_RADIUS} px`,
           coord: [x, y],
         });
       }

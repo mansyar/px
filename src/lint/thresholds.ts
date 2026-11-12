@@ -46,6 +46,17 @@ export const LOW_CONTRAST_MIN_RATIO = 1.5;
 export const DEFAULT_BACKDROP_HEX = '#808080';
 
 /**
+ * Chebyshev radius searched for a painted neighbour.
+ *
+ * `bayer_25` is the sparsest lattice the engine itself emits: it lights (0,0),
+ * (2,0), (0,2) and (2,2) of every 4x4 tile, so its nearest neighbour is two
+ * pixels away in both axes. A radius of 1 cannot tell that sanctioned fade from
+ * a defect and flagged every lit pixel of one; at 2 the dither is silent while a
+ * pixel whose nearest painted pixel is three away still reports.
+ */
+export const ORPHAN_NEIGHBOUR_RADIUS = 2;
+
+/**
  * The same backdrop resolved once. The contrast rule compares against this and
  * the debug sheet paints it, so the number quoted in a finding matches the
  * panel B backdrop an agent is looking at.
