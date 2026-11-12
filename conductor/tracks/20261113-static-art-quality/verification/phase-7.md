@@ -4,6 +4,10 @@ Branch `feat/20261113-static-art-quality`, phase base `d53b74e`.
 Status: **partial** — every asset and the harness shipped; AC-20 is **blocked** on the
 primary's two vision passes (`test/art/scores.json` does not exist yet).
 
+Round 2 revised four assets (humanoid, character, scene, sword) against the rubric scores
+the primary recorded, and fixed a defect in the scoring method that made pass 1 measure
+the resampler rather than the art.
+
 ## What shipped
 
 | commit | subject |
@@ -12,7 +16,11 @@ primary's two vision passes (`test/art/scores.json` does not exist yet).
 | `5cf3685` | test(art): re-author potion, sword, humanoid and chest with parts and light |
 | `4676428` | docs(rubric): define the six criteria and the scoring harness |
 | `38d475d` | test(perf): measure a 256x256 scene with parts and a full light pass |
-| (this) | docs(conductor): record Phase 7 verification |
+| `737cde5` | docs(conductor): record Phase 7 verification and the blocked AC-20 |
+| `09f0edc` | fix(art): revise humanoid, character, scene and sword against the rubric |
+| `31421af` | docs(rubric): score both passes from a faithful nearest-neighbour view |
+| `36ff374` | fix(art): keep the character's cloth dither on the shadow rim |
+| (this) | docs(conductor): record the Phase 7 round-2 art revision |
 
 ## Reproduce the images
 
@@ -29,22 +37,31 @@ pnpm exec tsx src/cli.ts render --file test/art/prop/prop.px.json --out .conduct
 pnpm exec tsx src/cli.ts render --file test/art/scene/scene.px.json --out .conductor/evidence/art/scene.png --debug --strict
 ```
 
-Each call writes `.conductor/evidence/art/<asset>.png` (the 1× artifact for scoring pass 1)
-and `.conductor/evidence/art/<asset>.debug.png` (the debug sheet for pass 2: profile zoom
-with grid and coordinates, 1× panel, posterised silhouette, per-part crops). Outputs are
-gitignored; the recipes are the committed source.
+Each call writes `.conductor/evidence/art/<asset>.png` and `.conductor/evidence/art/<asset>.debug.png`
+(the debug sheet: profile zoom with grid and coordinates, 1× panel, posterised silhouette,
+per-part crops). Outputs are gitignored; the recipes are the committed source.
+
+Scoring pass 1 needs a faithful enlargement, not the raw 1× file (a 16–48 px PNG is
+resampled by whatever views it, which is what made round 1's pass 1 measure the resampler):
+
+```sh
+pnpm exec tsx scripts/upscale.mjs .conductor/evidence/art/<asset>.png
+```
+
+That writes `.conductor/evidence/art/<asset>.8x.png` (nearest neighbour, no filtering) for
+each of the seven assets. Pass 2 scores the debug sheet from the same recipe.
 
 ## Assets
 
 | asset | size | profile | parts | materials | gloss | anchors | calls | ops | findings | cleanup | sha256 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `potion` | 16×16 | tiny | 3 | 3 | matte | `cork_top`, `base_pivot` | 4 | 7 | none | none | `8afddb462fd7300abad64fd6a257b55f58c844b0ceaabc0e4db118f10b99004a` |
-| `sword` | 32×32 | small | 5 | 4 | metal, gem, cloth | `grip_pivot`, `blade_tip`, `pivot` | 2 | 15 | BANDING 24, CLUSTER_THIN 4 | none | `74e0dfdf34254e6a371b705cadef7f05649da9ed0f3d037f97a386923589f5a5` |
-| `humanoid` | 32×32 | small | 11 | 7 | cloth, metal | `foot_origin`, `hand_weapon` | 4 | 22 | BANDING 28, CLUSTER_THIN 9 | strays −2 px | `ec48a91e0d7c836320185581a0ef0fd31744320fefab0578d722a0830a69acee` |
+| `sword` | 32×32 | small | 5 | 4 | metal, gem, cloth | `grip_pivot`, `blade_tip`, `pivot` | 5 | 21 | BANDING 8, CLUSTER_THIN 5 | none | `e049713712b02e5c21a3d43e28e41c63a7ed96d091e466fa370fb440dd71599e` |
+| `humanoid` | 32×32 | small | 11 | 7 | cloth, metal | `foot_origin`, `hand_weapon` | 4 | 42 | BANDING 24, CLUSTER_THIN 10 | deband −15 px | `9395073a13bbe91d728b641156e3df7ac7e661926168c94efe2608160734fb9e` |
 | `chest` | 48×48 | small | 4 | 4 | metal | `lid_pivot` | 3 | 15 | BANDING 35, CLUSTER_THIN 4 | none | `d5f001d645120108425549de835d320d88481d383cf926f435b871f8cf7576da` |
-| `character` | 48×128 | medium | 12 | 8 | metal, cloth | `hand`, `foot_origin` | 4 | 28 | BANDING 51, CLUSTER_THIN 11, JAGGY_LINE 1 | strays −2 px | `3ffcb1cf3ae690f0cda05c3a60b2dc1c306a9c6e9bb325a2ba4ff03d11e8fa5f` |
+| `character` | 48×128 | medium | 12 | 8 | metal, cloth | `hand`, `foot_origin` | 4 | 41 | BANDING 45, CLUSTER_THIN 12, JAGGY_LINE 1 | deband −56 px | `77bec28003d7b3e9f4f69447ff9e1c868e7581a8de358d5b3622af20fb60aa1e` |
 | `prop` | 64×64 | medium | 4 | 4 | metal, gem | `handle_top`, `flame_core`, `base_pivot` | 5 | 11 | BANDING 25, CLUSTER_THIN 4 | none | `a911379a23a3590abf05abf78c6c7aa97918e1e435b2fced568698454b6c4cde` |
-| `scene` | 256×256 | large | 6 | 5 | cloth | `well_center`, `roof_apex`, `rope_hook`, `bucket_hook` | 6 | 15 | BANDING 51, CLUSTER_THIN 4, JAGGY_LINE 2 | strays −4 px | `f652466b18b9268d34934189e8d49dee2d872aebfafcebf1772d4cb151646426` |
+| `scene` | 256×256 | large | 6 | 5 | cloth | `well_center`, `roof_apex`, `rope_hook`, `bucket_hook` | 6 | 23 | BANDING 51, CLUSTER_THIN 6, JAGGY_LINE 2 | deband −1299 px | `f83ca849ea773ebfe5a4f6bb7c1b2bd43e0b7e7b804c6b7192d1636f70804410` |
 
 Findings are exactly what `render --strict` reported: **no error and no warning on any
 asset**, only `info`. `BANDING` sits at the 50-per-code cap on the two tallest/widest
@@ -60,10 +77,11 @@ Authoring rules from the brief, checked mechanically:
 - no `set_pixels` op carries more than 10 % of the painted area — detail comes from
   `ascii_blit` grids in all seven assets (one blit per part/colour pair), and the
   `set_pixels` ops are accents and highlights only;
-- **3 of 7** run a cleanup op and report what changed (`humanoid` −2 px, `character`
-  −2 px, `scene` −4 px, all `strays`); no cleanup op reports `changed 0`
+- **3 of 7** run a cleanup op and report what changed (`humanoid` −15 px, `character`
+  −146 px, `scene` −1299 px, all `deband`); no cleanup op reports `changed 0`
   (`W_CLEANUP_NOOP` would have required removing it — `chest`'s `seal` was removed for
-  exactly that reason);
+  exactly that reason, and round 2 replaced `scene`'s `strays` with `deband` when the
+  wider masonry left no stray cluster small enough to erase);
 - call budget: max **6** of `MAX_CALLS_NEW = 20`. The transcripts record the real
   finishing calls per asset (`anchor…`, `validate`, `render --debug --strict`). They are
   not replayable from `init`: no CLI verb declares `parts` (Phases 1–6 established that),
@@ -78,14 +96,69 @@ exist, so **no scores were recorded, no `test/art/rubric.test.ts` was added, and
 criterion was invented**. AC-20 stays open until the primary runs two passes per asset:
 
 ```sh
-PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<model> pnpm exec tsx scripts/rubric.mjs --asset <asset> --pass 1
+# faithful 8x view for pass 1 (a raw 16-48 px PNG is resampled by the viewer)
+pnpm exec tsx scripts/upscale.mjs .conductor/evidence/art/<asset>.png
+
+PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<model> pnpm exec tsx scripts/rubric.mjs --asset <asset> --pass 1 \
+  --artifact .conductor/evidence/art/<asset>.8x.png
 PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<model> pnpm exec tsx scripts/rubric.mjs --asset <asset> --pass 2 \
   --artifact .conductor/evidence/art/<asset>.debug.png
 ```
 
+Round 2 fixed the protocol defect the first passes exposed: pass 1 scored the raw 1× PNG
+and came out systematically lower than pass 2 on the same art (potion 2.67 vs 4.33,
+humanoid 2.83 vs 3.33, scene 2.67 vs 4.17), with pass-1 rationales naming "blurry" and
+"low-res artifacting". That measures the resampler, not the sprite, and contradicts the
+anchors, which are written against the debug sheet's 1× panel. `docs/rubric.md` now
+requires a faithful nearest-neighbour view for **both** passes — the plain 8× upscale
+via `scripts/upscale.mjs` (a zero-dependency PNG tool: `node:zlib`, its own CRC32, all
+five PNG filters, no filtering on enlargement) or the debug sheet — and states that a raw
+1× PNG below ~32 px is not valid evidence.
+
 Blocked reason: **awaiting the primary's vision passes**. The script has been exercised
 in this phase only to the extent of its argument and validation paths; it makes no
 network call without `PX_RUBRIC_API_KEY` and exits `2` with a clear message in that case.
+
+## Round 2: what changed per asset
+
+Scores from the primary's two faithful passes put humanoid (3.42), character (3.67) and
+scene (3.58) below the 4.0 bar, with sword (4.08) weakest on `edge_language`. The causes
+were fixed in the art, not in the scores or the rules:
+
+- **`humanoid`** — the light stopped at the neck. Every part now obeys top-left: helm dome
+  lit across its crown and shadowed on the right cheek and chin, torso with a lit left
+  column, base body and shadowed right column plus a full-width seam that separates chest
+  from abdomen, sleeves lit inside / shadowed outside, legs with a highlight column and a
+  knee band, blade with a lit spine and a dark cutting edge. Interior boundaries now use
+  each material's own dark tone; the ink outline is kept for the silhouette only.
+  `face` and `belt` were raised to `z: 2` so AO can no longer darken the whole inset (which
+  also cleared two `PILLOW_SHADE` warnings), and the visor became a 2 px slit.
+- **`character`** — flat parts shaded by row rank (left highlight, middle base, right
+  shadow) instead of vertical bands down blade and legs, with the band edges wandering row
+  to row so cloth reads as folds; the blade has one lit spine and one shadowed edge; the
+  hips gained a tabard skirt (8 rows off the visible leg, so the 46-row stilt read is
+  gone); the shield got a bevel rim, a 2 px gold cross and a 3×3 boss so it reads as a
+  shield rather than a plain oval; the legs got a knee band and a darker shin.
+  `arm_l`, `shield` and `legs` needed their boundary rows re-ranks (the shield rim follows
+  ownership, not coordinates) before `PILLOW_SHADE` cleared. The `cloth` dither was
+  confined to a two-column shadow rim: at 30 % of the part width the light pass's dither
+  read as checkerboard noise at 8×.
+- **`scene`** — the roof no longer splits lit/shadowed at the apex: both planes run
+  ridge-highlight → base → eave-shadow, so the light direction is single. The wall is real
+  masonry: 2 px mortar courses with staggered joints and a lit top edge, spaced to survive
+  1× under the `large` profile (`minCluster` 3, `outlineWidth` 2). The apron is a value
+  ladder (highlight → base → shadow) with a deterministic pebble scatter, so it reads as
+  ground instead of a hole. The bucket was re-shaded as dark staves with two hoops after it
+  read as a bright grid.
+- **`sword`** — interior boundaries (guard/grip, grip/pommel, gem/guard) no longer carry
+  the ink outline; they separate with each material's own darkest tone. The blade is one
+  lit spine (`steel.highlight`), a base body and a shadowed cutting edge, the guard was cut
+  from 5 rows to 3 so it no longer out-masses the 94 px blade, and the render uses
+  `form: "flat"` with AO on so the hand-painted shading survives. The gem sits at `z: 2`
+  to match the guard, which is what finally cleared the `PILLOW_SHADE` on the guard.
+
+Sizes, file names, parts, materials, gloss and anchor names are untouched; `calls.json`
+files were regenerated as the honest finishing-call log and digests refreshed.
 
 ## Performance (NFR-7)
 
@@ -111,7 +184,7 @@ itself was not raised.
 | command | result |
 | --- | --- |
 | `pnpm verify` | exit 0 — typecheck, biome (152 files), 74 test files / **682 tests**, build |
-| `pnpm vitest run --coverage` | exit 0 — statements **95.54 %**, branches **86.41 %**, functions **98.40 %**, lines **95.36 %** (threshold 80) |
+| `pnpm vitest run --coverage` | exit 0 — statements **95.57 %**, branches **86.51 %**, functions **98.40 %**, lines **95.40 %** (threshold 80) |
 
 Both ran on the final tree. Coverage improved from the Phase 6 baseline (95.32 / 86.05)
 because `test/art/assets.test.ts` pushes every asset recipe through parse, compile,
@@ -132,6 +205,9 @@ digest with no error or warning finding.
 - `git diff --stat` against the phase base touches `test/benchmarks/` only in
   `performance.test.ts` (the new case); nothing under `test/benchmarks/*/` and nothing
   under `test/goldens/**` changed.
+- New files are `test/art/**` and `scripts/` (`rubric.mjs`, and `upscale.mjs` added in
+  round 2 for the pass-1 view). Neither is imported by the engine, the CLI or any test;
+  the runtime dependency list is unchanged.
 - No new dependency, no threshold lowered, no coverage exclude widened, no `v8 ignore`,
   no lint rule weakened. `PILLOW_SHADE` and `VALUE_COLLISION` were fixed by changing the
   art (part materials split, `form: round` → `bevel`, casts removed), never by
@@ -140,25 +216,31 @@ digest with no error or warning finding.
 ## Honest self-assessment
 
 The assets are better than the Phase-1 benchmarks but they are not uniformly good, and
-the design notes record where they fall short rather than smoothing it over:
+the design notes record where they fall short rather than smoothing it over. Round 2 fixed
+the causes the first scoring passes named; these are the weaknesses that remain:
 
-- **`scene`** — the stone joints vanish at 1×, so the well reads as smooth concrete, and
-  the dirt apron is nearly black and reads as a hole in the frame. The strongest asset
-  for silhouette, the weakest for material read.
-- **`character`** — reads as a paladin at 1×, but the legs are 46 rows against a 34-row
-  helm, the shield is a plain oval with a 1 px rim, and the sword's grip is hidden behind
-  its crossguard.
+- **`scene`** — the mortar courses now survive 1×, but the wall is still the strongest
+  shape and the weakest texture: at 1× the courses read as two value bands more than as
+  blockwork, and the roof's shingles are a plain gradient with no tile edges. The apron
+  reads as ground now, though the pebbles are single pixels and vanish at 1×.
+- **`character`** — reads as a paladin at 1× and the shield finally looks like a shield,
+  but the face is a flat tan band with no features, the boots are plain blocks, and the
+  blade's lit spine is one column, so the weapon is a bright line with a gold guard. The
+  legs are shorter than round 1 but still long.
 - **`chest`** — the bright iron straps form a "U" that out-shouts the wood; the lock reads
   as a mail slot; the grain is invisible at 1×.
-- **`humanoid`** — limbs are attached blocks, the torso is a dark mass, and the sword
+- **`humanoid`** — the figure now obeys one light direction from plume to boot, but the
+  torso is still a dark mass, the limbs are attached blocks with 1 px gaps, and the sword
   floats beside the hand rather than being gripped.
 - **`prop`** — the ring merges with the cap at 1× (it looks set down, not hanging), and
   the glass panes are flat with no reflection.
-- **`sword`** — the guard hides the grip; the curve could be stronger.
+- **`sword`** — the guard/pommel/grip are separated by each material's own dark tone now,
+  but the blade's lit spine against its base is subtle at 1× and the grip is short.
 - **`potion`** — 11 px of body leaves the liquid as one dark mass with a single lit
   surface line.
 
-Worst of the seven, in this author's judgement: **`character`** — it is legible but
-stiff, and its proportions are the ones a scorer is most likely to mark down on
-`silhouette` and `edge_language`. Best: **`prop`**, where the metal gloss and the
+Worst of the seven, in this author's judgement: **`character`** — it is legible and better
+shaded than round 1, but at 128 rows every unresolved detail (featureless face, block
+boots, one-column spine) is 8× visible, and `lighting` and `edge_language` are the
+criteria it is most likely to still lose. Best: **`prop`**, where the metal gloss and the
 dark-chamber/bright-flame contrast carry the read at every zoom.
