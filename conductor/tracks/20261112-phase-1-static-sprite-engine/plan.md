@@ -63,25 +63,28 @@
 - **Covers:** FR-18, FR-20, NFR-4, AC-16, AC-18
 - **Touches:** `src/lint/**`, `src/render/debug/**`, `src/cli/**`, `test/lint/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 689c638
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-2.md
 
-- [ ] **P2.T1: Linter framework** — covers: FR-20
-  - [ ] **P2.T1.1:** Rule interface, severities, deterministic ordering, bounded
+- [x] **P2.T1: Linter framework** — covers: FR-20
+  - [x] **P2.T1.1:** Rule interface, severities, deterministic ordering, bounded
     output
-- [ ] **P2.T2: Bounds and connectivity rules** — covers: AC-18
-  - [ ] **P2.T2.1:** `OUT_OF_BOUNDS`
-  - [ ] **P2.T2.2:** `ORPHAN_PIXEL`
-- [ ] **P2.T3: Shape and contrast rules** — covers: AC-18
-  - [ ] **P2.T3.1:** `JAGGY_LINE`
-  - [ ] **P2.T3.2:** `LOW_CONTRAST` against the default backdrop
-- [ ] **P2.T4: Annotated debug sheet** — covers: FR-18, AC-16
-  - [ ] **P2.T4.1:** Embedded bitmap font for rulers
-  - [ ] **P2.T4.2:** Panel A 8× with grid, checkerboard, coordinate rulers, anchor
+- [x] **P2.T2: Bounds and connectivity rules** — covers: AC-18
+  - [x] **P2.T2.1:** `OUT_OF_BOUNDS`
+  - [x] **P2.T2.2:** `ORPHAN_PIXEL`
+- [x] **P2.T3: Shape and contrast rules** — covers: AC-18
+  - [x] **P2.T3.1:** `JAGGY_LINE`
+  - [x] **P2.T3.2:** `LOW_CONTRAST` against the default backdrop
+- [x] **P2.T4: Annotated debug sheet** — covers: FR-18, AC-16
+  - [x] **P2.T4.1:** Embedded bitmap font for rulers
+  - [x] **P2.T4.2:** Panel A 8× with grid, checkerboard, coordinate rulers, anchor
     crosshairs
-  - [ ] **P2.T4.3:** Panel B 1× with optional backdrop; Panel C silhouette
-- [ ] **P2.T5: Strict mode and validate** — covers: FR-20, FR-23
-  - [ ] **P2.T5.1:** `--strict` promotes warnings; exit code 3
-  - [ ] **P2.T5.2:** `validate` command rendering nothing
+  - [x] **P2.T4.3:** Panel B 1× with optional backdrop; Panel C silhouette
+- [x] **P2.T5: Strict mode and validate** — covers: FR-20, FR-23
+  - [x] **P2.T5.1:** `--strict` promotes warnings; exit code 3
+  - [x] **P2.T5.2:** `validate` command rendering nothing
 
 ## Phase 3: Full Op Surface
 

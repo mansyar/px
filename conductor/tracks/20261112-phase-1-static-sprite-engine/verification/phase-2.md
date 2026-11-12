@@ -95,3 +95,28 @@ No new dependencies, no threshold lowered, no coverage ignore comment added.
 - `validate` renders nothing and writes nothing: it parses, validates, lints, and returns
   `bounds` (`null` when empty), `pixel_count`, per-layer painted counts, `findings`, and
   `warnings`.
+
+## Primary verification
+
+Verified by the primary agent on 2026-11-12, independently of the phase subagent's report.
+
+- Tree state: clean; `git diff --name-only 9bddbf1..HEAD` produced 24 paths, all inside the
+  phase's `Touches` (`src/lint/**`, `src/render/debug/**`, `src/cli/**`, `test/lint/**`) or the
+  four declared deviations (`vitest.config.ts`, `src/core/canvas.ts`, `src/core/compile.ts`,
+  `src/core/errors.ts`).
+- `vitest.config.ts` diff inspected: the only change is adding `test/lint/**/*.test.ts` to the
+  unit project's `include`. No threshold lowered, no `exclude` widened.
+- `pnpm verify` → exit 0. Typecheck clean, Biome clean on 54 files, 138 tests across 14 files
+  passing, build clean.
+- `pnpm vitest run --coverage` → exit 0. Statements 95.05%, branches 87.90%, functions 100%,
+  lines 94.84%. `src/lint` alone 98.41% statements / 91.66% branches.
+- Golden hash unchanged: `test/goldens/fixtures/hero.sha256` still
+  `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb`, matching Phase 1. This
+  phase added no rendered bytes, as expected for diagnostic-only work.
+- Squash guard: 6 commits in range, 0 merge commits, all reported by the subagent. Squashed to
+  `689c638`.
+- AC-16 and AC-18 were checked against the tests, not the summary: `test/lint/debug-sheet.test.ts`
+  asserts panel stacking, 8× cell scaling, grid lines, checkerboard, top/left rulers, per-anchor
+  crosshairs, silhouette, font coverage, and byte-determinism; `test/lint/rules.test.ts` and
+  `test/lint/shape.test.ts` assert each of the four codes plus their silent cases (regular
+  diagonals, even staircases, diagonal-only neighbours, empty canvases, clean sprites).
