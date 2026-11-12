@@ -91,9 +91,9 @@
 - **Goal:** Ramps can be synthesised in OKLCH with cool shadows and swapped at material level without touching the recipe.
 - **Depends on:** Phase 3
 - **Covers:** FR-15, FR-16, FR-17, FR-18, AC-13, AC-14
-- **Touches:** src/palettes/**, src/core/recipe/**, src/cli/**, src/mcp/**, test/palettes/**
+- **Touches:** src/palettes/**, src/core/**, src/render/**, src/meta/**, src/cli/**, src/mcp/**, test/palettes/**, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Synthesis** — covers: FR-15, FR-16
   - [ ] **P4.T1.1:** sRGB ↔ OKLCH conversion and N-step expansion, no dependency
