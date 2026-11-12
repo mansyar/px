@@ -63,7 +63,7 @@
 - **Covers:** FR-18, FR-20, NFR-4, AC-16, AC-18
 - **Touches:** `src/lint/**`, `src/render/debug/**`, `src/cli/**`, `test/lint/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Linter framework** — covers: FR-20
   - [ ] **P2.T1.1:** Rule interface, severities, deterministic ordering, bounded
