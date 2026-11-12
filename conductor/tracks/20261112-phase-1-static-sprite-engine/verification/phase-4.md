@@ -65,3 +65,30 @@
 - Metadata is pinned exactly: `{v,name,godot,generic}` with `recipe_hash` hashing canonical recipe text, not the PNG.
 - Ramp derivation is pure selection: luminance-ordered neighbours, hue-nearest outline, no interpolation; `E_NO_RAMP` still names `--derive-ramps` when a family lacks a role.
 - Parity is a real equality check: only the MCP `text` framing and `image` blocks are stripped.
+
+## Primary verification
+
+Verified by the primary agent on 2026-11-12, independently of the phase subagent's report.
+
+- Tree state: clean. `git diff --name-only b6c4a9f..HEAD` produced 21 paths — all inside the
+  phase's `Touches` (`src/meta/**`, `src/mcp/**`, `src/palettes/**`, `src/cli/**`,
+  `test/mcp/**`, `test/palettes/**`, `vitest.config.ts`) or the three declared deviations
+  (`test/integration/cli.test.ts`, `test/smoke/mcp-stdio.test.ts`, `src/mcp/tools.ts`).
+- `git diff b6c4a9f..HEAD -- package.json` is empty: the MCP SDK was already the pinned single
+  runtime dependency, so this phase activated it without adding anything.
+- `pnpm verify` → exit 0. Typecheck clean, Biome clean on 92 files, 293 tests across 35 files,
+  build clean.
+- `pnpm vitest run --coverage` → exit 0. Statements 94.21%, branches 86.04%, functions 99.47%,
+  lines 93.95%. New gate members: `src/meta` 94.54% statements, `src/palettes` 100%.
+- Golden hash unchanged:
+  `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb`, matching Phases 1-3.
+- Squash guard: 5 commits in range, 0 merges, all reported. Squashed to `dca204b`.
+- AC-15, AC-17 and AC-19 checked against tests rather than the summary: `test/mcp/parity.test.ts`
+  compares envelope-for-envelope across all five state-changing verbs plus the render artifacts;
+  `test/mcp/inspect.test.ts` asserts multi-region plus legend in one call; `test/mcp/meta-export.test.ts`
+  asserts trim bounds and anchor coordinates round-trip. `test/mcp/no-network.test.ts` enforces
+  NFR-5 at the import level.
+- Carried observation, not a Phase 4 defect: `src/core/recipe/serialize.ts` remains the weakest
+  covered file in the gate (76.59% statements / 52% branches). It is exercised heavily in practice,
+  so this is a test-depth gap rather than a risk, but it is worth closing opportunistically before
+  the track ends.

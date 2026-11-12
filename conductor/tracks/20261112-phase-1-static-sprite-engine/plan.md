@@ -137,23 +137,26 @@
 - **Touches:** `src/meta/**`, `src/mcp/**`, `src/palettes/**`, `src/cli/**`,
   `test/mcp/**`, `test/palettes/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** dca204b
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-4.md
 
-- [ ] **P4.T1: Generic and Godot metadata** — covers: FR-17, AC-15
-  - [ ] **P4.T1.1:** Trim bounds, origin offset, anchors, palette manifest, recipe
+- [x] **P4.T1: Generic and Godot metadata** — covers: FR-17, AC-15
+  - [x] **P4.T1.1:** Trim bounds, origin offset, anchors, palette manifest, recipe
     hash
-  - [ ] **P4.T1.2:** Godot 4 block via one documented offset rule
-- [ ] **P4.T2: Full inspector** — covers: FR-19, AC-17
-  - [ ] **P4.T2.1:** Multi-region queries and full-canvas summary mode
-  - [ ] **P4.T2.2:** Role-code legend with numeric disambiguation
-- [ ] **P4.T3: MCP server** — covers: FR-22, NFR-5, AC-19
-  - [ ] **P4.T3.1:** Six tools over stdio with batched ops and optional `strict`
-  - [ ] **P4.T3.2:** 1× PNG plus JSON from `render`; debug sheet opt-in
-- [ ] **P4.T4: Curated palettes** — covers: FR-4
-  - [ ] **P4.T4.1:** PICO-8, Endesga-32, Arne16, Game Boy as flat palettes
-  - [ ] **P4.T4.2:** `--derive-ramps` lifting ramps by luminance
-- [ ] **P4.T5: CLI/MCP parity suite** — covers: AC-19
-  - [ ] **P4.T5.1:** Same recipe through both surfaces yields identical output
+  - [x] **P4.T1.2:** Godot 4 block via one documented offset rule
+- [x] **P4.T2: Full inspector** — covers: FR-19, AC-17
+  - [x] **P4.T2.1:** Multi-region queries and full-canvas summary mode
+  - [x] **P4.T2.2:** Role-code legend with numeric disambiguation
+- [x] **P4.T3: MCP server** — covers: FR-22, NFR-5, AC-19
+  - [x] **P4.T3.1:** Six tools over stdio with batched ops and optional `strict`
+  - [x] **P4.T3.2:** 1× PNG plus JSON from `render`; debug sheet opt-in
+- [x] **P4.T4: Curated palettes** — covers: FR-4
+  - [x] **P4.T4.1:** PICO-8, Endesga-32, Arne16, Game Boy as flat palettes
+  - [x] **P4.T4.2:** `--derive-ramps` lifting ramps by luminance
+- [x] **P4.T5: CLI/MCP parity suite** — covers: AC-19
+  - [x] **P4.T5.1:** Same recipe through both surfaces yields identical output
 
 ## Phase 5: Calibration
 
