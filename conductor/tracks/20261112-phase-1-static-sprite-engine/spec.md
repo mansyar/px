@@ -94,7 +94,7 @@ and where correcting a single pixel costs one call, not a regeneration.
 | FR-19 | `inspect` returns an ASCII matrix for one or more regions in a single call, plus a full-canvas summary mode. It always returns the legend mapping | must |
 | FR-20 | The linter reports `OUT_OF_BOUNDS`, `ORPHAN_PIXEL`, `JAGGY_LINE`, and `LOW_CONTRAST` with `error`/`warning`/`info` severities. Strict mode promotes warnings to failures | must |
 | FR-21 | A CLI exposes `init`, `draw`, `edit`, `anchor`, `inspect`, `render`, `validate`, each with a `--pretty` and `--color` variant | must |
-| FR-22 | An MCP server exposes the same verbs as seven tools (`px_init`, `px_draw`, `px_edit`, `px_anchor`, `px_inspect`, `px_validate`, `px_render`), over stdio, each accepting an optional `strict` flag | must |
+| FR-22 | An MCP server exposes the same verbs as seven tools (`px_init`, `px_draw`, `px_edit`, `px_anchor`, `px_inspect`, `px_validate`, `px_render`), over stdio. The write verbs accept a batched `ops` array, and every tool accepts an optional `strict` flag | must |
 | FR-23 | Every response uses the `{ v, ok, ... }` envelope with structured error objects. Exit codes are 0 success, 1 caller error, 2 internal, 3 lint gate | must |
 | FR-24 | Ops accept an optional stable `id`; writes may address an op by id or index, and every write response returns the op index map | must |
 
