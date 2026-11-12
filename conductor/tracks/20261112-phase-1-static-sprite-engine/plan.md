@@ -135,9 +135,9 @@
 - **Depends on:** Phase 3
 - **Covers:** FR-17, FR-19, FR-22, NFR-5, AC-15, AC-17, AC-19
 - **Touches:** `src/meta/**`, `src/mcp/**`, `src/palettes/**`, `src/cli/**`,
-  `test/mcp/**`
+  `test/mcp/**`, `test/palettes/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Generic and Godot metadata** — covers: FR-17, AC-15
   - [ ] **P4.T1.1:** Trim bounds, origin offset, anchors, palette manifest, recipe
