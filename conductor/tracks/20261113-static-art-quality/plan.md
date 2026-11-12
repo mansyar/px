@@ -42,7 +42,7 @@
 - **Covers:** FR-7, FR-8, FR-9, FR-10, FR-11, AC-7, AC-8, AC-9, AC-10
 - **Touches:** src/core/ops/light.ts, src/core/ops/index.ts, src/core/compile.ts, src/core/errors.ts, test/light/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Form** — covers: FR-7
   - [ ] **P2.T1.1:** `flat`, `bevel` and `round` shading of a part's own silhouette
