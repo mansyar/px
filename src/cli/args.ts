@@ -22,6 +22,11 @@ export interface ParsedArgs {
   x?: string;
   y?: string;
   backdrop?: string;
+  family?: string;
+  from?: string;
+  steps?: string;
+  synthesize: string[];
+  swap: string[];
   pretty: boolean;
   force: boolean;
   help: boolean;
@@ -38,6 +43,7 @@ export const COMMANDS: readonly string[] = [
   'anchor',
   'inspect',
   'render',
+  'synthesize',
   'validate',
 ];
 
@@ -61,6 +67,11 @@ export const VALUE_FLAGS: readonly string[] = [
   'x',
   'y',
   'backdrop',
+  'family',
+  'from',
+  'steps',
+  'synthesize',
+  'swap',
 ];
 
 /** Every flag that is a bare switch. */
@@ -120,10 +131,25 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'backdrop':
       parsed.backdrop = value;
       return;
+    case 'family':
+      parsed.family = value;
+      return;
+    case 'from':
+      parsed.from = value;
+      return;
+    case 'steps':
+      parsed.steps = value;
+      return;
+    case 'synthesize':
+      parsed.synthesize.push(value);
+      return;
+    case 'swap':
+      parsed.swap.push(value);
+      return;
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y, --backdrop.',
+        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y, --backdrop, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }
@@ -172,6 +198,8 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     command: '',
     regions: [],
     summary: false,
+    synthesize: [],
+    swap: [],
     pretty: false,
     force: false,
     help: false,

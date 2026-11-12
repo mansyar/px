@@ -107,6 +107,7 @@ export function buildMetadata(
   recipe: Recipe,
   compiled: CompiledRecipe,
   texturePath: string,
+  paletteRecipe: Recipe = recipe,
 ): AssetMetadata {
   const trim = trimBounds(compiled.flattened, compiled.width, compiled.height) ?? EMPTY_TRIM;
   // `0 - 0` rather than `-0`: the negation must never put negative zero in JSON.
@@ -140,7 +141,9 @@ export function buildMetadata(
       origin: { x: originX, y: originY },
       alpha_mode: recipe.meta.alphaMode,
       anchors: genericAnchors,
-      palette: paletteManifest(recipe),
+      // The manifest describes the colours the PNG was drawn with; the hash
+      // describes the recipe file, so a swap changes the first and not the second.
+      palette: paletteManifest(paletteRecipe),
       recipe_hash: recipeHash(recipe),
     },
   };

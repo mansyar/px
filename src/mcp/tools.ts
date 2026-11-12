@@ -77,6 +77,11 @@ export const TOOL_DEFINITIONS: Tool[] = [
           default: false,
         },
         force: { type: 'boolean', default: false },
+        synthesize: {
+          description:
+            'Ramp families to synthesise, as name=#hex:steps entries (3-6 steps), an array or a comma-separated string. Steps are written as explicit tones t0..t(n-1).',
+          anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'string' }],
+        },
         strict: STRICT,
       },
       ['file'],
@@ -177,6 +182,11 @@ export const TOOL_DEFINITIONS: Tool[] = [
             'Panel B backdrop: a #rrggbb hex colour, or null for a transparent panel. Requires debug.',
         },
         export: { type: 'boolean', default: false },
+        swap: {
+          description:
+            'Family swaps as from=to entries, an array or a comma-separated string. Applied to the rendered palette and the exported manifest; the recipe file is untouched.',
+          anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'string' }],
+        },
         strict: STRICT,
       },
       ['file', 'out'],
@@ -211,6 +221,29 @@ function opsArg(value: unknown): string | undefined {
   return typeof value === 'string' ? value : JSON.stringify(value);
 }
 
+/** A repeatable flag: an array of entries, or one comma-separated string. */
+function repeatedFlag(argv: string[], name: string, value: unknown): void {
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      const text = str(entry);
+      if (text !== undefined && text !== '') {
+        argv.push(`--${name}`, text);
+      }
+    }
+    return;
+  }
+  const text = str(value);
+  if (text === undefined) {
+    return;
+  }
+  for (const entry of text.split(',')) {
+    const trimmed = entry.trim();
+    if (trimmed !== '') {
+      argv.push(`--${name}`, trimmed);
+    }
+  }
+}
+
 export function argvFor(tool: string, params: Params): string[] {
   const argv: string[] = [];
   const file = str(params.file);
@@ -224,6 +257,7 @@ export function argvFor(tool: string, params: Params): string[] {
       flag(argv, 'height', str(params.height));
       flag(argv, 'palette', str(params.palette));
       booleanFlag(argv, 'derive-ramps', params.derive_ramps);
+      repeatedFlag(argv, 'synthesize', params.synthesize);
       booleanFlag(argv, 'force', params.force);
       break;
     }
@@ -287,6 +321,7 @@ export function argvFor(tool: string, params: Params): string[] {
         flag(argv, 'backdrop', str(params.backdrop));
       }
       booleanFlag(argv, 'export', params.export);
+      repeatedFlag(argv, 'swap', params.swap);
       break;
     }
     default:

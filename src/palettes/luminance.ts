@@ -5,15 +5,15 @@
  */
 
 import type { Rgba } from '../core/palette.js';
-
-function channel(value: number): number {
-  const scaled = value / 255;
-  return scaled <= 0.04045 ? scaled / 12.92 : ((scaled + 0.055) / 1.055) ** 2.4;
-}
+import { srgbChannelToLinear } from './oklch.js';
 
 /** WCAG relative luminance of an opaque colour, 0 (black) to 1 (white). */
 export function relativeLuminance(rgba: Rgba): number {
-  return 0.2126 * channel(rgba.r) + 0.7152 * channel(rgba.g) + 0.0722 * channel(rgba.b);
+  return (
+    0.2126 * srgbChannelToLinear(rgba.r) +
+    0.7152 * srgbChannelToLinear(rgba.g) +
+    0.0722 * srgbChannelToLinear(rgba.b)
+  );
 }
 
 /**

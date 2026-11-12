@@ -28,6 +28,8 @@ import { lintCompiled } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
 import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
 import { DERIVATION_NOTE, deriveRamps, PALETTE_NAMES, paletteByName } from '../palettes/index.js';
+import { applySwaps } from '../palettes/swap.js';
+import { parseStepCount, synthesizeFamily } from '../palettes/synthesize.js';
 import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import type { ParsedArgs } from './args.js';
@@ -199,7 +201,10 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const width = intFlag(args.width, 16, 'width');
   const height = intFlag(args.height, 16, 'height');
-  const palette = paletteFromFlag(args.palette, args.deriveRamps);
+  let palette = paletteFromFlag(args.palette, args.deriveRamps);
+  for (const entry of args.synthesize) {
+    palette = synthesizeFamily(palette, entry, false);
+  }
   const recipe: Recipe = {
     version: RECIPE_VERSION,
     meta: {
@@ -226,11 +231,57 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layers: [DEFAULT_LAYER_ID],
     bytes: text.length,
   };
-  if (args.deriveRamps) {
+  if (args.deriveRamps && args.synthesize.length === 0) {
     payload.derive_ramps = true;
     payload.derivation = DERIVATION_NOTE;
   }
+  if (args.synthesize.length > 0) {
+    payload.synthesized = args.synthesize.length;
+  }
   return payload;
+}
+
+/**
+ * `px synthesize --file --family --from --steps [--force]` (FR-15, FR-17).
+ * The result is canonicalised into the recipe: the family holds hex tones, and
+ * nothing about the synthesis survives the write.
+ */
+export function runSynthesize(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const target = resolve(cwd, file);
+  if (args.family === undefined || args.family === '') {
+    throw usageError('Missing --family', 'Name the family to write, e.g. --family leaf.');
+  }
+  if (args.from === undefined || args.from === '') {
+    throw usageError('Missing --from', 'Pass the base colour, e.g. --from "#4a8f3c".');
+  }
+  if (args.steps === undefined || args.steps === '') {
+    throw usageError('Missing --steps', 'Pass an integer from 3 to 6, e.g. --steps 5.');
+  }
+  const { recipe } = readSource(target, file);
+  const palette = synthesizeFamily(
+    recipe.palette,
+    `${args.family}=${args.from}:${args.steps}`,
+    args.force,
+  );
+  const next: Recipe = { ...recipe, palette };
+  const text = serializeRecipe(next);
+  const parsed = parseRecipe(text);
+  writeOut(target, text);
+
+  const family = parsed.recipe.palette[args.family];
+  const slots =
+    family === undefined
+      ? []
+      : parsed.slots.names.filter((name) => name.startsWith(`${args.family}.`));
+  return {
+    file,
+    family: args.family,
+    from: args.from,
+    steps: parseStepCount(args.steps),
+    slots,
+    bytes: text.length,
+  };
 }
 
 function parseOpList(value: string): unknown[] {
@@ -601,7 +652,12 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     );
   }
   const { recipe, warnings } = readSource(resolve(cwd, file), file);
-  const result = renderRecipe(recipe);
+  let effective = recipe;
+  if (args.swap.length > 0) {
+    const palette = applySwaps(recipe.palette, args.swap);
+    effective = { ...recipe, palette };
+  }
+  const result = renderRecipe(effective);
 
   const outTarget = resolve(cwd, args.out);
   writeOut(outTarget, result.png);
@@ -623,10 +679,10 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     payload.warnings = allWarnings;
   }
   if (args.debug) {
-    payload.debug = writeDebugSheet(args.out, result.compiled, recipe, cwd, backdrop);
+    payload.debug = writeDebugSheet(args.out, result.compiled, effective, cwd, backdrop);
   }
   if (args.metaExport) {
-    payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd);
+    payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd, effective);
   }
   return payload;
 }
@@ -641,8 +697,9 @@ function writeMetadata(
   recipe: Recipe,
   compiled: CompiledRecipe,
   cwd: string,
+  paletteRecipe: Recipe = recipe,
 ): Record<string, unknown> {
-  const metadata = buildMetadata(recipe, compiled, out);
+  const metadata = buildMetadata(recipe, compiled, out, paletteRecipe);
   const text = serializeMetadata(metadata);
   const file = metadataPath(out);
   const target = resolve(cwd, file);

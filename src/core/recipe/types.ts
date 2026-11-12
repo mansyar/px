@@ -10,8 +10,48 @@ export type RampRole = 'outline' | 'shadow' | 'base' | 'highlight';
 /** Role order is fixed: it is both the slot order and the canonical write order. */
 export const RAMP_ROLES: readonly RampRole[] = ['outline', 'shadow', 'base', 'highlight'];
 
+/**
+ * A synthesised ramp stores numbered tones instead of duplicating them under
+ * role names: `t0` is the lightest and `t(n-1)` the darkest. The roles are
+ * derived from that order, so the recipe holds one colour per tone and nothing
+ * about how the ramp was produced.
+ */
+export type RampTone = `t${number}`;
+
+export type Ramp = Partial<Record<RampRole, string>> & Partial<Record<RampTone, string>>;
+
+/** Matches a tone key such as `t0` or `t5`. */
+export const RAMP_TONE_PATTERN = /^t(0|[1-9][0-9]*)$/;
+
+/** The numeric suffix of a tone key, or undefined when the key is not a tone. */
+export function rampToneIndex(key: string): number | undefined {
+  const match = RAMP_TONE_PATTERN.exec(key);
+  if (match === null) {
+    return undefined;
+  }
+  return Number.parseInt(match[1] ?? '', 10);
+}
+
+/** The tone indices a ramp declares, ascending. */
+export function rampTones(ramp: Ramp): number[] {
+  const tones: number[] = [];
+  for (const key of Object.keys(ramp)) {
+    const tone = rampToneIndex(key);
+    if (tone !== undefined) {
+      tones.push(tone);
+    }
+  }
+  return tones.sort((left, right) => left - right);
+}
+
+/** Keys of a ramp in canonical order: roles first, then tones lightest first. */
+export function rampSuffixes(ramp: Ramp): string[] {
+  const roles = RAMP_ROLES.filter((role) => ramp[role] !== undefined);
+  return [...roles, ...rampTones(ramp).map((tone) => `t${tone}`)];
+}
+
 export interface RampFamily {
-  ramp: Partial<Record<RampRole, string>>;
+  ramp: Ramp;
 }
 
 export interface FlatFamily {

@@ -14,6 +14,7 @@ import {
   RAMP_ROLES,
   type Recipe,
   type RecipeVersion,
+  rampTones,
   recipeParts,
 } from './types.js';
 
@@ -42,6 +43,12 @@ function canonicalPalette(palette: Palette): Record<string, unknown> {
         const value = family.ramp[role];
         if (value !== undefined) {
           ramp[role] = value;
+        }
+      }
+      for (const tone of rampTones(family.ramp)) {
+        const value = family.ramp[`t${tone}`];
+        if (value !== undefined) {
+          ramp[`t${tone}`] = value;
         }
       }
       out[name] = { ramp };

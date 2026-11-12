@@ -100,6 +100,12 @@ const MAPPINGS: Mapping[] = [
     value: '#000000,#ffffff',
   },
   { flag: 'derive-ramps', tool: 'px_init', params: { file: 'hero.px.json', derive_ramps: true } },
+  {
+    flag: 'synthesize',
+    tool: 'px_init',
+    params: { file: 'hero.px.json', synthesize: ['leaf=#4a8f3c:5'] },
+    value: 'leaf=#4a8f3c:5',
+  },
   { flag: 'force', tool: 'px_init', params: { file: 'hero.px.json', force: true } },
   {
     flag: 'region',
@@ -124,6 +130,12 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', out: 'hero.png', debug: true, backdrop: '#102030' },
     value: '#102030',
   },
+  {
+    flag: 'swap',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', swap: ['steel=gold'] },
+    value: 'steel=gold',
+  },
   { flag: 'strict', tool: 'px_validate', params: { file: 'hero.px.json', strict: true } },
   // Every tool declares `strict`, so every tool needs a row that proves it
   // forwards it; px_validate alone would leave the other six unproven.
@@ -135,7 +147,16 @@ const MAPPINGS: Mapping[] = [
   { flag: 'strict', tool: 'px_render', params: { file: 'hero.px.json', strict: true } },
 ];
 
-const NOT_AGENT_FLAGS = new Set(['pretty', 'color', 'help']);
+const NOT_AGENT_FLAGS = new Set([
+  'pretty',
+  'color',
+  'help',
+  // `px synthesize` edits one recipe in place; FR-22 keeps the MCP surface at
+  // seven tools, so agents synthesise at creation time via `px_init.synthesize`.
+  'family',
+  'from',
+  'steps',
+]);
 
 describe('MCP flag reachability', () => {
   it('publishes seven tools, each with a definition', () => {
