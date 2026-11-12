@@ -181,3 +181,23 @@
   - [x] **P7.T4.1:** 256×256 / 2,000 ops / full light pass, median of five runs
 - [x] **P7.T5: Evidence** — covers: NFR-3
   - [x] **P7.T5.1:** Coverage, digests, rubric table and call counts in `verification/phase-7.md`
+
+## Phase R1: Review Fixes
+
+- **Goal:** Close every finding from review round 1, including the two Highs, in code and in test.
+- **Depends on:** Phase 7
+- **Covers:** F1-F10
+- **Touches:** src/**, test/**, docs/**, conductor/tracks/20261113-static-art-quality/verification/**
+- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Status:** in_progress
+
+- [ ] **R1.T1: Seal adopts an owner** - covers: F1, FR-3
+- [ ] **R1.T2: Parts and role palettes authorable through tools** - covers: F2, FR-1, FR-2, FR-5
+- [ ] **R1.T3: Clipped cast shadow warns** - covers: F3
+- [ ] **R1.T4: Profile numbers consumed or removed** - covers: F4, FR-13
+- [ ] **R1.T5: Incomplete ramp fails validation** - covers: F5, FR-5, AC-5
+- [ ] **R1.T6: Art rules run without parts** - covers: F6, FR-19, FR-20
+- [ ] **R1.T7: Correct requirement ids in test headers** - covers: F7
+- [ ] **R1.T8: Replace tautological alias assertions** - covers: F8
+- [ ] **R1.T9: Single-pixel diff fixture** - covers: F9, AC-19
+- [ ] **R1.T10: Unseparable ramp error is an input limit** - covers: F10, FR-15
