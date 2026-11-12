@@ -10,6 +10,7 @@ export default defineConfig({
             'test/unit/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/ops/**/*.test.ts',
+            'test/light/**/*.test.ts',
             'test/mcp/**/*.test.ts',
             'test/palettes/**/*.test.ts',
             'test/parts/**/*.test.ts',

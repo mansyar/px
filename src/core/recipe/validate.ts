@@ -28,6 +28,7 @@ function slotReferences(op: Op): string[] {
     case 'mirror':
     case 'auto_shade':
     case 'ramp_fill':
+    case 'light':
       return [];
   }
 }
@@ -75,8 +76,19 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
           { layer: layer.id, op_index: opIndex },
         );
       }
+      if (op.op === 'light' && op.cast !== null && parts[op.cast] === undefined) {
+        throw new PxError(
+          'E_PART_UNKNOWN',
+          `Op ${opIndex} (light) in layer "${layer.id}" names caster part "${op.cast}", which is not declared`,
+          unknownPartHint(declared),
+          { layer: layer.id, op_index: opIndex },
+        );
+      }
       const target =
-        op.op === 'auto_outline' || op.op === 'auto_shade' || op.op === 'ramp_fill'
+        op.op === 'auto_outline' ||
+        op.op === 'auto_shade' ||
+        op.op === 'ramp_fill' ||
+        op.op === 'light'
           ? op.targetLayer
           : undefined;
       if (target !== undefined && !layerIds.has(target)) {

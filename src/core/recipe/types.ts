@@ -68,6 +68,14 @@ export const LIGHT_DIRS: readonly LightDir[] = [
   'bottom-right',
 ];
 
+/** How `light` shapes a part: no form shading, a silhouette band, or bands. */
+export type LightForm = 'flat' | 'bevel' | 'round';
+export const LIGHT_FORMS: readonly LightForm[] = ['flat', 'bevel', 'round'];
+
+/** How `light` treats a part's boundary against transparency and neighbours. */
+export type LightRim = 'none' | 'edge' | 'selective';
+export const LIGHT_RIMS: readonly LightRim[] = ['none', 'edge', 'selective'];
+
 export type OutlineMode = '4-way' | '8-way';
 export const OUTLINE_MODES: readonly OutlineMode[] = ['4-way', '8-way'];
 
@@ -189,6 +197,25 @@ export interface ReplaceSlotOp extends OpBase {
   to: string;
 }
 
+/**
+ * The lighting pass. Ownership comes from the layer it reads, never from the
+ * op, so `part` is not an accepted key. Every field is written explicitly by
+ * the canonical serializer, so a round trip never depends on a default.
+ */
+export interface LightOp extends OpBase {
+  op: 'light';
+  angle: LightDir;
+  form: LightForm;
+  /** Ambient occlusion, on by default. */
+  ao: boolean;
+  /** Caster part name, or null for no cast shadow. */
+  cast: string | null;
+  /** Shadow offset in pixels along the light vector, 1-4. */
+  castOffset: number;
+  rim: LightRim;
+  targetLayer?: string;
+}
+
 export type Op =
   | SetPixelsOp
   | RectOp
@@ -202,7 +229,8 @@ export type Op =
   | AutoOutlineOp
   | AutoShadeOp
   | RampFillOp
-  | ReplaceSlotOp;
+  | ReplaceSlotOp
+  | LightOp;
 
 export type OpName = Op['op'];
 
@@ -223,7 +251,12 @@ export const PART_TAGGED_OPS: readonly OpName[] = [
 ];
 
 /** Ops that read a source layer and write their own; they can be a no-op. */
-export const POST_PASS_OPS: readonly OpName[] = ['auto_outline', 'auto_shade', 'ramp_fill'];
+export const POST_PASS_OPS: readonly OpName[] = [
+  'auto_outline',
+  'auto_shade',
+  'ramp_fill',
+  'light',
+];
 
 export interface Layer {
   id: string;
@@ -278,5 +311,6 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   auto_outline: ['mode', 'where', 'color', 'selective', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
+  light: ['angle', 'form', 'ao', 'cast', 'cast_offset', 'rim', 'target_layer'],
   replace_slot: ['from', 'to'],
 };

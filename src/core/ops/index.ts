@@ -10,10 +10,11 @@
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
-import type { Op } from '../recipe/types.js';
+import type { Op, Parts } from '../recipe/types.js';
 import { drawAsciiBlit } from './ascii-blit.js';
 import { drawEllipse } from './ellipse.js';
 import { drawDitherFill, floodFill } from './fills.js';
+import { applyLight } from './light.js';
 import { drawLine } from './line.js';
 import { drawMirror } from './mirror.js';
 import { autoOutline } from './outline.js';
@@ -38,6 +39,10 @@ export interface OpContext {
    * `part`. Painting ops write it; transforms inherit from the pixels they read.
    */
   owner: number;
+  /** Declared parts; the lighting pass reads `material`, `gloss` and `z`. */
+  parts: Parts;
+  /** Declared part name to owner index, in canonical declaration order. */
+  partIndexes: ReadonlyMap<string, number>;
 }
 
 export interface OpResult {
@@ -242,6 +247,26 @@ export function applyOp(context: OpContext, op: Op): OpResult {
       );
       return { clipped: false, noop: painted === 0 };
     }
+    case 'light': {
+      const outcome = applyLight(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        snapshotOwners(context, op.targetLayer),
+        context.roles,
+        context.slots,
+        context.parts,
+        {
+          angle: op.angle,
+          form: op.form,
+          ao: op.ao,
+          cast: op.cast === null ? null : (context.partIndexes.get(op.cast) ?? UNOWNED),
+          castOffset: op.castOffset,
+          rim: op.rim,
+        },
+        { opIndex: context.opIndex, layerId: context.layerId },
+      );
+      return { clipped: false, noop: outcome.painted === 0 };
+    }
     case 'replace_slot':
       replaceSlot(
         context.canvas,
@@ -256,6 +281,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
 export { drawAsciiBlit } from './ascii-blit.js';
 export { drawEllipse, ellipseRowSpan, ellipseSpans } from './ellipse.js';
 export { BAYER_4, ditherPaints, drawDitherFill, floodFill } from './fills.js';
+export { applyLight, facingRole, towardLight } from './light.js';
 export { bresenham } from './line.js';
 export { drawMirror } from './mirror.js';
 export { autoOutline } from './outline.js';

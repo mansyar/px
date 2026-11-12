@@ -63,6 +63,13 @@ function nameList(names: readonly string[]): string {
   return `parts ${quoted.join(', ')} and ${last}`;
 }
 
+/** The hint every undeclared-part error carries: what the recipe did declare. */
+function partHint(names: readonly string[]): string {
+  return names.length === 0
+    ? 'Declare parts first, e.g. "parts": {"blade": {"material": "steel"}}.'
+    : `Declared parts are ${names.join(', ')}.`;
+}
+
 export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const { width, height } = recipe.meta;
   const slots = buildSlotTable(recipe.palette);
@@ -90,9 +97,15 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
         throw new PxError(
           'E_PART_UNKNOWN',
           `Op ${opIndex} (${op.op}) in layer "${layer.id}" names part "${op.part}", which is not declared`,
-          names.length === 0
-            ? 'Declare parts first, e.g. "parts": {"blade": {"material": "steel"}}.'
-            : `Declared parts are ${names.join(', ')}.`,
+          partHint(names),
+          { layer: layer.id, op_index: opIndex },
+        );
+      }
+      if (op.op === 'light' && op.cast !== null && indexes.get(op.cast) === undefined) {
+        throw new PxError(
+          'E_PART_UNKNOWN',
+          `Op ${opIndex} (light) in layer "${layer.id}" names caster part "${op.cast}", which is not declared`,
+          partHint(names),
           { layer: layer.id, op_index: opIndex },
         );
       }
@@ -106,6 +119,8 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           roles,
           layers: byId,
           owner,
+          parts: declared,
+          partIndexes: indexes,
         },
         op,
       );

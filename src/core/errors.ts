@@ -97,7 +97,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
   E_UNKNOWN_OP:
-    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, and replace_slot.',
+    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, and replace_slot.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_MISSING_COLOR:

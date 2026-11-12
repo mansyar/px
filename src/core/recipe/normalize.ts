@@ -23,7 +23,12 @@ import {
   type GlossProfile,
   type Layer,
   LIGHT_DIRS,
+  LIGHT_FORMS,
+  LIGHT_RIMS,
   type LightDir,
+  type LightForm,
+  type LightOp,
+  type LightRim,
   type LineOp,
   MAX_CANVAS_SIZE,
   MIN_CANVAS_SIZE,
@@ -874,6 +879,69 @@ function normalizeRampFill(
   return op;
 }
 
+/** `cast` names a declared part, or null for no cast shadow; absent means null. */
+function castParam(source: Record<string, unknown>, opIndex: number, layer: string): string | null {
+  const value = source.cast;
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (typeof value !== 'string' || value === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) has a non-string or empty "cast"`,
+      '"cast" names a declared part, or null for no cast shadow.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+/**
+ * `cast_offset` is 1-4 px: a shadow touching the caster at one pixel or sitting
+ * four pixels away, with nothing between that changes how it reads.
+ */
+function castOffsetParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): number | undefined {
+  const value = source.cast_offset;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > 4) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) has cast_offset ${JSON.stringify(value)}, outside 1-4`,
+      '"cast_offset" is an integer from 1 to 4 pixels along the light vector.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+function normalizeLight(source: Record<string, unknown>, opIndex: number, layer: string): LightOp {
+  const angle = enumParam<LightDir>(source, 'angle', 'light', opIndex, layer, LIGHT_DIRS, false);
+  const form = enumParam<LightForm>(source, 'form', 'light', opIndex, layer, LIGHT_FORMS, false);
+  const rim = enumParam<LightRim>(source, 'rim', 'light', opIndex, layer, LIGHT_RIMS, false);
+  const ao = boolParam(source, 'ao', 'light', opIndex, layer);
+  const castOffset = castOffsetParam(source, opIndex, layer);
+  const op: LightOp = {
+    op: 'light',
+    angle: angle ?? 'top-left',
+    form: form ?? 'bevel',
+    ao: ao ?? true,
+    cast: castParam(source, opIndex, layer),
+    castOffset: castOffset ?? 1,
+    rim: rim ?? 'edge',
+  };
+  const targetLayer = optionalStringParam(source, 'target_layer', 'light', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
 function normalizeReplaceSlot(
   source: Record<string, unknown>,
   opIndex: number,
@@ -1037,6 +1105,8 @@ function normalizeOpBody(
       return normalizeAutoShade(raw, opIndex, layer);
     case 'ramp_fill':
       return normalizeRampFill(raw, opIndex, layer);
+    case 'light':
+      return normalizeLight(raw, opIndex, layer);
     case 'replace_slot':
       return normalizeReplaceSlot(raw, opIndex, layer);
   }

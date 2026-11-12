@@ -145,6 +145,16 @@ function opParams(op: Op): Record<string, unknown> {
       return defined({ light_dir: op.lightDir, target_layer: op.targetLayer });
     case 'ramp_fill':
       return defined({ bands: op.bands, light_dir: op.lightDir, target_layer: op.targetLayer });
+    case 'light':
+      return defined({
+        angle: op.angle,
+        form: op.form,
+        ao: op.ao,
+        cast: op.cast,
+        cast_offset: op.castOffset,
+        rim: op.rim,
+        target_layer: op.targetLayer,
+      });
     case 'replace_slot':
       return { from: op.from, to: op.to };
   }
