@@ -1,0 +1,26 @@
+{
+  "asset": "sword",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/sword/sword.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/sword/sword.px.json",
+        "--out",
+        ".conductor/evidence/art/sword.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

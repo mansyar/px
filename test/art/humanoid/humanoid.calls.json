@@ -1,0 +1,54 @@
+{
+  "asset": "humanoid",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/humanoid/humanoid.px.json",
+        "--name",
+        "foot_origin",
+        "--x",
+        "11",
+        "--y",
+        "30"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/humanoid/humanoid.px.json",
+        "--name",
+        "hand_weapon",
+        "--x",
+        "24",
+        "--y",
+        "18"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/humanoid/humanoid.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/humanoid/humanoid.px.json",
+        "--out",
+        ".conductor/evidence/art/humanoid.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

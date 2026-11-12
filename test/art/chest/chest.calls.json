@@ -1,0 +1,40 @@
+{
+  "asset": "chest",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/chest/chest.px.json",
+        "--name",
+        "lid_pivot",
+        "--x",
+        "24",
+        "--y",
+        "20"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/chest/chest.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/chest/chest.px.json",
+        "--out",
+        ".conductor/evidence/art/chest.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

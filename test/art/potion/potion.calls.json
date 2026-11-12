@@ -1,0 +1,54 @@
+{
+  "asset": "potion",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/potion/potion.px.json",
+        "--name",
+        "cork_top",
+        "--x",
+        "8",
+        "--y",
+        "2"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/potion/potion.px.json",
+        "--name",
+        "base_pivot",
+        "--x",
+        "8",
+        "--y",
+        "13"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/potion/potion.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/potion/potion.px.json",
+        "--out",
+        ".conductor/evidence/art/potion.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}
