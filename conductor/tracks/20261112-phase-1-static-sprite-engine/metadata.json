@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-12T09:09:09Z",
-  "updated_at": "2026-11-12T17:29:20Z",
+  "updated_at": "2026-11-12T18:05:00Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261112-phase-1-static-sprite-engine",
@@ -15,10 +15,10 @@
   "progress": {
     "phases_total": 5,
     "phases_verified": 5,
-    "tasks_total": 43,
-    "tasks_done": 43
+    "tasks_total": 57,
+    "tasks_done": 57
   },
-  "last_checkpoint": "7bd6365",
+  "last_checkpoint": "86d7145",
   "review_verdict": "pass_with_findings",
   "review_rounds": 2,
   "doc_sync": "synced",

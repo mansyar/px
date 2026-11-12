@@ -236,19 +236,22 @@
 - **Covers:** AC-12, FR-20, AC-18, FR-22, FR-23, FR-18
 - **Touches:** src/core/**, src/lint/**, src/cli/**, src/mcp/**, test/**, docs/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 86d7145
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-R2.md
 
-- [ ] **R2.T1: Bands from occupied positions** — covers: AC-12
-  - [ ] **R2.T1.1:** `ramp_fill` ranks painted pixels by their projection among *occupied* positions, not by bounding-box extent, so a gap cannot swallow a band
-  - [ ] **R2.T1.2:** `E_REGION_TOO_THIN` guards the distinct occupied count; disjoint-cluster fixture with two 3×1 blocks and `bands: 3`
-- [ ] **R2.T2: Neighbour radius for orphan pixels** — covers: FR-20, AC-18
-  - [ ] **R2.T2.1:** `ORPHAN_PIXEL` searches Chebyshev radius 2, documented as the sparsest lattice the engine emits
-  - [ ] **R2.T2.2:** `bayer_25`-over-transparency fixture yields zero findings; a lone pixel 3 px from anything still flags
-- [ ] **R2.T3: Stale tool counts** — covers: FR-22
-  - [ ] **R2.T3.1:** Unknown-tool hint says seven, not six
-- [ ] **R2.T4: Drop the dead classifier** — covers: FR-23
-  - [ ] **R2.T4.1:** `isUsageError` and its unit test are gone rather than left to invite the old mapping back
-- [ ] **R2.T5: Backdrop alpha is binary** — covers: FR-18
-  - [ ] **R2.T5.1:** `--backdrop` rejects alpha other than `00`/`ff`, and both hint sites state the same accepted forms
-- [ ] **R2.T6: Reachability asserts the schema** — covers: FR-22, AC-19
-  - [ ] **R2.T6.1:** Each mapping must appear in the tool's `inputSchema.properties`, and every declared property must have a mapping
+- [x] **R2.T1: Bands from occupied positions** — covers: AC-12
+  - [x] **R2.T1.1:** `ramp_fill` ranks painted pixels by their projection among *occupied* positions, not by bounding-box extent, so a gap cannot swallow a band
+  - [x] **R2.T1.2:** `E_REGION_TOO_THIN` guards the distinct occupied count; disjoint-cluster fixture with two 3×1 blocks and `bands: 3`
+- [x] **R2.T2: Neighbour radius for orphan pixels** — covers: FR-20, AC-18
+  - [x] **R2.T2.1:** `ORPHAN_PIXEL` searches Chebyshev radius 2, documented as the sparsest lattice the engine emits
+  - [x] **R2.T2.2:** `bayer_25`-over-transparency fixture yields zero findings; a lone pixel 3 px from anything still flags
+- [x] **R2.T3: Stale tool counts** — covers: FR-22
+  - [x] **R2.T3.1:** Unknown-tool hint says seven, not six
+- [x] **R2.T4: Drop the dead classifier** — covers: FR-23
+  - [x] **R2.T4.1:** `isUsageError` and its unit test are gone rather than left to invite the old mapping back
+- [x] **R2.T5: Backdrop alpha is binary** — covers: FR-18
+  - [x] **R2.T5.1:** `--backdrop` rejects alpha other than `00`/`ff`, and both hint sites state the same accepted forms
+- [x] **R2.T6: Reachability asserts the schema** — covers: FR-22, AC-19
+  - [x] **R2.T6.1:** Each mapping must appear in the tool's `inputSchema.properties`, and every declared property must have a mapping
