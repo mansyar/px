@@ -152,7 +152,7 @@ oversight.
 
 ## Primary verification
 
-Independently re-checked at the squashed checkpoint `f0d7e5c` (phases 3 commits
+Independently re-checked at the squashed checkpoint `13cbd95` (phases 3 commits
 `9c332cb..HEAD`, five commits, no merges):
 
 | Check | Result |

@@ -70,18 +70,21 @@
 - **Covers:** FR-12, FR-13, FR-14, AC-11
 - **Touches:** src/core/profile.ts, src/lint/**, src/render/debug/**, docs/art-profiles.md, test/profiles/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 13cbd95
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-3.md
 
-- [ ] **P3.T1: Profile derivation** — covers: FR-12, FR-14
-  - [ ] **P3.T1.1:** `tiny`/`small`/`medium`/`large` from canvas size
-  - [ ] **P3.T1.2:** Explicit override with `W_PROFILE_MISMATCH`
-- [ ] **P3.T2: Threshold table** — covers: FR-13
-  - [ ] **P3.T2.1:** Move every constant into one table keyed by profile
-  - [ ] **P3.T2.2:** Wire all eleven lint codes and the cluster/dither/outline rules to it
-- [ ] **P3.T3: Debug zoom** — covers: FR-13
-  - [ ] **P3.T3.1:** Zoom per profile so a 256×256 sheet stays legible
-- [ ] **P3.T4: Documentation** — covers: FR-13
-  - [ ] **P3.T4.1:** `docs/art-profiles.md` with every value, its rationale and its fixtures
+- [x] **P3.T1: Profile derivation** — covers: FR-12, FR-14
+  - [x] **P3.T1.1:** `tiny`/`small`/`medium`/`large` from canvas size
+  - [x] **P3.T1.2:** Explicit override with `W_PROFILE_MISMATCH`
+- [x] **P3.T2: Threshold table** — covers: FR-13
+  - [x] **P3.T2.1:** Move every constant into one table keyed by profile
+  - [x] **P3.T2.2:** Wire all eleven lint codes and the cluster/dither/outline rules to it
+- [x] **P3.T3: Debug zoom** — covers: FR-13
+  - [x] **P3.T3.1:** Zoom per profile so a 256×256 sheet stays legible
+- [x] **P3.T4: Documentation** — covers: FR-13
+  - [x] **P3.T4.1:** `docs/art-profiles.md` with every value, its rationale and its fixtures
 
 ## Phase 4: Palette Intelligence
 
