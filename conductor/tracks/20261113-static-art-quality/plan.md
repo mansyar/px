@@ -164,17 +164,20 @@
 - **Covers:** FR-25, NFR-3, NFR-7, AC-20
 - **Touches:** test/art/**, test/benchmarks/**, test/benchmarks/performance.test.ts, scripts/**, docs/rubric.md, docs/art-profiles.md, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** blocked
+- **Result:** Tasks delivered, AC-20 **not met**: mean 3.79 against a 4.0 bar, with four criteria below 3 (humanoid lighting; scene lighting, edge_language and cluster_discipline). The bar was not lowered and no pass was selected over another; every pass is recorded in `test/art/scores.json` and checked by `test/art/rubric.test.ts`. Blocked on the decision of whether to ship with the criterion unmet or open a follow-on track for the authoring primitives the failures point at.
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-7.md, conductor/tracks/20261113-static-art-quality/verification/phase-7-scoring.md
+- **Checkpoint:** see `verification/phase-7-scoring.md`
 
-- [ ] **P7.T1: New benchmarks** — covers: FR-25
-  - [ ] **P7.T1.1:** 48×128 character, 64×64 mixed-material prop, 256×256 scene element
-- [ ] **P7.T2: Re-authored originals** — covers: FR-25
-  - [ ] **P7.T2.1:** Potion, sword, humanoid and chest rebuilt on the new surface as new files
-  - [ ] **P7.T2.2:** Original fixtures untouched; their hashes unchanged
-- [ ] **P7.T3: Rubric harness** — covers: FR-25, AC-20
-  - [ ] **P7.T3.1:** Six criteria, two model passes, human tiebreak, scores recorded
-  - [ ] **P7.T3.2:** `docs/rubric.md` defining each criterion and its anchors
-- [ ] **P7.T4: Performance** — covers: NFR-7
-  - [ ] **P7.T4.1:** 256×256 / 2,000 ops / full light pass, median of five runs
-- [ ] **P7.T5: Evidence** — covers: NFR-3
-  - [ ] **P7.T5.1:** Coverage, digests, rubric table and call counts in `verification/phase-7.md`
+- [x] **P7.T1: New benchmarks** — covers: FR-25
+  - [x] **P7.T1.1:** 48×128 character, 64×64 mixed-material prop, 256×256 scene element
+- [x] **P7.T2: Re-authored originals** — covers: FR-25
+  - [x] **P7.T2.1:** Potion, sword, humanoid and chest rebuilt on the new surface as new files
+  - [x] **P7.T2.2:** Original fixtures untouched; their hashes unchanged
+- [x] **P7.T3: Rubric harness** — covers: FR-25, AC-20
+  - [x] **P7.T3.1:** Six criteria, two model passes, human tiebreak, scores recorded
+  - [x] **P7.T3.2:** `docs/rubric.md` defining each criterion and its anchors
+- [x] **P7.T4: Performance** — covers: NFR-7
+  - [x] **P7.T4.1:** 256×256 / 2,000 ops / full light pass, median of five runs
+- [x] **P7.T5: Evidence** — covers: NFR-3
+  - [x] **P7.T5.1:** Coverage, digests, rubric table and call counts in `verification/phase-7.md`
