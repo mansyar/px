@@ -162,9 +162,9 @@
 - **Goal:** Seven assets scored blind against the rubric meet ≥4.0 mean with no criterion below 3, and the 256×256 budget holds.
 - **Depends on:** Phase 6
 - **Covers:** FR-25, NFR-3, NFR-7, AC-20
-- **Touches:** test/art/**, test/benchmarks/**, docs/rubric.md, vitest.config.ts
+- **Touches:** test/art/**, test/benchmarks/**, test/benchmarks/performance.test.ts, scripts/**, docs/rubric.md, docs/art-profiles.md, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P7.T1: New benchmarks** — covers: FR-25
   - [ ] **P7.T1.1:** 48×128 character, 64×64 mixed-material prop, 256×256 scene element
