@@ -263,9 +263,12 @@
 - **Covers:** FR-13
 - **Touches:** src/core/ops/ramp.ts, test/ops/ramp-fill.test.ts, conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-R2.md
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** ed492c4
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-R3.md
 
-- [ ] **R3.T1: Actionable hint below two positions** — covers: FR-13
-  - [ ] **R3.T1.1:** `E_REGION_TOO_THIN` at `occupiedCount < 2` no longer suggests a band count the validator rejects
-- [ ] **R3.T2: Four light directions, asserted** — covers: FR-13
-  - [ ] **R3.T2.1:** `bottom-right` parametrized into the rotation fixture, and the evidence sentence corrected to match
+- [x] **R3.T1: Actionable hint below two positions** — covers: FR-13
+  - [x] **R3.T1.1:** `E_REGION_TOO_THIN` at `occupiedCount < 2` no longer suggests a band count the validator rejects
+- [x] **R3.T2: Four light directions, asserted** — covers: FR-13
+  - [x] **R3.T2.1:** `bottom-right` parametrized into the rotation fixture, and the evidence sentence corrected to match
