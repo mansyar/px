@@ -114,6 +114,9 @@ permissions:
   - action: shell
     resource: "pnpm verify *"
     effect: allow
+  - action: shell
+    resource: "pnpm coverage *"
+    effect: allow
 ---
 
 <!-- Conductor agent template: v2.3 -->

@@ -30,6 +30,11 @@ commands:
 coverage:
   gate: 80
   scope: "new-code"
+  # A separate step, deliberately NOT part of `pnpm verify`.
+  # verify stays fast and safe during task-level iteration; coverage is a
+  # gate at phase acceptance and in CI.
+  enforced_by: "separate-step"
+  runs_in: ["ci", "phase-acceptance"]
 verification:
   layers: ["static", "unit", "integration", "smoke", "determinism"]
   retry: 2
