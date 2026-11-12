@@ -4,6 +4,15 @@
 > renumber it. If a requirement is removed, mark it `Withdrawn` instead of
 > deleting it.
 
+> **Amended in review round 1, 2026-11-13.** No IDs changed. `FR-6` dropped the
+> `pixel_perfect` option: a two-point Bresenham segment cannot emit the L-shaped
+> corner the flag claimed to remove, so the flag could never change a pixel
+> (approved by the user rather than inventing new line semantics). `AC-5` lost
+> its matching corner-removal clause. `FR-22` went from six MCP tools to seven,
+> adding `px_validate`, because `validate` was reachable from the CLI but not
+> from an MCP client, which left MCP-only agents unable to lint without writing
+> a PNG.
+
 ## Overview
 
 Deliver the Phase 1 of px: a deterministic pixel-art engine that compiles
@@ -69,7 +78,7 @@ and where correcting a single pixel costs one call, not a regeneration.
 | FR-3 | Validation rejects unknown slots, non-binary alpha, canvas sizes outside 8–256, malformed legends, duplicate layer ids, and missing params, each with a distinct error code, an op index where applicable, and a corrective hint | must |
 | FR-4 | The canvas is an indexed per-layer buffer of slot references; RGBA is resolved only at export, so palette swaps require no recipe change | must |
 | FR-5 | Alpha is binary. Any colour resolving to an alpha value other than 0 or 255 is rejected at parse time | must |
-| FR-6 | Geometry ops: `set_pixels`, `line` (Bresenham, optional pixel-perfect corner removal), `rect`, `ellipse`, `polygon` (scanline, zero anti-aliasing) | must |
+| FR-6 | Geometry ops: `set_pixels`, `line` (Bresenham), `rect`, `ellipse`, `polygon` (scanline, zero anti-aliasing) | must |
 | FR-7 | Fill ops: `flood_fill` with 4- or 8-connectivity, and `dither_fill` with `checker_50` and `bayer_25` patterns over an arbitrary region | must |
 | FR-8 | `ascii_blit` stamps a character matrix using a caller-supplied legend, for micro-detail such as faces and icons | must |
 | FR-9 | `mirror` reflects the active layer across an integer or half-pixel pivot | must |
@@ -85,7 +94,7 @@ and where correcting a single pixel costs one call, not a regeneration.
 | FR-19 | `inspect` returns an ASCII matrix for one or more regions in a single call, plus a full-canvas summary mode. It always returns the legend mapping | must |
 | FR-20 | The linter reports `OUT_OF_BOUNDS`, `ORPHAN_PIXEL`, `JAGGY_LINE`, and `LOW_CONTRAST` with `error`/`warning`/`info` severities. Strict mode promotes warnings to failures | must |
 | FR-21 | A CLI exposes `init`, `draw`, `edit`, `anchor`, `inspect`, `render`, `validate`, each with a `--pretty` and `--color` variant | must |
-| FR-22 | An MCP server exposes the same verbs as six tools, over stdio, each accepting a batched `ops` array and an optional `strict` flag | must |
+| FR-22 | An MCP server exposes the same verbs as seven tools (`px_init`, `px_draw`, `px_edit`, `px_anchor`, `px_inspect`, `px_validate`, `px_render`), over stdio, each accepting an optional `strict` flag | must |
 | FR-23 | Every response uses the `{ v, ok, ... }` envelope with structured error objects. Exit codes are 0 success, 1 caller error, 2 internal, 3 lint gate | must |
 | FR-24 | Ops accept an optional stable `id`; writes may address an op by id or index, and every write response returns the op index map | must |
 
@@ -109,7 +118,7 @@ and where correcting a single pixel costs one call, not a regeneration.
 | AC-2 | Each validation failure returns its distinct code, op index, and hint | FR-3 |
 | AC-3 | Swapping a recipe's palette changes every pixel's colour and leaves every slot identity intact | FR-4 |
 | AC-4 | A translucent colour in an op is rejected at parse time | FR-5 |
-| AC-5 | Each geometry op produces its expected golden PNG, including pixel-perfect line corner removal | FR-6 |
+| AC-5 | Each geometry op produces its expected golden PNG | FR-6 |
 | AC-6 | `flood_fill` respects 4- vs 8-connectivity boundaries; `dither_fill` patterns are exact | FR-7 |
 | AC-7 | `ascii_blit` stamps a 3×3 legend exactly; an uncovered character errors | FR-8 |
 | AC-8 | `mirror` at an odd and at an even pivot both match goldens, with no double-writing at the seam | FR-9 |
