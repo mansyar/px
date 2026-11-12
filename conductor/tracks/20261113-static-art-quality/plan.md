@@ -116,21 +116,24 @@
 - **Covers:** FR-19, FR-20, FR-21, AC-12, AC-15, AC-16, AC-17
 - **Touches:** src/lint/**, src/core/**, src/cli/**, docs/lint-thresholds.md, test/art-lint/**, test/lint/**, test/benchmarks/benchmarks.test.ts, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 841c09c
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-5.md
 
-- [ ] **P5.T1: Value separation** — covers: FR-19, FR-20
-  - [ ] **P5.T1.1:** `VALUE_COLLISION` between adjacent parts within one step
-- [ ] **P5.T2: Shading shape** — covers: FR-19
-  - [ ] **P5.T2.1:** `BANDING` and `PILLOW_SHADE`
-- [ ] **P5.T3: Texture noise** — covers: FR-19
-  - [ ] **P5.T3.1:** `DITHER_NOISE` and `CLUSTER_THIN`
-- [ ] **P5.T4: Ramp and silhouette** — covers: FR-19
-  - [ ] **P5.T4.1:** `RAMP_NONMONOTONIC`
-  - [ ] **P5.T4.2:** `SILHOUETTE_LOSS` per background
-- [ ] **P5.T5: Attribution** — covers: FR-20
-  - [ ] **P5.T5.1:** Findings name the part; original codes keep severities
-- [ ] **P5.T6: Cleanup ops** — covers: FR-21
-  - [ ] **P5.T6.1:** `seal`, `strays`, `deband` with change reports and `W_CLEANUP_NOOP`
+- [x] **P5.T1: Value separation** — covers: FR-19, FR-20
+  - [x] **P5.T1.1:** `VALUE_COLLISION` between adjacent parts within one step
+- [x] **P5.T2: Shading shape** — covers: FR-19
+  - [x] **P5.T2.1:** `BANDING` and `PILLOW_SHADE`
+- [x] **P5.T3: Texture noise** — covers: FR-19
+  - [x] **P5.T3.1:** `DITHER_NOISE` and `CLUSTER_THIN`
+- [x] **P5.T4: Ramp and silhouette** — covers: FR-19
+  - [x] **P5.T4.1:** `RAMP_NONMONOTONIC`
+  - [x] **P5.T4.2:** `SILHOUETTE_LOSS` per background
+- [x] **P5.T5: Attribution** — covers: FR-20
+  - [x] **P5.T5.1:** Findings name the part; original codes keep severities
+- [x] **P5.T6: Cleanup ops** — covers: FR-21
+  - [x] **P5.T6.1:** `seal`, `strays`, `deband` with change reports and `W_CLEANUP_NOOP`
 
 ## Phase 6: Agent Ergonomics
 

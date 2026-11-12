@@ -104,3 +104,45 @@ committed digests and the 12-call budget).
 
 No new dependency, no ignore comment, no threshold lowered, no exclude widened, and no
 pre-existing test outside the approved benchmark assertions was edited.
+
+## Primary verification
+
+Independently re-checked at the squashed checkpoint `841c09c` (eight commits over
+`6091d19`, no merges):
+
+| Check | Result |
+|---|---|
+| Working tree | clean, evidence committed with the checkpoint |
+| Old lint fixtures | `git diff --name-only 6091d19..HEAD -- test/lint/` empty — no rule was accommodated by editing a fixture |
+| Goldens / recipes | only `test/benchmarks/benchmarks.test.ts` changed under `test/`, no recipe or golden |
+| Scope | every path inside `src/lint/`, `src/core/`, `src/cli/`, `docs/`, `test/art-lint/`, the approved benchmark file or `conductor/` |
+| `pnpm verify` | exit 0 (typecheck, biome, **615 tests in 70 files**, build) |
+| `pnpm vitest run --coverage` | exit 0 — statements **95.28%**, branches **86.48%**, functions 97.97%, lines 95.13% |
+
+The one pre-existing test changed was reviewed line by line rather than accepted as
+"approved in the brief": the diff scopes the zero-findings assertion to the four
+original codes, keeps the strict render as a counted call, accepts exit 0 **or** 3,
+and prints the art-code baseline. No code was silenced, no asset was exempted by name,
+and no benchmark recipe was touched.
+
+Design spot-checks:
+
+- `src/lint/value.ts` compares *materials* rather than pixels — the docstring explains
+  why — and dedupes to one finding per part pair instead of one per boundary pixel.
+- `src/core/ops/cleanup.ts` states the single-pass rule at the top and uses the profile
+  minimum through `OpContext`, so `strays` is scale-aware without reading a constant.
+- `src/lint/view.ts` centralises the part/slot view the four new rule families share, so
+  `VALUE_COLLISION`, `PILLOW_SHADE`, `CLUSTER_THIN` and `SILHOUETTE_LOSS` cannot drift
+  apart in how they decide what a part is.
+
+A correction to the brief's own expectation, found during verification and worth
+recording: the seven art codes **do not** fire on the four Phase-1 benchmarks. Those
+recipes declare no parts, and their derived ramps are monotonic, so most rules have
+nothing to judge. The harness change was still worth making as a guard, but the honest
+state is that this phase's rules have only been exercised by fixtures so far — Phase 7's
+re-authored, part-bearing assets are the first real test of them.
+
+```text
+pnpm verify                -> 0   (615 tests, 70 files)
+pnpm vitest run --coverage -> 0   (95.28 / 86.48 / 97.97 / 95.13)
+```
