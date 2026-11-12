@@ -136,6 +136,36 @@ describe('render findings and the debug sheet', () => {
   });
 });
 
+describe('no-op post-pass warnings', () => {
+  const NOOP_OPS = [
+    { op: 'auto_outline', color: 'main.0' },
+    { op: 'auto_shade', light_dir: 'top-left' },
+  ];
+
+  it('returns W_PASS_NOOP from every verb that compiles the recipe', () => {
+    write('noop.px.json', NOOP_OPS);
+    const verbs: string[][] = [
+      ['validate', '--file', 'noop.px.json'],
+      ['inspect', '--file', 'noop.px.json'],
+      ['render', '--file', 'noop.px.json', '--out', 'noop.png'],
+    ];
+
+    for (const args of verbs) {
+      const result = run(args);
+      expect(result.code).toBe(0);
+      const warnings = result.envelope.warnings as Array<{ code: string }>;
+      expect(warnings.filter((warning) => warning.code === 'W_PASS_NOOP')).toHaveLength(2);
+    }
+  });
+
+  it('keeps no-op feedback in warnings, not in the four lint codes', () => {
+    write('noop-findings.px.json', NOOP_OPS);
+    const result = run(['validate', '--file', 'noop-findings.px.json']);
+    const findings = (result.envelope.findings ?? []) as Array<{ code: string }>;
+    expect(findings.map((finding) => finding.code)).toEqual([]);
+  });
+});
+
 describe('strict mode', () => {
   it('promotes a warning to exit 3 with the findings intact', () => {
     write('clip.px.json', [['rect', -2, -2, 4, 4, 'main.0']]);

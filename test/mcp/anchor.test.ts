@@ -134,7 +134,7 @@ describe('px anchor', () => {
 
   it('rejects a missing name and a non-integer point', () => {
     const noName = run(['anchor', '--file', 'hero.px.json', '--x', '1', '--y', '2']);
-    expect(noName.code).toBe(2);
+    expect(noName.code).toBe(1);
     expect(noName.envelope.error?.code).toBe('E_USAGE');
 
     const fractional = run([
@@ -148,7 +148,7 @@ describe('px anchor', () => {
       '--y',
       '2',
     ]);
-    expect(fractional.code).toBe(2);
+    expect(fractional.code).toBe(1);
     expect(fractional.envelope.error?.code).toBe('E_USAGE');
   });
 

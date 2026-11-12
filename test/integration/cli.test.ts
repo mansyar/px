@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -109,6 +109,132 @@ describe('cli vertical slice', () => {
     expect(second.envelope.sha256).toBe(first.envelope.sha256);
   });
 
+  it('carries --backdrop into the debug sheet, including a transparent panel', () => {
+    expect(run(['init', '--file', 'back.px.json', '--width', '8', '--height', '8']).code).toBe(0);
+    const render = (out: string, extra: string[] = []) =>
+      run(['render', '--file', 'back.px.json', '--out', out, '--debug', ...extra]);
+
+    const plain = render('plain.png');
+    const custom = render('custom.png', ['--backdrop', '#102030']);
+    const clear = render('clear.png', ['--backdrop', 'null']);
+    for (const result of [plain, custom, clear]) {
+      expect(result.code).toBe(0);
+    }
+
+    const hashes = [plain, custom, clear].map(
+      (result) => (result.envelope.debug as { sha256: string }).sha256,
+    );
+    expect(new Set(hashes).size).toBe(3);
+  });
+
+  it('rejects a backdrop that is not a hex colour or lacks --debug', () => {
+    expect(
+      run(['init', '--file', 'back.px.json', '--width', '8', '--height', '8', '--force']).code,
+    ).toBe(0);
+    const notHex = run([
+      'render',
+      '--file',
+      'back.px.json',
+      '--out',
+      'bad.png',
+      '--debug',
+      '--backdrop',
+      'grey',
+    ]);
+    expect(notHex.code).toBe(1);
+    expect((notHex.envelope.error as { code: string }).code).toBe('E_USAGE');
+    expect((notHex.envelope.error as { hint: string }).hint).toContain('#rrggbb');
+
+    const noDebug = run([
+      'render',
+      '--file',
+      'back.px.json',
+      '--out',
+      'nod.png',
+      '--backdrop',
+      '#102030',
+    ]);
+    expect(noDebug.code).toBe(1);
+    expect((noDebug.envelope.error as { code: string }).code).toBe('E_USAGE');
+    expect((noDebug.envelope.error as { hint: string }).hint).toContain('--debug');
+  });
+
+  it('returns source warnings from draw and edit, not only parse warnings', () => {
+    expect(
+      run(['init', '--file', 'warn.px.json', '--width', '8', '--height', '8', '--force']).code,
+    ).toBe(0);
+    expect(
+      run(['anchor', '--file', 'warn.px.json', '--name', 'far', '--x', '99', '--y', '99']).code,
+    ).toBe(0);
+
+    const draw = run([
+      'draw',
+      '--file',
+      'warn.px.json',
+      '--ops',
+      '[["set_pixels",[[1,1]],"steel.base"]]',
+    ]);
+    expect(draw.code).toBe(0);
+    const drawWarnings = draw.envelope.warnings as Array<{ code: string }>;
+    expect(drawWarnings.map((warning) => warning.code)).toEqual(['W_ANCHOR_OUT_OF_BOUNDS']);
+
+    const edit = run([
+      'edit',
+      '--file',
+      'warn.px.json',
+      '--layer',
+      'base',
+      '--op-index',
+      '0',
+      '--ops',
+      '[["rect",2,2,2,2,"steel.base"]]',
+    ]);
+    expect(edit.code).toBe(0);
+    const editWarnings = edit.envelope.warnings as Array<{ code: string }>;
+    expect(editWarnings.map((warning) => warning.code)).toEqual(['W_ANCHOR_OUT_OF_BOUNDS']);
+  });
+
+  it('omits the warnings key when a draw is clean', () => {
+    expect(
+      run(['init', '--file', 'quiet.px.json', '--width', '8', '--height', '8', '--force']).code,
+    ).toBe(0);
+    const draw = run([
+      'draw',
+      '--file',
+      'quiet.px.json',
+      '--ops',
+      '[["rect",0,0,2,2,"steel.base"]]',
+    ]);
+    expect(draw.code).toBe(0);
+    expect(draw.envelope.warnings).toBeUndefined();
+  });
+
+  it('reports an unwritable --out as a caller error naming the resolved path', () => {
+    expect(
+      run(['init', '--file', 'write.px.json', '--width', '8', '--height', '8', '--force']).code,
+    ).toBe(0);
+    mkdirSync(join(workspace, 'blocked'), { recursive: true });
+
+    const render = run(['render', '--file', 'write.px.json', '--out', 'blocked']);
+    expect(render.code).toBe(1);
+    const renderError = render.envelope.error as { code: string; message: string; hint: string };
+    expect(renderError.code).toBe('E_WRITE_FAILED');
+    expect(renderError.message).toContain(join(workspace, 'blocked'));
+    expect(renderError.hint).toContain('can write to');
+
+    const draw = run([
+      'draw',
+      '--file',
+      'write.px.json',
+      '--ops',
+      '[["rect",0,0,2,2,"steel.base"]]',
+      '--out',
+      'blocked',
+    ]);
+    expect(draw.code).toBe(1);
+    expect((draw.envelope.error as { code: string }).code).toBe('E_WRITE_FAILED');
+  });
+
   it('prints JSON help with the documented exit codes', () => {
     const help = run(['--help']);
     expect(help.code).toBe(0);
@@ -116,7 +242,8 @@ describe('cli vertical slice', () => {
     expect(help.envelope.exit_codes).toMatchObject({
       '0': 'success',
       '1': 'caller error',
-      '2': 'usage error',
+      '2': 'internal error',
+      '3': 'lint gate under --strict',
     });
   });
 
@@ -137,9 +264,9 @@ describe('cli errors', () => {
     expect(result.envelope.error?.hint).toBeTruthy();
   });
 
-  it('reports an unknown command as a usage error', () => {
+  it('reports an unknown command as a caller error', () => {
     const result = run(['explode']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect(result.envelope.error?.code).toBe('E_USAGE');
   });
 
@@ -167,9 +294,9 @@ describe('cli errors', () => {
     expect(result.envelope.error?.code).toBe('E_BAD_PARAM');
   });
 
-  it('rejects malformed ops JSON as a usage error', () => {
+  it('rejects malformed ops JSON as a caller error', () => {
     const result = run(['draw', '--file', 'canon.px.json', '--ops', '{']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect(result.envelope.error?.code).toBe('E_USAGE');
   });
 });

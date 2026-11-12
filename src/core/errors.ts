@@ -8,6 +8,7 @@ export type ErrorCode =
   | 'E_USAGE'
   | 'E_FILE_NOT_FOUND'
   | 'E_FILE_EXISTS'
+  | 'E_WRITE_FAILED'
   | 'E_PARSE'
   | 'E_BAD_VERSION'
   | 'E_BAD_META'
@@ -29,6 +30,7 @@ export type ErrorCode =
   | 'E_BAD_POLYGON'
   | 'E_NO_RAMP'
   | 'E_BANDS_RANGE'
+  | 'E_REGION_TOO_THIN'
   | 'E_NO_SUCH_OP'
   | 'E_DUPLICATE_OP_ID'
   | 'E_LINT_GATE'
@@ -70,6 +72,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_FILE_NOT_FOUND:
     'Check the path passed to --file; it is resolved against the working directory.',
   E_FILE_EXISTS: 'Pass --force to overwrite the existing file.',
+  E_WRITE_FAILED:
+    'Pass --out as a path the process can write to, such as one under the working directory.',
   E_PARSE: 'The recipe must be valid JSON; check for a trailing comma or an unquoted key.',
   E_BAD_VERSION: 'Only recipe version 1 is accepted; set "version": 1.',
   E_BAD_META:
@@ -100,6 +104,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Declare outline/shadow/base/highlight roles for the family, or derive a ramp from the flat colours with --derive-ramps.',
   E_BANDS_RANGE:
     'bands is 2 or 3: a family supplies three shading roles (shadow, base, highlight), so a band count above 3 cannot produce more transitions.',
+  E_REGION_TOO_THIN:
+    "A thin region cannot show every band: reduce bands to at most one more than the painted region's light-axis length, or widen the region.",
   E_NO_SUCH_OP: 'Run `px inspect` or read the op_index map from the last write to find the op.',
   E_DUPLICATE_OP_ID: 'Op ids are unique across the recipe; rename one of the duplicates.',
   E_LINT_GATE:
@@ -146,6 +152,11 @@ export function errorPayload(error: PxError): ErrorPayload {
 
 export function isUsageError(error: PxError): boolean {
   return error.code === 'E_USAGE';
+}
+
+/** Engine faults are the only errors that are not the caller's to fix. */
+export function isInternalError(error: PxError): boolean {
+  return error.code === 'E_INTERNAL';
 }
 
 /** Describe a thrown value even when it is not an Error instance. */

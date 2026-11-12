@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SlotCanvas } from '../../src/core/canvas.js';
 import { drawSetPixels, writePoints } from '../../src/core/ops/index.js';
-import { bresenham, drawLine, removeCorners } from '../../src/core/ops/line.js';
+import { bresenham, drawLine } from '../../src/core/ops/line.js';
 import { drawRect } from '../../src/core/ops/rect.js';
 import { TRANSPARENT_SLOT } from '../../src/core/palette.js';
 
@@ -126,22 +126,5 @@ describe('line', () => {
     for (let index = 0; index < 5; index += 1) {
       expect(canvas.get(index, index)).toBe(SLOT);
     }
-  });
-
-  it('keeps straight runs untouched by corner removal', () => {
-    const points = bresenham(0, 0, 4, 0);
-    expect(removeCorners(points)).toEqual(points);
-  });
-
-  it('drops an L-turn so a stroke stays one pixel thick', () => {
-    const points: Array<[number, number]> = [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-    ];
-    expect(removeCorners(points)).toEqual([
-      [0, 0],
-      [1, 1],
-    ]);
   });
 });

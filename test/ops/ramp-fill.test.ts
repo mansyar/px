@@ -83,6 +83,35 @@ describe('ramp_fill', () => {
     }
   });
 
+  it('rejects a band count the region cannot display, naming the maximum', () => {
+    // A 2x1 region projects to two light-axis positions, so only two buckets
+    // can ever fill; three bands would silently deliver one transition.
+    let code = '';
+    let message = '';
+    let hint = '';
+    let location: unknown;
+    try {
+      compileOps(
+        [
+          { op: 'rect', x: 0, y: 0, w: 2, h: 1, color: 'cloth.base' },
+          { op: 'ramp_fill', bands: 3, light_dir: 'top-left' },
+        ],
+        { palette: SHADED },
+      );
+    } catch (error) {
+      if (error instanceof PxError) {
+        code = error.code;
+        message = error.message;
+        hint = error.hint;
+        location = error.location;
+      }
+    }
+    expect(code).toBe('E_REGION_TOO_THIN');
+    expect(message).toContain('supports at most 2');
+    expect(hint).toContain('bands 2 or fewer');
+    expect(location).toEqual({ layer: 'base', op_index: 1 });
+  });
+
   it('accepts the whole legal domain', () => {
     for (const bands of [2, 3]) {
       expect(codeOf(() => ramp(bands, 'top-left'))).toBe('NO_THROW');

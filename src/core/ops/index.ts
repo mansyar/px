@@ -100,15 +100,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
       return result(drawRect(context.canvas, op.x, op.y, op.w, op.h, colorSlot(context, op.color)));
     case 'line':
       return result(
-        drawLine(
-          context.canvas,
-          op.x1,
-          op.y1,
-          op.x2,
-          op.y2,
-          colorSlot(context, op.color),
-          op.pixelPerfect === true,
-        ),
+        drawLine(context.canvas, op.x1, op.y1, op.x2, op.y2, colorSlot(context, op.color)),
       );
     case 'ellipse':
       return result(
@@ -206,7 +198,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
 export { drawAsciiBlit } from './ascii-blit.js';
 export { drawEllipse, ellipseRowSpan, ellipseSpans } from './ellipse.js';
 export { BAYER_4, ditherPaints, drawDitherFill, floodFill } from './fills.js';
-export { bresenham, removeCorners } from './line.js';
+export { bresenham } from './line.js';
 export { drawMirror } from './mirror.js';
 export { autoOutline } from './outline.js';
 export { drawPolygon, polygonSpans } from './polygon.js';

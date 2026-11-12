@@ -40,6 +40,7 @@ export const MCP_TOOLS: readonly string[] = [
   'px_edit',
   'px_anchor',
   'px_inspect',
+  'px_validate',
   'px_render',
 ];
 
@@ -100,7 +101,8 @@ export const TOOL_DEFINITIONS: Tool[] = [
   },
   {
     name: 'px_edit',
-    description: 'Replace one op by id or index with one or more new ops.',
+    description:
+      'Replace one op by id or index with one or more new ops. The response reports the zero-based replaced_index of the address that was replaced.',
     inputSchema: schema(
       {
         file: FILE,
@@ -150,6 +152,18 @@ export const TOOL_DEFINITIONS: Tool[] = [
     ),
   },
   {
+    name: 'px_validate',
+    description:
+      'Lint a recipe without writing a PNG: returns findings, trim bounds, and warnings.',
+    inputSchema: schema(
+      {
+        file: FILE,
+        strict: STRICT,
+      },
+      ['file'],
+    ),
+  },
+  {
     name: 'px_render',
     description: 'Write the 1x PNG and return it, with findings and optional metadata.',
     inputSchema: schema(
@@ -157,6 +171,11 @@ export const TOOL_DEFINITIONS: Tool[] = [
         file: FILE,
         out: { type: 'string' },
         debug: { type: 'boolean', default: false },
+        backdrop: {
+          type: ['string', 'null'],
+          description:
+            'Panel B backdrop: a #rrggbb hex colour, or null for a transparent panel. Requires debug.',
+        },
         export: { type: 'boolean', default: false },
         strict: STRICT,
       },
@@ -252,11 +271,21 @@ export function argvFor(tool: string, params: Params): string[] {
       booleanFlag(argv, 'summary', params.summary);
       break;
     }
+    case 'px_validate': {
+      argv.push('validate');
+      flag(argv, 'file', file);
+      break;
+    }
     case 'px_render': {
       argv.push('render');
       flag(argv, 'file', file);
       flag(argv, 'out', str(params.out));
       booleanFlag(argv, 'debug', params.debug);
+      if (params.backdrop === null) {
+        flag(argv, 'backdrop', 'null');
+      } else {
+        flag(argv, 'backdrop', str(params.backdrop));
+      }
       booleanFlag(argv, 'export', params.export);
       break;
     }

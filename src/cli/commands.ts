@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
-import { PxError, type PxWarning } from '../core/errors.js';
+import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
 import {
   buildSlotRoles,
   type buildSlotTable,
@@ -66,6 +66,45 @@ function readSource(
     );
   }
   return parseRecipe(readFileSync(target, 'utf8'));
+}
+
+/**
+ * The file that was read and the file that was written describe the same recipe,
+ * so their warnings overlap. Keep one copy of each distinct warning rather than
+ * reporting the same problem twice.
+ */
+function mergeWarnings(...groups: PxWarning[][]): PxWarning[] {
+  const seen = new Set<string>();
+  const merged: PxWarning[] = [];
+  for (const group of groups) {
+    for (const warning of group) {
+      const key = JSON.stringify(warning);
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      merged.push(warning);
+    }
+  }
+  return merged;
+}
+
+/**
+ * Writes a file the caller named. A path the process cannot write is the
+ * caller's fault, not an engine fault, so it carries the resolved path and a
+ * hint instead of surfacing as E_INTERNAL.
+ */
+function writeOut(target: string, data: string | Uint8Array): void {
+  try {
+    ensureParent(target);
+    writeFileSync(target, data);
+  } catch (cause) {
+    throw new PxError(
+      'E_WRITE_FAILED',
+      `Could not write ${target}: ${causeMessage(cause)}`,
+      'Pass --out as a path the process can write to, such as one under the working directory.',
+    );
+  }
 }
 
 function intFlag(value: string | undefined, fallback: number, name: string): number {
@@ -175,8 +214,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const text = serializeRecipe(recipe);
   const parsed = parseRecipe(text);
-  ensureParent(target);
-  writeFileSync(target, text, 'utf8');
+  writeOut(target, text);
 
   const payload: Record<string, unknown> = {
     file,
@@ -217,7 +255,7 @@ function parseOpList(value: string): unknown[] {
 export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   const target = resolve(cwd, file);
-  const { recipe } = readSource(target, file);
+  const { recipe, warnings: sourceWarnings } = readSource(target, file);
 
   const layerId = args.layer ?? recipe.layers[0]?.id;
   if (layerId === undefined) {
@@ -257,8 +295,9 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
-  ensureParent(outTarget);
-  writeFileSync(outTarget, text, 'utf8');
+  writeOut(outTarget, text);
+
+  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings);
 
   return {
     file: outFile,
@@ -267,6 +306,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     layer_ops: nextOps.length,
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
+    ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
 
@@ -317,7 +357,7 @@ function parseOpIndex(value: string | undefined, count: number, layer: string): 
 export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   const target = resolve(cwd, file);
-  const { recipe } = readSource(target, file);
+  const { recipe, warnings: sourceWarnings } = readSource(target, file);
 
   const requestedLayer = args.layer ?? recipe.layers[0]?.id;
   if (requestedLayer === undefined) {
@@ -384,17 +424,19 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
-  ensureParent(outTarget);
-  writeFileSync(outTarget, text, 'utf8');
+  writeOut(outTarget, text);
+
+  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings);
 
   return {
     file: outFile,
     layer: layerId,
-    replaced: index,
+    replaced_index: index,
     added: replacements.length,
     layer_ops: nextOps.length,
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
+    ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
 
@@ -420,8 +462,7 @@ export function runAnchor(args: ParsedArgs, cwd: string): Record<string, unknown
   const parsed = parseRecipe(text);
   const outFile = args.out ?? file;
   const target = resolve(cwd, outFile);
-  ensureParent(target);
-  writeFileSync(target, text, 'utf8');
+  writeOut(target, text);
 
   const payload: Record<string, unknown> = {
     file: outFile,
@@ -429,7 +470,7 @@ export function runAnchor(args: ParsedArgs, cwd: string): Record<string, unknown
     anchor: [x, y],
     anchors: parsed.recipe.anchors,
   };
-  const allWarnings = [...source.warnings, ...parsed.warnings];
+  const allWarnings = mergeWarnings(source.warnings, parsed.warnings);
   if (allWarnings.length > 0) {
     payload.warnings = allWarnings;
   }
@@ -515,17 +556,43 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
   return payload;
 }
 
+/**
+ * `--backdrop` fills panel B of the debug sheet: a hex colour, or `null` for a
+ * transparent panel so the sheet composites over whatever a client shows it on.
+ */
+function backdropFlag(value: string | undefined): string | null | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === 'null') {
+    return null;
+  }
+  if (parseHex(value) === null) {
+    throw usageError(
+      `--backdrop "${value}" is not a hex colour`,
+      'Use #rrggbb, #rrggbbaa, or "null" for a transparent panel.',
+    );
+  }
+  return value;
+}
+
 export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   if (args.out === undefined || args.out === '') {
     throw usageError('Missing --out', 'Name the PNG, e.g. --out hero.png.');
   }
+  const backdrop = backdropFlag(args.backdrop);
+  if (backdrop !== undefined && !args.debug) {
+    throw usageError(
+      '--backdrop only affects the debug sheet',
+      'Pass --debug as well, or drop --backdrop.',
+    );
+  }
   const { recipe, warnings } = readSource(resolve(cwd, file), file);
   const result = renderRecipe(recipe);
 
   const outTarget = resolve(cwd, args.out);
-  ensureParent(outTarget);
-  writeFileSync(outTarget, result.png);
+  writeOut(outTarget, result.png);
 
   const payload: Record<string, unknown> = {
     file,
@@ -541,7 +608,7 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     payload.warnings = allWarnings;
   }
   if (args.debug) {
-    payload.debug = writeDebugSheet(args.out, result.compiled, recipe, cwd);
+    payload.debug = writeDebugSheet(args.out, result.compiled, recipe, cwd, backdrop);
   }
   if (args.metaExport) {
     payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd);
@@ -564,8 +631,7 @@ function writeMetadata(
   const text = serializeMetadata(metadata);
   const file = metadataPath(out);
   const target = resolve(cwd, file);
-  ensureParent(target);
-  writeFileSync(target, text, 'utf8');
+  writeOut(target, text);
   return {
     out: file,
     bytes: Buffer.byteLength(text, 'utf8'),
@@ -584,12 +650,12 @@ function writeDebugSheet(
   compiled: CompiledRecipe,
   recipe: Recipe,
   cwd: string,
+  backdrop: string | null | undefined,
 ): Record<string, unknown> {
   const file = debugPath(out);
-  const sheet = renderDebugSheet(compiled, recipe.anchors);
+  const sheet = renderDebugSheet(compiled, recipe.anchors, { backdrop });
   const target = resolve(cwd, file);
-  ensureParent(target);
-  writeFileSync(target, sheet.png);
+  writeOut(target, sheet.png);
   return {
     out: file,
     width: sheet.width,

@@ -10,6 +10,7 @@
  */
 
 import type { SlotCanvas } from '../canvas.js';
+import { PxError } from '../errors.js';
 import { roleSlot, type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
 import type { LightDir, RampRole } from '../recipe/types.js';
 import { noRampError, type PassSite } from './pass.js';
@@ -90,6 +91,17 @@ export function rampFill(
   }
 
   const axisLength = box.maxX - box.minX + (box.maxY - box.minY);
+  const maxBands = axisLength + 1;
+  if (bands > maxBands) {
+    // A region shorter than the band count can never occupy the last bucket, so
+    // it would silently deliver fewer transitions than AC-12 promises.
+    throw new PxError(
+      'E_REGION_TOO_THIN',
+      `Op ${site.opIndex} (ramp_fill) asked for ${bands} bands, but this region's light axis is ${maxBands} positions long and supports at most ${maxBands}`,
+      `Pass bands ${maxBands} or fewer, or widen the region along the light direction.`,
+      { layer: site.layerId, op_index: site.opIndex },
+    );
+  }
   const denominator = axisLength + 1;
   let painted = 0;
 

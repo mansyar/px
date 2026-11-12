@@ -49,12 +49,12 @@ describe('px binary', () => {
     expect(result.stderr).toBe('');
   });
 
-  it('exits 2 on an unknown command', () => {
+  it('exits 1 on an unknown command', () => {
     const result = spawnSync(process.execPath, [tsx, 'src/cli.ts', 'nope'], {
       cwd: root,
       encoding: 'utf8',
     });
-    expect(result.status).toBe(2);
+    expect(result.status).toBe(1);
     const envelope = JSON.parse(result.stdout) as { ok: boolean; error: { code: string } };
     expect(envelope.ok).toBe(false);
     expect(envelope.error.code).toBe('E_USAGE');

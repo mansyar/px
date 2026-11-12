@@ -61,7 +61,7 @@ afterAll(async () => {
 });
 
 describe('px-mcp over stdio', () => {
-  it('completes the initialize handshake and lists six tools', async () => {
+  it('completes the initialize handshake and lists seven tools', async () => {
     expect(client.getServerVersion()?.name).toBe('px');
     const listed = await client.listTools();
     expect(listed.tools.map((tool) => tool.name).sort()).toEqual([
@@ -71,6 +71,7 @@ describe('px-mcp over stdio', () => {
       'px_init',
       'px_inspect',
       'px_render',
+      'px_validate',
     ]);
     for (const tool of listed.tools) {
       expect(tool.inputSchema.type).toBe('object');

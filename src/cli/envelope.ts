@@ -7,9 +7,10 @@
 import { errorPayload, type PxError } from '../core/errors.js';
 import { RESPONSE_VERSION } from '../probe.js';
 
+/** Exit codes are API (FR-23): success, caller fault, engine fault, lint gate. */
 export const EXIT_OK = 0;
-export const EXIT_ERROR = 1;
-export const EXIT_USAGE = 2;
+export const EXIT_CALLER = 1;
+export const EXIT_INTERNAL = 2;
 export const EXIT_LINT = 3;
 
 export function formatEnvelope(envelope: Record<string, unknown>, pretty: boolean): string {

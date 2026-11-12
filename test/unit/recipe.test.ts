@@ -56,7 +56,7 @@ describe('canonical serialization', () => {
           id: 'base',
           ops: [
             ['rect', 1, 1, 2, 2, 'c.1'],
-            ['line', 0, 0, 3, 3, 'c.0', true],
+            ['line', 0, 0, 3, 3, 'c.0'],
           ],
         },
       ],
@@ -64,18 +64,24 @@ describe('canonical serialization', () => {
     const once = serializeRecipe(parseRecipe(compact).recipe);
     expect(once).toContain('"op": "rect"');
     expect(once).toContain('"op": "line"');
-    expect(once).toContain('"pixel_perfect": true');
     expect(serializeRecipe(parseRecipe(once).recipe)).toBe(once);
   });
 
-  it('drops pixel_perfect when it is false, keeping the canonical shape', () => {
-    const text = serializeRecipe(
+  it('rejects the withdrawn pixel_perfect flag instead of ignoring it', () => {
+    const error = codeOf(() =>
       parseRecipe(
-        recipeText({ layers: [{ id: 'base', ops: [['line', 0, 0, 1, 1, 'c.0', false]] }] }),
-      ).recipe,
+        recipeText({
+          layers: [
+            {
+              id: 'base',
+              ops: [{ op: 'line', x1: 0, y1: 0, x2: 1, y2: 1, color: 'c.0', pixel_perfect: true }],
+            },
+          ],
+        }),
+      ),
     );
-    expect(text).not.toContain('pixel_perfect');
-    expect(text).toContain('"op": "line"');
+    expect(error.code).toBe('E_BAD_PARAM');
+    expect(error.message).toContain('pixel_perfect');
   });
 
   it('sorts palette families and ramp roles canonically', () => {

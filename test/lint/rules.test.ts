@@ -90,7 +90,7 @@ describe('ORPHAN_PIXEL', () => {
     ).toEqual([]);
   });
 
-  it('counts a diagonal neighbour as no neighbour', () => {
+  it('counts a diagonal neighbour as a neighbour', () => {
     const findings = ofCode(
       sprite([
         [
@@ -104,10 +104,7 @@ describe('ORPHAN_PIXEL', () => {
       ]),
       'ORPHAN_PIXEL',
     );
-    expect(findings.map((finding) => finding.coord)).toEqual([
-      [1, 1],
-      [2, 2],
-    ]);
+    expect(findings).toEqual([]);
   });
 
   it('reads the flattened grid, so a later layer can rescue a pixel', () => {
@@ -124,13 +121,13 @@ describe('ORPHAN_PIXEL', () => {
     expect(ofCode(text, 'ORPHAN_PIXEL')).toEqual([]);
   });
 
-  it('is bounded on a dense checkerboard', () => {
+  it('is bounded on a stipple of isolated pixels', () => {
+    // Every other pixel in both axes: 64 dots, none within 8-way reach of
+    // another, so each one is a true orphan and the collector hits its cap.
     const points: Array<[number, number]> = [];
-    for (let y = 0; y < 16; y += 1) {
-      for (let x = 0; x < 16; x += 1) {
-        if ((x + y) % 2 === 0) {
-          points.push([x, y]);
-        }
+    for (let y = 0; y < 16; y += 2) {
+      for (let x = 0; x < 16; x += 2) {
+        points.push([x, y]);
       }
     }
     const findings = ofCode(sprite([['set_pixels', points, 'main.0']], 16, 16), 'ORPHAN_PIXEL');
@@ -138,10 +135,20 @@ describe('ORPHAN_PIXEL', () => {
     expect(findings).toHaveLength(51);
     const marker = findings.at(-1) as LintFinding;
     expect(marker.truncated).toBe(true);
-    expect(marker.count).toBe(128);
+    expect(marker.count).toBe(64);
   });
 
   it('ignores transparent pixels', () => {
     expect(ofCode(sprite([]), 'ORPHAN_PIXEL')).toEqual([]);
+  });
+
+  it('stays silent on a 1-px diagonal line, which the engine draws', () => {
+    expect(ofCode(sprite([['line', 0, 0, 7, 7, 'main.0']]), 'ORPHAN_PIXEL')).toEqual([]);
+  });
+
+  it('stays silent on a 50% checker dither, which the engine draws', () => {
+    expect(
+      ofCode(sprite([['dither_fill', 0, 0, 8, 8, 'main.0', 'checker_50']]), 'ORPHAN_PIXEL'),
+    ).toEqual([]);
   });
 });

@@ -246,7 +246,7 @@ describe('px init palette selection', () => {
 
   it('rejects an unknown palette name', () => {
     const result = run(['init', '--file', 'bad.px.json', '--palette', 'nope']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect((result.envelope.error as { code: string }).code).toBe('E_USAGE');
     expect((result.envelope.error as { hint: string }).hint).toContain('pico8');
   });

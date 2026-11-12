@@ -444,7 +444,7 @@ function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: 
 }
 
 function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: string): LineOp {
-  const op: LineOp = {
+  return {
     op: 'line',
     x1: intParam(source, 'x1', 'line', opIndex, layer),
     y1: intParam(source, 'y1', 'line', opIndex, layer),
@@ -452,10 +452,6 @@ function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: 
     y2: intParam(source, 'y2', 'line', opIndex, layer),
     color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
-  if (boolParam(source, 'pixel_perfect', 'line', opIndex, layer) === true) {
-    op.pixelPerfect = true;
-  }
-  return op;
 }
 
 function normalizeEllipse(

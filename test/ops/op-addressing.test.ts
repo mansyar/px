@@ -18,7 +18,7 @@ interface Envelope {
   ok: boolean;
   command?: string;
   layer?: string;
-  replaced?: number;
+  replaced_index?: number;
   added?: number;
   layer_ops?: number;
   op_index?: IndexEntry[];
@@ -171,7 +171,7 @@ describe('edit addressing', () => {
       JSON.stringify([{ op: 'rect', x: 4, y: 4, w: 3, h: 3, color: 'steel.base', id: 'target' }]),
     ]);
     expect(result.code).toBe(0);
-    expect(result.envelope.replaced).toBe(2);
+    expect(result.envelope.replaced_index).toBe(2);
     expect(result.envelope.layer_ops).toBe(4);
     const map = result.envelope.op_index ?? [];
     expect(map.map((entry) => entry.id)).toEqual([null, 'first', 'target', 'last']);
@@ -211,7 +211,7 @@ describe('edit addressing', () => {
       JSON.stringify([{ op: 'line', x1: 0, y1: 0, x2: 5, y2: 5, color: 'steel.highlight' }]),
     ]);
     expect(result.code).toBe(0);
-    expect(result.envelope.replaced).toBe(0);
+    expect(result.envelope.replaced_index).toBe(0);
     expect(result.envelope.layer_ops).toBe(2);
     expect(result.envelope.op_index?.[0]?.op).toEqual({
       op: 'line',
@@ -246,7 +246,7 @@ describe('edit addressing', () => {
     ]);
     expect(result.code).toBe(0);
     expect(result.envelope.layer).toBe('fx');
-    expect(result.envelope.replaced).toBe(0);
+    expect(result.envelope.replaced_index).toBe(0);
     expect(result.envelope.op_index?.map((entry) => [entry.layer, entry.id])).toEqual([
       ['base', 'near'],
       ['fx', 'far'],
@@ -303,7 +303,7 @@ describe('edit addressing', () => {
   it('requires an address when --id and --op-index are both absent', () => {
     const file = initFile('no-address.px.json');
     const result = run(['edit', '--file', file, '--ops', '[]']);
-    expect(result.code).toBe(2);
+    expect(result.code).toBe(1);
     expect(result.envelope.error?.code).toBe('E_USAGE');
   });
 

@@ -21,6 +21,7 @@ export interface ParsedArgs {
   opIndex?: string;
   x?: string;
   y?: string;
+  backdrop?: string;
   pretty: boolean;
   force: boolean;
   help: boolean;
@@ -43,6 +44,37 @@ export const COMMANDS: readonly string[] = [
 function usageError(message: string, hint: string): PxError {
   return new PxError('E_USAGE', message, hint);
 }
+
+/** Every flag that consumes the following argv token. */
+export const VALUE_FLAGS: readonly string[] = [
+  'file',
+  'layer',
+  'ops',
+  'region',
+  'out',
+  'name',
+  'width',
+  'height',
+  'palette',
+  'id',
+  'op-index',
+  'x',
+  'y',
+  'backdrop',
+];
+
+/** Every flag that is a bare switch. */
+export const BOOLEAN_FLAGS: readonly string[] = [
+  'pretty',
+  'force',
+  'help',
+  'color',
+  'debug',
+  'strict',
+  'export',
+  'summary',
+  'derive-ramps',
+];
 
 function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
   switch (name) {
@@ -85,10 +117,13 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'y':
       parsed.y = value;
       return;
+    case 'backdrop':
+      parsed.backdrop = value;
+      return;
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y.',
+        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --id, --op-index, --x, --y, --backdrop.',
       );
   }
 }
@@ -129,17 +164,7 @@ function setBooleanFlag(parsed: ParsedArgs, name: string): void {
 }
 
 function isBooleanFlag(name: string): boolean {
-  return (
-    name === 'pretty' ||
-    name === 'force' ||
-    name === 'help' ||
-    name === 'color' ||
-    name === 'debug' ||
-    name === 'strict' ||
-    name === 'export' ||
-    name === 'summary' ||
-    name === 'derive-ramps'
-  );
+  return BOOLEAN_FLAGS.includes(name);
 }
 
 export function parseArgs(argv: readonly string[]): ParsedArgs {

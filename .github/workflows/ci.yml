@@ -30,6 +30,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - name: Coverage gate (NFR-7)
+        run: pnpm coverage
       - run: pnpm build
       - name: Determinism (golden hashes)
         run: pnpm vitest run --project goldens

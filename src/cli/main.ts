@@ -3,7 +3,7 @@
  * drive it in-process with a temporary working directory.
  */
 
-import { internalError, isUsageError, PxError } from '../core/errors.js';
+import { internalError, isInternalError, PxError } from '../core/errors.js';
 import { lintBlocks } from '../lint/index.js';
 import type { LintFinding } from '../lint/types.js';
 import { probeRuntime } from '../probe.js';
@@ -18,10 +18,10 @@ import {
   runValidate,
 } from './commands.js';
 import {
-  EXIT_ERROR,
+  EXIT_CALLER,
+  EXIT_INTERNAL,
   EXIT_LINT,
   EXIT_OK,
-  EXIT_USAGE,
   failureEnvelope,
   gateEnvelope,
   successEnvelope,
@@ -41,7 +41,7 @@ function helpPayload(): Record<string, unknown> {
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]... [--summary]',
-      'px render --file <path> --out <png> [--debug] [--export]',
+      'px render --file <path> --out <png> [--debug [--backdrop hex|null]] [--export]',
       'px validate --file <path>',
     ],
     commands: COMMANDS,
@@ -55,11 +55,12 @@ function helpPayload(): Record<string, unknown> {
       '--export',
       '--summary',
       '--derive-ramps',
+      '--backdrop',
     ],
     exit_codes: {
       '0': 'success',
       '1': 'caller error',
-      '2': 'usage error',
+      '2': 'internal error',
       '3': 'lint gate under --strict',
     },
     runtime: probeRuntime(),
@@ -126,6 +127,6 @@ export function runCli(argv: readonly string[], io: CliIo): number {
     const command = parsed?.command ?? '';
     const pretty = parsed?.pretty ?? argv.includes('--pretty');
     io.stdout(failureEnvelope(command, error, pretty));
-    return isUsageError(error) ? EXIT_USAGE : EXIT_ERROR;
+    return isInternalError(error) ? EXIT_INTERNAL : EXIT_CALLER;
   }
 }

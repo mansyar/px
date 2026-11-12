@@ -1,9 +1,10 @@
 /**
  * `ORPHAN_PIXEL`.
  *
- * A painted pixel with no 4-way painted neighbour reads as noise: it cannot be
- * part of a silhouette, a line, or a dithered fill. Diagonal neighbours do not
- * count, which is what makes the rule find single stray pixels.
+ * A painted pixel with no painted neighbour reads as noise: it cannot be part
+ * of a silhouette, a line, or a dithered fill. All eight neighbours count, so a
+ * 1-px diagonal `line` and a checkerboard `dither_fill` — both of which the
+ * engine produces — stay clean. Only a genuinely isolated pixel is flagged.
  */
 
 import { TRANSPARENT_SLOT } from '../core/palette.js';
@@ -19,10 +20,14 @@ function painted(context: LintContext, x: number, y: number): boolean {
 
 function hasNeighbour(context: LintContext, x: number, y: number): boolean {
   return (
+    painted(context, x - 1, y - 1) ||
+    painted(context, x, y - 1) ||
+    painted(context, x + 1, y - 1) ||
     painted(context, x - 1, y) ||
     painted(context, x + 1, y) ||
-    painted(context, x, y - 1) ||
-    painted(context, x, y + 1)
+    painted(context, x - 1, y + 1) ||
+    painted(context, x, y + 1) ||
+    painted(context, x + 1, y + 1)
   );
 }
 
@@ -37,7 +42,7 @@ export const orphanPixelRule: LintRule = {
           continue;
         }
         collector.add({
-          message: `Pixel (${x}, ${y}) is isolated: no 4-way painted neighbour`,
+          message: `Pixel (${x}, ${y}) is isolated: no 8-way painted neighbour`,
           coord: [x, y],
         });
       }

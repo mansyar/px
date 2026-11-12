@@ -82,7 +82,6 @@ export interface LineOp extends OpBase {
   x2: number;
   y2: number;
   color: SlotRef;
-  pixelPerfect?: boolean;
 }
 
 export interface EllipseOp extends OpBase {
@@ -205,7 +204,7 @@ export const MAX_CANVAS_SIZE = 256;
 export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   set_pixels: ['points', 'color'],
   rect: ['x', 'y', 'w', 'h', 'color'],
-  line: ['x1', 'y1', 'x2', 'y2', 'color', 'pixel_perfect'],
+  line: ['x1', 'y1', 'x2', 'y2', 'color'],
   ellipse: ['x', 'y', 'w', 'h', 'color', 'fill'],
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],

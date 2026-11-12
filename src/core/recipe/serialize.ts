@@ -68,14 +68,7 @@ function opParams(op: Op): Record<string, unknown> {
     case 'rect':
       return { x: op.x, y: op.y, w: op.w, h: op.h, color: op.color };
     case 'line':
-      return defined({
-        x1: op.x1,
-        y1: op.y1,
-        x2: op.x2,
-        y2: op.y2,
-        color: op.color,
-        pixel_perfect: op.pixelPerfect === true ? true : undefined,
-      });
+      return { x1: op.x1, y1: op.y1, x2: op.x2, y2: op.y2, color: op.color };
     case 'ellipse':
       return defined({
         x: op.x,
