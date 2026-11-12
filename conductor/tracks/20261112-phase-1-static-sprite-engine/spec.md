@@ -149,8 +149,10 @@ and where correcting a single pixel costs one call, not a regeneration.
   once and writes nothing.
 - `ramp_fill` on a flat-palette family returns `E_NO_RAMP` and suggests
   `--derive-ramps`.
-- `auto_outline` or `auto_shade` on an empty layer is a no-op with an `info`
-  finding.
+- `auto_outline` or `auto_shade` on an empty layer is a no-op that reports
+  `W_PASS_NOOP` in `warnings`. It is deliberately not a fifth lint code: FR-20's
+  four codes are a closed surface. *(Amended in review round 1 — the earlier
+  draft said "an `info` finding", which would have needed a fifth code.)*
 - A recipe with no ops renders a fully transparent PNG with zero bounds and no
   trim.
 - An anchor outside the canvas is recorded with a warning, not rejected.
@@ -175,8 +177,10 @@ and where correcting a single pixel costs one call, not a regeneration.
   negligible.
 - **Assumption:** zlib output is stable across Node 24 patch releases; CI fails
   loudly otherwise.
-- **Assumption:** "pixel-perfect" line corner removal follows the standard
-  pixel-art algorithm, documented in code and pinned by goldens.
+- ~~**Assumption:** "pixel-perfect" line corner removal follows the standard
+  pixel-art algorithm, documented in code and pinned by goldens.~~ Withdrawn in
+  review round 1: `pixel_perfect` was a no-op and the flag is gone. Corner
+  removal belongs to a future stroke op that can reason about the whole path.
 - **Question:** should indexed PNG become the default export after Phase 1? Not
   blocking.
 

@@ -191,37 +191,40 @@
 - **Touches:** src/**, test/**, .github/workflows/ci.yml, docs/**,
   conductor/tracks/20261112-phase-1-static-sprite-engine/verification/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 7bd6365
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-R1.md
 
-- [ ] **R1.T1: Exit-code contract** — covers: F1, FR-23
-  - [ ] **R1.T1.1:** Caller errors exit 1, internal errors exit 2, lint 3; help
+- [x] **R1.T1: Exit-code contract** — covers: F1, FR-23
+  - [x] **R1.T1.1:** Caller errors exit 1, internal errors exit 2, lint 3; help
     map and the four tests corrected, plus a test that forces an internal error
-- [ ] **R1.T2: `px_validate` and flag reachability** — covers: F2, FR-22, AC-19
-  - [ ] **R1.T2.1:** Seventh MCP tool mapping to `validate`
-  - [ ] **R1.T2.2:** Table-driven parity test asserting every CLI value flag has a
+- [x] **R1.T2: `px_validate` and flag reachability** — covers: F2, FR-22, AC-19
+  - [x] **R1.T2.1:** Seventh MCP tool mapping to `validate`
+  - [x] **R1.T2.2:** Table-driven parity test asserting every CLI value flag has a
     tool parameter that reaches argv
-- [ ] **R1.T3: `ORPHAN_PIXEL` adjacency** — covers: F3, FR-20
-  - [ ] **R1.T3.1:** 8-way connectivity, with `line` diagonal and `dither_fill`
+- [x] **R1.T3: `ORPHAN_PIXEL` adjacency** — covers: F3, FR-20
+  - [x] **R1.T3.1:** 8-way connectivity, with `line` diagonal and `dither_fill`
     fixtures proving a correct sprite is not flagged
-- [ ] **R1.T4: Withdraw `pixel_perfect`** — covers: F4, FR-6, AC-5
-  - [ ] **R1.T4.1:** Remove the option from the recipe type, validator, serializer,
+- [x] **R1.T4: Withdraw `pixel_perfect`** — covers: F4, FR-6, AC-5
+  - [x] **R1.T4.1:** Remove the option from the recipe type, validator, serializer,
     and `line`; delete the dead `removeCorners` path; drop the flag from fixtures
-- [ ] **R1.T5: `replaced` field** — covers: F5, FR-24
-  - [ ] **R1.T5.1:** Rename to `replaced_index`, keep `added`, and cover index 0
-- [ ] **R1.T6: `ramp_fill` thin regions** — covers: F6, AC-12
-  - [ ] **R1.T6.1:** Reject a band count the region's light axis cannot display,
+- [x] **R1.T5: `replaced` field** — covers: F5, FR-24
+  - [x] **R1.T5.1:** Rename to `replaced_index`, keep `added`, and cover index 0
+- [x] **R1.T6: `ramp_fill` thin regions** — covers: F6, AC-12
+  - [x] **R1.T6.1:** Reject a band count the region's light axis cannot display,
     with a coded error naming the maximum, so AC-12 stays unconditionally true
-- [ ] **R1.T7: Coverage in CI** — covers: F7, NFR-7
-  - [ ] **R1.T7.1:** Add the coverage step to the verify job
-- [ ] **R1.T8: Debug backdrop flag** — covers: F8, FR-18
-  - [ ] **R1.T8.1:** `--backdrop <hex|null>` on the CLI and on `px_render`
-- [ ] **R1.T9: Warnings on write verbs** — covers: F9, FR-23
-  - [ ] **R1.T9.1:** `draw` and `edit` return source and parse warnings like `anchor`
-- [ ] **R1.T10: Write failures** — covers: F10, FR-23
-  - [ ] **R1.T10.1:** An unwritable `--out` path is a caller error with a hint, not
+- [x] **R1.T7: Coverage in CI** — covers: F7, NFR-7
+  - [x] **R1.T7.1:** Add the coverage step to the verify job
+- [x] **R1.T8: Debug backdrop flag** — covers: F8, FR-18
+  - [x] **R1.T8.1:** `--backdrop <hex|null>` on the CLI and on `px_render`
+- [x] **R1.T9: Warnings on write verbs** — covers: F9, FR-23
+  - [x] **R1.T9.1:** `draw` and `edit` return source and parse warnings like `anchor`
+- [x] **R1.T10: Write failures** — covers: F10, FR-23
+  - [x] **R1.T10.1:** An unwritable `--out` path is a caller error with a hint, not
     `E_INTERNAL`
-- [ ] **R1.T11: `W_PASS_NOOP` as a finding** — covers: F11, FR-20
-  - [ ] **R1.T11.1:** Surface the no-op post-pass through `findings`, not only warnings
-- [ ] **R1.T12: Process record** — covers: F12
-  - [ ] **R1.T12.1:** Record `pnpm-workspace.yaml`, `opencode.json` and the agent
+- [x] **R1.T11: `W_PASS_NOOP` as a finding** — covers: F11, FR-20
+  - [x] **R1.T11.1:** Surface the no-op post-pass through `findings`, not only warnings
+- [x] **R1.T12: Process record** — covers: F12
+  - [x] **R1.T12.1:** Record `pnpm-workspace.yaml`, `opencode.json` and the agent
     file in the evidence deviations table
