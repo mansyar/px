@@ -114,9 +114,9 @@
 - **Goal:** Seven art-direction codes with part attribution, plus deterministic `seal`, `strays` and `deband`.
 - **Depends on:** Phase 4
 - **Covers:** FR-19, FR-20, FR-21, AC-12, AC-15, AC-16, AC-17
-- **Touches:** src/lint/**, src/core/ops/cleanup.ts, src/core/ops/index.ts, test/art-lint/**
+- **Touches:** src/lint/**, src/core/**, src/cli/**, docs/lint-thresholds.md, test/art-lint/**, test/lint/**, test/benchmarks/benchmarks.test.ts, vitest.config.ts
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P5.T1: Value separation** — covers: FR-19, FR-20
   - [ ] **P5.T1.1:** `VALUE_COLLISION` between adjacent parts within one step
