@@ -29,17 +29,32 @@ each one without a mapping table.
 
 ## Method
 
-1. Render the asset at 1× on the neutral `#808080` backdrop and take the debug sheet
-   from the same recipe:
+1. Render the asset on the neutral `#808080` backdrop and take the debug sheet from the
+   same recipe:
    - `pnpm exec tsx src/cli.ts render --file test/art/<asset>/<asset>.px.json --out .conductor/evidence/art/<asset>.png --debug --strict`
    - the sheet lands next to it as `.conductor/evidence/art/<asset>.debug.png`
-2. Score **twice per asset, independently** — two passes, ideally two different models.
-   Pass 1 scores the 1× PNG; pass 2 scores the debug sheet (which shows the 8×/4×/2×
-   zoom, the posterised silhouette and the per-part crops). Each pass is a separate
-   model call with no memory of the other.
-3. Run the scorer once per pass:
+2. **Both passes are scored from a faithful nearest-neighbour view**, never from the raw
+   1× PNG:
+   - pass 1 scores the plain **8× nearest-neighbour upscale** of the 1× render;
+   - pass 2 scores the **debug sheet**, which shows the profile zoom, the 1× panel, the
+     posterised silhouette and the per-part crops.
+   - `pnpm exec tsx scripts/upscale.mjs <asset>` writes the pass-1 artifact to
+     `.conductor/evidence/art/<asset>.8x.png` (nearest neighbour, no filtering).
+
+   **Why:** a 16–48 px PNG is resampled by whatever views it before a model sees it, so a
+   raw 1× file measures the resampler rather than the art. The first round of scoring
+   proved it: the same assets scored pass 1 2.67 vs pass 2 4.33 (potion), 2.83 vs 3.33
+   (humanoid) and 2.67 vs 4.17 (scene), and the pass-1 rationales named "blurry" and
+   "heavy compression/low-res artifacting" as the fault. A raw 1× PNG below ~32 px is not
+   valid evidence and must not be offered as a scoring artifact. The rubric's anchors are
+   written against the 1× panel of the debug sheet, so both passes must see pixels the
+   anchor can be judged on.
+3. Score **twice per asset, independently** — two passes, ideally two different models.
+   Each pass is a separate model call with no memory of the other.
+4. Run the scorer once per pass:
    ```sh
-   PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<id> node scripts/rubric.mjs --asset <asset> --pass 1
+   PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<id> node scripts/rubric.mjs \
+     --asset <asset> --pass 1 --artifact .conductor/evidence/art/<asset>.8x.png
    PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<id> node scripts/rubric.mjs \
      --asset <asset> --pass 2 --artifact .conductor/evidence/art/<asset>.debug.png
    ```
@@ -48,7 +63,7 @@ each one without a mapping table.
    `test/art/scores.json`. It exits `2` with a clear message when no credential is
    configured, and `1` when the reply is unusable. It is the only networked component in
    the repository.
-4. Where the two passes disagree by more than one point on a criterion, a human breaks
+5. Where the two passes disagree by more than one point on a criterion, a human breaks
    the tie and records it in the asset's `tiebreak` block:
    `{"party": "human|pass1|pass2", "criterion": "<name>", "score": <1-5>, "reason": "..."}`.
 
