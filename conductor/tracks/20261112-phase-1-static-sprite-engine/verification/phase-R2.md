@@ -51,8 +51,9 @@ exclude list was widened and no ignore comment was added.
 
 `ramp_fill` (`test/ops/ramp-fill.test.ts`)
 
-- Legal and unchanged: bands 2 and 3 over the 8×4 block, legal domain, all four
-  light directions, transparency, determinism, flat-family `E_NO_RAMP`.
+- Legal and unchanged: bands 2 and 3 over the 8×4 block, legal domain, the four
+  light directions (each asserted on its first role row), transparency,
+  determinism, flat-family `E_NO_RAMP`.
 - New: gap region (x 0–2 and 6–8, bands 3) → `hhb...bss`, two transitions, all
   three roles; occupied-count guard (2 occupied positions, bands 3) →
   `E_REGION_TOO_THIN`, message `occupies only 2 light-axis positions … supports at

@@ -172,6 +172,40 @@ describe('ramp_fill', () => {
     expect(hint).toContain('bands 2 or fewer');
   });
 
+  it('does not suggest a band count the parser rejects', () => {
+    // Two diagonally adjacent pixels project to a single light-axis position,
+    // so no legal band count is displayable: the hint may only ask for more
+    // positions. `bands` below 2 is `E_BANDS_RANGE`, so "pass bands 1 or fewer"
+    // would send the caller into a second error.
+    let code = '';
+    let hint = '';
+    try {
+      compileOps(
+        [
+          {
+            op: 'set_pixels',
+            points: [
+              [0, 1],
+              [1, 0],
+            ],
+            color: 'cloth.base',
+          },
+          { op: 'ramp_fill', bands: 2, light_dir: 'top-left' },
+        ],
+        { palette: SHADED, width: 8, height: 8 },
+      );
+    } catch (error) {
+      if (error instanceof PxError) {
+        code = error.code;
+        hint = error.hint;
+      }
+    }
+    expect(code).toBe('E_REGION_TOO_THIN');
+    expect(hint).toContain('at least two light-axis positions');
+    expect(hint).not.toContain('or fewer');
+    expect(hint).not.toMatch(/bands \d/);
+  });
+
   it('accepts the whole legal domain', () => {
     for (const bands of [2, 3]) {
       expect(codeOf(() => ramp(bands, 'top-left'))).toBe('NO_THROW');
@@ -179,8 +213,18 @@ describe('ramp_fill', () => {
   });
 
   it('moves the light with light_dir', () => {
-    const { compiled } = ramp(2, 'top-right');
-    expect(roleRows(compiled)[0]).toBe('sshhhhhh');
+    // The first role row of the 8x4 block at bands 2, for every accepted
+    // direction: bottom-right is the mirror of top-left, bottom-left is
+    // bottom-right's mirror across the vertical axis.
+    const firstRows: Record<string, string> = {
+      'top-left': 'hhhhhhss',
+      'top-right': 'sshhhhhh',
+      'bottom-left': 'hhhsssss',
+      'bottom-right': 'ssssshhh',
+    };
+    for (const [lightDir, row] of Object.entries(firstRows)) {
+      expect(roleRows(ramp(2, lightDir).compiled)[0]).toBe(row);
+    }
   });
 
   it('leaves transparent pixels alone', () => {

@@ -124,10 +124,17 @@ export function rampFill(
   if (bands > occupiedCount) {
     // A region with fewer occupied positions than bands can never fill every
     // band, so it would silently deliver fewer transitions than AC-12 promises.
+    // With one position occupied no legal band count is displayable, so only
+    // the "paint more positions" remedy is offered: `bands` below 2 is
+    // `E_BANDS_RANGE`, which would make a band-count hint a second dead end.
+    const hint =
+      occupiedCount < 2
+        ? 'ramp_fill needs at least two light-axis positions: paint one more position along the light direction.'
+        : `Pass bands ${occupiedCount} or fewer, or paint more positions along the light direction.`;
     throw new PxError(
       'E_REGION_TOO_THIN',
       `Op ${site.opIndex} (ramp_fill) asked for ${bands} bands, but this region occupies only ${occupiedCount} light-axis position${occupiedCount === 1 ? '' : 's'} and supports at most ${occupiedCount}`,
-      `Pass bands ${occupiedCount} or fewer, or paint more positions along the light direction.`,
+      hint,
       { layer: site.layerId, op_index: site.opIndex },
     );
   }
