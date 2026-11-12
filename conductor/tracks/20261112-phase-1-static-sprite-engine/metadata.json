@@ -20,7 +20,7 @@
   },
   "last_checkpoint": "ed492c4",
   "review_verdict": "pass_with_findings",
-  "review_rounds": 2,
+  "review_rounds": 3,
   "doc_sync": "synced",
   "pr_url": null,
   "pr_state": null,
