@@ -92,3 +92,25 @@ its hash is committed.
   removed by building each compiled layer in one pass.
 - Determinism is pinned by one committed hash. Per the workflow, a mismatch is a
   failure, never a refresh; any re-baseline must be deliberate and documented.
+
+## Primary verification
+
+Verified independently by the primary agent at checkpoint `4e00fe3`.
+
+| Check | Command | Exit | Result |
+| --- | --- | --- | --- |
+| Tree state | `git status --porcelain` | 0 | only primary config edits (`conductor/workflow.md`, `.opencode/agents/conductor-phase.md`); no stray code |
+| Scope | `git diff --name-only 7c2e901..HEAD` | 0 | every path within `Touches` or a declared deviation |
+| Phase | `pnpm verify` | 0 | typecheck, lint 38 files, 84 tests across 9 files, build |
+| Coverage gate | `pnpm vitest run --coverage` | 0 | statements 93.33%, branches 86.29%, functions 100%, lines 93.13% |
+| Squash guard | `git rev-list --count 7c2e901..HEAD` | 0 | 10 commits, 0 merges, all reported by the subagent |
+
+The first acceptance attempt **failed the coverage gate** at branches 79.36% against the
+80% threshold. One rework round closed it by adding tests for real branches; no threshold
+was lowered, no coverage exclude widened, and no `v8 ignore` comment added. The failure is
+recorded rather than erased, because the gate exists to catch exactly that.
+
+`src/types/node.d.ts` was deleted by the primary. `@types/node ^24.19.2` replaced it
+because the MCP SDK's own `.d.ts` files import from `node:http`, `node:stream`, and
+`node:process`, so Phase 4 cannot typecheck with hand-written declarations.
+

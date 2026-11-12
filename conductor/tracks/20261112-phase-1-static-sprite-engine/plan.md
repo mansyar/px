@@ -18,39 +18,42 @@
   `.node-version`, `src/core/**`, `src/render/**`, `src/cli/**`, `test/**`,
   `.github/workflows/ci.yml`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified
+- **Checkpoint:** 4e00fe3
+- **Evidence:** conductor/tracks/20261112-phase-1-static-sprite-engine/verification/phase-1.md
 
-- [ ] **P1.T1: Package scaffold** — covers: NFR-2, NFR-6
-  - [ ] **P1.T1.1:** `package.json` with pinned versions, `engines.node >=24 <25`,
+- [x] **P1.T1: Package scaffold** — covers: NFR-2, NFR-6
+  - [x] **P1.T1.1:** `package.json` with pinned versions, `engines.node >=24 <25`,
     ESM, bins `px` and `px-mcp`, scripts matching the workflow config
-  - [ ] **P1.T1.2:** tsconfig for typecheck and build; `.node-version`;
+  - [x] **P1.T1.2:** tsconfig for typecheck and build; `.node-version`;
     `pnpm-lock.yaml` committed
-  - [ ] **P1.T1.3:** Biome config and Vitest projects (`unit`, `integration`,
+  - [x] **P1.T1.3:** Biome config and Vitest projects (`unit`, `integration`,
     `smoke`, `goldens`)
-  - [ ] **P1.T1.4:** Remove the CI `detect` guard so the real matrix runs
-- [ ] **P1.T2: Recipe model and canonical serializer** — covers: FR-1, FR-2, AC-1
-  - [ ] **P1.T2.1:** Type definitions for recipe, layer, op, palette, anchors
-  - [ ] **P1.T2.2:** Canonical writer — stable key order, expanded objects,
+  - [x] **P1.T1.4:** Remove the CI `detect` guard so the real matrix runs
+- [x] **P1.T2: Recipe model and canonical serializer** — covers: FR-1, FR-2, AC-1
+  - [x] **P1.T2.1:** Type definitions for recipe, layer, op, palette, anchors
+  - [x] **P1.T2.2:** Canonical writer — stable key order, expanded objects,
     round-trip identity
-  - [ ] **P1.T2.3:** Compact tuple reader that normalizes on save
-- [ ] **P1.T3: Validation and error codes** — covers: FR-3, FR-5, AC-2, AC-4
-  - [ ] **P1.T3.1:** Error code registry with corrective hints
-  - [ ] **P1.T3.2:** Structural validation, including canvas bounds and duplicate
+  - [x] **P1.T2.3:** Compact tuple reader that normalizes on save
+- [x] **P1.T3: Validation and error codes** — covers: FR-3, FR-5, AC-2, AC-4
+  - [x] **P1.T3.1:** Error code registry with corrective hints
+  - [x] **P1.T3.2:** Structural validation, including canvas bounds and duplicate
     layers
-  - [ ] **P1.T3.3:** Binary-alpha enforcement at parse time
-- [ ] **P1.T4: Indexed canvas and palette resolution** — covers: FR-4, AC-3
-  - [ ] **P1.T4.1:** Per-layer `Int16Array` slot buffers with clipping
-  - [ ] **P1.T4.2:** Slot resolution for ramp families and flat palettes
-- [ ] **P1.T5: Minimal op set** — covers: FR-6, AC-5
-  - [ ] **P1.T5.1:** `set_pixels`, `rect`
-  - [ ] **P1.T5.2:** `line` with Bresenham, endpoint-inclusive
-- [ ] **P1.T6: Deterministic PNG encoder** — covers: FR-16, NFR-1, AC-14
-  - [ ] **P1.T6.1:** CRC-32, chunk writer, filter 0 per scanline, fixed zlib
+  - [x] **P1.T3.3:** Binary-alpha enforcement at parse time
+- [x] **P1.T4: Indexed canvas and palette resolution** — covers: FR-4, AC-3
+  - [x] **P1.T4.1:** Per-layer `Int16Array` slot buffers with clipping
+  - [x] **P1.T4.2:** Slot resolution for ramp families and flat palettes
+- [x] **P1.T5: Minimal op set** — covers: FR-6, AC-5
+  - [x] **P1.T5.1:** `set_pixels`, `rect`
+  - [x] **P1.T5.2:** `line` with Bresenham, endpoint-inclusive
+- [x] **P1.T6: Deterministic PNG encoder** — covers: FR-16, NFR-1, AC-14
+  - [x] **P1.T6.1:** CRC-32, chunk writer, filter 0 per scanline, fixed zlib
     strategy, single IDAT, no timestamp chunk
-  - [ ] **P1.T6.2:** RGBA8 output; golden harness asserting SHA-256
-- [ ] **P1.T7: CLI vertical slice and inspector** — covers: FR-19, FR-21, FR-23, AC-17
-  - [ ] **P1.T7.1:** Argument parsing, response envelope, exit codes
-  - [ ] **P1.T7.2:** `init`, `draw`, `inspect`, `render` wired to the core
+  - [x] **P1.T6.2:** RGBA8 output; golden harness asserting SHA-256
+- [x] **P1.T7: CLI vertical slice and inspector** — covers: FR-19, FR-21, FR-23, AC-17
+  - [x] **P1.T7.1:** Argument parsing, response envelope, exit codes
+  - [x] **P1.T7.2:** `init`, `draw`, `inspect`, `render` wired to the core
 
 ## Phase 2: Feedback Tooling
 
