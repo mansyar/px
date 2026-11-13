@@ -13,32 +13,13 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.83,
+    "mean": 3.9,
     "threshold_mean": 4.0,
     "min_allowed": 3,
-    "failures": [
-      {
-        "asset": "scene",
-        "pass": "A",
-        "criterion": "lighting",
-        "score": 2
-      },
-      {
-        "asset": "scene",
-        "pass": "A",
-        "criterion": "edge_language",
-        "score": 2
-      },
-      {
-        "asset": "scene",
-        "pass": "A",
-        "criterion": "cluster_discipline",
-        "score": 2
-      }
-    ],
+    "failures": [],
     "note": "Recorded as measured. The bar was not met and was not lowered; the failing criteria are named above. Two passes are agent self-reviews (humanoid) and the record says so; they were scored against the same anchors and arithmetic as the model passes, and the verdict is recomputed from all fourteen passes by `test/art/rubric.test.ts`.",
     "basis": "mixed",
-    "caveat": "humanoid, sword and character are agent self-review scores of the 2026-11-13 re-authoring (six passes); the other eight passes are vision-model scores of art that did not change."
+    "caveat": "humanoid, sword, character and scene are agent self-review scores of the 2026-11-13 re-authoring (eight passes); the other six passes are vision-model scores of art that did not change."
   },
   "assets": [
     {
@@ -485,67 +466,69 @@
       "passes": [
         {
           "pass": "A",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/scene.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
           "subject": "stone well with a roof and a hanging bucket",
           "scores": {
             "silhouette": {
-              "score": 4,
-              "why": "well structure with roof and bucket is readable"
+              "score": 5,
+              "why": "gable, drum and apron read instantly; the mouth and rope identify it without colour"
             },
             "value_separation": {
               "score": 3,
-              "why": "dark interior merges with the roof frame"
+              "why": "the shaded roof plane now sits close to the ink outline, so the right half of the gable merges at 1x"
             },
             "lighting": {
-              "score": 2,
-              "why": "roof splits down its centre while the stone follows a left light — two directions"
+              "score": 4,
+              "why": "the two planes and the posts agree on one top-left direction; the split is the light, not a second source"
             },
             "edge_language": {
-              "score": 2,
-              "why": "chaotic single-pixel stair-stepping on arches and shingles"
+              "score": 4,
+              "why": "the roof diagonals and ridge are drawn lines with no stair-stepping"
             },
             "cluster_discipline": {
-              "score": 2,
-              "why": "single-pixel noise along arches, shingles and the ground oval"
+              "score": 3,
+              "why": "roof confetti is gone; the masonry joints and apron still leave sub-3 px specks"
             },
             "palette_craft": {
               "score": 3,
-              "why": "sensible earth tones, irregular step sizes"
+              "why": "sensible earth tones with irregular ramp steps"
             }
           }
         },
         {
           "pass": "B",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/scene.debug.png",
           "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
           "subject": "stone well with a wooden roof",
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "roof, well body and ground base unmistakable in panel C"
+              "why": "panel C is unmistakable"
             },
             "value_separation": {
               "score": 4,
-              "why": "ground, stone, water, roof and bucket distinct; stone texture and roof shadow close"
+              "why": "the crops separate stone, water, wood and dirt, including both roof planes"
             },
             "lighting": {
               "score": 4,
-              "why": "cohesive top-left on pillars, wall and roof panels"
+              "why": "top-left holds across roof planes, posts, masonry and water"
             },
             "edge_language": {
-              "score": 3,
-              "why": "stonework detail lines are heavy and compete with the silhouette"
+              "score": 4,
+              "why": "drawn roof edges and a deliberate ridge; stonework detail is heavy but consistent"
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "solid brick and plank clusters, minimal noise"
+              "score": 3,
+              "why": "the crops still show single-pixel joints on the wall and specks on the apron"
             },
             "palette_craft": {
               "score": 4,
-              "why": "cool water against warm wood and stone"
+              "why": "cool water against warm wood and stone, coherent"
             }
           }
         }

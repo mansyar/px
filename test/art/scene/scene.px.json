@@ -841,113 +841,72 @@
           }
         },
         {
-          "op": "ascii_blit",
-          "part": "roof",
-          "x": 49,
-          "y": 60,
-          "grid": [
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxx....................................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxx...................................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxx.................................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxx................................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxx...............................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.............................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx............................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.........................................",
-            "................................................................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.......................................",
-            "...........................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx......................................",
-            ".........................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....................................",
-            "........................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...................................",
-            ".......................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..................................",
-            ".....................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx................................",
-            "....................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...............................",
-            "..................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.............................",
-            ".................................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx............................",
-            "...............................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................",
-            "..............................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.........................",
-            "............................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.......................",
-            "...........................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx......................",
-            "..........................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.....................",
-            "........................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...................",
-            ".......................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..................",
-            ".....................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx................",
-            "....................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...............",
-            "..................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.............",
-            ".................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx............",
-            "...............xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........",
-            "..............xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.........",
-            ".........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....",
-            "........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
-            "........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
-            "........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
-            ".......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..",
-            ".....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            "....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................................................",
-            "..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................................................",
-            ".xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................................................",
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................................................",
-            ".xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..........................................................................",
-            "........xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...........................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxxx...................................................................................................................................",
-            "........xxxxxxxxxxxxxx....................................................................................................................................",
-            "........xxxxxxxxxxxxxx....................................................................................................................................",
-            "........xxxxxxxxxxxxxx....................................................................................................................................",
-            "........xxxxxxxxxxxxxx....................................................................................................................................",
-            "........xxxxxxxxxxxxxx....................................................................................................................................",
-            "........xxxxxxxxxxxxxx...................................................................................................................................."
+          "op": "polygon",
+          "points": [
+            [
+              128,
+              43
+            ],
+            [
+              49,
+              96
+            ],
+            [
+              127,
+              96
+            ]
           ],
-          "legend": {
-            "x": "wood.base"
-          }
+          "color": "wood.base",
+          "part": "roof"
         },
         {
-          "op": "ascii_blit",
-          "part": "roof",
-          "x": 93,
-          "y": 45,
-          "grid": [
-            "................................xxxxxxx.................",
-            "...............................xxxxxxxxx................",
-            "................................xxxxxxx.................",
-            "...............................xxxxxxxxx................",
-            ".............................xxxxxxxxxxxxx..............",
-            "............................xxxxxxxxxxxxxxx.............",
-            "..........................xxxxxxxxxxxxxxxxxxx...........",
-            ".........................xxxxxxxxxxxxxxxxxxxxx..........",
-            ".......................xxxxxxxxxxxxxxxxxxxxxxxxx........",
-            "......................xxxxxxxxxxxxxxxxxxxxxxxxxxx.......",
-            ".....................xxxxxxxxxxxxxxxxxxxxxxxxxxxxx......",
-            "...................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....",
-            "..................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
-            "................xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.",
-            "...............xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            ".............xxxxxxxxxxxxxxxxxxxxxxx....................",
-            "............xxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "..........xxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            ".........xxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "........xxxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "......xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            ".....xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "..xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx....................",
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...................."
+          "op": "polygon",
+          "points": [
+            [
+              129,
+              43
+            ],
+            [
+              129,
+              96
+            ],
+            [
+              207,
+              96
+            ]
           ],
-          "legend": {
-            "x": "wood.highlight"
-          }
+          "color": "wood.shadow",
+          "part": "roof"
+        },
+        {
+          "op": "stroke",
+          "path": [
+            [
+              128,
+              43
+            ],
+            [
+              128,
+              96
+            ]
+          ],
+          "color": "wood.outline",
+          "part": "roof",
+          "width": 1
+        },
+        {
+          "op": "texture",
+          "pattern": "hatch",
+          "color": "wood.shadow",
+          "density": 2,
+          "part": "roof"
+        },
+        {
+          "op": "texture",
+          "pattern": "hatch",
+          "color": "wood.outline",
+          "density": 1,
+          "part": "roof"
         },
         {
           "op": "ascii_blit",

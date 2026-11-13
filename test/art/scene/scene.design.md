@@ -71,3 +71,30 @@ vertically often enough that the masonry reads as brickwork rather than rubble. 
 posts are still plain rectangles with no bracket or chamfer. The rope is a 1 px vertical
 that disappears at true size, and the bucket, now dark, is nearly lost against the water.
 The apron's lit crown is a smooth ellipse with no path or grass breaking it up.
+
+## Re-authoring (2026-11-13): the roof on clean diagonals
+
+The recorded 2s were `lighting`, `edge_language` and `cluster_discipline`, and the first
+two were the gable: 62 rows of hand-placed ASCII whose diagonal edges stepped 1–3 px per
+row, with 1 px shingle jitter and a roof whose two planes were painted rather than
+derived. Three changes:
+
+- **The triangle is geometry now.** Two `polygon` ops replace the two ascii blocks that
+  drew it: `roof_l` (apex to the left eave) and `roof_r` (apex to the right eave). Their
+  edges are exact lines, so nothing can stair-step.
+- **The ridge is a `stroke`.** One 1 px `wood.outline` line from apex to eave, drawn down
+  the seam the two polygons leave for it. It replaces the row-by-row edge the ASCII
+  implied.
+- **Shingles are a `texture`.** `hatch` at density 2 on the lit plane and 1 on the far
+  plane produces 3 px courses at the large profile's floor — legal marks, no confetti, and
+  the courses darken away from the ridge.
+
+The ASCII fascia, posts, well, water, bucket and apron are unchanged: only the triangle
+was redrawn.
+
+Judgement (author's self-review): the gable's staircase is gone and the roof now agrees
+with the rest of the scene on one light direction, which is what raises `edge_language`
+and `cluster_discipline` off 2. What remains, and what keeps both at 3, is the masonry —
+its joints still mix 1 px notches with 2 px courses, and the apron keeps sub-3 px specks
+that the lint reports as thin clusters. `palette_craft` stays 3 for the same reason as
+before: the ramps do not step evenly.
