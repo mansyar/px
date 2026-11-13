@@ -1,0 +1,34 @@
+{
+  "spec": "spec.md",
+  "updated_at": "2026-11-13T02:39:14Z",
+  "revert_pr_url": null,
+  "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
+  "type": "feature",
+  "doc_sync": "pending",
+  "status": "new",
+  "priority": "high",
+  "review_rounds": 0,
+  "review_verdict": null,
+  "depends_on": [
+    "20261113-static-art-quality"
+  ],
+  "plan": "plan.md",
+  "id": "20261113-authoring-primitives",
+  "archive_path": null,
+  "reverted_at": null,
+  "pr_state": null,
+  "title": "Authoring Primitives",
+  "pr_url": null,
+  "created_at": "2026-11-13T02:39:14Z",
+  "branch": "feat/20261113-authoring-primitives",
+  "archived_at": null,
+  "base_branch": "main",
+  "last_checkpoint": null,
+  "progress": {
+    "phases_total": 6,
+    "tasks_total": 17,
+    "phases_verified": 0,
+    "tasks_done": 0
+  },
+  "revert_commit": null
+}
