@@ -5,7 +5,7 @@
 - **Branch:** `feat/20261113-authoring-primitives`
 - **Range:** `f0850a2..4e1e0ab`
 - **Date:** `2026-11-13`
-- **Verdict:** `BLOCK`
+- **Verdict:** `PASS WITH FINDINGS (override)`
 
 ## Summary
 
@@ -117,7 +117,14 @@ phase checkpoint was read against its phase contract and then checked as a whole
 
 ## Overrides
 
-- none. F1 is unresolved and is not overridden; the track stays blocked.
+- **F1 — AC-14 measures 3.90 (High).** Approved by the repository owner (`mansyar`) on
+  2026-11-13, in conversation: *"merge first, then let's discuss a follow up track that can
+  improve the engine capability and pixel art result."* Reason: the 3.90 is accepted as the
+  track's measured outcome; the gap is art work that cannot be closed inside a track already
+  failed on it, and a follow-up track owns it. Scope: **AC-14 and FR-17 only** — F2–F4 were
+  fixed before the merge, F5–F7 remain recorded as debt. The override unblocks the merge; it
+  does not change the measurement, so `scores.json` keeps `verdict.result: "fail"` and the
+  PR states the criterion as unmet.
 
 ## Plan compliance
 
@@ -157,3 +164,4 @@ proceeding to completion.
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | BLOCK | 0 | 1 | 3 | 3 | 0 |
+| 1 (override) | PASS WITH FINDINGS | 0 | 1 overridden | 0 | 3 | 3 (F2–F4) |
