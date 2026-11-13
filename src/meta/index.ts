@@ -94,7 +94,7 @@ export function paletteManifest(recipe: Recipe): PaletteManifestEntry[] {
           push(`${name}.${role}`, hex);
         }
       }
-    } else {
+    } else if ('colors' in family) {
       family.colors.forEach((hex, index) => {
         push(`${name}.${index}`, hex);
       });
