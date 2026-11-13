@@ -237,3 +237,18 @@
 - [x] **R3.T1: Parts require schema 1.1** - covers: F17, AC-1
 - [x] **R3.T2: Tie fixtures fail without the tie-break** - covers: F18, FR-3
 - [x] **R3.T3: Outline paragraph matches the gate** - covers: F19, FR-13
+
+## Phase R4: Dogfood Fixes
+
+- **Goal:** Fix the two defects a live agent found in thirty seconds of use that no test caught.
+- **Depends on:** Phase R3
+- **Covers:** F20, F21
+- **Touches:** src/core/errors.ts, src/core/compile.ts, src/core/ops/light.ts, test/**
+- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Status:** verified
+- **Result:** verified - the no-ramp hint no longer names a flag already in effect, and a cast shadow no longer re-owns the surface it shades
+- **Checkpoint:** 6f26c5f
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-R4.md
+
+- [x] **R4.T1: No-ramp hint names a working remedy** - covers: F20
+- [x] **R4.T2: Casts do not re-own the receiving surface** - covers: F21

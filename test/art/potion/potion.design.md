@@ -45,8 +45,13 @@ the recipe to raise `W_CLEANUP_NOOP`).
 
 ## Findings
 
-`--strict` render is clean: no errors, no warnings. One `info` `W_PART_OVERWRITE` names
-op 5 (`light`) repainting glass pixels, which is the pass doing its job on the boundary.
+`--strict` render is clean: no errors, no warnings.
+
+*(Reviewed 2026-11-13: an earlier draft of this note recorded an `info` `W_PART_OVERWRITE`
+naming op 5 (`light`) for repainting glass pixels. That warning was a defect — the `light`
+pass was writing the caster's owner into pixels another part owned, so a cast shadow read
+as a part repaint. Phase R4 fixed the cause, so the finding no longer exists and the note
+now records none.)*
 
 ## Known weaknesses
 

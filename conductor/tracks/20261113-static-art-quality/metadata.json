@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-12T18:35:09Z",
-  "updated_at": "2026-11-13T00:26:43Z",
+  "updated_at": "2026-11-13T00:47:15Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-static-art-quality",
@@ -15,10 +15,10 @@
   "progress": {
     "phases_total": 7,
     "phases_verified": 6,
-    "tasks_total": 32,
-    "tasks_done": 32
+    "tasks_total": 34,
+    "tasks_done": 34
   },
-  "last_checkpoint": "6c8efb4",
+  "last_checkpoint": "6f26c5f",
   "review_verdict": "pass_with_findings",
   "review_rounds": 3,
   "doc_sync": "pending",
