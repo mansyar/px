@@ -8,4 +8,4 @@
 - [x] **Track: Surface Resolution** — [20261113-surface-resolution](./archive/20261113-surface-resolution/index.md) — feature — high — *merged PR #5, AC-8/AC-9 open (3.71 vs 4.0)*
 - [x] **Track: Lighting Recovery** — [20261113-lighting-recovery](./archive/20261113-lighting-recovery/index.md) — feature — high — *merged PR #7, AC-1/2/3/5/7 open (3.69 vs 4.0)*
 - [x] **Track: Rubric Calibration** — [20261113-rubric-calibration](./archive/20261113-rubric-calibration/index.md) — feature — high — *merged PR #8, AC-4 open (3 of 6 criteria separate)*
-- [ ] **Track: Rubric Ceiling Probe** — [20261113-rubric-ceiling-probe](./tracks/20261113-rubric-ceiling-probe/index.md) — feature — high
+- [x] **Track: Rubric Ceiling Probe** — [20261113-rubric-ceiling-probe](./archive/20261113-rubric-ceiling-probe/index.md) — feature — high — *merged PR #9, palette_craft 4-anchor found (lighting 4/3, edge capped at 3)*
