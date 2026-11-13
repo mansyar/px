@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-13T19:40:00Z",
-  "updated_at": "2026-11-13T09:10:58Z",
+  "updated_at": "2026-11-13T09:13:36Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-lighting-recovery",
@@ -23,7 +23,7 @@
   "review_rounds": 1,
   "doc_sync": "none",
   "pr_url": "https://github.com/mansyar/px/pull/7",
-  "pr_state": "open",
+  "pr_state": "merged",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
@@ -36,6 +36,7 @@
     "AC-5",
     "AC-7"
   ],
-  "merge_decision": "owner override 2026-11-13: land with the five missed criteria open",
-  "pr_number": 7
+  "merge_decision": "merged 2026-11-13 as 1e5cb96 with AC-1/2/3/5/7 open by owner override (3.69 vs 4.0)",
+  "pr_number": 7,
+  "merge_commit": "1e5cb96"
 }
