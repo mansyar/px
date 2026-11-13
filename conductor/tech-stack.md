@@ -102,9 +102,11 @@ Windows host, no containers. Node 24 already installed. No env files and no seed
 
 Every op has a golden fixture: a recipe plus the expected PNG SHA-256, committed as text. A determinism test re-renders and compares hashes, and CI asserts identical hashes on Windows and Linux. This is the one suite that can rot into a false pass, so it is treated as a first-class gate rather than an ordinary test.
 
+**Dated note (2026-11-13).** The reactivity of a profile default to rendered bytes is now a determinism concern in its own right: `auto_outline`'s depth keys on the recipe version (`1`/`"1.0"` keep the historical 1 px, `"1.1"` takes `profile.outlineWidth`), so a change in what a version *means* is a byte-level change. Two networked scripts exist and neither is part of the build: `scripts/rubric.mjs` scores art through a vision model and `scripts/upscale.mjs` produces faithful nearest-neighbour views for that scoring. Both are human-run, imported by nothing, and must stay outside `pnpm verify` — the engine and its tests never take a network dependency.
+
 ## Constraints
 
-No third-party raster or image library. No browser surface. Binary alpha only. Recipes must round-trip through a hand-editable text format. Single runtime dependency is a budget, not a coincidence.
+No third-party raster or image library. No browser surface. Binary alpha only. Recipes must round-trip through a hand-editable text format. Single runtime dependency is a budget, not a coincidence. Parts and materials are a schema 1.1 feature, so a `version: 1` document that declares them is rejected rather than silently promoted — promotion changed rendered bytes the moment a profile default keyed on the version.
 
 ## Rejected Alternatives
 
