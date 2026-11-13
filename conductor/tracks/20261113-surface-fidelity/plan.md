@@ -17,16 +17,16 @@
 - **Verification:** `pnpm verify && pnpm vitest run test/art`
 - **Status:** pending
 
-- [ ] **P1.T1: Choose and pin the record instrument** — covers: FR-1
-  - [ ] **P1.T1.1:** Dry-run `flash-lite` and a pro-tier Gemini model on `potion` and `scene` through `PX_RUBRIC_CREDENTIALS`, and record both replies.
-  - [ ] **P1.T1.2:** Choose the model by stated evidence (per-criterion agreement with the archived passes, not by speed) and write the choice and its reasoning into the track's evidence.
-  - [ ] **P1.T1.3:** Make `scripts/rubric.mjs` record `model` on every pass and assert in `test/art/rubric.test.ts` that a `vision-model` pass names its model.
+- [ ] **P1.T1: Pin the record instrument** — covers: FR-1
+  - [ ] **P1.T1.1:** Pin `gemini-3.5-flash-lite` as the record model (owner decision) and record it, with the two dry-run results that justify keeping it, in the phase evidence.
+  - [ ] **P1.T1.2:** Make `scripts/rubric.mjs` record `model` on every pass and assert in `test/art/rubric.test.ts` that a `vision-model` pass names its model; a pass from any other model id is a record error.
+  - [ ] **P1.T1.3:** Measure the instrument's own disagreement: score one asset's two views twice and record the per-criterion spread, so Phase 6 can tell noise from progress.
 - [ ] **P1.T2: Baseline re-score, before any art change** — covers: FR-2
-  - [ ] **P1.T2.1:** Score all seven assets twice each on the chosen model, pass A on the 8× view and pass B on the debug sheet, replacing the mixed record.
+  - [ ] **P1.T2.1:** Score all seven assets twice each on `gemini-3.5-flash-lite`, pass A on the 8× view and pass B on the debug sheet, replacing the mixed record.
   - [ ] **P1.T2.2:** Recompute the verdict and confirm `basis: "independent"`, the recomputed mean, and the listed failures are consistent.
 - [ ] **P1.T3: Calibration note against the archived result** — covers: FR-3
   - [ ] **P1.T3.1:** Compare the independent baseline with the archived 3.90 per criterion and per asset; record the deltas and which instrument produced each number.
-  - [ ] **P1.T3.2:** Record whether the independent bar is stricter or looser, and therefore whether Phase 6's 4.0 target is comparable.
+  - [ ] **P1.T3.2:** Record whether the independent bar is stricter or looser, and therefore whether Phase 6's 4.0 target is comparable; if a below-floor score appears on unchanged art, name it as an instrument effect and keep it in the baseline rather than adjusting the bar.
 
 ## Phase 2: Plane Ownership
 

@@ -158,16 +158,26 @@ claim a 4.0 without an independent measurement.
 
 - **Tracks:** `20261113-authoring-primitives` — required; merged as `b3af7b3`, an
   ancestor of this branch's base.
-- **External:** a Gemini API key reachable through
-  `PX_RUBRIC_CREDENTIALS=~/.config/opencode/opencode.json` (present, verified with
-  a dry run on `gemini-3.5-flash-lite`). No credential is copied into the
-  repository.
+- **External:** the pinned model `gemini-3.5-flash-lite`, reachable through
+  `PX_RUBRIC_CREDENTIALS=~/.config/opencode/opencode.json` (present; verified by
+  dry runs on `potion` and on both `scene` views). No credential is copied into
+  the repository.
 
 ## Open Questions & Assumptions
 
-- **Assumption:** the record instrument is a frontier Gemini model (pro tier),
-  chosen in Phase 1 by comparing it with `flash-lite` on two assets. The choice is
-  recorded with the model id in every pass, so a later reader can see it.
+- **Decision (owner, 2026-11-13):** the record instrument is
+  **`gemini-3.5-flash-lite`** through `PX_RUBRIC_CREDENTIALS`. The model id is
+  written into every pass so the record names its instrument. No model comparison
+  is run; Phase 1 only re-scores.
+- **Observed risk of that decision:** two dry runs on the scene scored
+  `lighting` 2 on the plain view and 3 on the debug sheet, and `potion` pass A
+  came out 3.67 against the archived 4.17. `flash-lite` is both harsher and
+  noisier than the instrument behind the archived numbers, so (a) the independent
+  baseline may report a below-floor score on the scene, which AC-15 then requires
+  the Phase 6 redraw to fix rather than the bar to absorb, and (b) two passes of
+  the same asset may disagree by one point on `lighting`, `silhouette` or
+  `cluster_discipline`. Phase 1 records the disagreement rate before Phase 6, so
+  a one-point "improvement" is not read as art progress.
 - **Assumption:** an instrument change mid-track requires re-scoring all fourteen
   passes, not only the changed assets; mixing models in one verdict is treated as
   the same error as mixing self-review.
