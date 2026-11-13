@@ -59,3 +59,20 @@ reported and the gate is not adjusted. Three criteria are in that state, so:
   evidence for it.
 
 No threshold, target or score was changed to make a criterion pass.
+
+## Owner decision (after Phase 4)
+
+The gate was split into two tiers on this evidence, recorded as spec amendment A3:
+
+| tier | mean | per-criterion floor | status |
+| --- | --- | --- | --- |
+| publishable | 3.5 | 3.0 | reachable (targets sum to 22.0) |
+| exceptional | 4.0 | 3.5 | unreachable (ceiling 3.67) |
+
+`test/unit/calibration/gate.test.ts` was extended to both tiers: the publishable
+tier must be arithmetically reachable with every target clearing its floor, and
+the exceptional tier must either be reachable or declared unreachable with dated
+evidence. Three tests pass; `pnpm verify` exits 0 with 861 tests.
+
+The current record meets neither tier: its mean is 3.69, but humanoid pass B
+scores cluster discipline 1, below the publishable floor of 3.

@@ -170,6 +170,14 @@ that the bar it is being held to has never been shown to be reachable.
   `ambiguous`) and records `saturated` and `anchor4` as independent facts about
   the ceiling, so AC-4 ("lighting separates") and FR-6 ("no 4-anchor") can both
   be true of one criterion. No threshold changed and no bar was lowered.
+- **A3 (2026-11-13, owner decision after Phase 4):** the mean gate is split into
+  two tiers — **publishable** at 3.5 with a per-criterion floor of 3.0, and
+  **exceptional** at 4.0 with a floor of 3.5 — on the calibration evidence, which
+  puts the attainable ceiling at 3.67. The recorded scores and the recorded
+  verdict are unchanged: the decision changes what the numbers mean, not the
+  numbers. AC-20 now reports both tiers, and the current record meets neither,
+  because humanoid pass B scores cluster discipline 1, below the publishable
+  floor.
 - **A2 (2026-11-13, during Phase 4):** the first round of variants was too mild to
   instantiate the anchor-1 descriptions for `edge_language`, `cluster_discipline`
   and `palette_craft` — a chest with every outline removed, and one fully

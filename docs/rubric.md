@@ -131,9 +131,11 @@ never drift into the document.
 
 | quantity | value |
 | --- | --- |
-| mean gate | **4.0** |
-| per-criterion floor | **3.5** |
-| gate status | **unreachable** (calibrated 2026-11-13) |
+| publishable mean | **3.5** |
+| publishable floor | **3.0** |
+| exceptional mean | **4.0** |
+| exceptional floor | **3.5** |
+| exceptional status | **unreachable** (calibrated 2026-11-13) |
 | evidence | `.conductor/evidence/calibration/report.md` (2026-11-13) |
 
 | criterion | target |
@@ -147,11 +149,15 @@ never drift into the document.
 
 The targets above are the highest score each criterion actually reached under the
 calibrated stimuli, not aspirations: a build that satisfies all six sums to 22.0,
-a mean of 3.67. Three of the six — lighting, edge language and palette craft —
-never exceeded 3 on any variant, so the 3.5 floor is itself out of reach for
-them. The mean gate is left at 4.0 because changing it is an owner decision, not
-a side effect of this measurement; the evidence for the decision is the
-Calibration section below.
+a mean of 3.67. They clear the publishable tier (6 × 3.5 = 21.0) and cannot clear
+the exceptional tier (24.0): lighting, edge language and palette craft never
+exceeded 3 on any variant, so a 3.5 floor is out of reach for them.
+
+The two tiers were adopted by owner decision on 2026-11-13 on the evidence in the
+Calibration section. `test/unit/calibration/gate.test.ts` requires the publishable
+tier to be arithmetically reachable and each target to clear its floor, and
+requires an unreachable exceptional tier to be declared with dated evidence — so
+either tier can only drift if someone edits this table knowingly.
 
 ## Calibration
 
@@ -198,9 +204,10 @@ The consequences, stated plainly:
 - A 4.0 mean would require near-perfect scores on the four criteria that reach 4
   and 5, with edge language at 5, which it never reached. The gate is not
   reachable by improving art of this kind.
-- This document does not lower the gate. The recorded verdict stays as it was
-  scored; a gate change needs an owner decision with this section as the
-  evidence.
+- The gate was split into two tiers by owner decision on 2026-11-13:
+  **publishable** at a 3.5 mean with a 3.0 floor, **exceptional** at 4.0 with a
+  3.5 floor. The recorded verdict was not re-scored; the decision changes what the
+  numbers mean, not the numbers.
 
 Scores recorded before 2026-11-13 are **forward only**: they are not re-scored
 against the calibrated stimuli, and archived tracks keep the numbers they were
@@ -212,17 +219,16 @@ AC-20 is met when, across the seven assets and both passes:
 
 - every asset has exactly two passes;
 - all six criteria are integer 1–5 in every pass;
-- the mean of all recorded scores is ≥ the documented mean gate (4.0);
-- no criterion on any asset is below the documented floor (3.5);
+- **publishable:** the mean is ≥ 3.5 and no criterion on any asset is below 3;
+- **exceptional:** the mean is ≥ 4.0 and no criterion on any asset is below 3.5;
 - every score carries a non-empty rationale.
 
-**Status: unmet, and the 2026-11-13 calibration shows it is unmeetable as
-written.** The recorded mean is 3.69; lighting, edge language and palette craft
-never exceeded 3 on any calibrated variant, so even a build that hits every
-demonstrated ceiling averages 3.67. The status is recorded rather than resolved:
-lowering the gate, or splitting it into a publishable floor and an exceptional
-target, is an owner decision. Until that decision is made, a track that misses
-AC-20 records the miss and cites this section.
+**Status (2026-11-13): neither tier is met by the current record.** The mean is
+3.69, but humanoid pass B scores cluster discipline 1, below the publishable
+floor. The exceptional tier is unreachable with these criteria: lighting, edge
+language and palette craft never exceeded 3 on any calibrated variant, so the
+highest attainable mean is 3.67. Both facts are recorded; no recorded score and
+no threshold was changed to clear either tier.
 
 ## Record shape
 
