@@ -89,7 +89,7 @@
 - **Covers:** FR-11, FR-12, FR-13, AC-10, AC-11, AC-12
 - **Touches:** `src/core/ops/texture.ts`, `src/core/recipe/{types,normalize}.ts`, `test/texture/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Region fit** — covers: FR-11
   - [ ] **P4.T1.1:** Add `fit: "region"` alongside the existing default, with a documented rule for where the lattice starts and how a partial mark is clipped.
