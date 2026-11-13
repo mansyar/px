@@ -140,3 +140,9 @@ part-clipped texture courses — `brick` in `stone.outline` for courses and join
 `stipple` in `stone.shadow` for weathering, `hatch` in `stone.highlight` for the
 lit face. Textures cannot leave the part, so a course can never paint a stray row
 outside the drum the way a hand-placed ASCII line could.
+
+## Gable exemption (2026-11-13, revised)
+
+The gable's planes are exempted from `light` with `skip` rather than painted after
+it. The two render to the identical digest, but the op now states the intent —
+"this pass leaves the gable alone" — instead of leaving it implicit in op order.

@@ -332,6 +332,8 @@ export interface AutoOutlineOp extends OpBase {
   op: 'auto_outline';
   mode?: OutlineMode;
   where?: OutlineWhere;
+  /** Tone drawn on the inside of boundaries between two parts. */
+  seam?: SlotRef;
   /** Required unless `selective` supplies the colour from each family. */
   color?: SlotRef;
   selective?: boolean;
@@ -379,6 +381,14 @@ export interface LightOp extends OpBase {
   /** Shadow offset in pixels along the light vector, 1-4. */
   castOffset: number;
   rim: LightRim;
+  /** Interior band count, 2–4. Absent means the pre-track three-band round form. */
+  bands?: number;
+  /** How band widths are measured. Absent means `thickness`. */
+  bandScale?: 'thickness' | 'uniform';
+  /** Only these parts are recoloured. Mutually exclusive with `skip`. */
+  parts?: string[];
+  /** These parts keep their authored tones. Mutually exclusive with `parts`. */
+  skip?: string[];
   targetLayer?: string;
 }
 
@@ -499,10 +509,10 @@ export interface Layer {
  * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
  * byte-identical after a read-write cycle (FR-1).
  */
-export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2';
+export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2' | '1.3';
 
 /** Versions this engine accepts on input. */
-export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2'];
+export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2', '1.3'];
 
 /** The version a recipe is written with once it declares parts. */
 export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';
@@ -541,10 +551,22 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   texture: ['pattern', 'color', 'density', 'fit', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
-  auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],
+  auto_outline: ['mode', 'where', 'color', 'seam', 'selective', 'width', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
-  light: ['angle', 'form', 'ao', 'cast', 'cast_offset', 'rim', 'target_layer'],
+  light: [
+    'angle',
+    'form',
+    'ao',
+    'cast',
+    'cast_offset',
+    'rim',
+    'bands',
+    'band_scale',
+    'parts',
+    'skip',
+    'target_layer',
+  ],
   replace_slot: ['from', 'to'],
   seal: ['target_layer'],
   strays: ['target_layer'],

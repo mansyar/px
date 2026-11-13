@@ -1,0 +1,39 @@
+{
+  "id": "20261113-surface-resolution",
+  "title": "Surface Resolution",
+  "type": "feature",
+  "status": "in_progress",
+  "priority": "high",
+  "depends_on": [
+    "20261113-surface-fidelity"
+  ],
+  "created_at": "2026-11-13T17:40:00Z",
+  "updated_at": "2026-11-13T07:51:48Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261113-surface-resolution",
+  "base_branch": "feat/20261113-surface-fidelity",
+  "base_sha": "316568a",
+  "progress": {
+    "phases_total": 5,
+    "phases_verified": 4,
+    "tasks_total": 23,
+    "tasks_done": 23
+  },
+  "last_checkpoint": "7c33905",
+  "review_verdict": "changes_requested",
+  "review_rounds": 1,
+  "doc_sync": "pending",
+  "pr_url": "https://github.com/mansyar/px/pull/5",
+  "pr_state": "open",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-8",
+    "AC-9"
+  ],
+  "merge_decision": "merged 2026-11-13 by owner with AC-8/AC-9 open (score 3.71 vs 4.0)"
+}

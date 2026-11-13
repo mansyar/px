@@ -132,6 +132,13 @@ export interface LightOptions {
   cast: number | null;
   castOffset: number;
   rim: LightRim;
+  /** Interior band count; absent keeps the historical three. */
+  bands?: number;
+  bandScale?: 'thickness' | 'uniform';
+  /** Resolved part indexes the pass may recolour; absent means all of them. */
+  shadeInclude?: Set<number>;
+  /** Resolved part indexes the pass must leave alone. */
+  shadeExclude?: Set<number>;
 }
 
 export interface LightResult {
@@ -287,7 +294,7 @@ export function applyLight(
       for (let x = 0; x < width; x += 1) {
         const owner = ownerAt(x, y);
         const target = targets[owner];
-        if (owner === UNOWNED || target === undefined) {
+        if (owner === UNOWNED || target === undefined || !shaded(owner)) {
           continue;
         }
         canvas.set(x, y, target);
@@ -296,12 +303,27 @@ export function applyLight(
     }
   };
 
+  /**
+   * Part selection. A skipped part keeps whatever its ops painted, which is how
+   * an authored plane tone survives a pass that resolves tones from geometry.
+   * Selection never changes ownership: this is a colour pass either way.
+   */
+  const shaded = (owner: number): boolean => {
+    if (options.shadeInclude !== undefined) {
+      return options.shadeInclude.has(owner);
+    }
+    return options.shadeExclude === undefined || !options.shadeExclude.has(owner);
+  };
+
   const bevel = (): void => {
     for (let y = 0; y < height; y += 1) {
       for (let x = 0; x < width; x += 1) {
         const owner = ownerAt(x, y);
         const surface = surfaces[owner];
         if (owner === UNOWNED || surface === undefined) {
+          continue;
+        }
+        if (!shaded(owner)) {
           continue;
         }
         const role = outlineRole(owner, x, y, true);
@@ -325,7 +347,7 @@ export function applyLight(
   const roundBands = (): void => {
     for (let owner = 0; owner < surfaces.length; owner += 1) {
       const surface = surfaces[owner];
-      if (surface === undefined || surface.gloss === 'metal') {
+      if (surface === undefined || surface.gloss === 'metal' || !shaded(owner)) {
         continue;
       }
       const ranked = rankProjections(
@@ -339,8 +361,18 @@ export function applyLight(
       if (ranked === undefined) {
         continue;
       }
+      const bands = options.bands ?? 3;
+      // `thickness` shares the part's own extent equally, so every band covers the
+      // same number of ranks. `uniform` uses a fixed pixel width taken from the
+      // extent, so a short part may never reach the last band.
+      const bandWidth =
+        options.bandScale === 'uniform' ? Math.max(1, Math.floor(ranked.occupiedCount / bands)) : 0;
       for (const cell of ranked.cells) {
-        const role = bandRole(Math.floor((cell.rank * 3) / ranked.occupiedCount), 3);
+        const bucket =
+          bandWidth === 0
+            ? Math.floor((cell.rank * bands) / ranked.occupiedCount)
+            : Math.min(bands - 1, Math.floor(cell.rank / bandWidth));
+        const role = bandRole(bucket, bands);
         const target = roleSlotFor(owner, role);
         if (target === undefined) {
           continue;
@@ -357,6 +389,9 @@ export function applyLight(
         const owner = ownerAt(x, y);
         const surface = surfaces[owner];
         if (owner === UNOWNED || surface === undefined) {
+          continue;
+        }
+        if (!shaded(owner)) {
           continue;
         }
         const occluded = NEIGHBOURS_4.some(([dx, dy]) => {
@@ -472,7 +507,7 @@ export function applyLight(
     for (let y = 0; y < height; y += 1) {
       for (let x = 0; x < width; x += 1) {
         const owner = ownerAt(x, y);
-        if (owner === UNOWNED || surfaces[owner] === undefined) {
+        if (owner === UNOWNED || surfaces[owner] === undefined || !shaded(owner)) {
           continue;
         }
         let boundary = false;
@@ -561,7 +596,7 @@ export function applyLight(
   const gloss = (): void => {
     for (let owner = 0; owner < surfaces.length; owner += 1) {
       const surface = surfaces[owner];
-      if (surface === undefined || surface.gloss === 'matte') {
+      if (surface === undefined || surface.gloss === 'matte' || !shaded(owner)) {
         continue;
       }
       if (surface.gloss === 'metal') {

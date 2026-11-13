@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.3",
   "meta": {
     "name": "scene",
     "width": 256,
@@ -752,7 +752,13 @@
           "ao": true,
           "cast": null,
           "cast_offset": 1,
-          "rim": "edge"
+          "rim": "edge",
+          "skip": [
+            "roof_left",
+            "roof_right",
+            "ridge"
+          ],
+          "bands": 3
         },
         {
           "op": "polygon",

@@ -57,6 +57,7 @@ import {
   type RawOp,
   type Recipe,
   type RecipeMeta,
+  type RecipeVersion,
   type RectOp,
   type ReplaceSlotOp,
   type SealOp,
@@ -1219,6 +1220,21 @@ function normalizeAutoOutline(
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;
   }
+  // `colorParam` only ever reads `color`, so the seam needs its own read. The
+  // slot itself is resolved at compile time, where an unknown name is an error.
+  const seam = source.seam;
+  if (seam !== undefined) {
+    if (typeof seam !== 'string') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (auto_outline) has a non-string seam`,
+        'seam is a slot reference such as "steel.outline".',
+        opLocation(layer, opIndex),
+      );
+    }
+    op.seam = seam;
+  }
+
   return op;
 }
 
@@ -1331,6 +1347,85 @@ function normalizeLight(source: Record<string, unknown>, opIndex: number, layer:
     castOffset: castOffset ?? 1,
     rim: rim ?? 'edge',
   };
+  const bands = source.bands;
+  if (bands !== undefined) {
+    if (typeof bands !== 'number' || !Number.isInteger(bands) || bands < 2 || bands > 4) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has bands ${JSON.stringify(bands)}; only 2, 3 and 4 are supported`,
+        'Bands split the part along the light axis; a part thinner than the count degrades to fewer bands.',
+        opLocation(layer, opIndex),
+      );
+    }
+    op.bands = bands;
+  }
+  const bandScale = source.band_scale;
+  if (bandScale !== undefined) {
+    if (bands === undefined) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) sets band_scale without bands`,
+        'band_scale only means something when bands says how many to place.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (bandScale !== 'thickness' && bandScale !== 'uniform') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has band_scale ${JSON.stringify(bandScale)}; only "thickness" and "uniform" are supported`,
+        'thickness shares the part`s extent equally; uniform uses a fixed pixel width.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (bandScale === 'uniform') {
+      op.bandScale = 'uniform';
+    }
+  }
+  const names = (key: 'parts' | 'skip'): string[] | undefined => {
+    const raw = source[key];
+    if (raw === undefined) {
+      return undefined;
+    }
+    if (!Array.isArray(raw) || raw.length === 0) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has ${key} ${JSON.stringify(raw)}; expected a non-empty list of part names`,
+        'Name at least one declared part.',
+        opLocation(layer, opIndex),
+      );
+    }
+    const out: string[] = [];
+    for (const entry of raw) {
+      if (typeof entry !== 'string' || entry === '') {
+        throw new PxError(
+          'E_BAD_PARAM',
+          `Op ${opIndex} (light) has a non-string entry in ${key}`,
+          'Part names are strings copied from the recipe parts block.',
+          opLocation(layer, opIndex),
+        );
+      }
+      if (!out.includes(entry)) {
+        out.push(entry);
+      }
+    }
+    return out;
+  };
+  const include = names('parts');
+  const exclude = names('skip');
+  if (include !== undefined && exclude !== undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) sets both parts and skip`,
+      'An allow-list and a deny-list cannot both decide which parts are shaded.',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (include !== undefined) {
+    op.parts = include;
+  }
+  if (exclude !== undefined) {
+    op.skip = exclude;
+  }
   const targetLayer = optionalStringParam(source, 'target_layer', 'light', opIndex, layer);
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;
@@ -1618,6 +1713,21 @@ export interface NormalizeResult {
   warnings: PxWarning[];
 }
 
+/** Ordering for gates: a 1.0 document predates every option a later version adds. */
+function versionRank(version: RecipeVersion): number {
+  switch (version) {
+    case 1:
+    case '1.0':
+      return 0;
+    case '1.1':
+      return 1;
+    case '1.2':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
 export function normalizeRecipe(raw: unknown): NormalizeResult {
   if (!isRecord(raw)) {
     throw new PxError(
@@ -1636,6 +1746,75 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
     );
   }
 
+  // Part selection names must exist at any version, not only the one that
+  // introduced the option: a typo should not wait for a second error.
+  const namedParts = new Set(
+    typeof raw.parts === 'object' && raw.parts !== null ? Object.keys(raw.parts) : [],
+  );
+  for (const layer of Array.isArray(raw.layers) ? raw.layers : []) {
+    const ops = (layer as { ops?: unknown }).ops;
+    if (!Array.isArray(ops)) continue;
+    for (const op of ops) {
+      const candidate = op as { op?: unknown; parts?: unknown; skip?: unknown };
+      if (candidate.op !== 'light') continue;
+      for (const key of ['parts', 'skip'] as const) {
+        const list = candidate[key];
+        if (!Array.isArray(list)) continue;
+        for (const name of list) {
+          if (!namedParts.has(String(name))) {
+            throw new PxError(
+              'E_BAD_PARAM',
+              `Op (light) names part "${String(name)}" in ${key}, which the recipe does not declare`,
+              `Declared parts are ${[...namedParts].join(', ') || 'none'}.`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  // 1.3 options: band count and scale, part selection, the outline seam, and a
+  // role that names a tone. Each changes pixels only when used, so a document
+  // that does not use them keeps its bytes at any version.
+  if (versionRank(version) < 3) {
+    const rawLayers = Array.isArray(raw.layers) ? raw.layers : [];
+    for (const layer of rawLayers) {
+      const ops = (layer as { ops?: unknown }).ops;
+      if (!Array.isArray(ops)) continue;
+      for (const op of ops) {
+        const candidate = op as Record<string, unknown>;
+        const lightUses =
+          candidate.op === 'light' &&
+          (candidate.bands !== undefined ||
+            candidate.band_scale !== undefined ||
+            candidate.parts !== undefined ||
+            candidate.skip !== undefined);
+        const seamUses = candidate.op === 'auto_outline' && candidate.seam !== undefined;
+        if (lightUses || seamUses) {
+          throw new PxError(
+            'E_BAD_VERSION',
+            `Op uses a 1.3-only option with version ${JSON.stringify(version)}, but it requires schema 1.3`,
+            'Set "version": "1.3" to use light bands, part selection or the outline seam.',
+          );
+        }
+      }
+    }
+    const families = (raw.palette ?? {}) as Record<string, unknown>;
+    for (const [name, family] of Object.entries(families)) {
+      const ramp = (family as { ramp?: Record<string, unknown> }).ramp;
+      if (typeof ramp !== 'object' || ramp === null) continue;
+      for (const [role, value] of Object.entries(ramp)) {
+        if (typeof value === 'string' && /^t\d+$/.test(value)) {
+          throw new PxError(
+            'E_BAD_VERSION',
+            `Palette family "${name}" role "${role}" names a tone with version ${JSON.stringify(version)}, which requires schema 1.3`,
+            'Set "version": "1.3" to point a role at a tone.',
+          );
+        }
+      }
+    }
+  }
+
   // Parts are a 1.1 feature (FR-5), so a 1.0 document that declares them is a
   // contradiction. Rejecting it here is what lets the writer echo the caller's
   // version verbatim: a 1.0 recipe is always part-less, so no write can promote
@@ -1643,7 +1822,7 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   // `fit: "region"` is a 1.2 option (FR-16). A 1.1 document that used it would
   // otherwise compile to different pixels on either side of the upgrade, so it
   // is rejected here with a message that names the version to set.
-  if (version !== '1.2') {
+  if (versionRank(version) < 2) {
     const palette = (raw.palette ?? {}) as Record<string, unknown>;
     for (const [name, family] of Object.entries(palette)) {
       if (typeof family === 'object' && family !== null && 'derive' in family) {
@@ -1654,7 +1833,32 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
         );
       }
     }
+    const declaredParts = new Set(
+      typeof raw.parts === 'object' && raw.parts !== null ? Object.keys(raw.parts) : [],
+    );
     const layers = Array.isArray(raw.layers) ? raw.layers : [];
+    for (const layer of layers) {
+      const ops = (layer as { ops?: unknown }).ops;
+      if (!Array.isArray(ops)) continue;
+      for (const op of ops) {
+        const candidate = op as { op?: unknown; parts?: unknown; skip?: unknown };
+        if (candidate.op !== 'light') continue;
+        for (const key of ['parts', 'skip'] as const) {
+          const list = candidate[key];
+          if (!Array.isArray(list)) continue;
+          for (const name of list) {
+            if (!declaredParts.has(String(name))) {
+              throw new PxError(
+                'E_BAD_PARAM',
+                `Op (light) names part "${String(name)}" in ${key}, which the recipe does not declare`,
+                `Declared parts are ${[...declaredParts].join(', ') || 'none'}.`,
+                { layer: String((layer as { id?: unknown }).id ?? 'base') },
+              );
+            }
+          }
+        }
+      }
+    }
     for (const layer of layers) {
       const ops = (layer as { ops?: unknown }).ops;
       if (!Array.isArray(ops)) continue;

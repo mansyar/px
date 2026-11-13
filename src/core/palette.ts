@@ -156,6 +156,13 @@ export function normalizeFamily(name: string, raw: unknown): NormalizedFamily {
         );
       }
     });
+    // A role may name a tone instead of a hex (`base: "t3"`). Tones are read
+    // first so the reference has something to resolve against; an unknown tone
+    // is an error naming both sides rather than a silent fallback.
+    const toneHex = new Map<string, string>();
+    for (const tone of tones) {
+      toneHex.set(`t${tone}`, requireColor(roles[`t${tone}`], `tone "t${tone}"`, name).text);
+    }
     if (Object.keys(roles).length === 0) {
       throw new PxError(
         'E_BAD_PALETTE',
@@ -171,7 +178,15 @@ export function normalizeFamily(name: string, raw: unknown): NormalizedFamily {
       if (value === undefined) {
         continue;
       }
-      const color = requireColor(value, `role "${role}"`, name);
+      const text = typeof value === 'string' && /^t\d+$/.test(value) ? toneHex.get(value) : value;
+      if (text === undefined) {
+        throw new PxError(
+          'E_BAD_PALETTE',
+          `Palette family "${name}" role "${role}" names tone "${String(value)}", which the family does not declare`,
+          'A tone reference is "t0" … "t(n-1)" and must exist alongside the role.',
+        );
+      }
+      const color = requireColor(text, `role "${role}"`, name);
       rampOut[role] = color.text;
       slots.push(`${name}.${role}`);
       rgba.push(color.rgba);
