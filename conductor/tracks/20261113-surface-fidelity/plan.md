@@ -89,17 +89,21 @@
 - **Covers:** FR-11, FR-12, FR-13, AC-10, AC-11, AC-12
 - **Touches:** `src/core/ops/texture.ts`, `src/core/recipe/{types,normalize}.ts`, `test/texture/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P4.T1: Region fit** — covers: FR-11
-  - [ ] **P4.T1.1:** Add `fit: "region"` alongside the existing default, with a documented rule for where the lattice starts and how a partial mark is clipped.
-  - [ ] **P4.T1.2:** Guarantee at least one mark at or above the cluster minimum on a part smaller than one cell, with the 9×8 leg as the fixture.
-  - [ ] **P4.T1.3:** Keep pattern choice and gap behaviour identical to the current implementation for parts that already fit a cell.
-- [ ] **P4.T2: No-room warning** — covers: FR-12
-  - [ ] **P4.T2.1:** Report a warning naming the part when no legal mark fits, and paint zero pixels rather than raising.
-  - [ ] **P4.T2.2:** Assert the warning appears once, not per scanned cell.
-- [ ] **P4.T3: Compatibility** — covers: FR-13
-  - [ ] **P4.T3.1:** Confirm the pre-track potion, sword, humanoid and chest digests are unchanged.
+- [x] **P4.T1: Region fit** — covers: FR-11
+  - [x] **P4.T1.1:** Add `fit: "region"` alongside the existing default, with a documented rule for where the lattice starts and how a partial mark is clipped.
+  - [x] **P4.T1.2:** Guarantee at least one mark at or above the cluster minimum on a part smaller than one cell, with the 9×8 leg as the fixture.
+  - [x] **P4.T1.3:** Keep pattern choice and gap behaviour identical to the current implementation for parts that already fit a cell.
+- [x] **P4.T2: No-room warning** — covers: FR-12
+  - [x] **P4.T2.1:** Report a warning naming the part when no legal mark fits, and paint zero pixels rather than raising.
+  - [x] **P4.T2.2:** Assert the warning appears once, not per scanned cell.
+- [x] **P4.T3: Compatibility** — covers: FR-13
+  - [x] **P4.T3.1:** Confirm the pre-track potion, sword, humanoid and chest digests are unchanged.
+
+**Result:** verified
+**Checkpoint:** b28ccc3
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-4.md
 
 ## Phase 5: Ramps and Edge Language
 
