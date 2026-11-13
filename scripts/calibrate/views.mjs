@@ -13,7 +13,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname ?? new URL(".", import.meta.url).pathname, "../..");
@@ -83,6 +83,7 @@ for (const asset of ASSETS) {
     throw new Error(`upscale failed for ${asset}\n${upscaled.stdout}\n${upscaled.stderr}`);
   }
   copyFileSync(join(dir, "1x.8x.png"), join(dir, "8x.png"));
+  rmSync(join(dir, "1x.8x.png"));
 
   const entries = {};
   for (const view of VIEWS) {

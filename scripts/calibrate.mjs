@@ -67,6 +67,7 @@ function parseArgs(argv) {
     view: null,
     repeat: null,
     mergeViews: false,
+    replace: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -98,6 +99,8 @@ function parseArgs(argv) {
       index += 1;
     } else if (flag === '--merge-views') {
       options.mergeViews = true;
+    } else if (flag === '--replace') {
+      options.replace = true;
     } else {
       throw new Error(`unknown argument: ${flag}`);
     }
@@ -530,19 +533,25 @@ function writeViews(raw, analysis) {
     analysis,
     artifacts: raw.results,
   };
-  writeFileSync(join(VIEWS_OUT, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  writeFileSync(join(VIEWS_OUT, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
-  writeFileSync(join(VIEWS_TRACK, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  writeFileSync(join(VIEWS_TRACK, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
-  process.stdout.write(`${lines.join('\n')}\n`);
-
   const unscored = raw.results.some((entry) =>
     Object.values(entry.views).some((view) => view.repeats.some((repeat) => repeat === null)),
   );
-  if (unscored) {
-    process.stderr.write('incomplete: at least one repeat could not be scored\n');
+
+  writeFileSync(join(VIEWS_OUT, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(join(VIEWS_OUT, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
+  // The committed report is the track's only record of the measurement, so an
+  // incomplete run must not replace it. `--replace` opts in explicitly.
+  if (unscored && !raw.replace) {
+    process.stderr.write(
+      'incomplete: at least one repeat could not be scored; the committed report was left untouched (run with --replace to overwrite it)\n',
+    );
     process.exitCode = 1;
+  } else {
+    writeFileSync(join(VIEWS_TRACK, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+    writeFileSync(join(VIEWS_TRACK, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
   }
+  process.stdout.write(`${lines.join('\n')}\n`);
+  if (unscored && raw.replace) process.exitCode = 1;
 }
 
 function mean(values) {
@@ -658,13 +667,19 @@ function main() {
       return;
     }
     if (options.views) {
+      if ((options.view || options.repeat) && !options.mergeViews) {
+        throw new Error('--view and --repeat select single slots; add --merge-views so the other scores are kept');
+      }
       let raw = runViews(options);
       if (options.mergeViews) {
         const path = join(VIEWS_TRACK, 'views.json');
         if (!existsSync(path)) throw new Error('--merge-views needs an existing views.json');
         raw = mergeIntoViews(raw, JSON.parse(readFileSync(path, 'utf8')));
       }
-      writeViews({ ...raw, model: options.model }, analyseViews(raw.registry, raw.results));
+      writeViews(
+        { ...raw, model: options.model, replace: options.replace },
+        analyseViews(raw.registry, raw.results),
+      );
       return;
     }
     for (const criterion of selected) {
