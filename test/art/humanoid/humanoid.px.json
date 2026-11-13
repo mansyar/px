@@ -8,43 +8,33 @@
   },
   "palette": {
     "arm": {
-      "ramp": {
-        "outline": "#0a0d12",
-        "shadow": "#0d1014",
-        "base": "#161a1f",
-        "highlight": "#4e5a6b"
+      "derive": {
+        "base": "#000909",
+        "stops": 5
       }
     },
     "blade": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#bdc6d0",
-        "base": "#c6d3e1",
-        "highlight": "#c7e1ff"
+      "derive": {
+        "base": "#e4eaf1",
+        "stops": 5
       }
     },
     "helm": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#96a1ae",
-        "base": "#a5b0be",
-        "highlight": "#afc1d7"
+      "derive": {
+        "base": "#f4f5f7",
+        "stops": 5
       }
     },
     "hilt": {
-      "ramp": {
-        "outline": "#110c05",
-        "shadow": "#c6812b",
-        "base": "#c69c3b",
-        "highlight": "#e3aa1b"
+      "derive": {
+        "base": "#bd9537",
+        "stops": 5
       }
     },
     "gorget": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#8392a5",
-        "base": "#98a3b1",
-        "highlight": "#a4b5c9"
+      "derive": {
+        "base": "#b3bbc4",
+        "stops": 5
       }
     },
     "ink": {
@@ -53,35 +43,27 @@
       }
     },
     "leg": {
-      "ramp": {
-        "outline": "#0a0d12",
-        "shadow": "#0d1014",
-        "base": "#161a1f",
-        "highlight": "#4e5a6b"
+      "derive": {
+        "base": "#000909",
+        "stops": 5
       }
     },
     "pauldron": {
-      "ramp": {
-        "outline": "#0c0d10",
-        "shadow": "#a6aeb9",
-        "base": "#b1bdca",
-        "highlight": "#b5cde7"
+      "derive": {
+        "base": "#c7d2da",
+        "stops": 5
       }
     },
     "plume": {
-      "ramp": {
-        "outline": "#1e0508",
-        "shadow": "#21070a",
-        "base": "#90262c",
-        "highlight": "#d62e2e"
+      "derive": {
+        "base": "#91272d",
+        "stops": 5
       }
     },
     "torso": {
-      "ramp": {
-        "outline": "#0b0d11",
-        "shadow": "#0d1013",
-        "base": "#444e5b",
-        "highlight": "#647285"
+      "derive": {
+        "base": "#00001e",
+        "stops": 5
       }
     }
   },
@@ -165,31 +147,36 @@
             "................................",
             "................................",
             "................................",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hsssssss............",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hsssssss............",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hbbbbbbs............",
-            "............hsssssss............",
-            "............hbbbbbbs............",
-            "............ssshhsss............",
-            "............oooooooo............",
+            "............00000000............",
+            "............00111224............",
+            "............00111224............",
+            "............00111224............",
+            "............01112224............",
+            "............01112224............",
+            "............01112224............",
+            "............01112224............",
+            "............01112224............",
+            "............01112224............",
+            "............01122224............",
+            "............01122234............",
+            "............01122234............",
+            "............01122234............",
+            "............04444444............",
             "................................",
             "................................",
             "................................",
             "................................"
           ],
           "legend": {
-            "s": "torso.shadow",
-            "o": "torso.outline",
-            "h": "torso.highlight",
-            "b": "torso.base"
+            "s": "torso.t3",
+            "o": "torso.t4",
+            "h": "torso.t0",
+            "b": "torso.t2",
+            "0": "torso.t0",
+            "1": "torso.t1",
+            "2": "torso.t2",
+            "3": "torso.t3",
+            "4": "torso.t4"
           }
         },
         {
@@ -232,9 +219,9 @@
             "................................"
           ],
           "legend": {
-            "s": "arm.shadow",
-            "h": "arm.highlight",
-            "b": "arm.base"
+            "s": "arm.t3",
+            "h": "arm.t0",
+            "b": "arm.t2"
           }
         },
         {
@@ -277,8 +264,8 @@
             "................................"
           ],
           "legend": {
-            "s": "leg.shadow",
-            "b": "leg.base"
+            "s": "leg.t3",
+            "b": "leg.t2"
           }
         },
         {
@@ -321,9 +308,9 @@
             "................................"
           ],
           "legend": {
-            "s": "blade.shadow",
-            "h": "blade.highlight",
-            "b": "blade.base"
+            "s": "blade.t3",
+            "h": "blade.t0",
+            "b": "blade.t2"
           }
         },
         {
@@ -366,10 +353,10 @@
             "................................"
           ],
           "legend": {
-            "s": "helm.shadow",
-            "o": "helm.outline",
-            "h": "helm.highlight",
-            "b": "helm.base"
+            "s": "helm.t3",
+            "o": "helm.t4",
+            "h": "helm.t0",
+            "b": "helm.t2"
           }
         },
         {
@@ -412,9 +399,9 @@
             "................................"
           ],
           "legend": {
-            "s": "pauldron.shadow",
-            "h": "pauldron.highlight",
-            "b": "pauldron.base"
+            "s": "pauldron.t3",
+            "h": "pauldron.t0",
+            "b": "pauldron.t2"
           }
         },
         {
@@ -457,10 +444,10 @@
             "................................"
           ],
           "legend": {
-            "s": "hilt.shadow",
-            "o": "hilt.outline",
-            "h": "hilt.highlight",
-            "b": "hilt.base"
+            "s": "hilt.t3",
+            "o": "hilt.t4",
+            "h": "hilt.t0",
+            "b": "hilt.t2"
           }
         },
         {
@@ -503,9 +490,9 @@
             "................................"
           ],
           "legend": {
-            "s": "plume.shadow",
-            "h": "plume.highlight",
-            "b": "plume.base"
+            "s": "plume.t3",
+            "h": "plume.t0",
+            "b": "plume.t2"
           }
         },
         {
@@ -548,9 +535,9 @@
             "................................"
           ],
           "legend": {
-            "s": "gorget.shadow",
-            "h": "gorget.highlight",
-            "b": "gorget.base"
+            "s": "gorget.t3",
+            "h": "gorget.t0",
+            "b": "gorget.t2"
           }
         },
         {

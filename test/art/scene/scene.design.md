@@ -150,3 +150,25 @@ it. The two render to the identical digest, but the op now states the intent —
 ## Redraw
 
 Redrawn 2026-11-13: the well is rebuilt from geometry — roof seated on two posts that reach the ground, a crossbeam, a stone drum with courses and a lit rim, dark water in the mouth, rope and bucket, and a cast shadow. The floating gable, crate-like door and flat disc ground are gone.
+
+## Derived ramps
+
+The palette is derived rather than hand-listed: each material family is one
+`{"derive": {"base": ..., "stops": 5}}` base colour, expanded to five tones whose
+hue rotates warm at the highlight end and cool at the shadow end. The middle tone
+(`t2`) is the family's base role; the darkest tone (`t4`) carries the detail-edge
+and shadow rims that the old explicit `outline` role supplied, and the painted
+shadow sits one step above it (`t3`) so the rims stay separable.
+
+Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance and
+each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
+Geometry is unchanged; only the palette blocks and the legend's tone names moved,
+which is why the digest was re-baselined.
+
+## Lighting
+
+Light comes from high and to the left. Both roof planes share one hue and fall from a bright ridge to darker eaves, with the right plane one ladder step behind the left, so the ridge is a single-tone crease rather than a boundary between two lighting schemes. The stone well body, rim, posts and wall carry a left-to-right falloff that matches the cast shadow on the ground.
+
+## Interior edges
+
+Every raised face takes a light tone on its top and left boundary and the darkest tone on its bottom and right, so brick courses, planks and the roof trim share one edge treatment. Parts under 70 painted pixels are exempt: on a rope the convention would consume the whole form.

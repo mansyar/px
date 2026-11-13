@@ -8,35 +8,27 @@
   },
   "palette": {
     "brew": {
-      "ramp": {
-        "outline": "#1f0311",
-        "shadow": "#22050f",
-        "base": "#8c2939",
-        "highlight": "#b35355"
+      "derive": {
+        "base": "#8e2a3a",
+        "stops": 5
       }
     },
     "cork": {
-      "ramp": {
-        "outline": "#130b07",
-        "shadow": "#150e09",
-        "base": "#644734",
-        "highlight": "#8b6b4e"
+      "derive": {
+        "base": "#673f2d",
+        "stops": 5
       }
     },
     "glass": {
-      "ramp": {
-        "outline": "#090e0e",
-        "shadow": "#b3d7d7",
-        "base": "#ace8d4",
-        "highlight": "#82ffbe"
+      "derive": {
+        "base": "#b8ecda",
+        "stops": 5
       }
     },
     "gorget": {
-      "ramp": {
-        "outline": "#1c222a",
-        "shadow": "#39424e",
+      "derive": {
         "base": "#8c98a8",
-        "highlight": "#c9d3df"
+        "stops": 5
       }
     },
     "ink": {
@@ -94,19 +86,24 @@
             "................",
             "................",
             "................",
-            ".....hhhhhh.....",
-            "....hhhhhhhh....",
-            "....bbbbbbbb....",
-            "....ssssssss....",
+            ".....000000.....",
+            "....11111111....",
+            "....22222222....",
+            "....22222222....",
             "....oooooooo....",
             "................",
             "................"
           ],
           "legend": {
-            "s": "brew.shadow",
-            "o": "brew.outline",
-            "h": "brew.highlight",
-            "b": "brew.base"
+            "s": "brew.t3",
+            "o": "brew.t4",
+            "h": "brew.t0",
+            "b": "brew.t2",
+            "0": "brew.t0",
+            "1": "brew.t1",
+            "2": "brew.t2",
+            "3": "brew.t3",
+            "4": "brew.t4"
           }
         },
         {
@@ -133,9 +130,9 @@
             "................"
           ],
           "legend": {
-            "s": "glass.shadow",
-            "h": "glass.highlight",
-            "b": "glass.base"
+            "s": "glass.t3",
+            "h": "glass.t0",
+            "b": "glass.t2"
           }
         },
         {
@@ -162,9 +159,9 @@
             "................"
           ],
           "legend": {
-            "s": "cork.shadow",
-            "h": "cork.highlight",
-            "b": "cork.base"
+            "s": "cork.t3",
+            "h": "cork.t0",
+            "b": "cork.t2"
           }
         },
         {
