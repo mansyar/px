@@ -64,18 +64,22 @@
 - **Covers:** FR-8, FR-9, FR-10, NFR-1, NFR-4, AC-7, AC-8, AC-9
 - **Touches:** `src/core/ops/light.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Op surface and normalization** — covers: FR-8
-  - [ ] **P3.T1.1:** Write the design note that picks between a new `form_shade` op and an `auto_shade` option, with the compatibility argument for the choice.
-  - [ ] **P3.T1.2:** Implement the op with `part`, `light_dir`, `from`, `to` and an optional band width, validated in `normalize.ts` under schema 1.2.
-  - [ ] **P3.T1.3:** Derive band widths from the part's thickness between `from` and `to` so the result depends on the form, not on canvas width.
-- [ ] **P3.T2: Band placement and occlusion** — covers: FR-9
-  - [ ] **P3.T2.1:** Place lit, mid and shadow bands using one direction and the plane from `facing`, deterministic across replays.
-  - [ ] **P3.T2.2:** Darken one ramp step where the part meets a part behind it along the light direction, and prove idempotence on a re-run.
-- [ ] **P3.T3: Errors, flat palettes and cost** — covers: FR-10
-  - [ ] **P3.T3.1:** Raise `E_NO_RAMP` on a flat family and leave the canvas byte-identical on that path.
-  - [ ] **P3.T3.2:** Add the op to the benchmark and confirm the 2,000-op budget is unaffected.
+- [x] **P3.T1: Op surface and normalization** — covers: FR-8
+  - [x] **P3.T1.1:** Write the design note that picks between a new `form_shade` op and an `auto_shade` option, with the compatibility argument for the choice.
+  - [x] **P3.T1.2:** Implement the op with `part`, `light_dir`, `from`, `to` and an optional band width, validated in `normalize.ts` under schema 1.2.
+  - [x] **P3.T1.3:** Derive band widths from the part's thickness between `from` and `to` so the result depends on the form, not on canvas width.
+- [x] **P3.T2: Band placement and occlusion** — covers: FR-9
+  - [x] **P3.T2.1:** Place lit, mid and shadow bands using one direction and the plane from `facing`, deterministic across replays.
+  - [x] **P3.T2.2:** Darken one ramp step where the part meets a part behind it along the light direction, and prove idempotence on a re-run.
+- [x] **P3.T3: Errors, flat palettes and cost** — covers: FR-10
+  - [x] **P3.T3.1:** Raise `E_NO_RAMP` on a flat family and leave the canvas byte-identical on that path.
+  - [x] **P3.T3.2:** Add the op to the benchmark and confirm the 2,000-op budget is unaffected.
+
+**Result:** verified
+**Checkpoint:** 97e53df
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-3.md
 
 ## Phase 4: Texture on Small Parts
 
