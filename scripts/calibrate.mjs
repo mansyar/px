@@ -17,6 +17,7 @@
  * failed beyond its retry budget, 2 no credential (from the scorer).
  */
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +28,8 @@ const SCORES = join(ROOT, 'test/art/scores.json');
 const OUT = join(ROOT, '.conductor/evidence/calibration');
 const BACKUP = join(OUT, 'scores-backup.json');
 const VARIANTS = join(OUT, 'variants');
+const PROBE_TRACK = join(ROOT, 'conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling');
+const PROBE_REGISTRY = join(PROBE_TRACK, 'candidates.json');
 
 const CRITERIA = [
   'silhouette',
@@ -54,6 +57,8 @@ function parseArgs(argv) {
     only: null,
     model: process.env.PX_RUBRIC_MODEL ?? DEFAULT_MODEL,
     recompute: false,
+    probes: false,
+    candidate: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -67,6 +72,11 @@ function parseArgs(argv) {
       options.recompute = true;
     } else if (flag === '--merge') {
       options.merge = true;
+    } else if (flag === '--probes') {
+      options.probes = true;
+    } else if (flag === '--candidate') {
+      options.candidate = argv[index + 1];
+      index += 1;
     } else {
       throw new Error(`unknown argument: ${flag}`);
     }
@@ -122,6 +132,155 @@ function scoreWithRetries(assetPath, pass, note, model) {
     if (outcome.status === 2) break;
   }
   return { ok: false, attempts };
+}
+
+/**
+ * Read the pre-registered candidates, verify each recipe's hash immediately before
+ * scoring it, and collect both passes. A mismatch aborts: a probe that scores an
+ * unregistered recipe proves nothing.
+ */
+function runProbes(options) {
+  const registry = JSON.parse(readFileSync(PROBE_REGISTRY, 'utf8'));
+  const calls = { attempted: 0, rejected: 0 };
+  const results = [];
+
+  const selected = registry.candidates.filter(
+    (entry) =>
+      (!options.only || entry.criterion === options.only) &&
+      (!options.candidate || entry.name === options.candidate),
+  );
+  for (const entry of selected) {
+    const recipePath = resolve(ROOT, entry.recipe);
+    const candidate = { ...entry, passes: {} };
+    for (const pass of ['A', 'B']) {
+      const actual = createHash('sha256').update(readFileSync(recipePath)).digest('hex');
+      if (actual !== entry.sha256) {
+        throw new Error(
+          `recipe hash mismatch for ${entry.criterion}/${entry.name}: ${actual} does not match the registered ${entry.sha256}`,
+        );
+      }
+      const artifact = pass === 'A' ? entry.artifacts.eight : entry.artifacts.debug;
+      calls.attempted += 1;
+      const outcome = scoreWithRetries(
+        resolve(ROOT, artifact),
+        pass,
+        `ceiling probe ${entry.criterion}/${entry.name}`,
+        options.model,
+      );
+      if (outcome.attempts.length > 0) calls.rejected += 1;
+      candidate.passes[pass] = outcome.ok
+        ? { scores: outcome.scores, why: outcome.pass.scores[entry.criterion].why }
+        : null;
+      if (!outcome.ok) {
+        process.stderr.write(`unscored: ${entry.criterion}/${entry.name} pass ${pass}\n`);
+      }
+    }
+    results.push(candidate);
+    const a = candidate.passes.A?.scores[entry.criterion] ?? null;
+    const b = candidate.passes.B?.scores[entry.criterion] ?? null;
+    process.stdout.write(`${entry.criterion}/${entry.name}: ${a}/${b}\n`);
+  }
+  return { registry, calls, results };
+}
+
+function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
+  // `--merge --candidate x` folds a re-score into the existing probe report, so a
+  // lost reply costs one candidate rather than a full 18-call round.
+  let results = fresh;
+  let calls = freshCalls;
+  if (options.merge && existsSync(join(OUT, 'probe.json'))) {
+    const previous = JSON.parse(readFileSync(join(OUT, 'probe.json'), 'utf8'));
+    const byName = new Map(
+      previous.criteria.flatMap((entry) => entry.candidates).map((entry) => [entry.name, entry]),
+    );
+    for (const entry of fresh) byName.set(entry.name, entry);
+    results = [...byName.values()];
+    calls = {
+      attempted: previous.calls.attempted + calls.attempted,
+      rejected: previous.calls.rejected + calls.rejected,
+    };
+  }
+  const criteria = [...new Set(results.map((entry) => entry.criterion))];
+  const summary = criteria.map((criterion) => {
+    const candidates = results.filter((entry) => entry.criterion === criterion);
+    const reached = candidates.filter((entry) => {
+      const a = entry.passes.A?.scores[criterion];
+      const b = entry.passes.B?.scores[criterion];
+      return Number.isInteger(a) && Number.isInteger(b) && a >= 4 && b >= 4;
+    });
+    return {
+      criterion,
+      verdict: reached.length > 0 ? 'ceiling reached' : 'not reached',
+      reached_by: reached.map((entry) => entry.name),
+      candidates,
+    };
+  });
+
+  const report = {
+    schema: 1,
+    kind: 'ceiling-probe',
+    base_asset: registry.base_asset,
+    model: options.model,
+    generated_at: new Date().toISOString(),
+    threshold: { reached_min: 4, passes_required: 2 },
+    calls,
+    criteria: summary,
+  };
+
+  const lines = [
+    '# Rubric ceiling probe',
+    '',
+    `- Model: \`${options.model}\``,
+    `- Base asset: \`${registry.base_asset}\``,
+    `- Generated: ${report.generated_at}`,
+    `- Calls: ${calls.attempted} attempted, ${calls.rejected} rejected`,
+    '',
+    'Nine candidates fixed before the first call and addressed by recipe hash. A',
+    'criterion counts as reached only when a candidate scores at least 4 on both',
+    'passes for that criterion.',
+    '',
+    '| criterion | candidate | target A/B | reached |',
+    '| --- | --- | --- | --- |',
+  ];
+  for (const entry of summary) {
+    for (const candidate of entry.candidates) {
+      const a = candidate.passes.A?.scores[entry.criterion] ?? '—';
+      const b = candidate.passes.B?.scores[entry.criterion] ?? '—';
+      const hit = entry.reached_by.includes(candidate.name) ? '**yes**' : 'no';
+      lines.push(`| \`${entry.criterion}\` | \`${candidate.name}\` | ${a}/${b} | ${hit} |`);
+    }
+  }
+  lines.push('', '## Verdicts', '');
+  for (const entry of summary) {
+    const names = entry.reached_by.length > 0 ? entry.reached_by.join(', ') : 'none of three';
+    lines.push(`- **${entry.criterion}:** ${entry.verdict} (${names})`);
+  }
+  lines.push('', '## Rationales', '');
+  for (const entry of summary) {
+    for (const candidate of entry.candidates) {
+      lines.push(`### ${entry.criterion} / ${candidate.name}`, '', `Intent: ${candidate.intent}`, '');
+      if (candidate.passes.A) lines.push(`- **pass A:** ${candidate.passes.A.why}`);
+      if (candidate.passes.B) lines.push(`- **pass B:** ${candidate.passes.B.why}`);
+      lines.push('');
+    }
+  }
+
+  writeFileSync(join(OUT, 'probe.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(join(OUT, 'probe.md'), `${lines.join('\n')}\n`, 'utf8');
+  writeFileSync(join(PROBE_TRACK, 'probe.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(join(PROBE_TRACK, 'probe.md'), `${lines.join('\n')}\n`, 'utf8');
+  process.stdout.write(`probe written to ${join(PROBE_TRACK, 'probe.md')}\n`);
+
+  for (const entry of summary) {
+    process.stdout.write(`${entry.criterion}: ${entry.verdict}${entry.reached_by.length ? ` (${entry.reached_by.join(', ')})` : ''}\n`);
+  }
+  const unscored = results.filter((entry) => !entry.passes.A || !entry.passes.B);
+  if (unscored.length > 0) {
+    process.stderr.write(
+      `incomplete: ${unscored.map((entry) => `${entry.criterion}/${entry.name}`).join(', ')} could not be scored\n`,
+    );
+    process.exitCode = 1;
+  }
 }
 
 function mean(values) {
@@ -232,6 +391,10 @@ function main() {
   const results = [];
 
   try {
+    if (options.probes) {
+      writeProbe(runProbes(options), options);
+      return;
+    }
     for (const criterion of selected) {
       const entry = { criterion, low: {}, high: {}, rationale: { low: {}, high: {} }, attempts: [] };
       for (const level of ['low', 'high']) {

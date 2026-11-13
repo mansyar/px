@@ -145,10 +145,10 @@ never drift into the document.
 | `lighting` | 3.0 |
 | `edge_language` | 3.0 |
 | `cluster_discipline` | 4.0 |
-| `palette_craft` | 3.0 |
+| `palette_craft` | 4.0 |
 
-The targets above are the highest score each criterion actually reached under the
-calibrated stimuli, not aspirations: a build that satisfies all six sums to 22.0,
+The targets above are the highest score each criterion actually reached on both
+passes of a calibrated variant or probe, not aspirations: a build that satisfies all six sums to 22.0,
 a mean of 3.67. They clear the publishable tier (6 × 3.5 = 21.0) and cannot clear
 the exceptional tier (24.0): lighting, edge language and palette craft never
 exceeded 3 on any variant, so a 3.5 floor is out of reach for them.
@@ -220,6 +220,46 @@ The consequences, stated plainly:
 Scores recorded before 2026-11-13 are **forward only**: they are not re-scored
 against the calibrated stimuli, and archived tracks keep the numbers they were
 reviewed with.
+
+## Ceiling probes
+
+Calibrated 2026-11-13, same model and base asset as the calibration above. The
+calibration measured what *removing* a property costs; this probe measured the
+other direction: nine candidates that deliberately try to earn a 4, three per
+criterion, registered by the sha256 of their recipe in
+`conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling/candidates.json`
+**before the first scoring call**, and scored twice each. A criterion counts as
+reached only when a candidate scores at least 4 on both passes.
+
+| criterion | candidate | treatment | target A/B | reached |
+| --- | --- | --- | --- | --- |
+| `lighting` | `warm-cool` | warm highlights, cool shadows on a directional ramp | 4/3 | no |
+| `lighting` | `dither-band` | checkerboard mix across each band edge | 3/3 | no |
+| `lighting` | `engine-deband` | `ramp_fill` three bands, then `deband` | 3/2 | no |
+| `edge_language` | `selective` | rim tone chosen by which neighbour is empty | 3/3 | no |
+| `edge_language` | `hue-shift` | navy outline instead of ink | 3/3 | no |
+| `edge_language` | `hierarchy` | dark silhouette, mid-tone interior lines | 3/3 | no |
+| `palette_craft` | `hue-ramp` | ramps move toward yellow up and blue down | **4/4** | **yes** |
+| `palette_craft` | `accent` | desaturated materials, saturated lock | 3/4 | no |
+| `palette_craft` | `nonlinear` | ramp steps weighted to the darks | 3/3 | no |
+
+What this establishes:
+
+- **Palette craft has a demonstrated 4-anchor.** `hue-ramp` scored 4 on both
+  passes, and the rationales name the hue choices for each material. The earlier
+  "never above 3" described the destructive stimuli, not a hard ceiling.
+- **Lighting is one point away.** `warm-cool` scored 4 on the plain 8× view and 3
+  on the debug sheet, whose rationale reserves judgement on the metal straps. The
+  top of the scale is reachable for lighting, but not stably under the two-pass
+  rule, so its target stays at 3.
+- **Edge language is capped at 3 for this drawing.** Three distinct treatments —
+  selective rims, a hue-shifted outline, and a three-level hierarchy — all scored
+  3/3, each with the same reservation about interior detail edges blending into
+  surfaces. That is now a measured property of the instrument and this asset
+  class, not a guess.
+
+The full report, with both rationales for every candidate, is committed at
+`conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling/probe.md`.
 
 ## Acceptance
 

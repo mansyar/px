@@ -42,13 +42,14 @@ are in, and a null result is published as the finding.
 - **Touches:** `scripts/calibrate.mjs`
 - **Verification:** a smoke run with an unusable credential marks every pass
   `unscored`, exits non-zero, and leaves the record byte-identical
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P2.T1: Add `--probes`** — covers: FR-3
-- [ ] **P2.T2: Verify each recipe hash before its call** — covers: FR-6
-- [ ] **P2.T3: Write the probe report** — covers: FR-4, FR-5
-  - [ ] P2.T3.1: per-candidate passes and rationales; per-criterion verdict.
-- [ ] **P2.T4: Validate without spending a call** — covers: AC-6
+- [x] **P2.T1: Add `--probes`** — covers: FR-3
+- [x] **P2.T2: Verify each recipe hash before its call** — covers: FR-6
+  - [x] P2.T2.1: a tampered recipe aborts before any call (hash 4a63417b vs 88a0c263).
+- [x] **P2.T3: Write the probe report** — covers: FR-4, FR-5
+  - [x] P2.T3.1: per-candidate passes and rationales; per-criterion verdict.
+- [x] **P2.T4: Validate without spending a call** — covers: AC-6
 
 ## Phase 3: Run and Record
 
@@ -58,12 +59,13 @@ are in, and a null result is published as the finding.
 - **Touches:** `.conductor/evidence/ceiling/`,
   `conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling/`
 - **Verification:** `git diff --exit-code test/art/scores.json`
-- **Status:** pending
+- **Status:** verified — palette craft reached the ceiling, lighting and edge language did not
 
-- [ ] **P3.T1: Run the probe once** — covers: AC-2
-- [ ] **P3.T2: Commit the report with the track** — covers: AC-3
-- [ ] **P3.T3: Apply the decision rule** — covers: AC-4
-  - [ ] P3.T3.1: a null result is recorded and the candidates are not revised.
+- [x] **P3.T1: Run the probe once** — covers: AC-2
+  - [x] P3.T1.1: 18 calls, plus a two-call re-score for one lost reply.
+- [x] **P3.T2: Commit the report with the track** — covers: AC-3
+- [x] **P3.T3: Apply the decision rule** — covers: AC-4
+  - [x] P3.T3.1: no candidate revised or dropped after scoring; all nine reported.
 
 ## Phase 4: Docs and Checks
 
@@ -72,11 +74,12 @@ are in, and a null result is published as the finding.
 - **Covers:** FR-7, FR-8, AC-5, AC-7, AC-8
 - **Touches:** `docs/rubric.md`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P4.T1: Add the Ceiling probes section** — covers: FR-7
-- [ ] **P4.T2: State the null result or the winning treatments verbatim** — covers: AC-5
-- [ ] **P4.T3: Final checks** — covers: AC-7, AC-8
+- [x] **P4.T1: Add the Ceiling probes section** — covers: FR-7
+- [x] **P4.T2: State the null result or the winning treatments verbatim** — covers: AC-5
+  - [x] P4.T2.1: `palette_craft` target raised 3.0 → 4.0 on the demonstrated anchor; the vector still sums to 23.0.
+- [x] **P4.T3: Final checks** — covers: AC-7, AC-8
 
 ## Verification Strategy
 
