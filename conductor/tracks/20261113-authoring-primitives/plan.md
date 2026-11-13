@@ -85,14 +85,17 @@
 - **Covers:** FR-14, FR-15, NFR-4, AC-12
 - **Touches:** `src/render/debug/**`, `src/lint/**`, `src/core/recipe/**`, `test/feedback/**`, `test/parts/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** verified
+- **Result:** verified — panel A dashes shared edges between parts on different planes with the facing pairs named on one bounded line, a texture gauge draws the real mark and gap at panel zoom, and the potion plus three benchmark digests are unchanged
+- **Checkpoint:** 50a8317
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-4.md
 
-- [ ] **P4.T1: Sheet** — covers: FR-14
-    - [ ] **P4.T1.1:** plane boundary edges labelled where two facings meet, legible at the profile zoom
-    - [ ] **P4.T1.2:** texture spacing visible in the 8× panel without adding an unbounded panel
-- [ ] **P4.T2: Compatibility** — covers: FR-15, AC-12
-    - [ ] **P4.T2.1:** a pre-track recipe renders byte-identically, asserted against a committed hash
-    - [ ] **P4.T2.2:** a recipe using all three primitives round-trips through the canonical writer unchanged
+- [x] **P4.T1: Sheet** — covers: FR-14
+    - [x] **P4.T1.1:** plane boundary edges labelled where two facings meet, legible at the profile zoom
+    - [x] **P4.T1.2:** texture spacing visible in the 8× panel without adding an unbounded panel
+- [x] **P4.T2: Compatibility** — covers: FR-15, AC-12
+    - [x] **P4.T2.1:** a pre-track recipe renders byte-identically, asserted against a committed hash
+    - [x] **P4.T2.2:** a recipe using all three primitives round-trips through the canonical writer unchanged
 
 ## Phase 5: Re-authoring
 
