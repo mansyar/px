@@ -146,3 +146,7 @@ outside the drum the way a hand-placed ASCII line could.
 The gable's planes are exempted from `light` with `skip` rather than painted after
 it. The two render to the identical digest, but the op now states the intent —
 "this pass leaves the gable alone" — instead of leaving it implicit in op order.
+
+## Redraw
+
+Redrawn 2026-11-13: the well is rebuilt from geometry — roof seated on two posts that reach the ground, a crossbeam, a stone drum with courses and a lit rim, dark water in the mouth, rope and bucket, and a cast shadow. The floating gable, crate-like door and flat disc ground are gone.

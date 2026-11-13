@@ -9,26 +9,34 @@
   "palette": {
     "brew": {
       "ramp": {
-        "t0": "#793c33",
-        "t1": "#6a262c",
-        "t2": "#5a0e28",
-        "t3": "#3f0925"
+        "outline": "#1f0311",
+        "shadow": "#22050f",
+        "base": "#8c2939",
+        "highlight": "#b35355"
       }
     },
     "cork": {
       "ramp": {
-        "t0": "#685444",
-        "t1": "#584331",
-        "t2": "#4a3220",
-        "t3": "#38231a"
+        "outline": "#130b07",
+        "shadow": "#150e09",
+        "base": "#644734",
+        "highlight": "#8b6b4e"
       }
     },
     "glass": {
       "ramp": {
-        "t0": "#ccfae1",
-        "t1": "#ade8d5",
-        "t2": "#8fd6cc",
-        "t3": "#87bfc0"
+        "outline": "#090e0e",
+        "shadow": "#b3d7d7",
+        "base": "#ace8d4",
+        "highlight": "#82ffbe"
+      }
+    },
+    "gorget": {
+      "ramp": {
+        "outline": "#1c222a",
+        "shadow": "#39424e",
+        "base": "#8c98a8",
+        "highlight": "#c9d3df"
       }
     },
     "ink": {
@@ -49,17 +57,22 @@
     },
     "glass": {
       "material": "glass",
-      "gloss": "matte"
+      "gloss": "matte",
+      "z": 1
     }
   },
   "anchors": {
     "base_pivot": [
       8,
-      13
+      14
     ],
     "cork_top": [
       8,
-      2
+      1
+    ],
+    "liquid_surface": [
+      8,
+      10
     ]
   },
   "layers": [
@@ -68,14 +81,11 @@
       "ops": [
         {
           "op": "ascii_blit",
-          "part": "cork",
+          "part": "brew",
           "x": 0,
           "y": 0,
           "grid": [
             "................",
-            "......xxxx......",
-            ".....xxxxxx.....",
-            "....xxxxxxxx....",
             "................",
             "................",
             "................",
@@ -84,13 +94,19 @@
             "................",
             "................",
             "................",
-            "................",
-            "................",
+            ".....hhhhhh.....",
+            "....hhhhhhhh....",
+            "....bbbbbbbb....",
+            "....ssssssss....",
+            "....oooooooo....",
             "................",
             "................"
           ],
           "legend": {
-            "x": "cork.t1"
+            "s": "brew.shadow",
+            "o": "brew.outline",
+            "h": "brew.highlight",
+            "b": "brew.base"
           }
         },
         {
@@ -103,30 +119,35 @@
             "................",
             "................",
             "................",
-            "....xxxxxxxx....",
-            ".....xxxxxx.....",
-            "....xxxxxxxx....",
-            "...xxxxxxxxxx...",
-            "..xxxxxxxxxxxx..",
-            "..xx........xx..",
-            ".xx..........xx.",
-            ".xx..........xx.",
-            "..xx........xx..",
-            "...xx......xx...",
-            "...xxxxxxxxxx...",
+            "......hbbs......",
+            "......hbbs......",
+            "......hbbs......",
+            ".....bbbbbb.....",
+            "....bbbbbbbb....",
+            "...hh......ss...",
+            "...h........s...",
+            "...h........s...",
+            "...h........s...",
+            "...h........s...",
+            "....sbbbbbbs....",
             "................"
           ],
           "legend": {
-            "x": "glass.t1"
+            "s": "glass.shadow",
+            "h": "glass.highlight",
+            "b": "glass.base"
           }
         },
         {
           "op": "ascii_blit",
-          "part": "brew",
+          "part": "cork",
           "x": 0,
           "y": 0,
           "grid": [
             "................",
+            "......hhhh......",
+            "......bbbb......",
+            ".....sbbbbs.....",
             "................",
             "................",
             "................",
@@ -135,45 +156,16 @@
             "................",
             "................",
             "................",
-            "....xxxxxxxx....",
-            "...xxxxxxxxxx...",
-            "...xxxxxxxxxx...",
-            "....xxxxxxxx....",
-            ".....xxxxxx.....",
+            "................",
+            "................",
             "................",
             "................"
           ],
           "legend": {
-            "x": "brew.t1"
+            "s": "cork.shadow",
+            "h": "cork.highlight",
+            "b": "cork.base"
           }
-        },
-        {
-          "op": "line",
-          "part": "brew",
-          "x1": 4,
-          "y1": 9,
-          "x2": 11,
-          "y2": 9,
-          "color": "brew.t0"
-        },
-        {
-          "op": "line",
-          "part": "brew",
-          "x1": 5,
-          "y1": 10,
-          "x2": 7,
-          "y2": 10,
-          "color": "brew.t0"
-        },
-        {
-          "op": "light",
-          "angle": "top-left",
-          "form": "round",
-          "ao": true,
-          "cast": "cork",
-          "cast_offset": 1,
-          "rim": "edge",
-          "bands": 3
         },
         {
           "op": "auto_outline",

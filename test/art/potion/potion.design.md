@@ -60,3 +60,7 @@ mass with one lit surface line rather than a liquid with volume. The cork is a f
 three-row wedge and its grain is one `t0` pixel pair — legible at 8×, invisible at 1×.
 If this asset were re-authored I would give the belly one more row and spend the extra
 pixel on a glass `t0` glint opposite the light.
+
+## Redraw
+
+Redrawn 2026-11-13: round flask with a cork rim, a lit glass wall and a liquid that fills the lower body with a bright surface line, replacing the flat mint fill.

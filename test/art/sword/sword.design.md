@@ -78,3 +78,7 @@ which is what keeps `edge_language` and `lighting` at 3 rather than 4.
 
 Re-lit with `light form: "round"`: bands come from thickness along the light
 axis, replacing the hand-placed shadow bands that a one-pixel rim could not move.
+
+## Redraw
+
+Redrawn 2026-11-13: the blade is vertical rather than diagonal, four columns of steel with a fuller, and the guard is a level bar with a set gem.

@@ -92,3 +92,7 @@ thickness along the light axis, so the body reads as a lit form rather than a
 one-pixel rim. The outline stays a single `auto_outline` pass — the character has
 no authored stroke to give a corner or cap to, so Phase 5's controls do not apply
 here and the treatment was already uniform.
+
+## Redraw
+
+Redrawn 2026-11-13: separated legs, a red shield with a gold cross and boss, a vertical sword with a level guard, and a dark tunic under bright plate.

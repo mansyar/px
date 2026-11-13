@@ -1,7 +1,7 @@
 {
   "schema": 3,
   "rubric": "docs/rubric.md",
-  "scored_by": "gemini-3.5-flash-lite via scripts/rubric.mjs, two independent passes per asset (pass A on the 8x plain view, pass B on the debug sheet), re-scored after the Surface Resolution art changes",
+  "scored_by": "gemini-3.5-flash-lite via scripts/rubric.mjs, two passes per asset (A on the 8x plain view, B on the debug sheet), re-scored after the 2026-11-13 redraw",
   "scored_at": "2026-11-13",
   "criteria": [
     "silhouette",
@@ -13,18 +13,42 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.71,
+    "mean": 3.69,
     "threshold_mean": 4,
     "min_allowed": 3,
     "failures": [
       {
+        "asset": "chest",
+        "pass": "A",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "A",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
         "asset": "scene",
         "pass": "A",
-        "criterion": "cluster_discipline",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "scene",
+        "pass": "B",
+        "criterion": "lighting",
         "score": 2
       }
     ],
-    "note": "Re-score after applying light bands, tone roles and outline seams. Mean 3.71 against 4.0, with scene pass A cluster_discipline 2 \u2014 the bar is missed, so the track records the failure rather than lowering it. Sword and prop clear 4.0; the scene and humanoid do not.",
+    "note": "Re-score after the redraw of six assets. Mean 3.69 against 4.0, so the bar is still missed. Structure improved sharply (cluster_discipline 3.93->4.57, silhouette 4.64->4.86) while lighting 3.14->2.79, value separation 3.86->3.57 and palette 3.43->3.21 fell: the hand-painted tones are flatter than the previous light and ramp passes. The untouched prop moved 4.25->3.92, which puts single-asset noise at about 0.33 and makes every asset delta except cluster discipline indistinguishable from it.",
     "basis": "independent"
   },
   "assets": [
@@ -42,27 +66,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The distinct shape of a corked bottle with a bulbous body is clearly identifiable at 1x scale without color."
+              "why": "The distinct flask shape with a cork and bulbous base is instantly readable even without color information."
             },
             "value_separation": {
               "score": 4,
-              "why": "The elements such as cork, liquid, and glass are mostly well separated, though some adjacent values blend closely."
+              "why": "The liquid, glass, and cork values separate well, though a few adjacent glass tones are quite close in value."
             },
             "lighting": {
               "score": 3,
-              "why": "The lighting generally implies a top-left source, but some highlights and shadow placements feel inconsistent across the separate masses."
+              "why": "The lighting is generally consistent from the top-left, but the internal shading on the liquid feels slightly ambiguous."
             },
             "edge_language": {
-              "score": 3,
-              "why": "The outer outline is solid, but internal details and material boundaries lack a fully deliberate and varied edge treatment."
+              "score": 4,
+              "why": "The heavy dark outline clearly defines the silhouette, while internal color transitions cleanly separate the materials."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Most pixel groups form clean clusters with minimal noise, though some minor isolated pixels exist."
+              "score": 5,
+              "why": "There is no single-pixel confetti, with all pixel clusters forming solid, intentional shapes."
             },
             "palette_craft": {
-              "score": 3,
-              "why": "The color choices are coherent for a potion, but the ramps could step more evenly for better contrast and depth."
+              "score": 4,
+              "why": "The muted cyan glass and reddish liquid hues fit the subject nicely, though the ramps could step slightly more evenly."
             }
           }
         },
@@ -76,27 +100,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The distinct flask shape and cork are immediately readable even at 1x scale without color."
+              "why": "The classic flask shape, lip, and cork are instantly recognisable as a potion bottle at 1x scale without color."
             },
             "value_separation": {
               "score": 4,
-              "why": "The cork, glass, and brew are mostly distinct, though some adjacent light glass and highlight values sit very close together."
+              "why": "The cork, glass, and layered brew are clearly separated in value, though the liquid's midtone and glass highlight are quite close."
             },
             "lighting": {
-              "score": 3,
-              "why": "The light direction is generally consistent from top-left, but the brew shading feels slightly flattened against the glass form."
+              "score": 4,
+              "why": "A consistent top-left light source highlights the glass and cork, though the cylindrical rounding is slightly flattened by symmetric shading."
             },
             "edge_language": {
-              "score": 3,
-              "why": "The outline is consistently dark, but inner material edges and highlights lack a fully distinct treatment from the silhouette."
+              "score": 4,
+              "why": "Clean outer outline wraps the asset nicely, while interior color transitions define the liquid levels and glass without unnecessary noise."
             },
             "cluster_discipline": {
               "score": 5,
-              "why": "There is no single-pixel confetti, with clean and readable clusters forming the major components."
+              "why": "The sprite is built from solid pixel clusters without random single-pixel confetti, maintaining clean readability at small scales."
             },
             "palette_craft": {
               "score": 4,
-              "why": "The hues fit the subject nicely with warm browns and cool teal/glass tones, though some ramps could step more evenly."
+              "why": "The palette uses cohesive tones of brown, teal-cyan glass, and reddish brew, creating a traditional potion aesthetic with clear ramps."
             }
           }
         }
@@ -116,27 +140,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The shape of a shortsword with a crossguard and pommel is instantly readable at a glance without any color information."
+              "why": "The sword reads clearly as a weapon at 1x with distinct blade, crossguard, grip, and pommel shapes."
             },
             "value_separation": {
-              "score": 4,
-              "why": "The distinct parts of the sword are well separated by contrasting tones and outlines, making each component easy to distinguish."
+              "score": 3,
+              "why": "Most parts are clearly separated by outlines, but some adjacent gold and brown values merge closely together."
             },
             "lighting": {
               "score": 3,
-              "why": "The blade and hilt generally convey a consistent light source from the upper left, though some local shading masses are slightly ambiguous."
+              "why": "Shading generally comes from a top-left source, but some highlight and shadow placements on the crossguard and blade lack full consistency."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outer silhouette is strongly defined by a dark outline, but internal detail edges sometimes blur the distinction between outline and form."
+              "why": "The heavy black outline is consistent around the silhouette, but internal details blend somewhat with the exterior structure."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Pixel clusters are well-formed and readable with minimal stray pixels or random single-pixel noise."
+              "why": "Pixel clusters are mostly well-formed and readable, with minimal isolated pixels outside of intentional highlights."
             },
             "palette_craft": {
-              "score": 4,
-              "why": "The color palette uses clean ramps with appropriate cool shadows for the blade and warm highlights for the gold hilt."
+              "score": 3,
+              "why": "The palette is coherent and suitable for a fantasy sword, though ramps step somewhat unevenly across the metal and gold surfaces."
             }
           }
         },
@@ -150,27 +174,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The shape clearly reads as a sword at 1x scale without needing any color information."
+              "why": "The asset is immediately identifiable as a sword at 1x scale without requiring any colour information."
             },
             "value_separation": {
               "score": 4,
-              "why": "Distinct parts like the blade, guard, and hilt separate well, though a couple of adjacent tone values are very close."
+              "why": "The major components are well-separated by strong value contrasts and outlines, though a few adjacent shades merge closely."
             },
             "lighting": {
-              "score": 4,
-              "why": "Lighting is generally consistent from a single direction, though minor shading inconsistencies appear across the guard and pommel masses."
+              "score": 3,
+              "why": "The light source is generally consistent, but certain shading choices on the guard and blade create slight contradictions in form."
             },
             "edge_language": {
-              "score": 4,
-              "why": "The outline and internal edges are mostly clean and deliberate, with only minor inconsistency in treatment."
+              "score": 3,
+              "why": "The dark outline is consistent around the silhouette, but internal material and detail edges lack distinct, varied treatment."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Pixel clusters are well-sized and legible, avoiding random single-pixel confetti except for intended highlights."
+              "score": 5,
+              "why": "There is no single-pixel confetti, and pixel clusters maintain clean, readable grouping across all parts."
             },
             "palette_craft": {
-              "score": 4,
-              "why": "The color ramps step evenly with logical hue shifts for steel, gold, and leather materials."
+              "score": 3,
+              "why": "The palette is coherent and fits the subject, but some ramps lack smooth step transitions and hue shifting could be enhanced."
             }
           }
         }
@@ -190,27 +214,27 @@
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "The character reads clearly as a humanoid figure with a prominent sword and helmet at a glance."
+              "why": "The character reads clearly as a humanoid figure with a helmet and sword even at small scales."
             },
             "value_separation": {
               "score": 3,
-              "why": "Major body parts are distinct, but some adjacent tonal values are too close to ensure clean separation."
+              "why": "Adjacent armor plates and limb values are sometimes close, but overall forms remain distinguishable."
             },
             "lighting": {
               "score": 3,
-              "why": "Lighting originates roughly from the top-left, but certain elements like the sword lack consistent internal shading relative to the light source."
+              "why": "Light direction is generally consistent across the major masses, though shading is mostly flat."
             },
             "edge_language": {
               "score": 3,
-              "why": "The heavy dark outline is consistent around the silhouette, but internal details and material boundaries lack differentiated treatment."
+              "why": "Outlines are heavily defined in black, but internal detail lines merge visually with the silhouette treatment."
             },
             "cluster_discipline": {
-              "score": 3,
-              "why": "Most shapes are grouped reasonably, though a few stray pixels and micro-clusters disrupt clean form reading."
+              "score": 4,
+              "why": "The asset uses clean pixel groups with very little random noise or stray pixels."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette functions adequately for a retro character, but the hue shifts and value steps lack careful refinement."
+              "why": "The color ramps are functional and readable, though hues are relatively basic and flat."
             }
           }
         },
@@ -224,27 +248,27 @@
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "The overall shape clearly reads as an armored humanoid with a sword, though the blend of the weapon with the body requires slight interpretation at 1x."
+              "why": "The humanoid silhouette is clearly recognisable as a knight with a sword at 1x, though the sword merges slightly with the body shape on the right."
             },
             "value_separation": {
-              "score": 4,
-              "why": "Most anatomy and equipment parts are clearly distinguished by value contrast, though some adjacent tones are quite close."
+              "score": 3,
+              "why": "Major parts like the helm, torso, and sword are distinguishable, but some adjacent armor plates lack sufficient contrast to separate cleanly."
             },
             "lighting": {
               "score": 3,
-              "why": "The light source is generally consistent from the top-left, but certain masses lack fully defined opposing shadows."
+              "why": "Shading implies a top-down or slight frontal light source, but some masses lack consistent highlights and shadows across all components."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outline is clean and consistent, but internal details and material edges tend to blend into the silhouette."
+              "why": "The outer outline is generally consistent, but some internal details blend into the silhouette without a clear distinction between edge treatments."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Pixel clusters are well-formed and readable, avoiding confetti noise except for minor texture variation."
+              "score": 5,
+              "why": "Pixel clusters are clean and well-formed with no single-pixel noise or confetti patterns disrupting the sprite structure."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The color ramp is functional and fits the military theme, but lacks sophisticated temperature shifting or smooth stepping."
+              "why": "The palette is coherent and fits a metallic theme, but the ramps are somewhat flat and lack dynamic hue shifting in the shadows."
             }
           }
         }
@@ -264,27 +288,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The chest's distinct rounded lid and rectangular base are immediately identifiable at 1x scale without color."
+              "why": "The asset has a clear rectangular chest shape with a rounded lid that is instantly recognizable at 1x scale."
             },
             "value_separation": {
-              "score": 4,
-              "why": "The metal bands and wooden body are clearly separated by value, though some adjacent tones on the wood merge closely."
+              "score": 3,
+              "why": "Major parts are separated, but some adjacent wood and metal tones merge closely together in value."
             },
             "lighting": {
-              "score": 3,
-              "why": "Lighting generally comes from the top, but the shading on the metallic bands and wooden masses lacks fully consistent directional logic."
+              "score": 2,
+              "why": "The lighting lacks clear directional consistency, appearing mostly flat with minimal form shading."
             },
             "edge_language": {
-              "score": 4,
-              "why": "The outer silhouette uses a strong black outline while internal details utilize selective interior lines and color contrast effectively."
+              "score": 2,
+              "why": "The thick black outline frames the asset well, but interior material edges lack deliberate, consistent treatment."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Pixel clusters are generally clean and well-formed with minimal single-pixel noise."
+              "why": "Pixels are grouped cleanly into solid clusters with very little stray noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The wood and metal ramps are functional and fit the subject, though the hue shifts are relatively standard and uninspired."
+              "why": "The color palette is coherent and fits the subject, but the shading ramps are flat and lack temperature shifts."
             }
           }
         },
@@ -298,27 +322,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The rounded-top chest shape is instantly recognisable as a chest even at 1x scale without colour information."
+              "why": "The asset has a clean, readable boxy shape that is instantly recognisable as a chest even at 1x scale."
             },
             "value_separation": {
-              "score": 4,
-              "why": "Most parts are clearly distinguished by value, though some wood and metal tones sit very close together."
+              "score": 3,
+              "why": "Key components are generally distinct, but some adjacent wood and metal values blend closely together without strong contrast steps."
             },
             "lighting": {
-              "score": 3,
-              "why": "The light source is mostly consistent from the top, but some shading on the metal bands contradicts the form."
+              "score": 1,
+              "why": "There is virtually no directional shading or lighting applied to define the form of the chest."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outline is generally consistent, but some internal detail edges blend into the silhouette and material areas."
+              "why": "The dark outline is consistent around the silhouette, but internal details lack a deliberate and varied edge treatment."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Clean pixel clusters are maintained throughout with minimal confetti, though some small highlights could be grouped better."
+              "score": 5,
+              "why": "The pixel placement is clean with solid pixel clusters and no noisy single-pixel confetti."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The wood and metal ramps are coherent and fit the subject, but values and hues are somewhat flat."
+              "why": "The colours function adequately for wood, metal, and gold, but the ramps are flat and lack sophisticated hue shifting."
             }
           }
         }
@@ -338,27 +362,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The knight's helmet, shield, sword, and stance create an immediately distinct and readable silhouette at 1x."
+              "why": "The helmet crest, sword, and shield create a distinct humanoid warrior profile recognisable instantly at 1x scale."
             },
             "value_separation": {
               "score": 4,
-              "why": "The armor, tunic, and shield parts separate well, though a few adjacent metal tones are very close in value."
+              "why": "Most elements separate clearly, though some adjacent metal and dark tunic values sit very close together."
             },
             "lighting": {
               "score": 3,
-              "why": "Light direction is mostly consistent from the top-left, but some highlights and shadows on the cylindrical armor segments flatten the form."
+              "why": "Shading direction is generally consistent on the shield and limbs, but parts like the torso lack clear dimensional lighting."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outer outline is clean and consistent, but some interior detail edges lack clear distinction from the forms they define."
+              "why": "The outer black outline is consistent, but internal shading edges sometimes merge ambiguously with the outline."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Most pixel groups form clean clusters, with minimal random pillow-shading or single-pixel noise."
+              "score": 5,
+              "why": "No pixel confetti or stray single pixels are present, maintaining clean and readable block clusters."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent with appropriate metallics and reds, but the ramps could step more evenly for greater depth."
+              "why": "The colors are coherent for a standard knight, but ramps step unevenly and lack strong temperature shifts."
             }
           }
         },
@@ -372,27 +396,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The sprite's distinct helmet, shield, and upright weapon allow it to be immediately identified as a knight at 1x scale without color."
+              "why": "The character's stance, helmet, shield, and sword make it immediately identifiable as a knight at 1x scale without color information."
             },
             "value_separation": {
               "score": 4,
-              "why": "Distinct parts separate well visually, though some adjacent metallic tones are quite close in value."
+              "why": "Most armor parts and equipment are clearly distinguished by value contrast, though some adjacent tones in the metallic regions blend closely together."
             },
             "lighting": {
               "score": 3,
-              "why": "Shading generally follows a consistent direction, but some surface highlights and shadows conflict with a unified light source."
+              "why": "The lighting generally establishes a consistent directional source, but certain shaded masses conflict with the overall form logic."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outline is consistently maintained, but internal detail edges sometimes blend too closely into the silhouette boundaries."
+              "why": "The outline is consistently maintained around the silhouette, but internal material and detail edges lack distinct, varied treatments."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "The sprite maintains clean pixel clusters overall with minimal noise, though some small textural bands exist."
+              "score": 5,
+              "why": "Clean pixel placement is maintained with well-defined clusters and no unwanted single-pixel confetti."
             },
             "palette_craft": {
-              "score": 4,
-              "why": "The color ramps step reasonably well and create a cohesive medieval look, though certain shadow-to-highlight shifts could be smoother."
+              "score": 3,
+              "why": "The colors form a coherent medieval scheme, but the metallic and leather ramps feel slightly flat and could step more effectively."
             }
           }
         }
@@ -412,27 +436,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The lantern shape is instantly recognisable as a distinct prop even at 1x scale without color."
+              "why": "The lantern shape is instantly recognisable at 1x scale with a distinct top loop and base profile."
             },
             "value_separation": {
               "score": 4,
-              "why": "The metallic parts, glass, and inner flame are all clearly distinguishable, with only minor value clashes on the inner borders."
+              "why": "The metal and glass components are well-separated, though some adjacent tones in the gold and silver ramps are quite close."
             },
             "lighting": {
               "score": 4,
-              "why": "Lighting is generally consistent from top-left, though the flame's internal self-illumination complicates the directional read slightly."
+              "why": "Light generally comes from a top-left source consistently, though the inner flame shape has its own internal lighting logic."
             },
             "edge_language": {
-              "score": 4,
-              "why": "Outlines and internal structure edges are mostly deliberate and clean, though some pillow-shading softens the inner frames."
+              "score": 3,
+              "why": "The outer silhouette is mostly solid, but some interior detail edges blend into the structure without a clear treatment hierarchy."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Good cluster discipline overall with clean shapes, avoiding random single-pixel noise except for intentional highlights."
+              "why": "The pixel clusters are generally clean and well-formed with minimal noise or awkward single-pixel fragments."
             },
             "palette_craft": {
               "score": 4,
-              "why": "The colors are cohesive and appropriate for a metallic lantern and warm flame, with well-chosen ramps."
+              "why": "The gold and silver ramps are effectively chosen and convey the metal materials well, supported by complementary dark glass tones."
             }
           }
         },
@@ -446,27 +470,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The lantern shape and hanging loop are immediately recognisable as a prop at 1x scale."
+              "why": "The lantern shape is instantly recognisable at 1x scale purely from its distinct outline and proportions."
             },
             "value_separation": {
-              "score": 5,
-              "why": "All parts like the gold caps, metal frame, glass window, and flame remain distinct across values."
+              "score": 4,
+              "why": "Most structural parts are well-separated by clear value changes, though the silver frame and inner dark glass blend slightly closely in tone."
             },
             "lighting": {
               "score": 3,
-              "why": "The lighting is generally consistent from top-left, but some interior flame shading competes slightly with external sources."
+              "why": "The flame and glass have consistent lighting, but the outer metal frame lacks clear directional highlights and shadows relative to the light source."
             },
             "edge_language": {
               "score": 4,
-              "why": "Outlines and material boundaries are mostly deliberate, though a few internal details blur slightly into neighboring forms."
+              "why": "The outer silhouette and internal metal banding maintain clean, consistent treatments with only minor ambiguity around internal boundaries."
             },
             "cluster_discipline": {
-              "score": 5,
-              "why": "There is no random single-pixel confetti, and pixel clusters are clean and purposeful."
+              "score": 4,
+              "why": "Good cluster discipline is maintained across most surfaces, avoiding random single-pixel noise except where intentional for highlights."
             },
             "palette_craft": {
-              "score": 4,
-              "why": "The metallic gold and grey ramps are well-selected, with appropriate warm highlights and cool shadows."
+              "score": 3,
+              "why": "The color ramps are coherent and fit the fantasy lantern theme well, but some shadow steps are a bit flat and uniform."
             }
           }
         }
@@ -485,28 +509,28 @@
           "subject": "scene",
           "scores": {
             "silhouette": {
-              "score": 4,
-              "why": "The distinct pyramid roof and stone structure are mostly clear at 1x, though some floating elements are slightly detached."
+              "score": 5,
+              "why": "The roof, pillars, well structure, and platform form a clearly identifiable well even at small scale."
             },
             "value_separation": {
               "score": 3,
-              "why": "Most parts separate well, but adjacent grey brick tones and dark shadows merge tightly in some areas."
+              "why": "Major components are generally separated, but certain adjacent tones like the ground and shadow blur together."
             },
             "lighting": {
-              "score": 3,
-              "why": "Lighting is generally top-down, but inconsistencies across the roof and vertical structures create some contradictory shading."
+              "score": 2,
+              "why": "The division between light and shadow is unnaturally split right down the middle, creating a flat two-tone effect rather than coherent volumetric lighting."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are mostly consistent, but detail edges on the bricks and roof tend to blur into the overall silhouette."
+              "why": "Outlines are generally consistent, but internal details lack a deliberate and varied edge hierarchy."
             },
             "cluster_discipline": {
-              "score": 2,
-              "why": "There is noticeable single-pixel noise and scattered detail clusters, especially on the roof and ground textures."
+              "score": 4,
+              "why": "Most pixel groups are well-formed with minimal isolated single-pixel noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The colors are coherent and suit the scene, but ramps step somewhat unevenly and lack strong temperature shifts."
+              "why": "The colors are functional and fit the subject, but the shading steps feel a bit rigid and flat."
             }
           }
         },
@@ -519,28 +543,28 @@
           "subject": "scene",
           "scores": {
             "silhouette": {
-              "score": 3,
-              "why": "The overall boat and structure shape is recognisable, but the floating sail creates an unusual silhouette that makes the full composition less clear at a glance."
+              "score": 5,
+              "why": "The well structure and roof read clearly as a well even without color data."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Most major components are distinct, but some adjacent stone and wooden elements merge closely in value, reducing contrast."
+              "score": 4,
+              "why": "Most parts separate distinctly, though some adjacent grey tones on the well wall are quite close."
             },
             "lighting": {
-              "score": 3,
-              "why": "Light direction is generally consistent from the top, but some surface shading reads as flat or contradicts the underlying form."
+              "score": 2,
+              "why": "The lighting is split arbitrarily down the middle rather than following a unified directional light source."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are functional and consistent, though some internal texture lines compete with the primary silhouette edges."
+              "why": "Outlines are generally consistent, but some internal details blend into the silhouette boundaries."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "Most clusters follow a solid pixel structure with minimal noise, though some small textures border on pillow-shading patterns."
+              "score": 5,
+              "why": "Pixels are cleanly grouped into solid clusters without unwanted single-pixel noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent and fits the earthy, stony theme, but ramps lack strong hue shifting in shadows and highlights."
+              "why": "The palette is coherent and fits the subject, but the split lighting makes the hues feel flat and mechanically separated."
             }
           }
         }
