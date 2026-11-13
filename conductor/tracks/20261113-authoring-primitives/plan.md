@@ -105,6 +105,7 @@
 - **Touches:** `test/art/**`, `docs/rubric.md`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
+- **Blocked:** `scripts/rubric.mjs` is the only judge of AC-13, and it exits 2 without `PX_RUBRIC_API_KEY`; no key or model id is configured here. P5.T2.1 forbids trading a pass for a regression, which cannot be checked without a score, so re-authoring four hand-painted ASCII assets now would be unverifiable and could regress the three that pass. Needs a scoring run first (or an explicit decision to author blind).
 
 - [ ] **P5.T1: The four weak assets** — covers: FR-16
     - [ ] **P5.T1.1:** humanoid, character, sword, scene re-authored with facing, stroke and texture where they address the failing criterion
@@ -121,6 +122,7 @@
 - **Touches:** `test/art/**`, `test/benchmarks/**`, `scripts/**`, `docs/rubric.md`, `verification/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
+- **Blocked:** scoring is `scripts/rubric.mjs`, networked and credential-gated: it exits 2 with no `PX_RUBRIC_API_KEY`, and neither the key nor a model id is configured here. AC-14 cannot be produced or checked by the agent; the recorded verdict stays `fail` (mean 3.79) until a scoring run happens. P6.T2 is implementable without a key and is not started because it is gated on P6.T1 in the plan order.
 
 - [ ] **P6.T1: Score** — covers: FR-17, AC-14
     - [ ] **P6.T1.1:** two passes per asset, rationale per criterion, recorded in `scores.json`
