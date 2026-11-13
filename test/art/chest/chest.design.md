@@ -59,3 +59,17 @@ straps to 2 px and let them follow the dome's curve two pixels at a time.
 ## Redraw
 
 Redrawn 2026-11-13: domed lid with a lit top, rim highlight, iron bands with rivets and a keyhole plate. The lid lip is painted inside the body part.
+
+## Derived ramps
+
+The palette is derived rather than hand-listed: each material family is one
+`{"derive": {"base": ..., "stops": 5}}` base colour, expanded to five tones whose
+hue rotates warm at the highlight end and cool at the shadow end. The middle tone
+(`t2`) is the family's base role; the darkest tone (`t4`) carries the detail-edge
+and shadow rims that the old explicit `outline` role supplied, and the painted
+shadow sits one step above it (`t3`) so the rims stay separable.
+
+Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance and
+each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
+Geometry is unchanged; only the palette blocks and the legend's tone names moved,
+which is why the digest was re-baselined.

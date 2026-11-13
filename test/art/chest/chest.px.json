@@ -8,27 +8,21 @@
   },
   "palette": {
     "bands": {
-      "ramp": {
-        "outline": "#0a0d12",
-        "shadow": "#7f92a8",
-        "base": "#94a4b5",
-        "highlight": "#90b6e4"
+      "derive": {
+        "base": "#abbac6",
+        "stops": 5
       }
     },
     "body": {
-      "ramp": {
-        "outline": "#160a05",
-        "shadow": "#180d09",
-        "base": "#26160b",
-        "highlight": "#804d2b"
+      "derive": {
+        "base": "#824927",
+        "stops": 5
       }
     },
     "gorget": {
-      "ramp": {
-        "outline": "#1c222a",
-        "shadow": "#39424e",
+      "derive": {
         "base": "#8c98a8",
-        "highlight": "#c9d3df"
+        "stops": 5
       }
     },
     "ink": {
@@ -37,19 +31,15 @@
       }
     },
     "lid": {
-      "ramp": {
-        "outline": "#150b04",
-        "shadow": "#170d06",
-        "base": "#6c4424",
-        "highlight": "#996639"
+      "derive": {
+        "base": "#000000",
+        "stops": 5
       }
     },
     "lock": {
-      "ramp": {
-        "outline": "#110c05",
-        "shadow": "#d5923e",
-        "base": "#d9a83a",
-        "highlight": "#f5b400"
+      "derive": {
+        "base": "#dcae49",
+        "stops": 5
       }
     }
   },
@@ -152,10 +142,10 @@
             "................................................"
           ],
           "legend": {
-            "s": "body.shadow",
-            "o": "body.outline",
-            "h": "body.highlight",
-            "b": "body.base"
+            "s": "body.t3",
+            "o": "body.t4",
+            "h": "body.t0",
+            "b": "body.t2"
           }
         },
         {
@@ -214,9 +204,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "lid.shadow",
-            "h": "lid.highlight",
-            "b": "lid.base"
+            "s": "lid.t3",
+            "h": "lid.t0",
+            "b": "lid.t2"
           }
         },
         {
@@ -275,9 +265,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "bands.shadow",
-            "h": "bands.highlight",
-            "b": "bands.base"
+            "s": "bands.t3",
+            "h": "bands.t0",
+            "b": "bands.t2"
           }
         },
         {
@@ -336,10 +326,10 @@
             "................................................"
           ],
           "legend": {
-            "s": "lock.shadow",
-            "o": "lock.outline",
-            "h": "lock.highlight",
-            "b": "lock.base"
+            "s": "lock.t3",
+            "o": "lock.t4",
+            "h": "lock.t0",
+            "b": "lock.t2"
           }
         },
         {

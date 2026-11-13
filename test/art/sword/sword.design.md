@@ -82,3 +82,17 @@ axis, replacing the hand-placed shadow bands that a one-pixel rim could not move
 ## Redraw
 
 Redrawn 2026-11-13: the blade is vertical rather than diagonal, four columns of steel with a fuller, and the guard is a level bar with a set gem.
+
+## Derived ramps
+
+The palette is derived rather than hand-listed: each material family is one
+`{"derive": {"base": ..., "stops": 5}}` base colour, expanded to five tones whose
+hue rotates warm at the highlight end and cool at the shadow end. The middle tone
+(`t2`) is the family's base role; the darkest tone (`t4`) carries the detail-edge
+and shadow rims that the old explicit `outline` role supplied, and the painted
+shadow sits one step above it (`t3`) so the rims stay separable.
+
+Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance and
+each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
+Geometry is unchanged; only the palette blocks and the legend's tone names moved,
+which is why the digest was re-baselined.

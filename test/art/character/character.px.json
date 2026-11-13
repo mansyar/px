@@ -8,67 +8,51 @@
   },
   "palette": {
     "arm": {
-      "ramp": {
-        "outline": "#0a0d13",
-        "shadow": "#7d92ac",
-        "base": "#96a3b1",
-        "highlight": "#a6b5c5"
+      "derive": {
+        "base": "#b1bbc6",
+        "stops": 5
       }
     },
     "blade": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#bdc6d0",
-        "base": "#c6d3e1",
-        "highlight": "#c7e1ff"
+      "derive": {
+        "base": "#c7d4e2",
+        "stops": 5
       }
     },
     "boss": {
-      "ramp": {
-        "outline": "#110c05",
-        "shadow": "#d5923e",
-        "base": "#d9a83a",
-        "highlight": "#f5b400"
+      "derive": {
+        "base": "#dcae49",
+        "stops": 5
       }
     },
     "boot": {
-      "ramp": {
-        "outline": "#120c05",
-        "shadow": "#160e08",
-        "base": "#65482d",
-        "highlight": "#8b6b45"
+      "derive": {
+        "base": "#543d26",
+        "stops": 5
       }
     },
     "gorget": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#8591a3",
-        "base": "#98a3b1",
-        "highlight": "#a4b5c8"
+      "derive": {
+        "base": "#b3bbc4",
+        "stops": 5
       }
     },
     "grip": {
-      "ramp": {
-        "outline": "#120c08",
-        "shadow": "#160e08",
-        "base": "#22170f",
-        "highlight": "#755235"
+      "derive": {
+        "base": "#5b3d28",
+        "stops": 5
       }
     },
     "helm": {
-      "ramp": {
-        "outline": "#0b0d10",
-        "shadow": "#97a1ad",
-        "base": "#a4b1bd",
-        "highlight": "#aac2d9"
+      "derive": {
+        "base": "#cbd3db",
+        "stops": 5
       }
     },
     "hilt": {
-      "ramp": {
-        "outline": "#110c05",
-        "shadow": "#d5923e",
-        "base": "#cfab59",
-        "highlight": "#e8b840"
+      "derive": {
+        "base": "#e1ca98",
+        "stops": 5
       }
     },
     "ink": {
@@ -77,43 +61,33 @@
       }
     },
     "leg": {
-      "ramp": {
-        "outline": "#0a0d13",
-        "shadow": "#7d92ac",
-        "base": "#96a3b1",
-        "highlight": "#a6b5c5"
+      "derive": {
+        "base": "#b1bbc6",
+        "stops": 5
       }
     },
     "pauldron": {
-      "ramp": {
-        "outline": "#0b0d0f",
-        "shadow": "#a6aeb9",
-        "base": "#b1bdca",
-        "highlight": "#b5cde7"
+      "derive": {
+        "base": "#eff1f4",
+        "stops": 5
       }
     },
     "plume": {
-      "ramp": {
-        "outline": "#1e0508",
-        "shadow": "#21070a",
-        "base": "#90262c",
-        "highlight": "#d62e2e"
+      "derive": {
+        "base": "#91272d",
+        "stops": 5
       }
     },
     "shield": {
-      "ramp": {
-        "outline": "#1d050b",
-        "shadow": "#22070a",
-        "base": "#93222b",
-        "highlight": "#c04951"
+      "derive": {
+        "base": "#030101",
+        "stops": 5
       }
     },
     "torso": {
-      "ramp": {
-        "outline": "#0b0d11",
-        "shadow": "#0d1013",
-        "base": "#161a1f",
-        "highlight": "#4f5a69"
+      "derive": {
+        "base": "#002121",
+        "stops": 5
       }
     }
   },
@@ -332,10 +306,10 @@
             "................................................"
           ],
           "legend": {
-            "s": "torso.shadow",
-            "o": "torso.outline",
-            "h": "torso.highlight",
-            "b": "torso.base"
+            "s": "torso.t3",
+            "o": "torso.t4",
+            "h": "torso.t0",
+            "b": "torso.t2"
           }
         },
         {
@@ -474,9 +448,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "arm.shadow",
-            "h": "arm.highlight",
-            "b": "arm.base"
+            "s": "arm.t3",
+            "h": "arm.t0",
+            "b": "arm.t2"
           }
         },
         {
@@ -615,9 +589,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "leg.shadow",
-            "h": "leg.highlight",
-            "b": "leg.base"
+            "s": "leg.t3",
+            "h": "leg.t0",
+            "b": "leg.t2"
           }
         },
         {
@@ -756,9 +730,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "boot.shadow",
-            "h": "boot.highlight",
-            "b": "boot.base"
+            "s": "boot.t3",
+            "h": "boot.t0",
+            "b": "boot.t2"
           }
         },
         {
@@ -897,10 +871,10 @@
             "................................................"
           ],
           "legend": {
-            "s": "blade.shadow",
-            "o": "blade.outline",
-            "h": "blade.highlight",
-            "b": "blade.base"
+            "s": "blade.t3",
+            "o": "blade.t4",
+            "h": "blade.t0",
+            "b": "blade.t2"
           }
         },
         {
@@ -1039,8 +1013,8 @@
             "................................................"
           ],
           "legend": {
-            "s": "grip.shadow",
-            "b": "grip.base"
+            "s": "grip.t3",
+            "b": "grip.t2"
           }
         },
         {
@@ -1179,10 +1153,10 @@
             "................................................"
           ],
           "legend": {
-            "s": "helm.shadow",
-            "o": "helm.outline",
-            "h": "helm.highlight",
-            "b": "helm.base"
+            "s": "helm.t3",
+            "o": "helm.t4",
+            "h": "helm.t0",
+            "b": "helm.t2"
           }
         },
         {
@@ -1321,8 +1295,8 @@
             "................................................"
           ],
           "legend": {
-            "h": "gorget.highlight",
-            "b": "gorget.base"
+            "h": "gorget.t0",
+            "b": "gorget.t2"
           }
         },
         {
@@ -1461,9 +1435,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "pauldron.shadow",
-            "h": "pauldron.highlight",
-            "b": "pauldron.base"
+            "s": "pauldron.t3",
+            "h": "pauldron.t0",
+            "b": "pauldron.t2"
           }
         },
         {
@@ -1602,9 +1576,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "plume.shadow",
-            "h": "plume.highlight",
-            "b": "plume.base"
+            "s": "plume.t3",
+            "h": "plume.t0",
+            "b": "plume.t2"
           }
         },
         {
@@ -1743,9 +1717,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "shield.shadow",
-            "h": "shield.highlight",
-            "b": "shield.base"
+            "s": "shield.t3",
+            "h": "shield.t0",
+            "b": "shield.t2"
           }
         },
         {
@@ -1884,9 +1858,9 @@
             "................................................"
           ],
           "legend": {
-            "s": "hilt.shadow",
-            "h": "hilt.highlight",
-            "b": "hilt.base"
+            "s": "hilt.t3",
+            "h": "hilt.t0",
+            "b": "hilt.t2"
           }
         },
         {
@@ -2025,8 +1999,8 @@
             "................................................"
           ],
           "legend": {
-            "h": "boss.highlight",
-            "b": "boss.base"
+            "h": "boss.t0",
+            "b": "boss.t2"
           }
         },
         {
