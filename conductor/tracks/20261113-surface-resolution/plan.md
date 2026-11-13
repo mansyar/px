@@ -23,16 +23,20 @@ to the art that actually changes.
 - **Covers:** FR-1, FR-2, AC-1, AC-2
 - **Touches:** `src/core/ops/light.ts`, `src/core/recipe/{types,normalize}.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Band derivation**
-  - [ ] **P1.T1.1:** `bands: 2|3|4` and `band_scale: "thickness" | "uniform"` on `light`, defaulting to today's single band.
-  - [ ] **P1.T1.2:** Widths derived from the part's extent along the light axis; clamp when the count exceeds thickness; collapse duplicates.
-  - [ ] **P1.T1.3:** Assert `bands: 1` and absent are byte-identical across all seven assets.
-- [ ] **P1.T2: Tests**
-  - [ ] **P1.T2.1:** 40×8 mass yields three distinct bands in one direction.
-  - [ ] **P1.T2.2:** 3 px and 40 px masses both honor the count with proportional widths.
-  - [ ] **P1.T2.3:** 1 px stroke-mass degrades to one band with no error.
+- [x] **P1.T1: Band derivation**
+  - [x] **P1.T1.1:** `bands: 2|3|4` and `band_scale: "thickness" | "uniform"` on `light`, defaulting to today's single band.
+  - [x] **P1.T1.2:** Widths derived from the part's extent along the light axis; clamp when the count exceeds thickness; collapse duplicates.
+  - [x] **P1.T1.3:** Assert `bands: 1` and absent are byte-identical across all seven assets.
+- [x] **P1.T2: Tests**
+  - [x] **P1.T2.1:** 40×8 mass yields three distinct bands in one direction.
+  - [x] **P1.T2.2:** 3 px and 40 px masses both honor the count with proportional widths.
+  - [x] **P1.T2.3:** 1 px stroke-mass degrades to one band with no error.
+
+**Result:** verified
+**Checkpoint:** f59367e
+**Evidence:** conductor/tracks/20261113-surface-resolution/verification/phase-1.md
 
 ## Phase 2: Part Selection
 
