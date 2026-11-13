@@ -332,6 +332,8 @@ export interface AutoOutlineOp extends OpBase {
   op: 'auto_outline';
   mode?: OutlineMode;
   where?: OutlineWhere;
+  /** Tone drawn on the inside of boundaries between two parts. */
+  seam?: SlotRef;
   /** Required unless `selective` supplies the colour from each family. */
   color?: SlotRef;
   selective?: boolean;
@@ -549,7 +551,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   texture: ['pattern', 'color', 'density', 'fit', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
-  auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],
+  auto_outline: ['mode', 'where', 'color', 'seam', 'selective', 'width', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
   light: [

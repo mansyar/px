@@ -340,6 +340,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           where: op.where ?? 'outer',
           selective: op.selective === true,
           color: op.color === undefined ? undefined : colorSlot(context, op.color),
+          seam: op.seam === undefined ? undefined : colorSlot(context, op.seam),
           // The profile recommends a depth at 1.1; an explicit width always wins.
           thickness: op.width ?? outlineDepth(context),
         },

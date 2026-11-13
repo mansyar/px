@@ -1219,6 +1219,21 @@ function normalizeAutoOutline(
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;
   }
+  // `colorParam` only ever reads `color`, so the seam needs its own read. The
+  // slot itself is resolved at compile time, where an unknown name is an error.
+  const seam = source.seam;
+  if (seam !== undefined) {
+    if (typeof seam !== 'string') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (auto_outline) has a non-string seam`,
+        'seam is a slot reference such as "steel.outline".',
+        opLocation(layer, opIndex),
+      );
+    }
+    op.seam = seam;
+  }
+
   return op;
 }
 

@@ -48,6 +48,8 @@ export interface OutlineOptions {
   color: number | undefined;
   /** How many pixels deep the border runs; the caller resolves the default. */
   thickness: number;
+  /** Tone for boundaries between two parts, or undefined for none. */
+  seam?: number;
 }
 
 /** Returns how many pixels changed; zero means the pass was a no-op. */
@@ -138,6 +140,50 @@ export function autoOutline(
         }
         work[index] = write;
         filled[index] = 1;
+        painted += 1;
+      }
+    }
+  }
+
+  // Interior seams: a boundary between two differently-owned parts gets one pixel
+  // in the `seam` tone, on the later-declared side only, so the boundary is drawn
+  // once. A one-pixel ridge has no same-owner neighbour and keeps its own tone,
+  // which is what lets a seam part survive the pass.
+  if (options.seam !== undefined && workOwners !== undefined && sourceOwners !== undefined) {
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const index = y * width + x;
+        const here = workOwners[index] ?? -1;
+        if (here < 0 || (work[index] ?? TRANSPARENT_SLOT) === TRANSPARENT_SLOT) {
+          continue;
+        }
+        let sameOwner = false;
+        let earlierNeighbour = false;
+        for (const [dx, dy] of NEIGHBOURS_4) {
+          const nx = x + dx;
+          const ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
+            continue;
+          }
+          const neighbourIndex = ny * width + nx;
+          const other = workOwners[neighbourIndex] ?? -1;
+          // Width comes from the source snapshot, not from `work`: the outline
+          // ring claims pixels for the part, which would make a one-pixel ridge
+          // look thick and lose its exemption.
+          if ((sourceOwners[neighbourIndex] ?? -2) === (sourceOwners[index] ?? -1)) {
+            sameOwner = true;
+          } else if (
+            other >= 0 &&
+            other < here &&
+            (work[neighbourIndex] ?? TRANSPARENT_SLOT) !== TRANSPARENT_SLOT
+          ) {
+            earlierNeighbour = true;
+          }
+        }
+        if (!sameOwner || !earlierNeighbour) {
+          continue;
+        }
+        canvas.set(x, y, options.seam);
         painted += 1;
       }
     }
