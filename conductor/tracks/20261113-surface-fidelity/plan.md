@@ -113,18 +113,22 @@
 - **Covers:** FR-14, FR-15, FR-16, AC-13, AC-14
 - **Touches:** `src/core/palette.ts`, `src/core/ops/ramp.ts`, `src/core/ops/stroke.ts`, `src/core/recipe/{types,normalize}.ts`, `test/ops/**`, `test/recipe/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P5.T1: Hue-shifted ramp derivation** — covers: FR-14
-  - [ ] **P5.T1.1:** Derive N stops from a base colour with cool shadows and warm highlights, deterministic rounding, per material.
-  - [ ] **P5.T1.2:** Keep existing explicit ramp families byte-identical; derivation is additive.
-  - [ ] **P5.T1.3:** Assert the step is even and the hue actually shifts, not just the value.
-- [ ] **P5.T2: Stroke corners and caps** — covers: FR-15
-  - [ ] **P5.T2.1:** Add `corner` and `cap` with defaults that reproduce today's bytes; assert byte equality for a recipe that omits both.
-  - [ ] **P5.T2.2:** Fixture the character's leg-to-torso join to show the outline no longer switches treatment there.
-- [ ] **P5.T3: Schema 1.2 gate** — covers: FR-16
-  - [ ] **P5.T3.1:** Accept the new options only under version `"1.2"`, and reject them under `1.1`/`1.0` with a message naming the version.
-  - [ ] **P5.T3.2:** Record the version decision in `tech-stack.md` and add the migration test.
+- [x] **P5.T1: Hue-shifted ramp derivation** — covers: FR-14
+  - [x] **P5.T1.1:** Derive N stops from a base colour with cool shadows and warm highlights, deterministic rounding, per material.
+  - [x] **P5.T1.2:** Keep existing explicit ramp families byte-identical; derivation is additive.
+  - [x] **P5.T1.3:** Assert the step is even and the hue actually shifts, not just the value.
+- [x] **P5.T2: Stroke corners and caps** — covers: FR-15
+  - [x] **P5.T2.1:** Add `corner` and `cap` with defaults that reproduce today's bytes; assert byte equality for a recipe that omits both.
+  - [x] **P5.T2.2:** Fixture the character's leg-to-torso join to show the outline no longer switches treatment there.
+- [x] **P5.T3: Schema 1.2 gate** — covers: FR-16
+  - [x] **P5.T3.1:** Accept the new options only under version `"1.2"`, and reject them under `1.1`/`1.0` with a message naming the version.
+  - [x] **P5.T3.2:** Record the version decision in `tech-stack.md` and add the migration test.
+
+**Result:** verified
+**Checkpoint:** 36c9222
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-5.md
 
 ## Phase 6: Re-authoring and Independent Score
 

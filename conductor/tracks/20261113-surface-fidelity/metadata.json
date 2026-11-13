@@ -8,7 +8,7 @@
     "20261113-authoring-primitives"
   ],
   "created_at": "2026-11-13T05:23:08Z",
-  "updated_at": "2026-11-13T05:46:29Z",
+  "updated_at": "2026-11-13T05:54:50Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-surface-fidelity",
@@ -16,11 +16,11 @@
   "base_sha": "5cec2b37ca4ad81a8283bb584d7c95220ae81b1c",
   "progress": {
     "phases_total": 6,
-    "phases_verified": 4,
+    "phases_verified": 5,
     "tasks_total": 19,
-    "tasks_done": 12
+    "tasks_done": 16
   },
-  "last_checkpoint": "b28ccc3",
+  "last_checkpoint": "36c9222",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",
