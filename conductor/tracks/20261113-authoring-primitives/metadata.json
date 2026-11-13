@@ -1,11 +1,11 @@
 {
   "spec": "spec.md",
-  "updated_at": "2026-11-13T02:39:14Z",
+  "updated_at": "2026-11-13T02:44:27Z",
   "revert_pr_url": null,
   "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
   "type": "feature",
   "doc_sync": "pending",
-  "status": "new",
+  "status": "in_progress",
   "priority": "high",
   "review_rounds": 0,
   "review_verdict": null,
