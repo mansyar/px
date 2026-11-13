@@ -46,17 +46,21 @@ then a single re-score that judges the gate. No phase touches the engine.
   `.conductor/evidence/`
 - **Verification:** strict renders and the assets test, plus the interim probe
   logs; AC-6 is checked against the extracted `why` text.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Scene roof under one light** — covers: FR-2
-  - [ ] P2.T1.1: Continue a single gradient across both planes; express
+- [x] **P2.T1: Scene roof under one light** — covers: FR-2
+  - [x] P2.T1.1: Continue a single gradient across both planes; express
         orientation as a value offset, not a seam at `x = 128`.
-- [ ] **P2.T2: Chest front face gradient** — covers: FR-3
-- [ ] **P2.T3: Humanoid and character torso shading** — covers: FR-4
-- [ ] **P2.T4: Potion liquid depth** — covers: FR-5
-- [ ] **P2.T5: Interim probe** — covers: AC-1, AC-6
-  - [ ] P2.T5.1: Score scene and chest, both passes (4 calls), and record the
+- [x] **P2.T2: Chest front face gradient** — covers: FR-3
+- [x] **P2.T3: Humanoid and character torso shading** — covers: FR-4
+- [x] **P2.T4: Potion liquid depth** — covers: FR-5
+- [x] **P2.T5: Interim probe** — covers: AC-1, AC-6
+  - [x] P2.T5.1: Score scene and chest, both passes (4 calls), and record the
         `lighting` reasons before continuing.
+
+**Result:** verified
+**Checkpoint:** f6e3609
+**Evidence:** conductor/tracks/20261113-lighting-recovery/verification/phase-2.md
 
 ## Phase 3: Edge Discipline and Value Ladder
 
