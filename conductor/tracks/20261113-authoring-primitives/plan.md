@@ -12,7 +12,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, NFR-1, NFR-6, AC-1, AC-2, AC-3, AC-4
 - **Touches:** `src/core/**`, `src/cli/**`, `src/mcp/**`, `test/facing/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Facing in the schema** — covers: FR-1, FR-4
     - [ ] **P1.T1.1:** `facing` on a part, accepting the six names or a 3-vector; omitted means viewer-facing
