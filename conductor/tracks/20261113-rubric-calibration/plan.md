@@ -22,19 +22,19 @@ adjusted by this track.
 - **Touches:** `scripts/calibrate/variants.mjs`, `.conductor/evidence/calibration/`
 - **Verification:** `node scripts/calibrate/variants.mjs` then
   `git diff --stat test/art` (must be empty)
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P1.T1: Define the six criterion mutations** — covers: FR-1
-  - [ ] P1.T1.1: silhouette: solid bounding blob (low) vs the drawn shape (high)
-  - [ ] P1.T1.2: value separation: one tone for every part (low) vs distinct bases (high)
-  - [ ] P1.T1.3: lighting: flat fill (low) vs directional ramp (high)
-  - [ ] P1.T1.4: edge language: no interior treatment (low) vs the edge convention (high)
-  - [ ] P1.T1.5: cluster discipline: scattered single pixels (low) vs clean masses (high)
-  - [ ] P1.T1.6: palette craft: one desaturated hue (low) vs derived warm/cool ramps (high)
-- [ ] **P1.T2: Emit variant recipes** — covers: FR-1
-- [ ] **P1.T3: Render variants to 8× and debug artifacts** — covers: FR-2
-- [ ] **P1.T4: Mutation audit** — covers: AC-1
-  - [ ] P1.T4.1: Record per variant which ops and grid cells differ from the base.
+- [x] **P1.T1: Define the six criterion mutations** — covers: FR-1
+  - [x] P1.T1.1: silhouette: solid bounding blob (low) vs the drawn shape (high)
+  - [x] P1.T1.2: value separation: one tone per family, all bases at one lightness (low) vs distinct bases (high)
+  - [x] P1.T1.3: lighting: flat fill (low) vs directional ramp (high)
+  - [x] P1.T1.4: edge language: outline tones and auto-outline removed (low) vs the edge convention (high)
+  - [x] P1.T1.5: cluster discipline: scattered single pixels (low) vs clean masses (high)
+  - [x] P1.T1.6: palette craft: one desaturated hue (low) vs derived warm/cool ramps (high)
+- [x] **P1.T2: Emit variant recipes** — covers: FR-1
+- [x] **P1.T3: Render variants to 8× and debug artifacts** — covers: FR-2
+- [x] **P1.T4: Mutation audit** — covers: AC-1
+  - [x] P1.T4.1: Record per variant which ops and grid cells differ from the base.
 
 ## Phase 2: Harness and Report
 
