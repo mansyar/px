@@ -25,7 +25,8 @@
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "rubric:report": "node scripts/rubric-report.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2"
