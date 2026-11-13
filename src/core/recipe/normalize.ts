@@ -7,44 +7,65 @@
 
 import { PxError, type PxWarning } from '../errors.js';
 import { normalizeFamily } from '../palette.js';
+import { parseScaleProfile, profileWarnings } from '../profile.js';
+import { parseRef, REF_GRAMMAR } from '../refs.js';
 import {
+  ACCEPTED_VERSIONS,
   type Anchor,
   type Anchors,
   type AsciiBlitOp,
   type AutoOutlineOp,
   type AutoShadeOp,
+  type Coord,
+  type CoordRef,
+  type DebandOp,
   DITHER_PATTERNS,
   type DitherFillOp,
   type DitherPattern,
   type EllipseOp,
   type FloodFillOp,
+  GLOSS_PROFILES,
+  type GlossProfile,
+  isCoordRef,
   type Layer,
   LIGHT_DIRS,
+  LIGHT_FORMS,
+  LIGHT_RIMS,
   type LightDir,
+  type LightForm,
+  type LightOp,
+  type LightRim,
   type LineOp,
   MAX_CANVAS_SIZE,
   MIN_CANVAS_SIZE,
   OP_PARAM_ORDER,
-  type Op,
   type OpName,
   OUTLINE_MODES,
   OUTLINE_WHERES,
   type OutlineMode,
   type OutlineWhere,
+  PART_TAGGED_OPS,
   type Palette,
+  type Part,
+  type Parts,
   type PolygonOp,
   type RampFillOp,
-  RECIPE_VERSION,
+  type RawOf,
+  type RawOp,
   type Recipe,
   type RecipeMeta,
   type RectOp,
   type ReplaceSlotOp,
+  type SealOp,
   type SetPixelsOp,
   type SlotRef,
+  type StraysOp,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
-const META_KEYS = ['name', 'width', 'height', 'alpha_mode'];
+const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
+const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
+const PART_KEYS = ['material', 'gloss', 'z'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -110,7 +131,12 @@ function normalizeMeta(raw: unknown): RecipeMeta {
 
   unknownKeys(raw, META_KEYS, 'E_BAD_META', 'Recipe meta');
 
-  return { name, width: widthValue, height: heightValue, alphaMode: 'binary' };
+  const profile = raw.profile === undefined ? undefined : parseScaleProfile(raw.profile);
+  const meta: RecipeMeta = { name, width: widthValue, height: heightValue, alphaMode: 'binary' };
+  if (profile !== undefined) {
+    meta.profile = profile;
+  }
+  return meta;
 }
 
 function canvasDimension(key: string, value: unknown): number {
@@ -142,6 +168,82 @@ function normalizePalette(raw: unknown): Palette {
     palette[name] = normalizeFamily(name, family).family;
   }
   return palette;
+}
+
+function normalizeParts(raw: unknown): Parts {
+  if (raw === undefined) {
+    return {};
+  }
+  if (!isRecord(raw)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      'Recipe parts is not an object',
+      'Declare "parts": {"blade": {"material": "steel", "gloss": "metal"}}.',
+    );
+  }
+  const parts: Parts = {};
+  for (const [name, value] of Object.entries(raw)) {
+    if (name === '') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        'Recipe parts declares a part with an empty name',
+        'Name each part, e.g. "blade" or "guard".',
+      );
+    }
+    parts[name] = normalizePart(name, value);
+  }
+  return parts;
+}
+
+function normalizePart(name: string, raw: unknown): Part {
+  if (!isRecord(raw)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" is not an object`,
+      'A part is {"material": "<palette family>", "gloss": "matte|metal|gem|cloth", "z": 0}.',
+    );
+  }
+  unknownKeys(raw, PART_KEYS, 'E_BAD_PARAM', `Part "${name}"`);
+
+  const material = raw.material;
+  if (typeof material !== 'string' || material === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has no "material"`,
+      'A part names a palette family, e.g. "material": "steel".',
+    );
+  }
+
+  const z = raw.z;
+  if (z !== undefined && (typeof z !== 'number' || !Number.isInteger(z))) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a non-integer "z": ${JSON.stringify(z)}`,
+      '"z" is an integer; it defaults to 0 and only orders parts for shading.',
+    );
+  }
+
+  return {
+    material,
+    gloss: glossParam(name, raw.gloss),
+    z: z ?? 0,
+  };
+}
+
+function glossParam(name: string, value: unknown): GlossProfile {
+  if (value === undefined) {
+    return 'matte';
+  }
+  const match =
+    typeof value === 'string' ? GLOSS_PROFILES.find((profile) => profile === value) : undefined;
+  if (match === undefined) {
+    throw new PxError(
+      'E_GLOSS_UNKNOWN',
+      `Part "${name}" has an unknown gloss ${JSON.stringify(value)}`,
+      `Gloss is one of ${GLOSS_PROFILES.join(', ')}.`,
+    );
+  }
+  return match;
 }
 
 function normalizeAnchors(
@@ -219,6 +321,113 @@ function intParam(
     );
   }
   return value;
+}
+
+/**
+ * A coordinate: an integer, or a ref object resolved against the entry snapshot
+ * at compile time. Refs are stored verbatim, so a read-write cycle never
+ * rewrites one into the number it happened to resolve to.
+ */
+function coordParam(
+  source: Record<string, unknown>,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): Coord {
+  const value = source[key];
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (${opName}) is missing "${key}"`,
+      `Parameters for ${opName} are ${OP_PARAM_ORDER[opName as OpName].join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof value === 'number') {
+    if (!Number.isInteger(value)) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (${opName}) has a non-integer "${key}"`,
+        `"${key}" must be an integer pixel coordinate or a ref object.`,
+        opLocation(layer, opIndex),
+      );
+    }
+    return value;
+  }
+  if (!isCoordRef(value)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a "${key}" that is neither an integer nor a ref object`,
+      `"${key}" must be an integer pixel coordinate or a ref object. ${REF_GRAMMAR}`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return refParam(value, key, opName, opIndex, layer);
+}
+
+function offsetParam(
+  raw: CoordRef,
+  key: 'dx' | 'dy',
+  opName: string,
+  opIndex: number,
+  layer: string,
+): number {
+  const value = raw[key];
+  if (value === undefined) {
+    return 0;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-integer ref "${key}": ${JSON.stringify(value)}`,
+      `A ref offset is an integer pixel delta; "${key}" defaults to 0.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+function refParam(
+  raw: CoordRef,
+  key: string,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): CoordRef {
+  const extra = Object.keys(raw).filter(
+    (entry) => entry !== 'ref' && entry !== 'dx' && entry !== 'dy',
+  );
+  if (extra.length > 0) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) "${key}" ref has unknown key${extra.length === 1 ? '' : 's'} ${extra.join(', ')}`,
+      'Accepted keys are ref, dx, dy.',
+      opLocation(layer, opIndex),
+    );
+  }
+  const text: unknown = raw.ref;
+  if (typeof text !== 'string' || text === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a "${key}" ref without a "ref" string`,
+      REF_GRAMMAR,
+      opLocation(layer, opIndex),
+    );
+  }
+  // Grammar only. Whether the part or anchor exists is a question about the
+  // compile snapshot, so `validateReferences` and the compiler answer it.
+  parseRef(text, { layer, opIndex, opName });
+  const ref: CoordRef = { ref: text };
+  const dx = offsetParam(raw, 'dx', opName, opIndex, layer);
+  const dy = offsetParam(raw, 'dy', opName, opIndex, layer);
+  if (dx !== 0) {
+    ref.dx = dx;
+  }
+  if (dy !== 0) {
+    ref.dy = dy;
+  }
+  return ref;
 }
 
 function stringParam(
@@ -406,9 +615,9 @@ function regionParams(
   opName: string,
   opIndex: number,
   layer: string,
-): { x: number; y: number; w: number; h: number } {
-  const x = intParam(source, 'x', opName, opIndex, layer);
-  const y = intParam(source, 'y', opName, opIndex, layer);
+): { x: Coord; y: Coord; w: number; h: number } {
+  const x = coordParam(source, 'x', opName, opIndex, layer);
+  const y = coordParam(source, 'y', opName, opIndex, layer);
   const w = intParam(source, 'w', opName, opIndex, layer);
   const h = intParam(source, 'h', opName, opIndex, layer);
   if (w < 1 || h < 1) {
@@ -434,7 +643,11 @@ function normalizeSetPixels(
   };
 }
 
-function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: string): RectOp {
+function normalizeRect(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): RawOf<RectOp> {
   const region = regionParams(source, 'rect', opIndex, layer);
   return {
     op: 'rect',
@@ -443,13 +656,17 @@ function normalizeRect(source: Record<string, unknown>, opIndex: number, layer: 
   };
 }
 
-function normalizeLine(source: Record<string, unknown>, opIndex: number, layer: string): LineOp {
+function normalizeLine(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): RawOf<LineOp> {
   return {
     op: 'line',
-    x1: intParam(source, 'x1', 'line', opIndex, layer),
-    y1: intParam(source, 'y1', 'line', opIndex, layer),
-    x2: intParam(source, 'x2', 'line', opIndex, layer),
-    y2: intParam(source, 'y2', 'line', opIndex, layer),
+    x1: coordParam(source, 'x1', 'line', opIndex, layer),
+    y1: coordParam(source, 'y1', 'line', opIndex, layer),
+    x2: coordParam(source, 'x2', 'line', opIndex, layer),
+    y2: coordParam(source, 'y2', 'line', opIndex, layer),
     color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
 }
@@ -458,9 +675,9 @@ function normalizeEllipse(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): EllipseOp {
+): RawOf<EllipseOp> {
   const region = regionParams(source, 'ellipse', opIndex, layer);
-  const op: EllipseOp = {
+  const op: RawOf<EllipseOp> = {
     op: 'ellipse',
     ...region,
     color: colorParam(source, 'ellipse', opIndex, layer) ?? null,
@@ -487,11 +704,11 @@ function normalizeFloodFill(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): FloodFillOp {
-  const op: FloodFillOp = {
+): RawOf<FloodFillOp> {
+  const op: RawOf<FloodFillOp> = {
     op: 'flood_fill',
-    x: intParam(source, 'x', 'flood_fill', opIndex, layer),
-    y: intParam(source, 'y', 'flood_fill', opIndex, layer),
+    x: coordParam(source, 'x', 'flood_fill', opIndex, layer),
+    y: coordParam(source, 'y', 'flood_fill', opIndex, layer),
     color: colorParam(source, 'flood_fill', opIndex, layer) ?? null,
   };
   const connectivity = source.connectivity;
@@ -515,7 +732,7 @@ function normalizeDitherFill(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): DitherFillOp {
+): RawOf<DitherFillOp> {
   const region = regionParams(source, 'dither_fill', opIndex, layer);
   const pattern = enumParam<DitherPattern>(
     source,
@@ -645,9 +862,9 @@ function normalizeAsciiBlit(
   source: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): AsciiBlitOp {
-  const x = intParam(source, 'x', 'ascii_blit', opIndex, layer);
-  const y = intParam(source, 'y', 'ascii_blit', opIndex, layer);
+): RawOf<AsciiBlitOp> {
+  const x = coordParam(source, 'x', 'ascii_blit', opIndex, layer);
+  const y = coordParam(source, 'y', 'ascii_blit', opIndex, layer);
   const grid = gridParam(source, opIndex, layer);
   const legend = legendParam(source, opIndex, layer);
 
@@ -671,7 +888,7 @@ function normalizeAsciiBlit(
   return { op: 'ascii_blit', x, y, grid, legend };
 }
 
-function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, layer: string): Op {
+function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, layer: string): RawOp {
   const axis = enumParam(source, 'axis', 'mirror', opIndex, layer, ['x', 'y'] as const, true);
   const pivot = source.pivot;
   if (pivot === undefined) {
@@ -691,6 +908,30 @@ function normalizeMirrorOp(source: Record<string, unknown>, opIndex: number, lay
     );
   }
   return { op: 'mirror', axis: axis ?? 'x', pivot };
+}
+
+/**
+ * `width` is 1-4 px: the border's depth, overriding the profile's outlineWidth
+ * when a recipe wants a heavier or lighter edge than its scale expects.
+ */
+function outlineWidthParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): number | undefined {
+  const value = source.width;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > 4) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (auto_outline) has width ${JSON.stringify(value)}, outside 1-4`,
+      '"width" is an integer from 1 to 4 pixels of border depth.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
 }
 
 function normalizeAutoOutline(
@@ -718,6 +959,7 @@ function normalizeAutoOutline(
   );
   const selective = boolParam(source, 'selective', 'auto_outline', opIndex, layer);
   const color = colorParam(source, 'auto_outline', opIndex, layer, selective !== true);
+  const outlineWidth = outlineWidthParam(source, opIndex, layer);
   const op: AutoOutlineOp = { op: 'auto_outline' };
   if (mode !== undefined) {
     op.mode = mode;
@@ -730,6 +972,9 @@ function normalizeAutoOutline(
   }
   if (selective === true) {
     op.selective = true;
+  }
+  if (outlineWidth !== undefined) {
+    op.width = outlineWidth;
   }
   const targetLayer = optionalStringParam(source, 'target_layer', 'auto_outline', opIndex, layer);
   if (targetLayer !== undefined) {
@@ -791,6 +1036,69 @@ function normalizeRampFill(
   return op;
 }
 
+/** `cast` names a declared part, or null for no cast shadow; absent means null. */
+function castParam(source: Record<string, unknown>, opIndex: number, layer: string): string | null {
+  const value = source.cast;
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (typeof value !== 'string' || value === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) has a non-string or empty "cast"`,
+      '"cast" names a declared part, or null for no cast shadow.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+/**
+ * `cast_offset` is 1-4 px: a shadow touching the caster at one pixel or sitting
+ * four pixels away, with nothing between that changes how it reads.
+ */
+function castOffsetParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): number | undefined {
+  const value = source.cast_offset;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > 4) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) has cast_offset ${JSON.stringify(value)}, outside 1-4`,
+      '"cast_offset" is an integer from 1 to 4 pixels along the light vector.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
+}
+
+function normalizeLight(source: Record<string, unknown>, opIndex: number, layer: string): LightOp {
+  const angle = enumParam<LightDir>(source, 'angle', 'light', opIndex, layer, LIGHT_DIRS, false);
+  const form = enumParam<LightForm>(source, 'form', 'light', opIndex, layer, LIGHT_FORMS, false);
+  const rim = enumParam<LightRim>(source, 'rim', 'light', opIndex, layer, LIGHT_RIMS, false);
+  const ao = boolParam(source, 'ao', 'light', opIndex, layer);
+  const castOffset = castOffsetParam(source, opIndex, layer);
+  const op: LightOp = {
+    op: 'light',
+    angle: angle ?? 'top-left',
+    form: form ?? 'bevel',
+    ao: ao ?? true,
+    cast: castParam(source, opIndex, layer),
+    castOffset: castOffset ?? 1,
+    rim: rim ?? 'edge',
+  };
+  const targetLayer = optionalStringParam(source, 'target_layer', 'light', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
 function normalizeReplaceSlot(
   source: Record<string, unknown>,
   opIndex: number,
@@ -803,7 +1111,21 @@ function normalizeReplaceSlot(
   };
 }
 
-function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): Op {
+/**
+ * Cleanup passes take one optional key. `target_layer` is the layer they read;
+ * they always write into the layer that contains the op.
+ */
+function normalizeCleanup(
+  name: 'seal' | 'strays' | 'deband',
+  raw: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): SealOp | StraysOp | DebandOp {
+  const targetLayer = optionalStringParam(raw, 'target_layer', name, opIndex, layer);
+  return targetLayer === undefined ? { op: name } : { op: name, targetLayer };
+}
+
+function normalizeTupleOp(raw: unknown[], opIndex: number, layer: string): RawOp {
   const name = raw[0];
   if (typeof name !== 'string') {
     throw new PxError(
@@ -860,7 +1182,7 @@ function opIdParam(
   return value;
 }
 
-function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer: string): Op {
+function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer: string): RawOp {
   const name = raw.op;
   if (typeof name !== 'string') {
     throw new PxError(
@@ -878,9 +1200,10 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
       opLocation(layer, opIndex),
     );
   }
+  const tagged = PART_TAGGED_OPS.includes(name as OpName);
   unknownKeys(
     raw,
-    OP_PARAM_ORDER[name as OpName].concat('op', 'id'),
+    OP_PARAM_ORDER[name as OpName].concat('op', 'id').concat(tagged ? ['part'] : []),
     'E_BAD_PARAM',
     `Op ${opIndex} (${name})`,
   );
@@ -890,7 +1213,36 @@ function normalizeOpObject(raw: Record<string, unknown>, opIndex: number, layer:
   if (id !== undefined) {
     op.id = id;
   }
+  const part = tagged ? partParam(raw, name, opIndex, layer) : undefined;
+  if (part !== undefined) {
+    op.part = part;
+  }
   return op;
+}
+
+/**
+ * `part` is a declared name. It travels inside the op object rather than as a
+ * flag: a batched draw can address several parts at once (FR-2).
+ */
+function partParam(
+  source: Record<string, unknown>,
+  opName: string,
+  opIndex: number,
+  layer: string,
+): string | undefined {
+  const value = source.part;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== 'string' || value === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (${opName}) has a non-string or empty "part"`,
+      'A part is a name declared in "parts", such as "blade".',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value;
 }
 
 function normalizeOpBody(
@@ -898,7 +1250,7 @@ function normalizeOpBody(
   raw: Record<string, unknown>,
   opIndex: number,
   layer: string,
-): Op {
+): RawOp {
   switch (name) {
     case 'set_pixels':
       return normalizeSetPixels(raw, opIndex, layer);
@@ -924,12 +1276,18 @@ function normalizeOpBody(
       return normalizeAutoShade(raw, opIndex, layer);
     case 'ramp_fill':
       return normalizeRampFill(raw, opIndex, layer);
+    case 'light':
+      return normalizeLight(raw, opIndex, layer);
     case 'replace_slot':
       return normalizeReplaceSlot(raw, opIndex, layer);
+    case 'seal':
+    case 'strays':
+    case 'deband':
+      return normalizeCleanup(name, raw, opIndex, layer);
   }
 }
 
-export function normalizeOp(raw: unknown, opIndex: number, layer: string): Op {
+export function normalizeOp(raw: unknown, opIndex: number, layer: string): RawOp {
   if (Array.isArray(raw)) {
     return normalizeTupleOp(raw, opIndex, layer);
   }
@@ -1022,25 +1380,51 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
     throw new PxError(
       'E_PARSE',
       'Recipe is not a JSON object',
-      'A recipe is a JSON object with version, meta, palette, anchors, and layers.',
+      'A recipe is a JSON object with version, meta, palette, parts, anchors, and layers.',
     );
   }
 
-  if (raw.version !== RECIPE_VERSION) {
+  const version = ACCEPTED_VERSIONS.find((entry) => entry === raw.version);
+  if (version === undefined) {
     throw new PxError(
       'E_BAD_VERSION',
-      `Recipe version is ${String(raw.version)}, expected ${RECIPE_VERSION}`,
-      `Set "version": ${RECIPE_VERSION}.`,
+      `Recipe version is ${String(raw.version)}, expected one of ${ACCEPTED_VERSIONS.map((entry) => JSON.stringify(entry)).join(', ')}`,
+      'Keep "version": 1 for a 1.0 recipe, or set "version": "1.1" to declare parts.',
     );
   }
 
-  unknownKeys(raw, ['version', 'meta', 'palette', 'anchors', 'layers'], 'E_BAD_META', 'Recipe');
+  // Parts are a 1.1 feature (FR-5), so a 1.0 document that declares them is a
+  // contradiction. Rejecting it here is what lets the writer echo the caller's
+  // version verbatim: a 1.0 recipe is always part-less, so no write can promote
+  // it and silently change the depth `auto_outline` defaults to (AC-1).
+  if ((version === 1 || version === '1.0') && raw.parts !== undefined) {
+    throw new PxError(
+      'E_BAD_VERSION',
+      `Recipe declares parts with version ${JSON.stringify(version)}, but parts require schema 1.1`,
+      'Parts are a 1.1 feature: set "version": "1.1" to declare them.',
+    );
+  }
+
+  unknownKeys(raw, RECIPE_KEYS, 'E_BAD_META', 'Recipe');
 
   const meta = normalizeMeta(raw.meta);
   const palette = normalizePalette(raw.palette);
-  const { anchors, warnings } = normalizeAnchors(raw.anchors, meta.width, meta.height);
+  const parts = normalizeParts(raw.parts);
+  const { anchors, warnings: anchorWarnings } = normalizeAnchors(
+    raw.anchors,
+    meta.width,
+    meta.height,
+  );
   const layers = normalizeLayers(raw.layers);
   validateOpIds(layers);
 
-  return { recipe: { version: RECIPE_VERSION, meta, palette, anchors, layers }, warnings };
+  const warnings =
+    meta.profile === undefined
+      ? anchorWarnings
+      : [...profileWarnings(meta.profile, meta.width, meta.height), ...anchorWarnings];
+
+  return {
+    recipe: { version, meta, palette, parts, anchors, layers },
+    warnings,
+  };
 }

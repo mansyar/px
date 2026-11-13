@@ -33,10 +33,28 @@ export type ErrorCode =
   | 'E_REGION_TOO_THIN'
   | 'E_NO_SUCH_OP'
   | 'E_DUPLICATE_OP_ID'
+  | 'E_PART_UNKNOWN'
+  | 'E_EMPTY_PART'
+  | 'E_MATERIAL_UNKNOWN'
+  | 'E_GLOSS_UNKNOWN'
+  | 'E_PROFILE_UNKNOWN'
+  | 'E_RAMP_STEPS_RANGE'
+  | 'E_RAMP_UNSEPARABLE'
+  | 'E_FAMILY_EXISTS'
+  | 'E_FAMILY_UNKNOWN'
+  | 'E_SWAP_INCOMPATIBLE'
   | 'E_LINT_GATE'
+  | 'E_DIFF_SIZE'
   | 'E_INTERNAL';
 
-export type WarningCode = 'W_OUT_OF_BOUNDS' | 'W_ANCHOR_OUT_OF_BOUNDS' | 'W_PASS_NOOP';
+export type WarningCode =
+  | 'W_OUT_OF_BOUNDS'
+  | 'W_ANCHOR_OUT_OF_BOUNDS'
+  | 'W_PASS_NOOP'
+  | 'W_PART_OVERWRITE'
+  | 'W_CLEANUP_NOOP'
+  | 'W_DIFF_HASH_ONLY'
+  | 'W_PROFILE_MISMATCH';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -75,7 +93,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_WRITE_FAILED:
     'Pass --out as a path the process can write to, such as one under the working directory.',
   E_PARSE: 'The recipe must be valid JSON; check for a trailing comma or an unquoted key.',
-  E_BAD_VERSION: 'Only recipe version 1 is accepted; set "version": 1.',
+  E_BAD_VERSION: 'Recipe version is 1, "1.0" or "1.1"; parts require "1.1".',
   E_BAD_META:
     'meta requires a non-empty name, an integer width and height, and alpha_mode "binary".',
   E_BAD_CANVAS: 'Canvas width and height are integers between 8 and 256 inclusive.',
@@ -89,7 +107,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
   E_UNKNOWN_OP:
-    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, and replace_slot.',
+    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, replace_slot, seal, strays, and deband.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_MISSING_COLOR:
@@ -108,8 +126,26 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'A region that occupies fewer light-axis positions than the band count cannot fill every band: reduce bands, or paint more positions along the light direction.',
   E_NO_SUCH_OP: 'Run `px inspect` or read the op_index map from the last write to find the op.',
   E_DUPLICATE_OP_ID: 'Op ids are unique across the recipe; rename one of the duplicates.',
+  E_PART_UNKNOWN:
+    'Declare the part in "parts" with a material, or name one already declared there.',
+  E_EMPTY_PART:
+    'Paint at least one pixel with "part": "<name>", or remove the declaration from "parts".',
+  E_MATERIAL_UNKNOWN:
+    'A part material names a palette family; run `px inspect` to see the families this recipe declares.',
+  E_GLOSS_UNKNOWN: 'Gloss is one of matte, metal, gem, cloth.',
+  E_PROFILE_UNKNOWN: 'Profile is one of tiny, small, medium, large.',
+  E_RAMP_STEPS_RANGE:
+    'Steps is 3 to 6: three tones is the fewest a ramp can shade with, and six is more than any profile expects.',
+  E_RAMP_UNSEPARABLE:
+    'A ramp needs a distinct luminance for every step. Lighten or darken the base colour, or ask for fewer steps.',
+  E_FAMILY_EXISTS: 'Pick a new family name, or pass --force to overwrite the existing family.',
+  E_FAMILY_UNKNOWN: 'Name a family declared in the recipe palette.',
+  E_SWAP_INCOMPATIBLE:
+    'Swap onto a family that resolves every role or colour index the source provides.',
   E_LINT_GATE:
     'Fix the warnings above, or drop --strict to report them without failing the command.',
+  E_DIFF_SIZE:
+    'Diff compares renders pixel for pixel, so both images must share a canvas size; compare against a render of a recipe with the same width and height.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 

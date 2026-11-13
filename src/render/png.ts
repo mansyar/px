@@ -4,7 +4,7 @@
  * vary per run or per machine is left out on purpose.
  */
 
-import { constants, deflateSync } from 'node:zlib';
+import { constants, deflateSync, inflateSync } from 'node:zlib';
 import { PxError } from '../core/errors.js';
 
 export const PNG_SIGNATURE: Uint8Array = Uint8Array.from([
@@ -124,4 +124,126 @@ export function encodePng(width: number, height: number, rgba: Uint8Array): Uint
     encodeChunk('IDAT', idat),
     encodeChunk('IEND', new Uint8Array(0)),
   ]);
+}
+
+export interface DecodedPng {
+  width: number;
+  height: number;
+  rgba: Uint8Array;
+}
+
+function readUint32BE(bytes: Uint8Array, offset: number): number {
+  return (
+    (((bytes[offset] ?? 0) << 24) |
+      ((bytes[offset + 1] ?? 0) << 16) |
+      ((bytes[offset + 2] ?? 0) << 8) |
+      (bytes[offset + 3] ?? 0)) >>>
+    0
+  );
+}
+
+function badPng(why: string): PxError {
+  return new PxError(
+    'E_BAD_PARAM',
+    `The comparison image is not a readable PNG: ${why}`,
+    'Pass a PNG written by `px render`, or a sha256:<hex> of a previous render.',
+  );
+}
+
+/**
+ * Reads the only PNG shape this project writes: 8-bit RGBA, no interlace, one
+ * or more IDAT chunks, filter types 0-4. It is a reader for our own output, not
+ * a general decoder, so it rejects anything else instead of guessing.
+ */
+export function decodePng(bytes: Uint8Array): DecodedPng {
+  if (bytes.length < PNG_SIGNATURE.length) {
+    throw badPng('the file is shorter than the signature');
+  }
+  for (const [index, byte] of PNG_SIGNATURE.entries()) {
+    if (bytes[index] !== byte) {
+      throw badPng('the file does not start with the PNG signature');
+    }
+  }
+  let width = 0;
+  let height = 0;
+  let sawHeader = false;
+  const idat: Uint8Array[] = [];
+  let offset = PNG_SIGNATURE.length;
+  while (offset + 8 <= bytes.length) {
+    const length = readUint32BE(bytes, offset);
+    const type = String.fromCharCode(
+      bytes[offset + 4] ?? 0,
+      bytes[offset + 5] ?? 0,
+      bytes[offset + 6] ?? 0,
+      bytes[offset + 7] ?? 0,
+    );
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    if (dataEnd > bytes.length) {
+      throw badPng(`the ${type} chunk is truncated`);
+    }
+    const data = bytes.subarray(dataStart, dataEnd);
+    if (type === 'IHDR') {
+      if (length !== 13) {
+        throw badPng('the header chunk is not 13 bytes');
+      }
+      width = readUint32BE(data, 0);
+      height = readUint32BE(data, 4);
+      if (data[8] !== 8 || data[9] !== 6 || data[12] !== 0) {
+        throw badPng('only 8-bit RGBA without interlace is supported');
+      }
+      sawHeader = true;
+    } else if (type === 'IDAT') {
+      idat.push(data);
+    } else if (type === 'IEND') {
+      break;
+    }
+    offset = dataEnd + 4; // skip the chunk CRC; the writer's own bytes are trusted
+  }
+  if (!sawHeader || width < 1 || height < 1) {
+    throw badPng('the header chunk is missing');
+  }
+  const inflated = inflateSync(concat(idat));
+  const stride = width * 4;
+  const rgba = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y += 1) {
+    const rowStart = y * (stride + 1);
+    if (rowStart + 1 + stride > inflated.length) {
+      throw badPng('the pixel data is shorter than the header promises');
+    }
+    const filter = inflated[rowStart] ?? 0;
+    for (let index = 0; index < stride; index += 1) {
+      const raw = inflated[rowStart + 1 + index] ?? 0;
+      const left = index >= 4 ? (rgba[y * stride + index - 4] ?? 0) : 0;
+      const up = y > 0 ? (rgba[(y - 1) * stride + index] ?? 0) : 0;
+      let value: number;
+      if (filter === 0) {
+        value = raw;
+      } else if (filter === 1) {
+        value = raw + left;
+      } else if (filter === 2) {
+        value = raw + up;
+      } else if (filter === 3) {
+        value = raw + ((left + up) >> 1);
+      } else if (filter === 4) {
+        const upLeft = y > 0 && index >= 4 ? (rgba[(y - 1) * stride + index - 4] ?? 0) : 0;
+        value = raw + paeth(left, up, upLeft);
+      } else {
+        throw badPng(`scanline ${y} uses filter ${filter}`);
+      }
+      rgba[y * stride + index] = value & 0xff;
+    }
+  }
+  return { width, height, rgba };
+}
+
+function paeth(left: number, up: number, upLeft: number): number {
+  const estimate = left + up - upLeft;
+  const toLeft = Math.abs(estimate - left);
+  const toUp = Math.abs(estimate - up);
+  const toUpLeft = Math.abs(estimate - upLeft);
+  if (toLeft <= toUp && toLeft <= toUpLeft) {
+    return left;
+  }
+  return toUp <= toUpLeft ? up : upLeft;
 }

@@ -1,0 +1,760 @@
+{
+  "version": "1.1",
+  "meta": {
+    "name": "humanoid",
+    "width": 32,
+    "height": 32,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "brass": {
+      "ramp": {
+        "outline": "#3a2a10",
+        "shadow": "#8a5a1e",
+        "base": "#d9a93c",
+        "highlight": "#ffe08a"
+      }
+    },
+    "chain": {
+      "ramp": {
+        "outline": "#111922",
+        "shadow": "#232c36",
+        "base": "#35414e",
+        "highlight": "#5d6f82"
+      }
+    },
+    "crest": {
+      "ramp": {
+        "outline": "#2a0a10",
+        "shadow": "#7a1c28",
+        "base": "#a8283a",
+        "highlight": "#e8556a"
+      }
+    },
+    "ink": {
+      "ramp": {
+        "outline": "#0b0a10"
+      }
+    },
+    "leather": {
+      "ramp": {
+        "outline": "#120c08",
+        "shadow": "#2a1a10",
+        "base": "#4a3220",
+        "highlight": "#7a5a3c"
+      }
+    },
+    "skin": {
+      "ramp": {
+        "outline": "#3a2418",
+        "shadow": "#8a5a38",
+        "base": "#d9a878",
+        "highlight": "#ffd9a8"
+      }
+    },
+    "steel": {
+      "ramp": {
+        "outline": "#1c2430",
+        "shadow": "#4a5a6c",
+        "base": "#93a3b5",
+        "highlight": "#e2ecf8"
+      }
+    },
+    "tunic": {
+      "ramp": {
+        "outline": "#14200f",
+        "shadow": "#2a3d22",
+        "base": "#4a6a52",
+        "highlight": "#6f9070"
+      }
+    }
+  },
+  "parts": {
+    "arm_l": {
+      "material": "tunic",
+      "gloss": "cloth",
+      "z": 1
+    },
+    "arm_r": {
+      "material": "tunic",
+      "gloss": "cloth",
+      "z": 1
+    },
+    "belt": {
+      "material": "brass",
+      "gloss": "metal",
+      "z": 2
+    },
+    "blade": {
+      "material": "steel",
+      "gloss": "metal",
+      "z": 1
+    },
+    "boots": {
+      "material": "leather",
+      "gloss": "matte"
+    },
+    "face": {
+      "material": "skin",
+      "gloss": "matte",
+      "z": 2
+    },
+    "helm": {
+      "material": "steel",
+      "gloss": "metal",
+      "z": 2
+    },
+    "hilt": {
+      "material": "brass",
+      "gloss": "metal",
+      "z": 1
+    },
+    "legs": {
+      "material": "tunic",
+      "gloss": "cloth"
+    },
+    "plume": {
+      "material": "crest",
+      "gloss": "cloth",
+      "z": 3
+    },
+    "torso": {
+      "material": "chain",
+      "gloss": "metal",
+      "z": 2
+    }
+  },
+  "anchors": {
+    "foot_origin": [
+      13,
+      30
+    ],
+    "hand_weapon": [
+      25,
+      18
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "ascii_blit",
+          "part": "plume",
+          "x": 13,
+          "y": 3,
+          "grid": [
+            "xxxxx"
+          ],
+          "legend": {
+            "x": "crest.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "plume",
+          "x": 13,
+          "y": 2,
+          "grid": [
+            ".xxx",
+            "....",
+            "x..."
+          ],
+          "legend": {
+            "x": "crest.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 17,
+          "y": 7,
+          "grid": [
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "skin.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 14,
+          "y": 7,
+          "grid": [
+            "xxx",
+            "x.."
+          ],
+          "legend": {
+            "x": "skin.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 15,
+          "y": 8,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "skin.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 14,
+          "y": 9,
+          "grid": [
+            "xxxx"
+          ],
+          "legend": {
+            "x": "skin.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 11,
+          "y": 5,
+          "grid": [
+            "...xxxx.",
+            "..xxxxxx",
+            "........",
+            "xxx.....",
+            "xxx....."
+          ],
+          "legend": {
+            "x": "steel.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 11,
+          "y": 4,
+          "grid": [
+            "...xxxx",
+            ".xx....",
+            "xx.....",
+            "xxx...."
+          ],
+          "legend": {
+            "x": "steel.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 11,
+          "y": 5,
+          "grid": [
+            ".......xx.",
+            "........xx",
+            ".......xxx",
+            ".......xxx",
+            ".......xxx",
+            "xxxxxxxxxx"
+          ],
+          "legend": {
+            "x": "steel.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 12,
+          "y": 12,
+          "grid": [
+            "xxxxxxxx",
+            "xxxxxxxx",
+            "xxxxxxxx",
+            "........",
+            "xxxxxxxx",
+            "xxxxxxxx"
+          ],
+          "legend": {
+            "x": "chain.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 11,
+          "y": 11,
+          "grid": [
+            "xxxxxxxxx",
+            "x........",
+            "x........",
+            "x........",
+            "x........",
+            "x........",
+            "x........",
+            "x........"
+          ],
+          "legend": {
+            "x": "chain.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 12,
+          "y": 11,
+          "grid": [
+            "........x",
+            "........x",
+            "........x",
+            "........x",
+            "xxxxxxxxx",
+            "........x",
+            "........x",
+            "xxxxxxxxx"
+          ],
+          "legend": {
+            "x": "chain.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 9,
+          "y": 18,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 9,
+          "y": 19,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 10,
+          "y": 11,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "tunic.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 9,
+          "y": 11,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "tunic.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 9,
+          "y": 17,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "tunic.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 21,
+          "y": 18,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 21,
+          "y": 19,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 21,
+          "y": 11,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "tunic.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 21,
+          "y": 11,
+          "grid": [
+            ".x",
+            ".x",
+            ".x",
+            ".x",
+            ".x",
+            "..",
+            "xx"
+          ],
+          "legend": {
+            "x": "tunic.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 13,
+          "y": 21,
+          "grid": [
+            "x...xx",
+            "x...xx",
+            "......",
+            "......",
+            "x...xx",
+            "x...xx"
+          ],
+          "legend": {
+            "x": "tunic.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 12,
+          "y": 20,
+          "grid": [
+            "xxx..xxx",
+            "x.......",
+            "x.......",
+            "........",
+            "........",
+            "x.......",
+            "x......."
+          ],
+          "legend": {
+            "x": "tunic.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 12,
+          "y": 21,
+          "grid": [
+            "..x....x",
+            "..x....x",
+            "xxx..xxx",
+            "xxx..xxx",
+            "..x....x",
+            "..x....x",
+            "xxx..xxx"
+          ],
+          "legend": {
+            "x": "tunic.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 12,
+          "y": 28,
+          "grid": [
+            "xxx...xxx",
+            "xxx...xxx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 11,
+          "y": 28,
+          "grid": [
+            "x.....x",
+            "x.....x"
+          ],
+          "legend": {
+            "x": "leather.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 11,
+          "y": 30,
+          "grid": [
+            "xxxx..xxxx"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 13,
+          "y": 19,
+          "grid": [
+            "xx..xxx"
+          ],
+          "legend": {
+            "x": "brass.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 11,
+          "y": 19,
+          "grid": [
+            "xx..xx"
+          ],
+          "legend": {
+            "x": "brass.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 20,
+          "y": 19,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "brass.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 25,
+          "y": 2,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "steel.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 24,
+          "y": 2,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "steel.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 26,
+          "y": 15,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "steel.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 26,
+          "y": 2,
+          "grid": [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "steel.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 24,
+          "y": 16,
+          "grid": [
+            "xx..",
+            "....",
+            "....",
+            "....",
+            "..xx"
+          ],
+          "legend": {
+            "x": "brass.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 22,
+          "y": 16,
+          "grid": [
+            "xx..",
+            "....",
+            "....",
+            "....",
+            "..xx"
+          ],
+          "legend": {
+            "x": "brass.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 24,
+          "y": 16,
+          "grid": [
+            "..xx",
+            "....",
+            "....",
+            "....",
+            "....",
+            "xxxx"
+          ],
+          "legend": {
+            "x": "brass.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 25,
+          "y": 17,
+          "grid": [
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 26,
+          "y": 17,
+          "grid": [
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "deband"
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "flat",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 1,
+          "rim": "none"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "outer",
+          "color": "ink.outline"
+        }
+      ]
+    }
+  ]
+}

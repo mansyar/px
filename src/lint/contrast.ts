@@ -2,17 +2,22 @@
  * `LOW_CONTRAST`.
  *
  * Silhouette edge pixels are the ones that carry the shape. If an edge pixel is
- * within 1.5:1 of the preview backdrop it disappears there, and the sprite
- * reads as a different silhouette. One finding reports the share, because the
- * fix is a palette decision rather than fifty separate pixel edits.
+ * within the profile's `lowContrastMinRatio` of the preview backdrop it
+ * disappears there, and the sprite reads as a different silhouette. One finding
+ * reports the share, because the fix is a palette decision rather than fifty
+ * separate pixel edits.
+ *
+ * The floor is looser as the canvas grows: a 128 px sheet has interior detail to
+ * separate its mid tones, while a 16 px sprite has two or three tones total and
+ * needs every edge to carry weight.
  */
 
 import { type Rgba, TRANSPARENT_SLOT } from '../core/palette.js';
 import { FindingCollector } from './collector.js';
+import { lintNumbers } from './context.js';
 import {
   DEFAULT_BACKDROP_HEX,
   LOW_CONTRAST_BACKDROP,
-  LOW_CONTRAST_MIN_RATIO,
   MAX_COORDS_PER_FINDING,
 } from './thresholds.js';
 import type { LintContext, LintCoord, LintRule } from './types.js';
@@ -60,6 +65,7 @@ export const lowContrastRule: LintRule = {
   severity: 'warning',
   evaluate(context) {
     const collector = new FindingCollector('LOW_CONTRAST', 'warning');
+    const floor = lintNumbers(context).lowContrastMinRatio;
     const quoted: LintCoord[] = [];
     let edgeCount = 0;
     let affected = 0;
@@ -75,7 +81,7 @@ export const lowContrastRule: LintRule = {
         if (color === undefined) {
           continue;
         }
-        if (contrastRatio(color, LOW_CONTRAST_BACKDROP) >= LOW_CONTRAST_MIN_RATIO) {
+        if (contrastRatio(color, LOW_CONTRAST_BACKDROP) >= floor) {
           continue;
         }
         affected += 1;
@@ -89,7 +95,7 @@ export const lowContrastRule: LintRule = {
       const share = Math.round((affected / edgeCount) * 100);
       const cap = quoted.length < affected ? `; first ${quoted.length} coordinates quoted` : '';
       collector.add({
-        message: `${affected} of ${edgeCount} edge pixels (${share}%) sit below ${LOW_CONTRAST_MIN_RATIO}:1 contrast against ${DEFAULT_BACKDROP_HEX}${cap}`,
+        message: `${affected} of ${edgeCount} edge pixels (${share}%) sit below ${floor}:1 contrast against ${DEFAULT_BACKDROP_HEX}${cap}`,
         coords: quoted,
       });
     }

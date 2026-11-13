@@ -101,3 +101,89 @@ describe('auto_outline', () => {
     expect(compiled.warnings.some((warning) => warning.code === 'W_PASS_NOOP')).toBe(true);
   });
 });
+
+describe('auto_outline thickness', () => {
+  const BOX = { op: 'rect', x: 6, y: 6, w: 4, h: 4, color: 'ink.0' };
+  const outline = (extra: Record<string, unknown> = {}) => ({
+    op: 'auto_outline',
+    mode: '4-way',
+    where: 'outer',
+    color: 'alt.0',
+    ...extra,
+  });
+
+  it('takes its depth from the profile in a 1.1 recipe when the op names no width', () => {
+    const small = compileOps([BOX, outline()], {
+      palette: INK_ALT,
+      width: 32,
+      height: 32,
+      version: '1.1',
+    });
+    const large = compileOps([BOX, outline()], {
+      palette: INK_ALT,
+      width: 160,
+      height: 160,
+      version: '1.1',
+    });
+    // `small` recommends 1 px and `large` 2 px, so the second ring only exists
+    // on the large canvas.
+    expect(base(small.compiled).get(5, 6)).toBe(small.compiled.slots.resolve('alt.0'));
+    expect(base(small.compiled).get(4, 6)).toBe(-1);
+    expect(base(large.compiled).get(5, 6)).toBe(large.compiled.slots.resolve('alt.0'));
+    expect(base(large.compiled).get(4, 6)).toBe(large.compiled.slots.resolve('alt.0'));
+    expect(base(large.compiled).get(3, 6)).toBe(-1);
+  });
+
+  it('keeps one pixel on a 1.0 recipe and thickens only 1.1, on the same canvas', () => {
+    // One canvas, one profile (`large` recommends 2 px), one op: the schema
+    // version is the only difference, so it is the only thing that can explain
+    // the second ring. AC-1: a 1.0 recipe keeps rendering the bytes it always did.
+    const options = { palette: INK_ALT, width: 256, height: 256 } as const;
+    const legacy = compileOps([BOX, outline()], options);
+    const profiled = compileOps([BOX, outline()], { ...options, version: '1.1' });
+    expect(base(legacy.compiled).get(5, 6)).toBe(legacy.compiled.slots.resolve('alt.0'));
+    expect(base(legacy.compiled).get(4, 6)).toBe(-1);
+    expect(base(profiled.compiled).get(5, 6)).toBe(profiled.compiled.slots.resolve('alt.0'));
+    expect(base(profiled.compiled).get(4, 6)).toBe(profiled.compiled.slots.resolve('alt.0'));
+    expect(base(profiled.compiled).get(3, 6)).toBe(-1);
+  });
+
+  it('lets an explicit width win over the profile in both directions', () => {
+    const thin = compileOps([BOX, outline({ width: 1 })], {
+      palette: INK_ALT,
+      width: 160,
+      height: 160,
+      version: '1.1',
+    });
+    const thick = compileOps([BOX, outline({ width: 3 })], {
+      palette: INK_ALT,
+      width: 32,
+      height: 32,
+      version: '1.1',
+    });
+    expect(base(thin.compiled).get(4, 6)).toBe(-1);
+    expect(base(thick.compiled).get(3, 6)).not.toBe(-1);
+    expect(base(thick.compiled).get(2, 6)).toBe(-1);
+  });
+
+  it('rejects a width outside 1-4', () => {
+    expect(() => compileOps([BOX, outline({ width: 5 })], { palette: INK_ALT })).toThrow(
+      /outside 1-4/,
+    );
+  });
+
+  it('runs an inner border the same depth, keeping the interior', () => {
+    const box = { op: 'rect', x: 6, y: 6, w: 6, h: 6, color: 'ink.0' };
+    const { compiled } = compileOps(
+      [box, { op: 'auto_outline', where: 'inner', width: 2, color: 'alt.0' }],
+      {
+        palette: INK_ALT,
+        width: 32,
+        height: 32,
+      },
+    );
+    expect(base(compiled).get(6, 6)).toBe(compiled.slots.resolve('alt.0'));
+    expect(base(compiled).get(7, 7)).toBe(compiled.slots.resolve('alt.0'));
+    expect(base(compiled).get(8, 8)).toBe(compiled.slots.resolve('ink.0'));
+  });
+});

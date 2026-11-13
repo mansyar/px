@@ -6,7 +6,15 @@
  */
 
 import { PxError } from './errors.js';
-import { type Palette, type PaletteFamily, RAMP_ROLES, type RampRole } from './recipe/types.js';
+import {
+  type Palette,
+  type PaletteFamily,
+  RAMP_ROLES,
+  type Ramp,
+  type RampRole,
+  rampSuffixes,
+  rampToneIndex,
+} from './recipe/types.js';
 
 export interface Rgba {
   r: number;
@@ -19,7 +27,7 @@ export const TRANSPARENT_SLOT = -1;
 export const TRANSPARENT_RGBA: Rgba = { r: 0, g: 0, b: 0, a: 0 };
 
 const HEX_PATTERN = /^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
-const FAMILY_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
+export const FAMILY_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
 const LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /** Parse `#rrggbb` or `#rrggbbaa`. Returns null when the shape is wrong. */
@@ -48,9 +56,7 @@ export function isRampFamily(family: PaletteFamily): family is {
 
 export function slotNamesForFamily(name: string, family: PaletteFamily): string[] {
   if (isRampFamily(family)) {
-    return RAMP_ROLES.filter((role) => family.ramp[role] !== undefined).map(
-      (role) => `${name}.${role}`,
-    );
+    return rampSuffixes(family.ramp).map((suffix) => `${name}.${suffix}`);
   }
   return family.colors.map((_color, index) => `${name}.${index}`);
 }
@@ -119,23 +125,39 @@ export function normalizeFamily(name: string, raw: unknown): NormalizedFamily {
       );
     }
     const roles = ramp as Record<string, unknown>;
-    for (const role of Object.keys(roles)) {
-      if (!RAMP_ROLES.includes(role as RampRole)) {
+    const tones: number[] = [];
+    for (const key of Object.keys(roles)) {
+      if (RAMP_ROLES.includes(key as RampRole)) {
+        continue;
+      }
+      const tone = rampToneIndex(key);
+      if (tone === undefined) {
         throw new PxError(
           'E_BAD_PALETTE',
-          `Palette family "${name}" declares unknown ramp role "${role}"`,
-          `Ramp roles are ${RAMP_ROLES.join(', ')}.`,
+          `Palette family "${name}" declares unknown ramp key "${key}"`,
+          `Ramp roles are ${RAMP_ROLES.join(', ')}; a synthesised ramp uses contiguous tones t0 … t(n-1).`,
         );
       }
+      tones.push(tone);
     }
+    tones.sort((left, right) => left - right);
+    tones.forEach((tone, position) => {
+      if (tone !== position) {
+        throw new PxError(
+          'E_BAD_PALETTE',
+          `Palette family "${name}" has a gap in its tones: expected "t${position}", found "t${tone}"`,
+          'Tones run t0 … t(n-1) lightest first, with no gaps.',
+        );
+      }
+    });
     if (Object.keys(roles).length === 0) {
       throw new PxError(
         'E_BAD_PALETTE',
         `Palette family "${name}" has an empty ramp`,
-        `Declare at least one of ${RAMP_ROLES.join(', ')}.`,
+        `Declare at least one of ${RAMP_ROLES.join(', ')}, or a tone.`,
       );
     }
-    const rampOut: Partial<Record<RampRole, string>> = {};
+    const rampOut: Ramp = {};
     const slots: string[] = [];
     const rgba: Rgba[] = [];
     for (const role of RAMP_ROLES) {
@@ -146,6 +168,12 @@ export function normalizeFamily(name: string, raw: unknown): NormalizedFamily {
       const color = requireColor(value, `role "${role}"`, name);
       rampOut[role] = color.text;
       slots.push(`${name}.${role}`);
+      rgba.push(color.rgba);
+    }
+    for (const tone of tones) {
+      const color = requireColor(roles[`t${tone}`], `tone "t${tone}"`, name);
+      rampOut[`t${tone}`] = color.text;
+      slots.push(`${name}.t${tone}`);
       rgba.push(color.rgba);
     }
     return { family: { ramp: rampOut }, slots, rgba };
@@ -266,16 +294,40 @@ export function buildSlotRoles(slots: SlotTable): SlotRoles {
 
   slots.families.forEach((family, familyIndex) => {
     const roles: Partial<Record<RampRole, number>> = {};
+    const tones = new Map<number, number>();
     for (const slotName of family.slots) {
       const slotIndex = slots.resolve(slotName);
       if (slotIndex === undefined) {
         continue;
       }
       familyOfSlot[slotIndex] = familyIndex;
-      const dot = slotName.lastIndexOf('.');
-      const role = slotName.slice(dot + 1);
-      if (family.kind === 'ramp' && RAMP_ROLES.includes(role as RampRole)) {
-        roles[role as RampRole] = slotIndex;
+      if (family.kind !== 'ramp') {
+        continue;
+      }
+      const suffix = slotName.slice(slotName.lastIndexOf('.') + 1);
+      if (RAMP_ROLES.includes(suffix as RampRole)) {
+        roles[suffix as RampRole] = slotIndex;
+        continue;
+      }
+      const tone = rampToneIndex(suffix);
+      if (tone !== undefined) {
+        tones.set(tone, slotIndex);
+      }
+    }
+    // A synthesised family is stored as tones lightest first; its roles are
+    // derived from that order, so one colour per tone is all the recipe holds.
+    // An explicit role key still wins over a derived one.
+    if (tones.size > 0) {
+      const derived: Array<[RampRole, number]> = [
+        ['highlight', 0],
+        ['base', Math.floor((tones.size - 1) / 2)],
+        ['shadow', tones.size - 1],
+      ];
+      for (const [role, tone] of derived) {
+        const slotIndex = tones.get(tone);
+        if (slotIndex !== undefined && roles[role] === undefined) {
+          roles[role] = slotIndex;
+        }
       }
     }
     roleSlots.push(roles);

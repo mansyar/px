@@ -43,6 +43,7 @@ export function drawDitherFill(
   h: number,
   slot: number,
   pattern: DitherPattern,
+  owner?: number,
 ): boolean {
   let clipped = false;
   for (let row = 0; row < h; row += 1) {
@@ -52,7 +53,7 @@ export function drawDitherFill(
       if (!ditherPaints(pattern, px, py)) {
         continue;
       }
-      if (!canvas.set(px, py, slot)) {
+      if (!canvas.set(px, py, slot, owner)) {
         clipped = true;
       }
     }
@@ -71,6 +72,7 @@ export function floodFill(
   seedY: number,
   slot: number,
   connectivity: 4 | 8,
+  owner?: number,
 ): boolean {
   if (!canvas.inBounds(seedX, seedY)) {
     return true;
@@ -95,7 +97,7 @@ export function floodFill(
     }
     const x = index % width;
     const y = (index - x) / width;
-    canvas.set(x, y, slot);
+    canvas.set(x, y, slot, owner);
 
     const neighbours: Array<[number, number]> = [
       [x, y - 1],

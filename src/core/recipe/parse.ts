@@ -6,7 +6,7 @@ import { causeMessage, PxError, type PxWarning } from '../errors.js';
 import { buildSlotTable, type SlotTable } from '../palette.js';
 import { normalizeRecipe } from './normalize.js';
 import type { Recipe } from './types.js';
-import { validateReferences } from './validate.js';
+import { type ValidateOptions, validateReferences } from './validate.js';
 
 export interface ParseResult {
   recipe: Recipe;
@@ -14,7 +14,10 @@ export interface ParseResult {
   warnings: PxWarning[];
 }
 
-export function parseRecipe(text: string): ParseResult {
+/** Everything validation may need that the recipe text does not carry. */
+export type ParseOptions = ValidateOptions;
+
+export function parseRecipe(text: string, options: ParseOptions = {}): ParseResult {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
@@ -28,6 +31,6 @@ export function parseRecipe(text: string): ParseResult {
 
   const { recipe, warnings } = normalizeRecipe(raw);
   const slots = buildSlotTable(recipe.palette);
-  validateReferences(recipe, slots);
+  validateReferences(recipe, slots, options);
   return { recipe, slots, warnings };
 }

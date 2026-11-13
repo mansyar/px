@@ -10,11 +10,13 @@ import { probeRuntime } from '../probe.js';
 import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
 import {
   runAnchor,
+  runDiff,
   runDraw,
   runEdit,
   runInit,
   runInspect,
   runRender,
+  runSynthesize,
   runValidate,
 } from './commands.js';
 import {
@@ -36,12 +38,14 @@ export interface CliIo {
 function helpPayload(): Record<string, unknown> {
   return {
     usage: [
-      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name] [--derive-ramps] [--force]',
+      'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name|json-object] [--parts json-or-file] [--profile name] [--derive-ramps] [--synthesize name=#hex:steps]... [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]... [--summary]',
-      'px render --file <path> --out <png> [--debug [--backdrop hex|null]] [--export]',
+      'px render --file <path> --out <png> [--swap from=to]... [--debug [--backdrop hex|null]] [--export]',
+      'px diff --file <path> --against <png|sha256:hex> [--out <png>]',
+      'px synthesize --file <path> --family <name> --from <hex> --steps n [--force]',
       'px validate --file <path>',
     ],
     commands: COMMANDS,
@@ -55,7 +59,15 @@ function helpPayload(): Record<string, unknown> {
       '--export',
       '--summary',
       '--derive-ramps',
+      '--parts',
+      '--profile',
       '--backdrop',
+      '--against',
+      '--family',
+      '--from',
+      '--steps',
+      '--synthesize',
+      '--swap',
     ],
     exit_codes: {
       '0': 'success',
@@ -90,6 +102,10 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runInspect(args, cwd);
     case 'render':
       return runRender(args, cwd);
+    case 'diff':
+      return runDiff(args, cwd);
+    case 'synthesize':
+      return runSynthesize(args, cwd);
     case 'validate':
       return runValidate(args, cwd);
     default:

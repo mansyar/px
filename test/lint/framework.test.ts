@@ -14,7 +14,18 @@ function cleanRecipe(width = 8, height = 8): string {
     meta: { name: 'clean', width, height, alpha_mode: 'binary' },
     palette: { main: { colors: ['#000000', '#ffffff'] } },
     anchors: { pivot: [3, 3] },
-    layers: [{ id: 'base', ops: [['rect', 1, 1, 6, 6, 'main.0']] }],
+    layers: [
+      {
+        id: 'base',
+        ops: [
+          ['rect', 1, 1, 6, 6, 'main.0'],
+          // Two stripes break the stacked equal runs, so the fixture is clean
+          // under BANDING too: it tests the framework, not one rule.
+          ['rect', 1, 2, 6, 1, 'main.1'],
+          ['rect', 1, 5, 6, 1, 'main.1'],
+        ],
+      },
+    ],
   });
 }
 

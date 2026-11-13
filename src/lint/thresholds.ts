@@ -1,64 +1,60 @@
 /**
- * Tuning targets for the lint rules.
+ * Lint limits and the compatibility constants.
  *
- * Phase 5 calibrates these against the four benchmark assets. Rules read the
- * constants here and nowhere else, so tuning is one edit and one golden run.
+ * The *values* now live in one data table, `src/core/profile.ts`, because a
+ * threshold that is right for a 32 px sprite is wrong for a 256 px one. Rules
+ * read their numbers from `lintNumbers(context)` and never from this module;
+ * what stays here is the two response bounds and the aliases below.
+ *
+ * The aliases are the `small` row under the names every fixture and every test
+ * already uses. `small` is defined as exactly the numbers the engine was
+ * calibrated against at 32 px, so re-exporting them keeps the old vocabulary
+ * true: a name that no longer means a separate constant cannot drift from the
+ * table. See `docs/art-profiles.md` for why each value is what it is.
  */
 
 import type { Rgba } from '../core/palette.js';
+import { PROFILES } from '../core/profile.js';
 
-/**
- * Findings kept per code. Beyond this a single marker finding states the total,
- * so a 256×256 canvas can never put an unbounded array in a response.
- */
+/** Findings kept per code; beyond this a marker states the true total. */
 export const MAX_FINDINGS_PER_CODE = 50;
 
-/** Coordinates quoted inside one finding, capped for the same reason. */
+/** Coordinates quoted in one finding, so a shape finding stays bounded. */
 export const MAX_COORDS_PER_FINDING = 50;
 
-/**
- * Consecutive staircase runs needed before a step sequence counts as jaggy.
- * Two runs are a corner; three are a sequence that can be uneven.
- */
-export const JAGGY_MIN_RUNS = 3;
+const SMALL = PROFILES.small;
 
-/**
- * Longest run that still counts as a staircase step. A run of four or more
- * lines is a straight edge (or a 4:1 slope), and a clean shape changes slope
- * there rather than wobbling: the segment is cut, so a chamfer meeting a
- * straight side is never reported. Calibrated on the four benchmarks (see
- * `docs/lint-thresholds.md`).
- */
-export const JAGGY_MAX_RUN = 3;
+/** Consecutive runs before a staircase is considered (`small`). */
+export const JAGGY_MIN_RUNS = SMALL.jaggyMinRuns;
 
-/**
- * Step-length difference that counts as a kink. A clean diagonal alternates
- * between two run lengths that differ by one (Bresenham's staircase), so only
- * a jump of two or more is a wobble — and only when both neighbours agree,
- * which is what separates a jaggy from a curve that keeps changing slope.
- */
-export const JAGGY_STEP_JUMP = 2;
+/** Longest run still read as a staircase step (`small`). */
+export const JAGGY_MAX_RUN = SMALL.jaggyMaxRun;
 
-/** Contrast floor for silhouette edge pixels against the preview backdrop. */
-export const LOW_CONTRAST_MIN_RATIO = 1.5;
+/** Step-length difference that counts as a kink (`small`). */
+export const JAGGY_STEP_JUMP = SMALL.jaggyStepJump;
 
-/** The preview backdrop: mid grey, the harshest common background for sprites. */
+/** Chebyshev radius searched for a neighbour (`small`, and every other row). */
+export const ORPHAN_NEIGHBOUR_RADIUS = SMALL.orphanRadius;
+
+/** WCAG contrast floor for edge pixels (`small`). */
+export const LOW_CONTRAST_MIN_RATIO = SMALL.lowContrastMinRatio;
+
+/** Mid grey preview backdrop: neither light nor dark, so nothing hides in it. */
 export const DEFAULT_BACKDROP_HEX = '#808080';
 
 /**
- * Chebyshev radius searched for a painted neighbour.
- *
- * `bayer_25` is the sparsest lattice the engine itself emits: it lights (0,0),
- * (2,0), (0,2) and (2,2) of every 4x4 tile, so its nearest neighbour is two
- * pixels away in both axes. A radius of 1 cannot tell that sanctioned fade from
- * a defect and flagged every lit pixel of one; at 2 the dither is silent while a
- * pixel whose nearest painted pixel is three away still reports.
+ * Luminance a boundary between two parts must clear before the shapes read as
+ * separate. `0.06` is one synthesis step, so "within one ramp step" from AC-16
+ * is exactly this number.
  */
-export const ORPHAN_NEIGHBOUR_RADIUS = 2;
+export const VALUE_COLLISION_MIN_DELTA = 0.06;
 
 /**
- * The same backdrop resolved once. The contrast rule compares against this and
- * the debug sheet paints it, so the number quoted in a finding matches the
- * panel B backdrop an agent is looking at.
+ * Checkerboard tiles one part needs before a `DITHER_NOISE` finding is worth
+ * raising. Three tiles is a corner; four is the smallest patch that reads as a
+ * field instead of an accident.
  */
+export const DITHER_MIN_TILES = 4;
+
+/** The backdrop above, resolved once and shared with the debug sheet's panel B. */
 export const LOW_CONTRAST_BACKDROP: Rgba = { r: 0x80, g: 0x80, b: 0x80, a: 255 };

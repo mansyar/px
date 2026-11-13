@@ -38,6 +38,7 @@ export function drawLine(
   x2: number,
   y2: number,
   slot: number,
+  owner?: number,
 ): boolean {
-  return writePoints(canvas, bresenham(x1, y1, x2, y2), slot);
+  return writePoints(canvas, bresenham(x1, y1, x2, y2), slot, owner);
 }

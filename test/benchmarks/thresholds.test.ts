@@ -1,10 +1,12 @@
 /**
- * Threshold calibration fixtures (AC-21).
+ * Jaggy and contrast threshold fixtures.
  *
- * Every constant this phase touched keeps a fixture on both sides: one where
- * the rule stays silent because the shape is a deliberate idiom, and one where
- * it still fires on a genuine defect. A threshold with only the silent side is
- * a threshold that has been disabled.
+ * The four benchmarks were authored first and their `JAGGY_LINE` findings were
+ * read against the geometry that produced them; every constant that gave way
+ * because of that reading keeps a fixture here on both sides: one where the rule
+ * stays silent because the shape is a deliberate idiom, and one where it still
+ * fires on a genuine defect. A threshold with only the silent side is a
+ * threshold that has been disabled.
  */
 
 import { describe, expect, it } from 'vitest';

@@ -45,14 +45,56 @@ interface PaintedCell {
   projection: number;
 }
 
-function boundingBox(source: Int16Array, width: number, height: number): Box | undefined {
+/** A painted pixel and the rank of its projection among the occupied ones. */
+export interface RankedCell {
+  x: number;
+  y: number;
+  rank: number;
+}
+
+export interface RankedProjections {
+  /** Painted cells in ascending projection order. */
+  cells: RankedCell[];
+  /** Distinct occupied positions, i.e. the number of ranks. */
+  occupiedCount: number;
+}
+
+/**
+ * Rank every painted pixel by its projection on the light axis.
+ *
+ * Sorting by projection means `rank` only advances when the projection changes,
+ * so it is exactly the index of that projection among the occupied ones. That
+ * is what makes `band = floor(rank * bands / occupiedCount)` never skip a band:
+ * the ratio is at most one and the rank spans every value up to
+ * `occupiedCount - 1`, so every band holds at least one painted pixel and N
+ * bands always produce N-1 transitions.
+ *
+ * `owners` and `owner` narrow the population to one part's pixels, which is how
+ * `light` bands a single part with the same arithmetic `ramp_fill` uses for a
+ * whole layer: one implementation of the ranking, two populations.
+ */
+export function rankProjections(
+  source: Int16Array,
+  width: number,
+  height: number,
+  lightDir: LightDir,
+  owners?: Int16Array,
+  owner?: number,
+): RankedProjections | undefined {
+  const includes = (index: number): boolean => {
+    if (source[index] === TRANSPARENT_SLOT) {
+      return false;
+    }
+    return owners === undefined || owner === undefined || owners[index] === owner;
+  };
+
   let minX = width;
   let minY = height;
   let maxX = -1;
   let maxY = -1;
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      if (source[y * width + x] === TRANSPARENT_SLOT) {
+      if (!includes(y * width + x)) {
         continue;
       }
       minX = Math.min(minX, x);
@@ -64,27 +106,30 @@ function boundingBox(source: Int16Array, width: number, height: number): Box | u
   if (maxX < 0) {
     return undefined;
   }
-  return { minX, minY, maxX, maxY };
-}
 
-/** Every painted pixel with its projection onto the light axis. */
-function paintedCells(
-  source: Int16Array,
-  width: number,
-  height: number,
-  box: Box,
-  lightDir: LightDir,
-): PaintedCell[] {
-  const cells: PaintedCell[] = [];
+  const box = { minX, minY, maxX, maxY };
+  const pending: PaintedCell[] = [];
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      if (source[y * width + x] === TRANSPARENT_SLOT) {
+      if (!includes(y * width + x)) {
         continue;
       }
-      cells.push({ x, y, projection: axisProjection(x, y, box, lightDir) });
+      pending.push({ x, y, projection: axisProjection(x, y, box, lightDir) });
     }
   }
-  return cells;
+  pending.sort((a, b) => a.projection - b.projection);
+
+  const cells: RankedCell[] = [];
+  let rank = -1;
+  let previousProjection = Number.NaN;
+  for (const cell of pending) {
+    if (cell.projection !== previousProjection) {
+      previousProjection = cell.projection;
+      rank += 1;
+    }
+    cells.push({ x: cell.x, y: cell.y, rank });
+  }
+  return { cells, occupiedCount: rank + 1 };
 }
 
 /**
@@ -114,13 +159,12 @@ export function rampFill(
   site: PassSite,
 ): number {
   const { width, height } = canvas;
-  const box = boundingBox(source, width, height);
-  if (box === undefined) {
+  const ranked = rankProjections(source, width, height, lightDir);
+  if (ranked === undefined) {
     return 0;
   }
 
-  const cells = paintedCells(source, width, height, box, lightDir);
-  const occupiedCount = new Set(cells.map((cell) => cell.projection)).size;
+  const { cells, occupiedCount } = ranked;
   if (bands > occupiedCount) {
     // A region with fewer occupied positions than bands can never fill every
     // band, so it would silently deliver fewer transitions than AC-12 promises.
@@ -139,23 +183,10 @@ export function rampFill(
     );
   }
 
-  // Sorting by projection means `rank` only advances when the projection
-  // changes, so it is exactly the index of that projection among the occupied
-  // ones. `band = floor(rank * bands / occupiedCount)` never skips a band,
-  // because the ratio is at most one and the rank spans every value up to
-  // `occupiedCount - 1`: every band therefore contains at least one painted
-  // pixel, so N bands always produce N-1 transitions — AC-12, unqualified.
-  cells.sort((a, b) => a.projection - b.projection);
-  let rank = -1;
-  let previousProjection = Number.NaN;
   let painted = 0;
 
   for (const cell of cells) {
-    if (cell.projection !== previousProjection) {
-      previousProjection = cell.projection;
-      rank += 1;
-    }
-    const bucket = Math.floor((rank * bands) / occupiedCount);
+    const bucket = Math.floor((cell.rank * bands) / occupiedCount);
     const role = bandRole(bucket, bands);
     const here = source[cell.y * width + cell.x] ?? TRANSPARENT_SLOT;
 

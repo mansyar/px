@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -323,5 +323,125 @@ describe('cli errors', () => {
     const result = run(['draw', '--file', 'canon.px.json', '--ops', '{']);
     expect(result.code).toBe(1);
     expect(result.envelope.error?.code).toBe('E_USAGE');
+  });
+});
+
+describe('init: parts, profiles and role palettes', () => {
+  const ROLES = {
+    steel: {
+      ramp: { outline: '#101010', shadow: '#303030', base: '#808080', highlight: '#c0c0c0' },
+    },
+    ember: { colors: ['#2a0d0d', '#c2452a'] },
+  };
+
+  it('accepts an object palette, inline parts and an explicit profile', () => {
+    const init = run([
+      'init',
+      '--file',
+      'parts.px.json',
+      '--width',
+      '24',
+      '--height',
+      '24',
+      '--palette',
+      JSON.stringify(ROLES),
+      '--parts',
+      JSON.stringify({ blade: { material: 'steel', gloss: 'metal', z: 1 } }),
+      '--profile',
+      'small',
+    ]);
+    expect(init.code).toBe(0);
+    expect(init.envelope.parts).toEqual(['blade']);
+    expect(init.envelope.profile).toBe('small');
+
+    const text = readFileSync(join(workspace, 'parts.px.json'), 'utf8');
+    const parsed = parseRecipe(text).recipe;
+    // Declaring parts at creation writes schema 1.1, since parts are not a 1.0
+    // feature; a part-less init keeps the legacy numeric literal.
+    expect(parsed.version).toBe('1.1');
+    expect(parsed.parts).toEqual({ blade: { material: 'steel', gloss: 'metal', z: 1 } });
+    expect(parsed.meta.profile).toBe('small');
+    expect(serializeRecipe(parsed)).toBe(text);
+  });
+
+  it('reads parts from a JSON file as well as inline', () => {
+    const path = join(workspace, 'parts.json');
+    writeFileSync(path, JSON.stringify({ grip: { material: 'steel' } }));
+    const init = run([
+      'init',
+      '--file',
+      'from-file.px.json',
+      '--width',
+      '24',
+      '--height',
+      '24',
+      '--palette',
+      JSON.stringify(ROLES),
+      '--parts',
+      'parts.json',
+    ]);
+    expect(init.code).toBe(0);
+    expect(init.envelope.parts).toEqual(['grip']);
+  });
+
+  it('rejects a material the palette does not declare at init time', () => {
+    const init = run([
+      'init',
+      '--file',
+      'bad-material.px.json',
+      '--width',
+      '16',
+      '--height',
+      '16',
+      '--parts',
+      JSON.stringify({ blade: { material: 'mithril' } }),
+    ]);
+    expect(init.code).toBe(1);
+    expect(init.envelope.error?.code).toBe('E_MATERIAL_UNKNOWN');
+    expect(init.envelope.error?.message).toContain('mithril');
+    expect(existsSync(join(workspace, 'bad-material.px.json'))).toBe(false);
+  });
+
+  it('reports its own profile warning instead of waiting for the next verb', () => {
+    const init = run([
+      'init',
+      '--file',
+      'mismatch.px.json',
+      '--width',
+      '256',
+      '--height',
+      '256',
+      '--profile',
+      'small',
+    ]);
+    expect(init.code).toBe(0);
+    // The recipe it just wrote is a 256 px canvas claiming `small`, which is
+    // `large` by size, so the contradiction is in the document as written and
+    // belongs to this envelope (FR-14).
+    const warnings = init.envelope.warnings as Array<{ code: string }>;
+    expect(warnings.map((warning) => warning.code)).toEqual(['W_PROFILE_MISMATCH']);
+
+    const quiet = run([
+      'init',
+      '--file',
+      'init-clean.px.json',
+      '--width',
+      '256',
+      '--height',
+      '256',
+    ]);
+    expect(quiet.code).toBe(0);
+    // A clean init keeps the envelope it always had.
+    expect('warnings' in quiet.envelope).toBe(false);
+  });
+
+  it('rejects a parts file that is not JSON, and an unknown profile', () => {
+    writeFileSync(join(workspace, 'broken.json'), '{');
+    const broken = run(['init', '--file', 'broken.px.json', '--parts', 'broken.json']);
+    expect(broken.envelope.error?.code).toBe('E_PARSE');
+
+    const profile = run(['init', '--file', 'profile.px.json', '--profile', 'huge']);
+    expect(profile.code).toBe(1);
+    expect(profile.envelope.error?.code).toBe('E_PROFILE_UNKNOWN');
   });
 });

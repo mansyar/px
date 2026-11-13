@@ -1,0 +1,68 @@
+{
+  "asset": "sword",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/sword/sword.px.json",
+        "--name",
+        "blade_tip",
+        "--x",
+        "23",
+        "--y",
+        "3"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/sword/sword.px.json",
+        "--name",
+        "grip_pivot",
+        "--x",
+        "17",
+        "--y",
+        "26"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "argv": [
+        "anchor",
+        "--file",
+        "test/art/sword/sword.px.json",
+        "--name",
+        "pivot",
+        "--x",
+        "16",
+        "--y",
+        "16"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/sword/sword.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/sword/sword.px.json",
+        "--out",
+        ".conductor/evidence/art/sword.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}

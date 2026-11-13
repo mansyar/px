@@ -7,11 +7,24 @@
  */
 
 import type { PxWarning } from '../core/errors.js';
-import type { SlotTable } from '../core/palette.js';
+import type { Rgba, SlotTable } from '../core/palette.js';
+import type { CompiledPart } from '../core/parts.js';
+import type { ScaleProfile } from '../core/profile.js';
 
 export type LintSeverity = 'error' | 'warning' | 'info';
 
-export type LintCode = 'OUT_OF_BOUNDS' | 'ORPHAN_PIXEL' | 'JAGGY_LINE' | 'LOW_CONTRAST';
+export type LintCode =
+  | 'BANDING'
+  | 'CLUSTER_THIN'
+  | 'DITHER_NOISE'
+  | 'JAGGY_LINE'
+  | 'LOW_CONTRAST'
+  | 'ORPHAN_PIXEL'
+  | 'OUT_OF_BOUNDS'
+  | 'PILLOW_SHADE'
+  | 'RAMP_NONMONOTONIC'
+  | 'SILHOUETTE_LOSS'
+  | 'VALUE_COLLISION';
 
 export type LintCoord = [number, number];
 
@@ -25,6 +38,12 @@ export interface LintFinding {
   coords?: LintCoord[];
   /** Layer the finding came from, when the rule knows it. */
   layer?: string;
+  /**
+   * Declared part the offending pixels belong to. Present exactly when they all
+   * belong to one part: a finding that spans parts, or a canvas with no parts,
+   * carries none.
+   */
+  part?: string;
   /** Op index inside that layer, when the finding came from a compiler warning. */
   op_index?: number;
   /** Set on the marker finding that stands in for the findings past the cap. */
@@ -47,6 +66,25 @@ export interface LintContext {
   slots: SlotTable;
   layers: readonly LintLayerView[];
   warnings: readonly PxWarning[];
+  /**
+   * The regime to judge this canvas at. Optional so a hand-built context still
+   * works: absent means "derive it from the canvas size", which is what every
+   * real surface passes.
+   */
+  profile?: ScaleProfile;
+  /**
+   * Part index per pixel, from the compiler. Absent on a hand-built context:
+   * region-scoped rules then judge the flattened grid as one unnamed region, and
+   * the rules that compare declared parts stay silent.
+   */
+  owners?: Int16Array;
+  /** Declared parts, indexed by owner. Absent or empty means nothing is owned. */
+  parts?: readonly CompiledPart[];
+  /**
+   * The backdrop the caller renders against, resolved. Absent means the default
+   * mid grey every preview and the debug sheet use.
+   */
+  backdrop?: Rgba;
 }
 
 export interface LintRule {

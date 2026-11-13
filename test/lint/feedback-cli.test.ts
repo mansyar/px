@@ -57,7 +57,10 @@ afterEach(() => {
 
 describe('validate', () => {
   it('reports bounds, pixel count, findings, and warnings without writing anything', () => {
-    write('clean.px.json', [['rect', 1, 1, 4, 4, 'main.0']]);
+    write('clean.px.json', [
+      ['rect', 1, 1, 4, 4, 'main.0'],
+      ['rect', 1, 2, 4, 1, 'main.1'],
+    ]);
     const before = readdirSync(workspace);
 
     const result = run(['validate', '--file', 'clean.px.json']);
@@ -103,7 +106,11 @@ describe('validate', () => {
 
 describe('render findings and the debug sheet', () => {
   it('always reports findings in the render payload', () => {
-    write('clean.px.json', [['rect', 0, 0, 8, 8, 'main.0']]);
+    write('clean.px.json', [
+      ['rect', 0, 0, 8, 8, 'main.0'],
+      ['rect', 0, 2, 8, 1, 'main.1'],
+      ['rect', 0, 5, 8, 1, 'main.1'],
+    ]);
     const result = run(['render', '--file', 'clean.px.json', '--out', 'hero.png']);
     expect(result.code).toBe(0);
     expect(result.envelope.findings).toEqual([]);

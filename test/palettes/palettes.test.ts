@@ -251,3 +251,63 @@ describe('px init palette selection', () => {
     expect((result.envelope.error as { hint: string }).hint).toContain('pico8');
   });
 });
+
+describe('E_NO_RAMP names a remedy that exists (F20)', () => {
+  interface Failure {
+    code: string;
+    message: string;
+    hint: string;
+  }
+
+  /** `#e6f0ff` is the lightest colour, so its derived ramp can have no highlight. */
+  const LANTERN = '#14101c,#3a4356,#6b7d99,#a8bcd6,#e6f0ff,#4a2f16,#8a5f22,#c9973c';
+
+  function failure(args: string[]): Failure {
+    const result = run(args);
+    expect(result.code).toBe(1);
+    return result.envelope.error as Failure;
+  }
+
+  it('does not offer --derive-ramps when the ramp was derived', () => {
+    const error = failure([
+      'init',
+      '--file',
+      'lantern.px.json',
+      '--name',
+      'lantern',
+      '--width',
+      '48',
+      '--height',
+      '48',
+      '--palette',
+      LANTERN,
+      '--derive-ramps',
+      '--parts',
+      '{"flame":{"material":"c4","gloss":"gem"}}',
+    ]);
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.message).toContain('c4');
+    expect(error.message).toContain('highlight');
+    // A hint that names an impossible remedy costs a call and teaches the wrong
+    // model. Assert the absence, not the wording around it.
+    expect(error.hint).not.toContain('--derive-ramps');
+    expect(error.hint).not.toContain('derive-ramps');
+    // The reason that is true: the colour has no neighbour in that direction.
+    expect(error.hint).toContain('luminance');
+    expect(error.hint).toContain('lighter');
+  });
+
+  it('still offers --derive-ramps when the ramp was written by hand', () => {
+    const error = failure([
+      'init',
+      '--file',
+      'half.px.json',
+      '--palette',
+      '{"steel":{"ramp":{"base":"#7d8a9a"}}}',
+      '--parts',
+      '{"blade":{"material":"steel"}}',
+    ]);
+    expect(error.code).toBe('E_NO_RAMP');
+    expect(error.hint).toContain('--derive-ramps');
+  });
+});

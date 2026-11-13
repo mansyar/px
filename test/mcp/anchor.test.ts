@@ -161,6 +161,8 @@ describe('px anchor', () => {
       'anchor',
       'inspect',
       'render',
+      'diff',
+      'synthesize',
       'validate',
     ]);
   });

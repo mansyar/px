@@ -1,0 +1,1223 @@
+{
+  "version": "1.1",
+  "meta": {
+    "name": "character",
+    "width": 48,
+    "height": 128,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "crest": {
+      "ramp": {
+        "outline": "#2a0a10",
+        "shadow": "#7a1c28",
+        "base": "#a8283a",
+        "highlight": "#e8556a"
+      }
+    },
+    "edge": {
+      "ramp": {
+        "outline": "#2a3442",
+        "shadow": "#8a9ab0",
+        "base": "#c8d6e4",
+        "highlight": "#ffffff"
+      }
+    },
+    "greave": {
+      "ramp": {
+        "outline": "#1e2732",
+        "shadow": "#5c6d80",
+        "base": "#9fb2c8",
+        "highlight": "#dfeaf8"
+      }
+    },
+    "ink": {
+      "ramp": {
+        "outline": "#0b0a10"
+      }
+    },
+    "leather": {
+      "ramp": {
+        "outline": "#100a06",
+        "shadow": "#241608",
+        "base": "#3a2418",
+        "highlight": "#5e4230"
+      }
+    },
+    "plate": {
+      "ramp": {
+        "outline": "#2a3646",
+        "shadow": "#6f8199",
+        "base": "#bccbdb",
+        "highlight": "#f4f9ff"
+      }
+    },
+    "skin": {
+      "ramp": {
+        "outline": "#3a2418",
+        "shadow": "#8a5a38",
+        "base": "#d9a878",
+        "highlight": "#ffd9a8"
+      }
+    },
+    "tabard": {
+      "ramp": {
+        "outline": "#2a0810",
+        "shadow": "#6a1c28",
+        "base": "#a8303c",
+        "highlight": "#d85868"
+      }
+    },
+    "trim": {
+      "ramp": {
+        "outline": "#3a2a10",
+        "shadow": "#a8761e",
+        "base": "#e8c15c",
+        "highlight": "#ffe9a0"
+      }
+    }
+  },
+  "parts": {
+    "arm_l": {
+      "material": "greave",
+      "gloss": "metal",
+      "z": 2
+    },
+    "arm_r": {
+      "material": "greave",
+      "gloss": "metal",
+      "z": 2
+    },
+    "belt": {
+      "material": "leather",
+      "gloss": "matte",
+      "z": 2
+    },
+    "blade": {
+      "material": "edge",
+      "gloss": "metal",
+      "z": 2
+    },
+    "boots": {
+      "material": "leather",
+      "gloss": "matte",
+      "z": 1
+    },
+    "face": {
+      "material": "skin",
+      "gloss": "matte",
+      "z": 3
+    },
+    "helm": {
+      "material": "plate",
+      "gloss": "metal",
+      "z": 3
+    },
+    "hilt": {
+      "material": "trim",
+      "gloss": "metal",
+      "z": 2
+    },
+    "legs": {
+      "material": "greave",
+      "gloss": "metal",
+      "z": 1
+    },
+    "plume": {
+      "material": "crest",
+      "gloss": "cloth",
+      "z": 4
+    },
+    "shield": {
+      "material": "plate",
+      "gloss": "metal",
+      "z": 4
+    },
+    "torso": {
+      "material": "tabard",
+      "gloss": "cloth",
+      "z": 2
+    }
+  },
+  "anchors": {
+    "foot_origin": [
+      19,
+      109
+    ],
+    "hand": [
+      36,
+      56
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "ascii_blit",
+          "part": "plume",
+          "x": 20,
+          "y": 8,
+          "grid": [
+            "....x.",
+            "...xx.",
+            "....xx",
+            "xxxx..",
+            "xxx..."
+          ],
+          "legend": {
+            "x": "crest.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "plume",
+          "x": 19,
+          "y": 8,
+          "grid": [
+            "...xx",
+            "..xx.",
+            ".xxxx",
+            "x....",
+            "x...."
+          ],
+          "legend": {
+            "x": "crest.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "plume",
+          "x": 23,
+          "y": 8,
+          "grid": [
+            "..xx...",
+            "..xxx..",
+            "...xxx.",
+            ".xxxxxx",
+            "xxxxxx."
+          ],
+          "legend": {
+            "x": "crest.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 21,
+          "y": 24,
+          "grid": [
+            "xxxxxxx",
+            "xxxxxxx",
+            "xxxxxxx",
+            ".......",
+            ".......",
+            ".xxxxx."
+          ],
+          "legend": {
+            "x": "skin.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 21,
+          "y": 23,
+          "grid": [
+            "xxxxxxx"
+          ],
+          "legend": {
+            "x": "skin.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "face",
+          "x": 20,
+          "y": 30,
+          "grid": [
+            "xxxxxxxx"
+          ],
+          "legend": {
+            "x": "skin.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 18,
+          "y": 13,
+          "grid": [
+            ".......xxxx",
+            ".......xxx.",
+            ".....xxxx..",
+            ".....xxx...",
+            "....xxxx...",
+            ".....xxxx..",
+            "....xxxx...",
+            ".....xxxx..",
+            ".....xxx...",
+            "....xxxx...",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "....xxxx...",
+            ".....xxx...",
+            "...........",
+            "...........",
+            "..xxxxxxx..",
+            "xxxxxxx....",
+            "..xxxxxxx..",
+            "...xxxxxx.."
+          ],
+          "legend": {
+            "x": "plate.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 12,
+          "y": 12,
+          "grid": [
+            ".................x",
+            "......xxxxxxx.....",
+            "......xxxxxxx.....",
+            "......xxxxx.......",
+            "......xxxxx.......",
+            "......xxxx........",
+            "......xxxxx.......",
+            "......xxxx........",
+            "......xxxxx.......",
+            "......xxxxx.......",
+            "......xxxx........",
+            "......xxx.........",
+            "......xxx.........",
+            "......xxx.........",
+            "......xxx.........",
+            ".......xxx........",
+            "........xxx.......",
+            ".........x........",
+            "..xxxxxx..........",
+            ".xxxxxxx..........",
+            "xxxxxx............",
+            "xxxxxxxx..........",
+            "....xxxxx........."
+          ],
+          "legend": {
+            "x": "plate.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "helm",
+          "x": 25,
+          "y": 13,
+          "grid": [
+            "....xx...",
+            "...xxx...",
+            "..xxxx...",
+            ".xxxxx...",
+            ".xxxxx...",
+            "..xxxx...",
+            ".xxxxx...",
+            "..xxxx...",
+            ".xxxxx...",
+            ".xxxxx...",
+            "...xxx...",
+            "...xxx...",
+            "...xxx...",
+            "...xxx...",
+            ".xxxx....",
+            ".xxx.....",
+            "..x......",
+            "...xxxxx.",
+            "..xxxxxxx",
+            "xxxxxxxxx",
+            "..xxxxxxx",
+            "..xxxxxx."
+          ],
+          "legend": {
+            "x": "plate.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 21,
+          "y": 35,
+          "grid": [
+            "..xxxxxxxxx",
+            "..xxxxxxxx.",
+            "...xxxxxx..",
+            ".....xxxxxx",
+            "....xxxxxx.",
+            ".....xxxxxx",
+            "....xxxxxx.",
+            "....xxxxxx.",
+            ".....xxxxxx",
+            "....xxxxxx.",
+            ".....xxxxxx",
+            "....xxxxxx.",
+            "....xxxxxx.",
+            ".....xxxxxx",
+            "....xxxxxx.",
+            ".....xxxxxx",
+            "....xxxx...",
+            "...xxxxx...",
+            "...........",
+            "...........",
+            "...........",
+            "...xxxxxx..",
+            "..xxxxxxx..",
+            "...xxxxxxx.",
+            "..xxxxxxx..",
+            "..xxxxxxxxx",
+            "..xxxxxxxx.",
+            "xxxxxxxxx..",
+            ".xxxxxxxxx.",
+            "xxxxxxxxx..",
+            "..xxxxxxxxx",
+            ".xxxxxxxxx.",
+            "...x.......",
+            ".xxxxxxxxxx",
+            "xxxxxxxxxx.",
+            "..xxxxxxxxx",
+            ".xxxxxxxxx.",
+            "xxxxxxxxx..",
+            ".xxxxxxxxxx",
+            "xxxxxxxxxx.",
+            "..xxxxxxxxx"
+          ],
+          "legend": {
+            "x": "tabard.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 15,
+          "y": 35,
+          "grid": [
+            ".xxxxxxx...",
+            "...xxxxx...",
+            ".....xxxx..",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxxx.",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxxx.",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxxxx",
+            "......xxxx.",
+            "......xxx..",
+            "...........",
+            "...........",
+            "...........",
+            ".....xxxx..",
+            "....xxxx...",
+            "....xxxxx..",
+            "...xxxxx...",
+            "..xxxxxx...",
+            "..xxxxxx...",
+            ".xxxxx.....",
+            ".xxxxxx....",
+            ".xxxxx.....",
+            ".xxxxxxx...",
+            ".xxxxxx....",
+            "........x..",
+            "xxxxxxx....",
+            "xxxxxx.....",
+            "xxxxxxxx...",
+            "xxxxxxx....",
+            "xxxxxx.....",
+            "xxxxxxx....",
+            "xxxxxx.....",
+            "xxxxxxxx..."
+          ],
+          "legend": {
+            "x": "tabard.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "torso",
+          "x": 25,
+          "y": 35,
+          "grid": [
+            ".......x.",
+            "......xx.",
+            ".....xxx.",
+            ".......x.",
+            "......xx.",
+            ".......x.",
+            "......xx.",
+            "......xx.",
+            ".......x.",
+            "......xx.",
+            ".......x.",
+            "......xx.",
+            "......xx.",
+            ".......x.",
+            "......xx.",
+            ".......x.",
+            "....xx...",
+            "....xx...",
+            ".........",
+            ".........",
+            ".........",
+            ".....xx..",
+            ".....xxx.",
+            "......xx.",
+            ".....xxx.",
+            ".......x.",
+            "......xx.",
+            ".....xxx.",
+            "......xx.",
+            ".....xxx.",
+            ".......x.",
+            "......xx.",
+            "x........",
+            ".......xx",
+            "......xxx",
+            ".......xx",
+            "......xxx",
+            ".....xxxx",
+            ".......xx",
+            "......xxx",
+            ".......xx"
+          ],
+          "legend": {
+            "x": "tabard.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 11,
+          "y": 34,
+          "grid": [
+            "xxxxx",
+            ".xxxx"
+          ],
+          "legend": {
+            "x": "greave.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_l",
+          "x": 10,
+          "y": 33,
+          "grid": [
+            ".x",
+            "x.",
+            "xx"
+          ],
+          "legend": {
+            "x": "greave.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 33,
+          "y": 35,
+          "grid": [
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            "x.....",
+            ".....x",
+            ".....x",
+            ".....x",
+            ".....x",
+            ".....x",
+            "......",
+            "......",
+            ".x..x.",
+            "xx..x.",
+            "xxxxx.",
+            "xxxxx.",
+            "xxxxx.",
+            ".x..xx"
+          ],
+          "legend": {
+            "x": "greave.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 33,
+          "y": 34,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "greave.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "arm_r",
+          "x": 38,
+          "y": 44,
+          "grid": [
+            "x.",
+            "xx",
+            ".x",
+            ".x",
+            ".x",
+            ".x",
+            "..",
+            "..",
+            "..",
+            "x.",
+            "xx",
+            "xx",
+            "xx",
+            "xx"
+          ],
+          "legend": {
+            "x": "greave.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 21,
+          "y": 53,
+          "grid": [
+            ".xxxxxxxxxx",
+            ".xxxxxxxxxx",
+            "xxxxxxxxxxx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 20,
+          "y": 53,
+          "grid": [
+            ".x...........",
+            ".x...........",
+            "x............",
+            "............x"
+          ],
+          "legend": {
+            "x": "leather.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "belt",
+          "x": 32,
+          "y": 53,
+          "grid": [
+            "x",
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 16,
+          "y": 76,
+          "grid": [
+            "......xx.xxxxx..",
+            ".....xxx.xxxx...",
+            "......xx.xxxxxx.",
+            ".....xxx.xxxxx..",
+            ".......x.xxxxxx.",
+            "................",
+            "................",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxx...",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxx...",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxxx.xxxx...",
+            "xxxxxxxx.xxxxxx.",
+            "xxxxxxxx.xxxxx..",
+            "xxxxxxx..xxxxxxx"
+          ],
+          "legend": {
+            "x": "greave.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 16,
+          "y": 67,
+          "grid": [
+            "xxxxxxx...xxxxxxx",
+            ".................",
+            ".................",
+            ".................",
+            ".................",
+            ".................",
+            ".................",
+            ".................",
+            ".................",
+            "xxxxxx...........",
+            "xxxxx............",
+            "xxxxxx...........",
+            "xxxxx............",
+            "xxxxxxx..........",
+            "x................",
+            "x................"
+          ],
+          "legend": {
+            "x": "greave.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "legs",
+          "x": 17,
+          "y": 76,
+          "grid": [
+            ".............xxx",
+            "............xxxx",
+            "..............xx",
+            ".............xxx",
+            "..............xx",
+            "xxxxxxx.xxxxxxxx",
+            "xxxxxxx.xxxxxxxx",
+            "..............xx",
+            ".............xxx",
+            "..............xx",
+            ".............xxx",
+            "............xxxx",
+            "..............xx",
+            ".............xxx",
+            "..............xx",
+            ".............xxx",
+            "............xxxx",
+            "..............xx",
+            ".............xxx",
+            "..............xx",
+            ".............xxx",
+            "............xxxx",
+            "..............xx",
+            ".............xxx"
+          ],
+          "legend": {
+            "x": "greave.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 20,
+          "y": 101,
+          "grid": [
+            ".xxxxxxx..",
+            "xxxxxxx...",
+            ".xxxxxxxx.",
+            "xxxxxxxx..",
+            "..xxxxxxx.",
+            ".xxxxxxx..",
+            "xxxxxxx...",
+            "..xxxxxxx.",
+            "xxxxxxxxx.",
+            "..xxxxxxxx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 14,
+          "y": 100,
+          "grid": [
+            ".........x",
+            ".xxxxxx...",
+            ".xxxxx....",
+            ".xxxxxx...",
+            ".xxxxx....",
+            ".xxxxxxx..",
+            ".xxxxxx...",
+            ".xxxxx....",
+            ".xxxxxxx..",
+            "xxxxxx....",
+            "xxxxxxxx.."
+          ],
+          "legend": {
+            "x": "leather.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "boots",
+          "x": 15,
+          "y": 100,
+          "grid": [
+            ".................x...",
+            ".............xxxxxx..",
+            "............xxxxxxx..",
+            "..............xxxxx..",
+            ".............xxxxxx..",
+            "..............xxxxx..",
+            ".............xxxxxx..",
+            "............xxxxxxx..",
+            "..............xxxxxx.",
+            "..............xxxxxxx",
+            "...............xxxxxx",
+            "xxxxxxxxxxxxxxxxxxxx."
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 12,
+          "y": 37,
+          "grid": [
+            "xxx..",
+            "xxxxx",
+            "xxxx.",
+            "xxxxx",
+            "xxxx.",
+            "xxx..",
+            "xxxxx",
+            "xxxx.",
+            "xxxxx",
+            "xxxx.",
+            "xxx..",
+            ".....",
+            ".....",
+            "xxxxx",
+            "xxxx.",
+            "xxx..",
+            "xxxxx",
+            "xxxx.",
+            "xxxxx",
+            "xxxx.",
+            "xx...",
+            "xxxx.",
+            "xx...",
+            "xxx..",
+            "xxx..",
+            "xx..."
+          ],
+          "legend": {
+            "x": "plate.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 3,
+          "y": 35,
+          "grid": [
+            "....xxx...........",
+            "..xxxxxxxxxxxxx...",
+            ".xxxxxx........xx.",
+            "xxxxxxx..........x",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "..................",
+            "..................",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            "xxxxxxx...........",
+            ".xxxxxx...........",
+            ".xxxxxx...........",
+            "..xxxxx...........",
+            "..xxxxx...........",
+            "...xxxx...........",
+            "....xxxxx.........",
+            ".....xxxx.........",
+            "......xxx.........",
+            ".......x.........."
+          ],
+          "legend": {
+            "x": "plate.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 11,
+          "y": 37,
+          "grid": [
+            "....xxx...",
+            "......xxx.",
+            ".....xxxxx",
+            "......xxxx",
+            ".....xxxxx",
+            "....xxxxxx",
+            "......xxxx",
+            ".....xxxxx",
+            "......xxxx",
+            ".....xxxxx",
+            "....xxxxxx",
+            ".......xxx",
+            ".......xxx",
+            "......xxxx",
+            ".....xxxxx",
+            "....xxxxxx",
+            "......xxxx",
+            ".....xxxxx",
+            "......xxx.",
+            ".....xxxx.",
+            "...xxxxx..",
+            ".....xxx..",
+            "...xxxx...",
+            "....xx....",
+            "....xx....",
+            "...xx.....",
+            "xxxx......"
+          ],
+          "legend": {
+            "x": "plate.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 10,
+          "y": 48,
+          "grid": [
+            "...xxxxx",
+            ".x.xxxxx",
+            "........",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......",
+            "xx......"
+          ],
+          "legend": {
+            "x": "trim.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 3,
+          "y": 37,
+          "grid": [
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            ".......xx.",
+            "xxxxxxxxxx",
+            "xxxxxxxx..",
+            ".......x.."
+          ],
+          "legend": {
+            "x": "trim.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "shield",
+          "x": 11,
+          "y": 49,
+          "grid": [
+            ".x",
+            "x."
+          ],
+          "legend": {
+            "x": "trim.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 34,
+          "y": 11,
+          "grid": [
+            ".xx.",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            "xxxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xxx",
+            ".xx.",
+            ".xx.",
+            "xxx.",
+            "xxx.",
+            "xxx.",
+            "xxx.",
+            "xxx."
+          ],
+          "legend": {
+            "x": "edge.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 33,
+          "y": 10,
+          "grid": [
+            "..x",
+            ".x.",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            "x..",
+            "x..",
+            "x..",
+            "x..",
+            "x.."
+          ],
+          "legend": {
+            "x": "edge.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 36,
+          "y": 10,
+          "grid": [
+            "x..",
+            ".x.",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            "..x",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x.",
+            ".x."
+          ],
+          "legend": {
+            "x": "edge.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 32,
+          "y": 51,
+          "grid": [
+            "xxxxxxxx",
+            "xxxxxxxx",
+            "...xx...",
+            "........",
+            "........",
+            "........",
+            "........",
+            "........",
+            "..xxxx..",
+            "...xx..."
+          ],
+          "legend": {
+            "x": "trim.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 31,
+          "y": 50,
+          "grid": [
+            "........x",
+            "x........",
+            "x........",
+            "..x......",
+            "....x....",
+            ".........",
+            ".........",
+            ".........",
+            "....x....",
+            "..x......",
+            "...x....."
+          ],
+          "legend": {
+            "x": "trim.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "hilt",
+          "x": 36,
+          "y": 51,
+          "grid": [
+            "....x",
+            "....x",
+            "...x.",
+            "x....",
+            ".....",
+            ".....",
+            ".....",
+            "x....",
+            "..x..",
+            ".x..."
+          ],
+          "legend": {
+            "x": "trim.shadow"
+          }
+        },
+        {
+          "op": "deband"
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "flat",
+          "ao": false,
+          "cast": null,
+          "cast_offset": 1,
+          "rim": "edge"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "outer",
+          "color": "ink.outline"
+        }
+      ]
+    }
+  ]
+}

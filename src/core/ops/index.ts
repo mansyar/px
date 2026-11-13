@@ -7,13 +7,16 @@
  * so nothing consumes its own output and every op is order-independent.
  */
 
-import type { SlotCanvas } from '../canvas.js';
+import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
-import type { Op } from '../recipe/types.js';
+import type { ProfileNumbers } from '../profile.js';
+import type { Op, Parts, RecipeVersion } from '../recipe/types.js';
 import { drawAsciiBlit } from './ascii-blit.js';
+import { type CleanupReport, deband, seal, strays } from './cleanup.js';
 import { drawEllipse } from './ellipse.js';
 import { drawDitherFill, floodFill } from './fills.js';
+import { applyLight } from './light.js';
 import { drawLine } from './line.js';
 import { drawMirror } from './mirror.js';
 import { autoOutline } from './outline.js';
@@ -33,6 +36,22 @@ export interface OpContext {
   roles: SlotRoles;
   /** Every layer's buffer, in recipe order. */
   layers: ReadonlyMap<string, SlotCanvas>;
+  /**
+   * Part index this op's pixels belong to, `UNOWNED` when the op carries no
+   * `part`. Painting ops write it; transforms inherit from the pixels they read.
+   */
+  owner: number;
+  /** Declared parts; the lighting pass reads `material`, `gloss` and `z`. */
+  parts: Parts;
+  /** Declared part name to owner index, in canonical declaration order. */
+  partIndexes: ReadonlyMap<string, number>;
+  /**
+   * The schema version the recipe declared. Defaults that were introduced after
+   * 1.0 are gated on it, so a 1.0 recipe keeps rendering the bytes it always did.
+   */
+  version: RecipeVersion;
+  /** The numbers the active profile gives every pass, resolved once per compile. */
+  profile: ProfileNumbers;
 }
 
 export interface OpResult {
@@ -40,6 +59,13 @@ export interface OpResult {
   clipped: boolean;
   /** True when a post-pass had nothing to change. */
   noop: boolean;
+  /** Present only for cleanup passes, which report exactly what they changed. */
+  cleanup?: CleanupReport;
+  /**
+   * Present when a pass dropped destinations that left the canvas for a reason
+   * of its own, so the warning can name the count and the lever that caused it.
+   */
+  clippedDetail?: { dropped: number; hint: string };
 }
 
 const WRITTEN: OpResult = { clipped: false, noop: false };
@@ -79,6 +105,15 @@ function requiredSlot(context: OpContext, name: string): number {
 
 /** Snapshot of the layer a post-pass reads, taken before it writes. */
 function snapshot(context: OpContext, targetLayer: string | undefined): Int16Array {
+  return Int16Array.from(sourceCanvas(context, targetLayer).slots);
+}
+
+/** Ownership alongside the colour snapshot, for passes that inherit it. */
+function snapshotOwners(context: OpContext, targetLayer: string | undefined): Int16Array {
+  return Int16Array.from(sourceCanvas(context, targetLayer).owners);
+}
+
+function sourceCanvas(context: OpContext, targetLayer: string | undefined): SlotCanvas {
   const source = targetLayer === undefined ? context.canvas : context.layers.get(targetLayer);
   if (source === undefined) {
     throw new PxError(
@@ -88,19 +123,62 @@ function snapshot(context: OpContext, targetLayer: string | undefined): Int16Arr
       { layer: context.layerId, op_index: context.opIndex },
     );
   }
-  return Int16Array.from(source.slots);
+  return source;
+}
+
+/**
+ * An erase removes both colour and ownership, so a `part` on an erase op must
+ * not leave a mask behind.
+ */
+function ownerFor(context: OpContext, color: string | null): number {
+  return color === null ? UNOWNED : context.owner;
+}
+
+/**
+ * The depth `auto_outline` uses when the op names no `width`. Before profiles
+ * existed the pass drew one pixel and nothing else, so `1` and `"1.0"` keep that
+ * border (AC-1: a 1.0 recipe renders byte-identically); a 1.1 recipe may take the
+ * profile's recommendation (FR-13).
+ */
+function outlineDepth(context: OpContext): number {
+  return context.version === 1 || context.version === '1.0' ? 1 : context.profile.outlineWidth;
 }
 
 export function applyOp(context: OpContext, op: Op): OpResult {
   const site = { opIndex: context.opIndex, layerId: context.layerId };
   switch (op.op) {
     case 'set_pixels':
-      return result(drawSetPixels(context.canvas, op.points, colorSlot(context, op.color)));
+      return result(
+        drawSetPixels(
+          context.canvas,
+          op.points,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'rect':
-      return result(drawRect(context.canvas, op.x, op.y, op.w, op.h, colorSlot(context, op.color)));
+      return result(
+        drawRect(
+          context.canvas,
+          op.x,
+          op.y,
+          op.w,
+          op.h,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'line':
       return result(
-        drawLine(context.canvas, op.x1, op.y1, op.x2, op.y2, colorSlot(context, op.color)),
+        drawLine(
+          context.canvas,
+          op.x1,
+          op.y1,
+          op.x2,
+          op.y2,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
       );
     case 'ellipse':
       return result(
@@ -112,10 +190,18 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.h,
           colorSlot(context, op.color),
           op.fill === true,
+          ownerFor(context, op.color),
         ),
       );
     case 'polygon':
-      return result(drawPolygon(context.canvas, op.points, colorSlot(context, op.color)));
+      return result(
+        drawPolygon(
+          context.canvas,
+          op.points,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+        ),
+      );
     case 'flood_fill':
       return result(
         floodFill(
@@ -124,6 +210,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.y,
           colorSlot(context, op.color),
           op.connectivity === 8 ? 8 : 4,
+          ownerFor(context, op.color),
         ),
       );
     case 'dither_fill':
@@ -136,6 +223,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.h,
           colorSlot(context, op.color),
           op.pattern,
+          ownerFor(context, op.color),
         ),
       );
     case 'ascii_blit': {
@@ -143,7 +231,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
       for (const [glyph, name] of Object.entries(op.legend)) {
         cells.set(glyph, requiredSlot(context, name));
       }
-      return result(drawAsciiBlit(context.canvas, op.x, op.y, op.grid, cells));
+      return result(drawAsciiBlit(context.canvas, op.x, op.y, op.grid, cells, context.owner));
     }
     case 'mirror':
       return result(drawMirror(context.canvas, op.axis, op.pivot));
@@ -157,7 +245,10 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           where: op.where ?? 'outer',
           selective: op.selective === true,
           color: op.color === undefined ? undefined : colorSlot(context, op.color),
+          // The profile recommends a depth at 1.1; an explicit width always wins.
+          thickness: op.width ?? outlineDepth(context),
         },
+        snapshotOwners(context, op.targetLayer),
       );
       return { clipped: false, noop: painted === 0 };
     }
@@ -184,6 +275,39 @@ export function applyOp(context: OpContext, op: Op): OpResult {
       );
       return { clipped: false, noop: painted === 0 };
     }
+    case 'light': {
+      const outcome = applyLight(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        snapshotOwners(context, op.targetLayer),
+        context.roles,
+        context.slots,
+        context.parts,
+        {
+          angle: op.angle,
+          form: op.form,
+          ao: op.ao,
+          cast: op.cast === null ? null : (context.partIndexes.get(op.cast) ?? UNOWNED),
+          castOffset: op.castOffset,
+          rim: op.rim,
+        },
+        { opIndex: context.opIndex, layerId: context.layerId },
+      );
+      if (outcome.clipped !== null) {
+        // The pass never wrote these pixels, but the caller still asked them
+        // somewhere the canvas cannot hold; report it once, at the first one.
+        context.canvas.clippedAt = outcome.clipped.first;
+        return {
+          clipped: true,
+          noop: outcome.painted === 0,
+          clippedDetail: {
+            dropped: outcome.clipped.count,
+            hint: `cast_offset is ${op.castOffset}; lower it, or set "cast": null to keep the shadow on the canvas.`,
+          },
+        };
+      }
+      return { clipped: false, noop: outcome.painted === 0 };
+    }
     case 'replace_slot':
       replaceSlot(
         context.canvas,
@@ -192,12 +316,78 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         requiredSlot(context, op.to),
       );
       return WRITTEN;
+    case 'seal': {
+      const changed = seal(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        context.canvas.width,
+        context.canvas.height,
+        snapshotOwners(context, op.targetLayer),
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('seal', changed.length, changed),
+      };
+    }
+    case 'strays': {
+      const changed = strays(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        context.canvas.width,
+        context.canvas.height,
+        context.profile.minCluster,
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('strays', changed.length, changed),
+      };
+    }
+    case 'deband': {
+      const hasParts = context.partIndexes.size > 0;
+      const changed = deband(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        hasParts ? snapshotOwners(context, op.targetLayer) : null,
+        context.partIndexes.size,
+        context.canvas.width,
+        context.canvas.height,
+        context.slots,
+        context.roles,
+      );
+      return {
+        clipped: false,
+        noop: changed.length === 0,
+        cleanup: report('deband', changed.length, changed),
+      };
+    }
   }
 }
 
+/** The report a cleanup pass returns: exact count, coordinates capped at 50. */
+const MAX_CLEANUP_COORDS = 50;
+
+function report(
+  op: CleanupReport['op'],
+  changed: number,
+  coords: CleanupReport['coords'],
+): CleanupReport {
+  return { op, changed, coords: coords.slice(0, MAX_CLEANUP_COORDS) };
+}
+
 export { drawAsciiBlit } from './ascii-blit.js';
+export {
+  type CleanupCoord,
+  type CleanupReport,
+  darkerSlot,
+  deband,
+  seal,
+  strays,
+} from './cleanup.js';
 export { drawEllipse, ellipseRowSpan, ellipseSpans } from './ellipse.js';
 export { BAYER_4, ditherPaints, drawDitherFill, floodFill } from './fills.js';
+export { applyLight, facingRole, towardLight } from './light.js';
 export { bresenham } from './line.js';
 export { drawMirror } from './mirror.js';
 export { autoOutline } from './outline.js';

@@ -15,10 +15,12 @@ import { TRANSPARENT_SLOT } from '../palette.js';
 /**
  * The reflection is of opaque pixels only: transparent source pixels write
  * nothing, so mirroring a drawn half into an empty half completes the sprite
- * instead of erasing the half that was already there.
+ * instead of erasing the half that was already there. Ownership travels with
+ * the pixel it mirrors, so a mirrored part is the same part.
  */
 export function drawMirror(canvas: SlotCanvas, axis: 'x' | 'y', pivot: number): boolean {
   const source = Int16Array.from(canvas.slots);
+  const owners = Int16Array.from(canvas.owners);
   const { width, height } = canvas;
   // 2 * pivot; integral for both integer and half-integer pivots.
   const doubled = Math.round(pivot * 2);
@@ -35,7 +37,7 @@ export function drawMirror(canvas: SlotCanvas, axis: 'x' | 'y', pivot: number): 
       if (targetX === x && targetY === y) {
         continue;
       }
-      if (!canvas.set(targetX, targetY, slot)) {
+      if (!canvas.set(targetX, targetY, slot, owners[y * width + x])) {
         clipped = true;
       }
     }

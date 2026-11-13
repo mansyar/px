@@ -8,10 +8,16 @@ export default defineConfig({
           name: 'unit',
           include: [
             'test/unit/**/*.test.ts',
+            'test/art/**/*.test.ts',
+            'test/art-lint/**/*.test.ts',
+            'test/ergonomics/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/ops/**/*.test.ts',
+            'test/light/**/*.test.ts',
             'test/mcp/**/*.test.ts',
             'test/palettes/**/*.test.ts',
+            'test/parts/**/*.test.ts',
+            'test/profiles/**/*.test.ts',
           ],
         },
       },
@@ -37,6 +43,10 @@ export default defineConfig({
         test: {
           name: 'benchmarks',
           include: ['test/benchmarks/**/*.test.ts'],
+          // The performance proof is a wall-clock measurement: run the benchmark
+          // files one at a time so the transcript replays cannot steal CPU from
+          // the timed renders.
+          fileParallelism: false,
         },
       },
     ],

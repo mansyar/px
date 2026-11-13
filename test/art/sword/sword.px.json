@@ -1,0 +1,397 @@
+{
+  "version": "1.1",
+  "meta": {
+    "name": "sword",
+    "width": 32,
+    "height": 32,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "brass": {
+      "ramp": {
+        "outline": "#3a2a10",
+        "shadow": "#8a5a1e",
+        "base": "#d9a93c",
+        "highlight": "#ffe08a"
+      }
+    },
+    "ink": {
+      "ramp": {
+        "outline": "#0b0a10"
+      }
+    },
+    "leather": {
+      "ramp": {
+        "outline": "#120c08",
+        "shadow": "#2a1a10",
+        "base": "#4a3220",
+        "highlight": "#7a5a3c"
+      }
+    },
+    "ruby": {
+      "ramp": {
+        "outline": "#24080e",
+        "shadow": "#5c0f1e",
+        "base": "#b32338",
+        "highlight": "#ff6f7a"
+      }
+    },
+    "steel": {
+      "ramp": {
+        "outline": "#2a3442",
+        "shadow": "#5a6a80",
+        "base": "#c3cfdd",
+        "highlight": "#f4f9ff"
+      }
+    }
+  },
+  "parts": {
+    "blade": {
+      "material": "steel",
+      "gloss": "metal",
+      "z": 1
+    },
+    "gem": {
+      "material": "ruby",
+      "gloss": "gem",
+      "z": 2
+    },
+    "grip": {
+      "material": "leather",
+      "gloss": "cloth"
+    },
+    "guard": {
+      "material": "brass",
+      "gloss": "metal",
+      "z": 2
+    },
+    "pommel": {
+      "material": "brass",
+      "gloss": "metal",
+      "z": 1
+    }
+  },
+  "anchors": {
+    "blade_tip": [
+      23,
+      3
+    ],
+    "grip_pivot": [
+      17,
+      26
+    ],
+    "pivot": [
+      16,
+      16
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "ascii_blit",
+          "part": "guard",
+          "x": 13,
+          "y": 19,
+          "grid": [
+            "...........x",
+            "..xx...xxx..",
+            "xx.........."
+          ],
+          "legend": {
+            "x": "brass.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "guard",
+          "x": 13,
+          "y": 19,
+          "grid": [
+            "xxxx...xxxx",
+            "xx........."
+          ],
+          "legend": {
+            "x": "brass.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "guard",
+          "x": 15,
+          "y": 20,
+          "grid": [
+            "........xx",
+            "xxxxxxxxxx"
+          ],
+          "legend": {
+            "x": "brass.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "gem",
+          "x": 18,
+          "y": 19,
+          "grid": [
+            ".x",
+            "x."
+          ],
+          "legend": {
+            "x": "ruby.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "gem",
+          "x": 18,
+          "y": 19,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "ruby.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "gem",
+          "x": 17,
+          "y": 19,
+          "grid": [
+            "x",
+            "x"
+          ],
+          "legend": {
+            "x": "ruby.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "gem",
+          "x": 19,
+          "y": 20,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "ruby.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "grip",
+          "x": 16,
+          "y": 23,
+          "grid": [
+            ".xx",
+            "xxx",
+            "x.x",
+            "xxx",
+            "xxx"
+          ],
+          "legend": {
+            "x": "leather.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "grip",
+          "x": 16,
+          "y": 23,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "leather.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "grip",
+          "x": 16,
+          "y": 22,
+          "grid": [
+            "xxxx"
+          ],
+          "legend": {
+            "x": "leather.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "grip",
+          "x": 17,
+          "y": 23,
+          "grid": [
+            "..x",
+            "..x",
+            "x.x",
+            "..x",
+            "..x"
+          ],
+          "legend": {
+            "x": "leather.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "pommel",
+          "x": 15,
+          "y": 28,
+          "grid": [
+            "..xx",
+            "xx.."
+          ],
+          "legend": {
+            "x": "brass.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "pommel",
+          "x": 15,
+          "y": 28,
+          "grid": [
+            "xx"
+          ],
+          "legend": {
+            "x": "brass.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "pommel",
+          "x": 15,
+          "y": 30,
+          "grid": [
+            "xxxxxx"
+          ],
+          "legend": {
+            "x": "brass.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "pommel",
+          "x": 17,
+          "y": 28,
+          "grid": [
+            "..xx",
+            "xxxx"
+          ],
+          "legend": {
+            "x": "brass.shadow"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 15,
+          "y": 4,
+          "grid": [
+            ".......x",
+            "......xx",
+            "......xx",
+            ".....xx.",
+            ".....xx.",
+            "....xx..",
+            "....xx..",
+            "...xx...",
+            "...xx...",
+            "..xx....",
+            "..xx....",
+            ".xx.....",
+            ".xx.....",
+            "xx......",
+            "xx......"
+          ],
+          "legend": {
+            "x": "steel.base"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 14,
+          "y": 3,
+          "grid": [
+            "........x",
+            ".......x.",
+            "......x..",
+            "......x..",
+            ".....x...",
+            ".....x...",
+            "....x....",
+            "....x....",
+            "...x.....",
+            "...x.....",
+            "..x......",
+            "..x......",
+            ".x.......",
+            ".x.......",
+            "x........",
+            "x........"
+          ],
+          "legend": {
+            "x": "steel.highlight"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 17,
+          "y": 18,
+          "grid": [
+            "x"
+          ],
+          "legend": {
+            "x": "steel.outline"
+          }
+        },
+        {
+          "op": "ascii_blit",
+          "part": "blade",
+          "x": 17,
+          "y": 3,
+          "grid": [
+            "......x",
+            "......x",
+            "......x",
+            "......x",
+            ".....x.",
+            ".....x.",
+            "....x..",
+            "....x..",
+            "...x...",
+            "...x...",
+            "..x....",
+            "..x....",
+            ".x.....",
+            ".x.....",
+            "x......"
+          ],
+          "legend": {
+            "x": "steel.shadow"
+          }
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "flat",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 1,
+          "rim": "none"
+        },
+        {
+          "op": "auto_outline",
+          "mode": "4-way",
+          "where": "outer",
+          "color": "ink.outline"
+        }
+      ]
+    }
+  ]
+}

@@ -67,6 +67,7 @@ export function drawEllipse(
   h: number,
   slot: number,
   fill = false,
+  owner?: number,
 ): boolean {
   const spans = ellipseSpans(w, h);
   let clipped = false;
@@ -86,7 +87,7 @@ export function drawEllipse(
       if (!fill && !onBoundary(column, lo, hi, above, below)) {
         continue;
       }
-      if (!canvas.set(x + column, y + row, slot)) {
+      if (!canvas.set(x + column, y + row, slot, owner)) {
         clipped = true;
       }
     }
