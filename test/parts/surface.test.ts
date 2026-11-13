@@ -53,6 +53,7 @@ function initWithBlade(name: string): void {
   const recipe = parseRecipe(readFileSync(path, 'utf8')).recipe;
   const withParts: Recipe = {
     ...recipe,
+    version: '1.1',
     parts: { blade: { material: 'steel', gloss: 'matte', z: 0 } },
   };
   writeFileSync(path, serializeRecipe(withParts), 'utf8');

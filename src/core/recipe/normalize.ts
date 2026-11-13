@@ -1393,6 +1393,18 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
     );
   }
 
+  // Parts are a 1.1 feature (FR-5), so a 1.0 document that declares them is a
+  // contradiction. Rejecting it here is what lets the writer echo the caller's
+  // version verbatim: a 1.0 recipe is always part-less, so no write can promote
+  // it and silently change the depth `auto_outline` defaults to (AC-1).
+  if ((version === 1 || version === '1.0') && raw.parts !== undefined) {
+    throw new PxError(
+      'E_BAD_VERSION',
+      `Recipe declares parts with version ${JSON.stringify(version)}, but parts require schema 1.1`,
+      'Parts are a 1.1 feature: set "version": "1.1" to declare them.',
+    );
+  }
+
   unknownKeys(raw, RECIPE_KEYS, 'E_BAD_META', 'Recipe');
 
   const meta = normalizeMeta(raw.meta);

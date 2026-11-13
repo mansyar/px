@@ -128,9 +128,13 @@ It says that at that scale a dither reads as noise rather than as a fade, which 
 what the rule reports. `outlineWidth` works the same way: it is the *default*
 thickness, so a 32 px sprite can still ask for `"width": 2` on an `auto_outline`
 op, and a large scene gets a 2 px border without saying so. The default is gated
-on the schema: it applies to a recipe that declares parts (`"version": "1.1"`),
-while a 1.0 recipe keeps the historical 1 px border unless the op asks for more,
-so re-rendering a 1.0 recipe on a 256 px canvas cannot gain a border it never had.
+on the schema: it applies to a `"version": "1.1"` recipe — which is what
+declaring parts writes — while a 1.0 recipe keeps the historical 1 px border
+unless the op asks for more, so re-rendering a 1.0 recipe on a 256 px canvas
+cannot gain a border it never had.
+Parts themselves require schema 1.1: a 1.0 recipe that declares `parts` is
+rejected with `E_BAD_VERSION` rather than promoted on write, which is why the
+outline gate can be expressed as a version test.
 
 ## When a finding misfires
 

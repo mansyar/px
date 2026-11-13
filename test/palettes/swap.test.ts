@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
 import { PxError } from '../../src/core/errors.js';
 import { serializeRecipe } from '../../src/core/recipe/serialize.js';
-import { type Palette, RECIPE_VERSION, type Recipe } from '../../src/core/recipe/types.js';
+import { LATEST_RECIPE_VERSION, type Palette, type Recipe } from '../../src/core/recipe/types.js';
 import { applySwaps, resolveSwapMap } from '../../src/palettes/swap.js';
 import { renderRecipe } from '../../src/render/render.js';
 
@@ -38,7 +38,8 @@ function sha(text: string | Uint8Array): string {
 
 function swapRecipe(): Recipe {
   return {
-    version: RECIPE_VERSION,
+    // Parts are a 1.1 feature, so the fixture that declares one is 1.1.
+    version: LATEST_RECIPE_VERSION,
     meta: { name: 'swap', width: 8, height: 8, alphaMode: 'binary' },
     palette: {
       steel: {

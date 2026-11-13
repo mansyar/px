@@ -15,8 +15,8 @@ describe('recipe version', () => {
   });
 
   it('still accepts the legacy numeric 1 and the string 1.0', () => {
-    expect(parseText(recipeText({ version: 1 })).version).toBe(1);
-    expect(parseText(recipeText({ version: '1.0' })).version).toBe('1.0');
+    expect(parseText(recipeText({ version: 1, parts: undefined })).version).toBe(1);
+    expect(parseText(recipeText({ version: '1.0', parts: undefined })).version).toBe('1.0');
   });
 
   it('rejects versions outside the accepted set', () => {

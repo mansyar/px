@@ -23,6 +23,7 @@ import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
   isCleanupOp,
+  LATEST_RECIPE_VERSION,
   type Palette,
   type Parts,
   RAMP_ROLES,
@@ -299,7 +300,9 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     meta.profile = parseScaleProfile(args.profile);
   }
   const recipe: Recipe = {
-    version: RECIPE_VERSION,
+    // Parts are a 1.1 feature, so a recipe created with them is 1.1 from the
+    // start; a part-less init keeps the legacy numeric literal (FR-1).
+    version: parts === undefined ? RECIPE_VERSION : LATEST_RECIPE_VERSION,
     meta,
     palette,
     anchors: { pivot: [Math.floor(width / 2), Math.floor(height / 2)] },

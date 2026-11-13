@@ -314,14 +314,17 @@ describe('ownership', () => {
   it('breaks a two-against-two seam tie by the lower part index', () => {
     // Four neighbours of one tone split evenly, which is exactly the shape of a
     // hole straddling the seam between two parts: no majority exists, so the
-    // canonical owner index decides. `seam_b` is declared first on purpose — the
-    // canonical order is alphabetical, so `seam_a` is index 0.
+    // canonical owner index decides. `seam_b`, the disfavoured part, is scanned
+    // first on purpose — it sits above and below the hole — so "first supplied
+    // owner wins" would pick `seam_b`, and only the lower-index tie-break picks
+    // `seam_a`. `seam_b` is also declared first, but the canonical order is
+    // alphabetical, so `seam_a` is index 0.
     const compiled = compileSprite(
       [
-        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base', part: 'seam_a' },
-        { op: 'set_pixels', points: [[3, 4]], color: 'steel.base', part: 'seam_a' },
-        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base', part: 'seam_b' },
+        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base', part: 'seam_b' },
+        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base', part: 'seam_a' },
         { op: 'set_pixels', points: [[4, 5]], color: 'steel.base', part: 'seam_b' },
+        { op: 'set_pixels', points: [[3, 4]], color: 'steel.base', part: 'seam_a' },
         { op: 'seal' },
       ],
       {
@@ -340,12 +343,14 @@ describe('ownership', () => {
   it('prefers an owned neighbour over an unowned one at the same tone and count', () => {
     // The winning tone is supplied once by the part and once by bare canvas. The
     // counts tie, so the rule prefers the owned pixel: a hole inside a part never
-    // comes out unowned. The other two neighbours carry different tones, so the
-    // winning tone has no tone tie of its own.
+    // comes out unowned. The unowned pixel is scanned first on purpose, so
+    // "first supplied owner wins" would leave the hole unowned. The other two
+    // neighbours carry different tones, so the winning tone has no tone tie of
+    // its own.
     const compiled = compileSprite(
       [
-        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base', part: 'body' },
-        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base' },
+        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base' },
+        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base', part: 'body' },
         { op: 'set_pixels', points: [[4, 5]], color: 'steel.shadow' },
         { op: 'set_pixels', points: [[3, 4]], color: 'steel.highlight' },
         { op: 'seal' },

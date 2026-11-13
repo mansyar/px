@@ -93,7 +93,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_WRITE_FAILED:
     'Pass --out as a path the process can write to, such as one under the working directory.',
   E_PARSE: 'The recipe must be valid JSON; check for a trailing comma or an unquoted key.',
-  E_BAD_VERSION: 'Only recipe version 1 is accepted; set "version": 1.',
+  E_BAD_VERSION: 'Recipe version is 1, "1.0" or "1.1"; parts require "1.1".',
   E_BAD_META:
     'meta requires a non-empty name, an integer width and height, and alpha_mode "binary".',
   E_BAD_CANVAS: 'Canvas width and height are integers between 8 and 256 inclusive.',

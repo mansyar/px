@@ -14,7 +14,6 @@ import {
   RAMP_ROLES,
   type RawOp,
   type Recipe,
-  type RecipeVersion,
   rampTones,
   recipeParts,
 } from './types.js';
@@ -87,14 +86,6 @@ function canonicalParts(parts: Parts): Record<string, Record<string, unknown>> {
     out[name] = entry;
   }
   return out;
-}
-
-/** A recipe that declares parts is written as 1.1; a part-less one keeps its version. */
-function writtenVersion(recipe: Recipe, hasParts: boolean): RecipeVersion {
-  if (hasParts && (recipe.version === 1 || recipe.version === '1.0')) {
-    return '1.1';
-  }
-  return recipe.version;
 }
 
 /** Drop absent optionals so the written form never carries `undefined`. */
@@ -236,7 +227,7 @@ export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
   const parts = recipeParts(recipe);
   const hasParts = Object.keys(parts).length > 0;
   const out: Record<string, unknown> = {
-    version: writtenVersion(recipe, hasParts),
+    version: recipe.version,
     meta: canonicalMeta(recipe),
     palette: canonicalPalette(recipe.palette),
   };

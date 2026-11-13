@@ -356,6 +356,9 @@ describe('init: parts, profiles and role palettes', () => {
 
     const text = readFileSync(join(workspace, 'parts.px.json'), 'utf8');
     const parsed = parseRecipe(text).recipe;
+    // Declaring parts at creation writes schema 1.1, since parts are not a 1.0
+    // feature; a part-less init keeps the legacy numeric literal.
+    expect(parsed.version).toBe('1.1');
     expect(parsed.parts).toEqual({ blade: { material: 'steel', gloss: 'metal', z: 1 } });
     expect(parsed.meta.profile).toBe('small');
     expect(serializeRecipe(parsed)).toBe(text);

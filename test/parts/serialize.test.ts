@@ -1,14 +1,15 @@
 /**
- * Canonical writing of parts (FR-1): key order, the version upgrade, and the
- * promise that a 1.0 recipe with no parts survives a read-write cycle byte for
- * byte — the same contract the goldens suite holds the hero fixture to.
+ * Canonical writing of parts (FR-1): key order, the rejection of parts on a 1.0
+ * recipe, and the promise that a 1.0 recipe with no parts survives a read-write
+ * cycle byte for byte — the same contract the goldens suite holds the hero
+ * fixture to.
  */
 
 import { describe, expect, it } from 'vitest';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
 import { canonicalOp, serializeRecipe } from '../../src/core/recipe/serialize.js';
 import type { Part, Parts, Recipe } from '../../src/core/recipe/types.js';
-import { parseText, recipeText } from './helpers.js';
+import { codeOf, parseText, recipeText } from './helpers.js';
 
 /** A 1.0 recipe exactly as the writer would emit it: no parts, numeric version. */
 function oneZeroText(): string {
@@ -70,13 +71,16 @@ describe('1.0 compatibility', () => {
     expect(text).not.toContain('"parts"');
   });
 
-  it('upgrades to 1.1 only once the recipe actually declares a part', () => {
-    const legacy = parseText(oneZeroText());
-    const text = serializeRecipe(withParts(legacy, { blade: BLADE }));
+  it('rejects parts declared under a 1.0 version instead of upgrading it', () => {
+    for (const version of [1, '1.0']) {
+      const raw = { ...JSON.parse(oneZeroText()), version } as Record<string, unknown>;
+      raw.parts = { blade: { material: 'steel', gloss: 'matte' } };
+      const error = codeOf(() => parseRecipe(JSON.stringify(raw)));
 
-    expect(text.startsWith('{\n  "version": "1.1",\n')).toBe(true);
-    expect(text).toContain('"parts"');
-    expect(legacy.version).toBe(1);
+      expect(error.code, `version ${JSON.stringify(version)}`).toBe('E_BAD_VERSION');
+      expect(error.message).toContain('parts');
+      expect(error.hint).toContain('"1.1"');
+    }
   });
 
   it('leaves an explicit 1.1 version alone on a part-less recipe', () => {
