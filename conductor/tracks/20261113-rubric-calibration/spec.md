@@ -162,7 +162,22 @@ that the bar it is being held to has never been shown to be reachable.
 
 ## Amendments
 
-- None.
+- **A1 (2026-11-13, during Phase 2):** FR-5's three verdicts conflated separation
+  with the scale ceiling. `saturated` described a criterion whose high variant
+  cannot exceed 3, but a criterion can separate a bad artifact from a good one
+  *and* still have no 4-anchor — `lighting` scores 1 against 3 and never reaches 4.
+  The report now records the verdict on the separation axis (`separates` or
+  `ambiguous`) and records `saturated` and `anchor4` as independent facts about
+  the ceiling, so AC-4 ("lighting separates") and FR-6 ("no 4-anchor") can both
+  be true of one criterion. No threshold changed and no bar was lowered.
+- **A2 (2026-11-13, during Phase 4):** the first round of variants was too mild to
+  instantiate the anchor-1 descriptions for `edge_language`, `cluster_discipline`
+  and `palette_craft` — a chest with every outline removed, and one fully
+  desaturated, were both still scored 3-4. Those stimuli were replaced with ones
+  that match the anchor text (reasonless edge switching, 1 px checkerboard
+  confetti, warped hues), and the round was re-run in full. Both rounds are kept:
+  the first as `v1` stimulus-development evidence, the second as the calibrated
+  result. The call budget rises from 24 to 48 for this reason.
 
 ## References
 

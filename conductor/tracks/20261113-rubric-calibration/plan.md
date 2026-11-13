@@ -45,14 +45,16 @@ adjusted by this track.
 - **Touches:** `scripts/calibrate.mjs`, `package.json`
 - **Verification:** `pnpm rubric:calibrate` then
   `git diff --exit-code test/art/scores.json`
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P2.T1: Score each variant twice** — covers: FR-3
-- [ ] **P2.T2: Guard the record** — covers: AC-7
-  - [ ] P2.T2.1: `try/finally` restore plus byte comparison; non-zero exit on mismatch.
-- [ ] **P2.T3: Compute verdicts and anchors** — covers: FR-4, FR-5, FR-6
-- [ ] **P2.T4: Write the report and the command** — covers: AC-2
-  - [ ] P2.T4.1: `report.json`, `report.md`, and the `rubric:calibrate` script entry.
+- [x] **P2.T1: Score each variant twice** — covers: FR-3
+- [x] **P2.T2: Guard the record** — covers: AC-7
+  - [x] P2.T2.1: `try/finally` restore plus byte comparison; non-zero exit on mismatch.
+- [x] **P2.T3: Compute verdicts and anchors** — covers: FR-4, FR-5, FR-6
+  - [x] P2.T3.1: separation and the scale ceiling reported as independent facts (spec A1).
+- [x] **P2.T4: Write the report and the command** — covers: AC-2
+  - [x] P2.T4.1: `report.json`, `report.md`, and the `rubric:calibrate` script entry.
+  - [x] P2.T4.2: `--recompute`, `--merge` and `--only` so a lost reply costs one criterion, not a round.
 
 ## Phase 3: Gate Arithmetic and Docs
 
@@ -61,16 +63,19 @@ adjusted by this track.
 - **Depends on:** Phase 2
 - **Covers:** FR-7, FR-8, AC-5, AC-6
 - **Touches:** `docs/rubric.md`, `test/calibration/gate.test.ts`
-- **Verification:** `pnpm vitest run test/calibration/gate.test.ts`, `pnpm verify`
-- **Status:** pending
+- **Verification:** `pnpm vitest run test/unit/calibration/gate.test.ts`, `pnpm verify`
+- **Status:** verified
 
-- [ ] **P3.T1: Add the gate arithmetic test** — covers: FR-8
-- [ ] **P3.T2: Prove it fails, then rewrite the targets** — covers: AC-6
-  - [ ] P3.T2.1: Run against the current table (3.875) and record the failure.
-  - [ ] P3.T2.2: Rewrite the target vector to sum to at least 24.0.
-- [ ] **P3.T3: Rewrite AC-20 and add the forward-only note** — covers: FR-7, FR-9
-- [ ] **P3.T4: Add the Calibration section** — covers: FR-7
-  - [ ] P3.T4.1: Variants, model, pass method, thresholds, and the anchor table placeholder.
+- [x] **P3.T1: Add the gate arithmetic test** — covers: FR-8
+- [x] **P3.T2: Prove it fails, then rewrite the targets** — covers: AC-6
+  - [x] P3.T2.1: Run against the legacy table and record the failure (23.5 < 24.0).
+  - [ ] P3.T2.2: **Superseded.** The calibrated ceiling is 3.67, so no honest
+        target vector sums to 24.0; the table instead declares the gate
+        `unreachable` with dated evidence, and the test accepts that only when
+        the arithmetic is genuinely short (spec decision rule, amendment A2).
+- [x] **P3.T3: Rewrite AC-20 and add the forward-only note** — covers: FR-7, FR-9
+- [x] **P3.T4: Add the Calibration section** — covers: FR-7
+  - [x] P3.T4.1: Variants, model, pass method, thresholds, v1 round, result table and anchor findings.
 
 ## Phase 4: Run and Record
 
@@ -80,14 +85,14 @@ adjusted by this track.
 - **Touches:** `docs/rubric.md` (results only), `.conductor/evidence/calibration/`
 - **Verification:** `pnpm verify`, `git diff --stat test/art` empty,
   `git diff --stat conductor/archive` empty
-- **Status:** pending
+- **Status:** verified — **AC-4 missed: 3 of 6 criteria separate, not 4**
 
-- [ ] **P4.T1: Run the full calibration** — covers: FR-6
-  - [ ] P4.T1.1: 24 calls with at most four retries each; record rejected replies.
-- [ ] **P4.T2: Record the results** — covers: AC-5
-- [ ] **P4.T3: Apply the decision rule** — covers: AC-4
-  - [ ] P4.T3.1: Any `saturated` criterion is reported; the gate stays unchanged.
-- [ ] **P4.T4: Final checks** — covers: AC-8, AC-9, AC-10
+- [x] **P4.T1: Run the full calibration** — covers: FR-6
+  - [x] P4.T1.1: two rounds of 24 calls plus a 4-call edge re-score; rejected replies recorded (6 in the second round).
+- [x] **P4.T2: Record the results** — covers: AC-5
+- [x] **P4.T3: Apply the decision rule** — covers: AC-4
+  - [x] P4.T3.1: lighting, edge language and palette craft are recorded as having no 4-anchor; the gate is unchanged and the decision is handed to the owner.
+- [x] **P4.T4: Final checks** — covers: AC-8, AC-9, AC-10
 
 ## Verification Strategy
 

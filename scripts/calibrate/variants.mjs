@@ -202,11 +202,16 @@ function blob(recipe) {
   return [`geometry replaced by a ${x1 - x0 - 1}x${y1 - y0 - 1} rounded blob`, "all parts but body removed"];
 }
 
-/** Strip every painted outline tone and the auto-outline pass, keeping the ramp. */
+/**
+ * Edge treatment that switches reasonlessly across the image: a deterministic
+ * scatter of outline and highlight tones, with the auto-outline pass removed.
+ */
 function deEdge(recipe) {
   for (const op of blits(recipe)) {
     for (const cell of cells(op)) {
-      if (op.legend[cell.char]?.endsWith(".t4")) setCell(op, cell, "2");
+      const seed = (cell.x * 5 + cell.y * 7) % 11;
+      if (seed < 2) setCell(op, cell, "4");
+      else if (seed < 4) setCell(op, cell, "0");
     }
   }
   recipe.layers = recipe.layers.map((layer) => ({
@@ -216,32 +221,33 @@ function deEdge(recipe) {
   return ["outline tones rewritten to the base tone", "auto_outline pass removed"];
 }
 
-/** Scatter single-pixel tone flips inside the painted masses. */
+/**
+ * 1 px checkerboard of extreme tones: every cluster is a single pixel, which is
+ * the anchor-1 description rather than an accent.
+ */
 function confetti(recipe) {
   for (const op of blits(recipe)) {
-    let n = 0;
     for (const cell of cells(op)) {
-      n += 1;
-      if ((cell.x * 31 + cell.y * 17) % 7 !== 0) continue;
-      setCell(op, cell, n % 2 === 0 ? "0" : "4");
+      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? "0" : "4");
     }
   }
-  return ["every seventh painted cell flipped to an alternating extreme tone"];
+  return ["every painted cell alternates between two extreme tones in a 1px checkerboard"];
 }
 
-/** Desaturate every family base so hue carries nothing. */
-function grey(recipe) {
-  for (const [family, entry] of Object.entries(recipe.palette)) {
-    const base = entry.derive?.base;
-    if (!base) continue;
-    const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(base.slice(i, i + 2), 16) / 255);
-    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    const v = Math.round(Math.max(0, Math.min(1, l)) * 255)
-      .toString(16)
-      .padStart(2, "0");
-    recipe.palette[family].derive.base = `#${v}${v}${v}`;
+/**
+ * Arbitrary hues that fight: every part is painted from a different family's ramp
+ * in 1 px stripes, so hue and value change without any reason in the subject.
+ */
+function warringHues(recipe) {
+  const donor = { body: "lock", lid: "bands", bands: "lock", lock: "body" };
+  for (const op of blits(recipe)) {
+    const material = materialOf(recipe, donor[op.part] ?? "body");
+    for (const cell of cells(op)) {
+      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? "0" : "4");
+    }
+    op.legend = toneLegend(material);
   }
-  return ["every family base replaced by its luminance in grey"];
+  return ["each part painted from another family's ramp in 1px extreme-tone stripes"];
 }
 
 const VARIANTS = [
@@ -250,7 +256,7 @@ const VARIANTS = [
   { criterion: "lighting", low: flatten, high: shade },
   { criterion: "edge_language", low: deEdge, high: null },
   { criterion: "cluster_discipline", low: confetti, high: null },
-  { criterion: "palette_craft", low: grey, high: null },
+  { criterion: "palette_craft", low: warringHues, high: null },
 ];
 
 /* ------------------------------------------------------------------- render */

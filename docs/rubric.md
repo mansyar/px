@@ -114,18 +114,115 @@ tie and records it in the asset's `tiebreak` block:
 Steps 3–4 are the `vision-model` path. The `agent` path in *Scoring paths* uses the two
 artifacts from step 1–2 and records through the same file and the same checks.
 
+## Target vector
+
+The gate is a mean across six criteria, so the per-criterion targets have to add
+up to it — and for the whole life of the 4.0 gate they did not. The 2026-11-13
+vector named lighting 3.5, edge language 3.5, palette craft 3.6 and value
+separation 3.7 while assuming silhouette 4.7 and cluster discipline 4.5: a sum of
+23.5 against the 24.0 that a 4.0 mean requires, and 23.16 (mean 3.86) once cluster
+discipline measured 4.07. An asset could satisfy every target and still fail.
+
+`test/unit/calibration/gate.test.ts` parses this table. When the status is
+`reachable` it requires the targets to sum to the gate and each target to clear
+the floor. When the status is `unreachable` it requires a dated evidence
+reference instead, so an unreachable gate can only be documented deliberately,
+never drift into the document.
+
+| quantity | value |
+| --- | --- |
+| mean gate | **4.0** |
+| per-criterion floor | **3.5** |
+| gate status | **unreachable** (calibrated 2026-11-13) |
+| evidence | `.conductor/evidence/calibration/report.md` (2026-11-13) |
+
+| criterion | target |
+| --- | --- |
+| `silhouette` | 5.0 |
+| `value_separation` | 4.0 |
+| `lighting` | 3.0 |
+| `edge_language` | 3.0 |
+| `cluster_discipline` | 4.0 |
+| `palette_craft` | 3.0 |
+
+The targets above are the highest score each criterion actually reached under the
+calibrated stimuli, not aspirations: a build that satisfies all six sums to 22.0,
+a mean of 3.67. Three of the six — lighting, edge language and palette craft —
+never exceeded 3 on any variant, so the 3.5 floor is itself out of reach for
+them. The mean gate is left at 4.0 because changing it is an owner decision, not
+a side effect of this measurement; the evidence for the decision is the
+Calibration section below.
+
+## Calibration
+
+Calibrated 2026-11-13 on `gemini-3.5-flash-lite`, over the chest
+(`test/art/chest/chest.px.json`) as the base asset. For each criterion a `low`
+variant removes the property under test and a `high` variant keeps it; every
+variant is scored twice, pass A on the plain 8× upscale and pass B on the debug
+sheet, exactly as the method above requires. `separates` needs Δ ≥ 2 on the pass
+mean with Δ ≥ 1 on each pass; a criterion whose high variant never exceeds 3 is
+recorded as having no 4-anchor.
+
+The harness is `pnpm rubric:calibrate` (`scripts/calibrate.mjs`), the variants
+come from `scripts/calibrate/variants.mjs`, and the report is written to
+`.conductor/evidence/calibration/report.md`. Rules use `node` only; no
+credential is stored in the repository.
+
+| criterion | low A/B | high A/B | Δ | verdict | 4-anchor |
+| --- | --- | --- | --- | --- | --- |
+| `silhouette` | 1/1 | 5/5 | 4.00 | separates | yes |
+| `value_separation` | 3/3 | 4/4 | 1.00 | ambiguous | yes |
+| `lighting` | 1/1 | 3/3 | 2.00 | separates | no |
+| `edge_language` | 3/3 | 3/3 | 0.00 | ambiguous | no |
+| `cluster_discipline` | 1/1 | 4/4 | 3.00 | separates | yes |
+| `palette_craft` | 2/1 | 3/3 | 1.50 | ambiguous | no |
+
+The instrument responds to gross destruction: an unidentifiable blob, an unlit
+surface and single-pixel confetti each drop to 1. It does not respond to the
+subtler removals that the criteria name — a chest with its values collapsed but
+its hues intact, a chest with reasonless outline switching, and a chest with
+warring hues all still scored 3. That is the finding this calibration records:
+**the judge discriminates the bottom of the scale, not the top.**
+
+A first round with milder stimuli (a desaturated chest, a chest with outlines
+removed, light confetti) scored those variants 3–4 and is kept at
+`.conductor/evidence/calibration/v1/`; it is the reason the stimuli were
+strengthened, not evidence of separation.
+
+The consequences, stated plainly:
+
+- No criterion above 3 has ever been demonstrated on this asset class. Scores of
+  4 and 5 are awarded (silhouette 5/5, cluster discipline 4/4, value separation
+  4/4), so the top anchors exist; the two that matter most for rendered form —
+  lighting and palette craft — never reach them.
+- A 4.0 mean would require near-perfect scores on the four criteria that reach 4
+  and 5, with edge language at 5, which it never reached. The gate is not
+  reachable by improving art of this kind.
+- This document does not lower the gate. The recorded verdict stays as it was
+  scored; a gate change needs an owner decision with this section as the
+  evidence.
+
+Scores recorded before 2026-11-13 are **forward only**: they are not re-scored
+against the calibrated stimuli, and archived tracks keep the numbers they were
+reviewed with.
+
 ## Acceptance
 
 AC-20 is met when, across the seven assets and both passes:
 
 - every asset has exactly two passes;
 - all six criteria are integer 1–5 in every pass;
-- the mean of all recorded scores is **≥ 4.0**;
-- no criterion on any asset is below **3**;
+- the mean of all recorded scores is ≥ the documented mean gate (4.0);
+- no criterion on any asset is below the documented floor (3.5);
 - every score carries a non-empty rationale.
 
-If the assets cannot reach 4.0, the failing criterion is recorded and the bar is not
-lowered: the honest outcome is a named weakness, not a softer rubric.
+**Status: unmet, and the 2026-11-13 calibration shows it is unmeetable as
+written.** The recorded mean is 3.69; lighting, edge language and palette craft
+never exceeded 3 on any calibrated variant, so even a build that hits every
+demonstrated ceiling averages 3.67. The status is recorded rather than resolved:
+lowering the gate, or splitting it into a publishable floor and an exceptional
+target, is an owner decision. Until that decision is made, a track that misses
+AC-20 records the miss and cites this section.
 
 ## Record shape
 
