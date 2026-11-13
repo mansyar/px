@@ -5,7 +5,7 @@
 - **Branch:** `feat/20261113-rubric-calibration`
 - **Range:** `54c0b13..cb3b5c8` (fixes after this range are in Phase R1)
 - **Date:** 2026-11-13
-- **Verdict:** `BLOCK`
+- **Verdict:** `PASS WITH FINDINGS (override)`
 
 ## Summary
 
@@ -123,7 +123,19 @@ here rather than implied.
 
 ## Overrides
 
-- None recorded. F1 requires one to proceed to a PR.
+- **F1 — AC-4 (three of six criteria separate, four required)**
+  - **Approving user:** project owner, in session.
+  - **Date:** 2026-11-13.
+  - **Reason:** the shortfall is the calibration's result, not a defect that can
+    be fixed in this diff. It reproduced across two stimulus rounds, and the
+    strengthened round removed the possibility that mild stimuli caused it. The
+    only code-level alternatives would be to weaken the separation threshold or
+    tune stimuli until the number reached four, both of which defeat the purpose
+    of measuring.
+  - **Scope:** AC-4 only. It stays recorded as open in `review.md`, in
+    `verification/phase-4.md` and in the PR body; nothing else in this track is
+    covered by the override, and the gate change in A3 is a separate decision
+    made on its own evidence.
 
 ## Plan compliance
 

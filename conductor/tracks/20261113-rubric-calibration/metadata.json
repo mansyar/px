@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-13T20:40:00Z",
-  "updated_at": "2026-11-13T21:55:00Z",
+  "updated_at": "2026-11-13T22:00:00Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-rubric-calibration",
@@ -19,7 +19,7 @@
     "tasks_done": 15
   },
   "last_checkpoint": null,
-  "review_verdict": "BLOCK",
+  "review_verdict": "PASS WITH FINDINGS",
   "review_rounds": 1,
   "doc_sync": "updated",
   "pr_url": null,
