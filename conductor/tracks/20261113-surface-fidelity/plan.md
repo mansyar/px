@@ -37,18 +37,18 @@
 - **Goal:** a recipe can declare two adjacent planes of one material without a lint
   false positive, and a real collision is still reported.
 - **Depends on:** Phase 1
-- **Covers:** FR-4, FR-5, FR-6, FR-7, AC-4, AC-5, AC-6
-- **Touches:** `src/lint/**`, `src/core/parts.ts`, `test/lint/**`, `test/parts/**`
+- **Covers:** FR-4, FR-6, FR-7, FR-20, AC-4, AC-6, AC-17
+- **Touches:** `src/lint/**`, `test/art-lint/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Plane-aware value comparison** — covers: FR-4
   - [ ] **P2.T1.1:** Resolve each part's comparison tone from its `facing` plane before falling back to the material base tone.
   - [ ] **P2.T1.2:** Suppress `VALUE_COLLISION` for a 4-adjacent pair that shares a material but declares different planes whose resolved tones clear one step.
   - [ ] **P2.T1.3:** Keep reporting exactly one finding when the resolved tones collide, and name both parts.
-- [ ] **P2.T2: Shared ridge tolerance** — covers: FR-5
-  - [ ] **P2.T2.1:** Allow a one-pixel ridge between same-material plane parts to be written twice without a part-overwrite error.
-  - [ ] **P2.T2.2:** Keep the error for a genuinely overlapping or different-material write, so the tolerance cannot hide a mistake.
+- [ ] **P2.T2: Seam-by-construction idiom** — covers: FR-20
+  - [ ] **P2.T2.1:** Fixture the gable seam as the scene builds it — two facing planes with a one-pixel ridge part between them — and assert it reports no `VALUE_COLLISION` and compiles without a part-overwrite warning.
+  - [ ] **P2.T2.2:** Assert that a ridge tone inside a plane's synthesis step still reports once, so the idiom cannot be used to hide a collision.
 - [ ] **P2.T3: Regression coverage** — covers: FR-6, FR-7
   - [ ] **P2.T3.1:** Fixtures for the four cases: clean plane pair, colliding plane pair, different material, real overwrite.
   - [ ] **P2.T3.2:** Make the finding text say the comparison was plane-resolved, and assert it.

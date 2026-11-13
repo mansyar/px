@@ -87,7 +87,7 @@ claim a 4.0 without an independent measurement.
 | FR-2 | The seven assets are re-scored on the record instrument before any art change, and the record's verdict is recomputed from those passes with `basis: "independent"`. | must |
 | FR-3 | The calibration difference between the independent baseline and the archived 3.90 is recorded, naming both instruments and the per-criterion deltas. | must |
 | FR-4 | `VALUE_COLLISION` does not report two 4-adjacent parts that share a material but declare different `facing`, when their plane-resolved tones differ by at least one synthesis step. | must |
-| FR-5 | A one-pixel shared ridge between two such plane parts is not a part-overwrite error, provided the later writer is the same material. | must |
+| FR-5 | **Withdrawn 2026-11-13.** A one-pixel shared ridge between two plane parts is not a part-overwrite error. Withdrawn by the owner: a seam is drawn once (its own part, or a one-pixel gap), so legalising a double-written pixel would mute a genuine ambiguity instead of resolving it. See FR-20. | — |
 | FR-6 | Two parts that share a material and a plane, or whose plane-resolved tones are closer than one step, still report `VALUE_COLLISION` exactly once. | must |
 | FR-7 | The lint finding for a plane pair names both parts and states that the collision is plane-resolved, so an agent can tell it apart from a material collision. | should |
 | FR-8 | A `form_shade` op places interior light and shadow bands across a part from its `facing` and its thickness, using one light direction, deterministically. | must |
@@ -102,6 +102,7 @@ claim a 4.0 without an independent measurement.
 | FR-17 | The scene's wall is rebuilt from geometry — polygon courses, stroke joints, texture courses — replacing the ASCII masonry. | must |
 | FR-18 | The character is rebuilt with 2×2 form shading and a deliberate outline treatment, replacing the 1 px dither. | must |
 | FR-19 | The humanoid and the sword are re-lit with `form_shade`, and all four re-authored assets are re-scored on the independent instrument. | must |
+| FR-20 | A seam between two planes is owned once — its own part with its own tone, or a one-pixel gap — and that construction lints clean with no part-overwrite warning. | must |
 
 ## Non-Functional Requirements
 
@@ -124,7 +125,7 @@ claim a 4.0 without an independent measurement.
 | AC-2 | The baseline re-score records `basis: "independent"`, a recomputed mean and no unlisted failures. | FR-2 |
 | AC-3 | A calibration note compares the independent baseline with the archived 3.90 per criterion. | FR-3 |
 | AC-4 | A fixture with two facing planes of one material lints clean; the same fixture with one plane removed still reports `VALUE_COLLISION`. | FR-4 |
-| AC-5 | A fixture with a one-pixel ridge between facing planes produces no part-overwrite error, and one that genuinely overwrites still does. | FR-5 |
+| AC-5 | **Withdrawn 2026-11-13** with FR-5. | — |
 | AC-6 | A plane pair whose resolved tones collide reports exactly one finding, naming both parts. | FR-6 |
 | AC-7 | `form_shade` on a three-tone mass produces a lit band, a midtone and a shadow band in one direction, with the band widths derived from thickness. | FR-8 |
 | AC-8 | A T-join between two parts gains one darker band along the join, and the op is idempotent on a second run of the same recipe. | FR-9 |
@@ -136,6 +137,7 @@ claim a 4.0 without an independent measurement.
 | AC-14 | A `1.1` recipe using `form_shade` or `fit: "region"` is rejected with a version message naming `"1.2"`. | FR-16 |
 | AC-15 | The seven assets score mean ≥ 4.0 with no criterion below 3, `basis: "independent"`, and the verdict is recomputed by the record test. | FR-17, FR-18, FR-19 |
 | AC-16 | Every re-authored asset renders `--strict` clean and its digest is re-baselined with a written reason. | FR-17, FR-18, FR-19 |
+| AC-17 | A fixture with two facing planes of one material and a one-pixel ridge part between them reports no `VALUE_COLLISION` and compiles with no `W_PART_OVERWRITE`; a ridge whose tone sits inside a plane's step still reports once. | FR-20 |
 
 ## Edge Cases
 
@@ -187,6 +189,17 @@ claim a 4.0 without an independent measurement.
 - **Question:** whether `form_shade` should reuse `auto_shade`'s name with a
   `bands` option instead of a new op. Deferred to Phase 3's design note; the
   requirement is the behavior, not the name.
+
+## Amendments
+
+- **2026-11-13 — FR-5 and AC-5 withdrawn, FR-20 and AC-17 added.** The shipped scene
+  owns its gable seam by construction: the left plane ends at x=127, the right
+  starts at x=129, and x=128 belongs to a one-pixel ridge stroke with its own
+  tone. The probe that motivated FR-5 (two planes writing the same pixel) is an
+  ambiguous-ownership bug, not a case the engine should permit, so the owner
+  chose to withdraw the tolerance and require the idiom instead. The lint half of
+  the phase — comparing the tone a plane actually paints rather than the material
+  base — is unchanged and is what makes two `wood` planes legal.
 
 ## References
 
