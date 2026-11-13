@@ -5,24 +5,31 @@
  * This script is the *only* thing in the repository that talks to an image model.
  * It is never imported by the engine or by the test suite, and CI never runs it.
  * It asks a vision model for six integer criteria scores against a rendered PNG
- * (or the debug sheet), validates the reply, and appends the record to
- * `test/art/scores.json`. `test/art/rubric.test.ts` later verifies the *recorded*
- * scores; it does not score anything itself.
+ * (or the debug sheet), validates the reply, and appends the pass to
+ * `test/art/scores.json` in the schema-3 shape. `test/art/rubric.test.ts` later
+ * verifies the *recorded* scores; it does not score anything itself.
  *
  * Usage:
- *   PX_RUBRIC_API_KEY=... node scripts/rubric.mjs --asset potion --pass 1
- *   node scripts/rubric.mjs --asset scene --artifact .conductor/evidence/art/scene.debug.png \
- *     --pass 2 --model openai/gpt-4o --replace
+ *   PX_RUBRIC_API_KEY=... node scripts/rubric.mjs --asset potion --pass A
+ *   PX_RUBRIC_CREDENTIALS=~/.config/opencode/opencode.json \
+ *     node scripts/rubric.mjs --asset scene --pass B \
+ *     --artifact .conductor/evidence/art/scene.debug.png --model gemini-3.5-flash-lite
+ *   node scripts/rubric.mjs --asset sword --pass A --dry-run
  *
  * Env:
- *   PX_RUBRIC_API_KEY   credential for the endpoint (required)
- *   PX_RUBRIC_ENDPOINT  OpenAI-compatible chat-completions URL
- *                       (default https://api.openai.com/v1/chat/completions)
- *   PX_RUBRIC_MODEL     model id (default gpt-4o)
+ *   PX_RUBRIC_API_KEY       credential for the endpoint
+ *   PX_RUBRIC_CREDENTIALS   path to an opencode config whose `mcp["agent-vision"]`
+ *                           environment carries VISION_API_KEY / VISION_BASE_URL /
+ *                           VISION_MODEL_NAME. Read in place; never copied, printed
+ *                           or written into the repository.
+ *   PX_RUBRIC_ENDPOINT      chat-completions URL (default OpenAI; a base URL is also
+ *                           accepted and gets `/chat/completions` appended)
+ *   PX_RUBRIC_MODEL         model id (default from credentials, else gpt-4o)
  *
  * Exit codes: 0 recorded, 1 usage/validation/network failure, 2 no credential.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -73,17 +80,28 @@ export const ANCHORS = {
   },
 };
 
+const ASSETS = ['potion', 'sword', 'humanoid', 'chest', 'character', 'prop', 'scene'];
+const PASSES = ['A', 'B'];
+
 function usage(message) {
   process.stderr.write(`${message}\n\n`);
   process.stderr.write(
-    'usage: node scripts/rubric.mjs --asset <name> [--artifact <png>] [--pass 1|2] ' +
-      '[--model <id>] [--note <text>] [--replace]\n',
+    'usage: node scripts/rubric.mjs --asset <name> [--artifact <png>] [--pass A|B|1|2] ' +
+      '[--model <id>] [--note <text>] [--replace] [--dry-run]\n',
   );
   process.exit(1);
 }
 
 function parseArgs(argv) {
-  const options = { asset: null, artifact: null, pass: null, model: null, note: null, replace: false };
+  const options = {
+    asset: null,
+    artifact: null,
+    pass: null,
+    model: null,
+    note: null,
+    replace: false,
+    dryRun: false,
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     const value = argv[index + 1];
@@ -97,7 +115,7 @@ function parseArgs(argv) {
         index += 1;
         break;
       case '--pass':
-        options.pass = Number(value);
+        options.pass = String(value).toUpperCase().replace('1', 'A').replace('2', 'B');
         index += 1;
         break;
       case '--model':
@@ -111,14 +129,15 @@ function parseArgs(argv) {
       case '--replace':
         options.replace = true;
         break;
+      case '--dry-run':
+        options.dryRun = true;
+        break;
       default:
         usage(`unknown argument: ${flag}`);
     }
   }
   return options;
 }
-
-const ASSETS = ['potion', 'sword', 'humanoid', 'chest', 'character', 'prop', 'scene'];
 
 function prompt(asset) {
   const lines = [
@@ -139,24 +158,108 @@ function prompt(asset) {
   return lines.join('\n');
 }
 
+/**
+ * Resolve the credential without ever putting it in a file, an argument or a log.
+ * `PX_RUBRIC_CREDENTIALS` points at an opencode config; the `agent-vision` MCP entry
+ * there already carries the key, base URL and model for a Gemini endpoint.
+ */
+function resolveCredentials() {
+  const path = process.env.PX_RUBRIC_CREDENTIALS;
+  if (!path) {
+    return {};
+  }
+  const file = path.startsWith('~') ? join(homedir(), path.slice(1)) : resolve(ROOT, path);
+  let config;
+  try {
+    config = JSON.parse(readFileSync(file, 'utf8'));
+  } catch (error) {
+    process.stderr.write(`rubric: cannot read credentials file ${file}: ${error.message}\n`);
+    process.exit(2);
+  }
+  const servers = config.mcp ?? config.mcpServers ?? {};
+  const vision = servers['agent-vision'] ?? servers.agentVision;
+  const environment = vision?.environment ?? vision?.env ?? {};
+  return {
+    apiKey: environment.VISION_API_KEY,
+    baseUrl: environment.VISION_BASE_URL,
+    model: environment.VISION_MODEL_NAME,
+  };
+}
+
+function endpointFor(baseUrl) {
+  const trimmed = baseUrl.replace(/\/+$/, '');
+  return trimmed.endsWith('/chat/completions') ? trimmed : `${trimmed}/chat/completions`;
+}
+
+/** Recompute the verdict from every pass, so a write cannot leave it stale. */
+function recomputeVerdict(record) {
+  const passes = record.assets.flatMap((asset) => asset.passes);
+  const scores = passes.flatMap((pass) =>
+    CRITERIA.map((criterion) => pass.scores?.[criterion]?.score),
+  );
+  const scored = scores.filter((score) => Number.isInteger(score));
+  const mean = Number((scored.reduce((total, score) => total + score, 0) / scored.length).toFixed(2));
+  const failures = [];
+  for (const asset of record.assets) {
+    for (const pass of asset.passes) {
+      for (const criterion of CRITERIA) {
+        const entry = pass.scores?.[criterion];
+        if (entry && entry.score < record.verdict.min_allowed) {
+          failures.push({ asset: asset.asset, pass: pass.pass, criterion, score: entry.score });
+        }
+      }
+    }
+  }
+  const agent = passes.filter((pass) => pass.scorer === 'agent');
+  const basis =
+    agent.length === 0 ? 'independent' : agent.length === passes.length ? 'self-review' : 'mixed';
+  record.verdict.result =
+    mean >= record.verdict.threshold_mean && failures.length === 0 ? 'pass' : 'fail';
+  record.verdict.mean = mean;
+  record.verdict.failures = failures;
+  record.verdict.basis = basis;
+  if (basis === 'independent') {
+    delete record.verdict.caveat;
+  } else if (!record.verdict.caveat?.trim()) {
+    const names = [...new Set(agent.map((pass) => pass.asset ?? 'unknown'))];
+    record.verdict.caveat = `${names.join(', ')} include agent self-review passes; the rest are vision-model passes.`;
+  }
+  return record.verdict;
+}
+
 function readRecord(asset, pass, replace) {
-  let record = { v: 1, assets: {} };
+  let record;
   try {
     record = JSON.parse(readFileSync(SCORES, 'utf8'));
   } catch (error) {
     if (error.code !== 'ENOENT') {
       throw new Error(`cannot read ${SCORES}: ${error.message}`);
     }
+    record = {
+      schema: 3,
+      rubric: 'docs/rubric.md',
+      scored_by: 'scripts/rubric.mjs',
+      scored_at: new Date().toISOString().slice(0, 10),
+      criteria: CRITERIA,
+      verdict: { result: 'fail', mean: 0, threshold_mean: 4, min_allowed: 3, basis: 'independent', failures: [] },
+      assets: [],
+    };
   }
-  record.assets ??= {};
-  record.assets[asset] ??= { passes: [] };
-  const existing = record.assets[asset].passes ?? [];
-  if (existing.some((entry) => entry.pass === pass) && !replace) {
+  if (record.schema !== 3 || !Array.isArray(record.assets)) {
     throw new Error(
-      `${asset} pass ${pass} is already recorded; pass --replace to overwrite it`,
+      `${SCORES} is not a schema-3 record; this script writes schema 3 only and will not ` +
+        'rewrite an older shape. Migrate the record first.',
     );
   }
-  return { record, existing };
+  let entry = record.assets.find((candidate) => candidate.asset === asset);
+  if (!entry) {
+    entry = { asset, artifact: '', passes: [] };
+    record.assets.push(entry);
+  }
+  if (entry.passes.some((existing) => existing.pass === pass) && !replace) {
+    throw new Error(`${asset} pass ${pass} is already recorded; pass --replace to overwrite it`);
+  }
+  return { record, entry };
 }
 
 async function main() {
@@ -167,30 +270,37 @@ async function main() {
   if (!ASSETS.includes(options.asset)) {
     usage(`unknown asset "${options.asset}"; expected one of ${ASSETS.join(', ')}`);
   }
-  if (options.pass !== 1 && options.pass !== 2) {
-    usage('--pass must be 1 or 2');
+  if (!PASSES.includes(options.pass)) {
+    usage('--pass must be A or B (1 and 2 are accepted as aliases)');
   }
 
-  const apiKey = process.env.PX_RUBRIC_API_KEY;
+  const credentials = resolveCredentials();
+  const apiKey = process.env.PX_RUBRIC_API_KEY ?? credentials.apiKey;
   if (!apiKey) {
     process.stderr.write(
       'rubric: no model credential configured.\n' +
-        'Set PX_RUBRIC_API_KEY (and optionally PX_RUBRIC_ENDPOINT, PX_RUBRIC_MODEL) and re-run.\n' +
-        'This script is the only networked component; the engine and the test suite never score art.\n',
+        'Set PX_RUBRIC_API_KEY, or PX_RUBRIC_CREDENTIALS to an opencode config whose\n' +
+        '`agent-vision` MCP entry carries VISION_API_KEY, plus optionally PX_RUBRIC_ENDPOINT\n' +
+        'and PX_RUBRIC_MODEL. This script is the only networked component; the engine and\n' +
+        'the test suite never score art, and no credential is ever written to the repository.\n',
     );
     process.exit(2);
   }
 
-  const endpoint = process.env.PX_RUBRIC_ENDPOINT ?? 'https://api.openai.com/v1/chat/completions';
-  const model = options.model ?? process.env.PX_RUBRIC_MODEL ?? 'gpt-4o';
-  const artifact = resolve(
-    ROOT,
-    options.artifact ?? join(EVIDENCE, `${options.asset}.png`),
-  );
+  const baseUrl = process.env.PX_RUBRIC_ENDPOINT ?? credentials.baseUrl;
+  const endpoint = baseUrl
+    ? endpointFor(baseUrl)
+    : 'https://api.openai.com/v1/chat/completions';
+  const model = options.model ?? process.env.PX_RUBRIC_MODEL ?? credentials.model ?? 'gpt-4o';
+  const artifact = resolve(ROOT, options.artifact ?? join(EVIDENCE, `${options.asset}.png`));
   const png = readFileSync(artifact);
   const dataUrl = `data:image/png;base64,${png.toString('base64')}`;
 
-  const { record, existing } = readRecord(options.asset, options.pass, options.replace);
+  const { record, entry: assetEntry } = readRecord(
+    options.asset,
+    options.pass,
+    options.replace || options.dryRun,
+  );
 
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -231,15 +341,15 @@ async function main() {
   const criteria = parsed?.criteria;
   const problems = [];
   for (const criterion of CRITERIA) {
-    const entry = criteria?.[criterion];
-    if (entry === undefined) {
+    const scored = criteria?.[criterion];
+    if (scored === undefined) {
       problems.push(`${criterion}: missing`);
       continue;
     }
-    if (!Number.isInteger(entry.score) || entry.score < 1 || entry.score > 5) {
-      problems.push(`${criterion}: score must be an integer 1-5, got ${JSON.stringify(entry.score)}`);
+    if (!Number.isInteger(scored.score) || scored.score < 1 || scored.score > 5) {
+      problems.push(`${criterion}: score must be an integer 1-5, got ${JSON.stringify(scored.score)}`);
     }
-    if (typeof entry.rationale !== 'string' || entry.rationale.trim().length < 10) {
+    if (typeof scored.rationale !== 'string' || scored.rationale.trim().length < 10) {
       problems.push(`${criterion}: rationale must be a sentence`);
     }
   }
@@ -248,36 +358,51 @@ async function main() {
     process.exit(1);
   }
 
-  const scored = {};
+  const scores = {};
   for (const criterion of CRITERIA) {
-    scored[criterion] = {
+    scores[criterion] = {
       score: criteria[criterion].score,
-      rationale: criteria[criterion].rationale.trim(),
+      why: criteria[criterion].rationale.trim(),
     };
   }
 
-  const entry = {
+  const relative = artifact.startsWith(ROOT)
+    ? artifact.slice(ROOT.length + 1).replaceAll('\\', '/')
+    : artifact;
+  const scored = {
     pass: options.pass,
-    model,
-    date: new Date().toISOString().slice(0, 10),
-    artifact: artifact.startsWith(ROOT) ? artifact.slice(ROOT.length + 1).replaceAll('\\', '/') : artifact,
-    criteria: scored,
+    scorer: 'vision-model',
+    artifact_path: relative,
+    view: relative.includes('debug')
+      ? 'debug sheet (8x panel, 1x panel, silhouette, part crops)'
+      : 'plain 8x nearest-neighbour on #808080',
+    subject: options.asset,
+    scores,
   };
   if (options.note) {
-    entry.note = options.note;
+    scored.note = options.note;
   }
 
-  const passes = existing.filter((previous) => previous.pass !== options.pass);
-  passes.push(entry);
-  passes.sort((a, b) => a.pass - b.pass);
-  record.assets[options.asset].passes = passes;
+  const values = CRITERIA.map((criterion) => scores[criterion].score);
+  const line = `${options.asset} pass ${options.pass} (${model}): ${CRITERIA.map(
+    (criterion, index) => `${criterion}=${values[index]}`,
+  ).join(' ')}`;
+
+  if (options.dryRun) {
+    process.stdout.write(`${line}\n(dry run: nothing written to ${SCORES})\n`);
+    return;
+  }
+
+  assetEntry.passes = assetEntry.passes
+    .filter((previous) => previous.pass !== options.pass)
+    .concat(scored)
+    .sort((a, b) => a.pass.localeCompare(b.pass));
+  const verdict = recomputeVerdict(record);
   writeFileSync(SCORES, `${JSON.stringify(record, null, 2)}\n`);
 
-  const values = CRITERIA.map((criterion) => scored[criterion].score);
   process.stdout.write(
-    `${options.asset} pass ${options.pass} (${model}): ${CRITERIA.map(
-      (criterion, index) => `${criterion}=${values[index]}`,
-    ).join(' ')}\nrecorded in ${SCORES}\n`,
+    `${line}\nrecorded in ${SCORES}\n` +
+      `verdict: ${verdict.result} mean ${verdict.mean} (${verdict.basis})\n`,
   );
 }
 

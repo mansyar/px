@@ -91,15 +91,22 @@ a `self-review` or `mixed` verdict must name the assets its author judged — th
 4. Run the scorer once per pass:
    ```sh
    PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<id> node scripts/rubric.mjs \
-     --asset <asset> --pass 1 --artifact .conductor/evidence/art/<asset>.8x.png
+     --asset <asset> --pass A --artifact .conductor/evidence/art/<asset>.8x.png
    PX_RUBRIC_API_KEY=... PX_RUBRIC_MODEL=<id> node scripts/rubric.mjs \
-     --asset <asset> --pass 2 --artifact .conductor/evidence/art/<asset>.debug.png
+     --asset <asset> --pass B --artifact .conductor/evidence/art/<asset>.debug.png
    ```
+   Any OpenAI-compatible endpoint works: set `PX_RUBRIC_ENDPOINT` to the full
+   chat-completions URL or to the base URL (the script appends `/chat/completions`), which
+   covers Gemini's `https://generativelanguage.googleapis.com/v1beta/openai`.
+   `PX_RUBRIC_CREDENTIALS=<path>` reads the key, base URL and model from an existing
+   opencode config's `agent-vision` MCP entry (`VISION_API_KEY`, `VISION_BASE_URL`,
+   `VISION_MODEL_NAME`) in place — the credential is never copied into the repository, an
+   argument, or a log. `--dry-run` scores without writing, for checking an instrument.
    The script validates the reply (six criteria, integer 1–5, non-empty rationale),
-   refuses to overwrite an existing pass without `--replace`, and appends to
-   `test/art/scores.json`. It exits `2` with a clear message when no credential is
-   configured, and `1` when the reply is unusable. It is the only networked component in
-   the repository.
+   refuses to overwrite an existing pass without `--replace`, writes the schema-3 record and
+   recomputes its verdict, and refuses to rewrite a pre-schema-3 record. It exits `2` with a
+   clear message when no credential is configured, and `1` when the reply is unusable. It is
+   the only networked component in the repository.
 5. Where the two passes disagree by more than one point on a criterion, a human breaks the
 tie and records it in the asset's `tiebreak` block:
    `{"party": "human|pass1|pass2", "criterion": "<name>", "score": <1-5>, "reason": "..."}`.
