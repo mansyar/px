@@ -8,7 +8,7 @@
     "20261113-authoring-primitives"
   ],
   "created_at": "2026-11-13T05:23:08Z",
-  "updated_at": "2026-11-13T06:21:52Z",
+  "updated_at": "2026-11-13T07:51:29Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-surface-fidelity",
@@ -21,14 +21,18 @@
     "tasks_done": 19
   },
   "last_checkpoint": "6b4510b",
-  "review_verdict": null,
-  "review_rounds": 0,
+  "review_verdict": "changes_requested",
+  "review_rounds": 1,
   "doc_sync": "pending",
-  "pr_url": null,
-  "pr_state": null,
+  "pr_url": "https://github.com/mansyar/px/pull/4",
+  "pr_state": "open",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
   "archived_at": null,
-  "archive_path": null
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-15"
+  ],
+  "merge_decision": "merged 2026-11-13 by owner with AC-15 open (score 3.73 vs 4.0)"
 }
