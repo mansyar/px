@@ -52,8 +52,10 @@ function canonicalPalette(palette: Palette): Record<string, unknown> {
         }
       }
       out[name] = { ramp };
-    } else {
+    } else if ('colors' in family) {
       out[name] = { colors: [...family.colors] };
+    } else {
+      out[name] = family;
     }
   }
   return out;

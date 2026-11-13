@@ -1,0 +1,38 @@
+{
+  "id": "20261113-surface-fidelity",
+  "title": "Surface Fidelity",
+  "type": "feature",
+  "status": "in_progress",
+  "priority": "high",
+  "depends_on": [
+    "20261113-authoring-primitives"
+  ],
+  "created_at": "2026-11-13T05:23:08Z",
+  "updated_at": "2026-11-13T07:51:29Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261113-surface-fidelity",
+  "base_branch": "main",
+  "base_sha": "5cec2b37ca4ad81a8283bb584d7c95220ae81b1c",
+  "progress": {
+    "phases_total": 6,
+    "phases_verified": 5,
+    "tasks_total": 19,
+    "tasks_done": 19
+  },
+  "last_checkpoint": "6b4510b",
+  "review_verdict": "changes_requested",
+  "review_rounds": 1,
+  "doc_sync": "pending",
+  "pr_url": "https://github.com/mansyar/px/pull/4",
+  "pr_state": "open",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-15"
+  ],
+  "merge_decision": "merged 2026-11-13 by owner with AC-15 open (score 3.73 vs 4.0)"
+}

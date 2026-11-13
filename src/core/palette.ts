@@ -58,6 +58,9 @@ export function slotNamesForFamily(name: string, family: PaletteFamily): string[
   if (isRampFamily(family)) {
     return rampSuffixes(family.ramp).map((suffix) => `${name}.${suffix}`);
   }
+  if (!('colors' in family)) {
+    return [];
+  }
   return family.colors.map((_color, index) => `${name}.${index}`);
 }
 
@@ -104,6 +107,9 @@ export function normalizeFamily(name: string, raw: unknown): NormalizedFamily {
   }
 
   const candidate = raw as Record<string, unknown>;
+  if ('derive' in candidate) {
+    return deriveFamily(name, candidate.derive);
+  }
   const hasRamp = 'ramp' in candidate;
   const hasColors = 'colors' in candidate;
 
@@ -260,6 +266,142 @@ export function buildSlotTable(palette: Palette): SlotTable {
       return byName.get(slot);
     },
   };
+}
+
+/**
+ * A derived family: one base colour, N tones, with the hue carrying the form.
+ *
+ * The value step is even — tone `i` sits at `i / (N - 1)` of the way from the
+ * lightest to the darkest stop — and the hue moves with it: highlights rotate
+ * toward a warm anchor, shadows toward a cool one, so a ramp reads as lit rather
+ * than as one colour at four brightnesses. The rotation is capped, so a palette
+ * never turns a wood tone into a blue.
+ *
+ * Explicit ramps are untouched: `derive` is additive, and `normalizeFamily`
+ * only takes this path when the key is present.
+ */
+export function deriveRamp(base: string, stops: number): Ramp {
+  const rgba = parseHex(base);
+  if (rgba === null) {
+    throw new PxError(
+      'E_BAD_PALETTE',
+      `Ramp base "${base}" is not a hex colour`,
+      'Use #rrggbb or #rrggbbaa.',
+    );
+  }
+  if (!Number.isInteger(stops) || stops < 2 || stops > 8) {
+    throw new PxError(
+      'E_BAD_PALETTE',
+      `Ramp stops is ${String(stops)}; a derived ramp has 2 to 8 stops`,
+      'Two stops is a highlight and a shadow; eight is the most a 1x sprite can show.',
+    );
+  }
+  const { h, s, l } = rgbToHsl(rgba);
+  const lightest = Math.min(0.88, l + 0.28);
+  const darkest = Math.max(0.06, l - 0.3);
+  const warm = signedRotation(h, 45, 18);
+  const cool = signedRotation(h, 220, 24);
+  const ramp: Ramp = {};
+  for (let index = 0; index < stops; index += 1) {
+    const t = stops === 1 ? 0 : index / (stops - 1);
+    const tone = hslToRgb(
+      normalizeHue(h + warm + (cool - warm) * t),
+      Math.min(1, s + 0.04 + 0.06 * t),
+      lightest + (darkest - lightest) * t,
+    );
+    ramp[`t${index}`] = toHex(tone);
+  }
+  return ramp;
+}
+
+function deriveFamily(name: string, raw: unknown): NormalizedFamily {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+    throw new PxError(
+      'E_BAD_PALETTE',
+      `Palette family "${name}" has a non-object derive block`,
+      'Use {"derive": {"base": "#8a5a2b", "stops": 5}}.',
+    );
+  }
+  const block = raw as { base?: unknown; stops?: unknown };
+  if (typeof block.base !== 'string') {
+    throw new PxError(
+      'E_BAD_PALETTE',
+      `Palette family "${name}" derive block has no base colour`,
+      'Give derive a "base" hex colour.',
+    );
+  }
+  const ramp = deriveRamp(block.base, block.stops === undefined ? 5 : Number(block.stops));
+  const slots = Object.keys(ramp).map((tone) => `${name}.${tone}`);
+  const scale = Object.values(ramp)
+    .filter((value): value is string => value !== undefined)
+    .map((value) => parseHex(value) as Rgba);
+  return { family: { ramp }, slots, rgba: scale };
+}
+
+function normalizeHue(hue: number): number {
+  return ((hue % 360) + 360) % 360;
+}
+
+/** Rotation toward a target hue, capped so a derivation stays in the family. */
+function signedRotation(hue: number, target: number, cap: number): number {
+  const delta = ((target - hue + 540) % 360) - 180;
+  return Math.sign(delta) * Math.min(Math.abs(delta), cap);
+}
+
+function rgbToHsl({ r, g, b }: Rgba): { h: number; s: number; l: number } {
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const l = (max + min) / 2;
+  if (max === min) {
+    return { h: 0, s: 0, l };
+  }
+  const delta = max - min;
+  const s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  let h = 0;
+  if (max === red) {
+    h = ((green - blue) / delta + (green < blue ? 6 : 0)) / 6;
+  } else if (max === green) {
+    h = ((blue - red) / delta + 2) / 6;
+  } else {
+    h = ((red - green) / delta + 4) / 6;
+  }
+  return { h: h * 360, s, l };
+}
+
+function hslToRgb(hue: number, saturation: number, lightness: number): Rgba {
+  const h = normalizeHue(hue) / 360;
+  if (saturation === 0) {
+    const grey = Math.round(lightness * 255);
+    return { r: grey, g: grey, b: grey, a: 255 };
+  }
+  const q =
+    lightness < 0.5
+      ? lightness * (1 + saturation)
+      : lightness + saturation - lightness * saturation;
+  const p = 2 * lightness - q;
+  const channel = (t: number): number => {
+    let value = t;
+    if (value < 0) value += 1;
+    if (value > 1) value -= 1;
+    if (value < 1 / 6) return p + (q - p) * 6 * value;
+    if (value < 1 / 2) return q;
+    if (value < 2 / 3) return p + (q - p) * (2 / 3 - value) * 6;
+    return p;
+  };
+  return {
+    r: Math.round(channel(h + 1 / 3) * 255),
+    g: Math.round(channel(h) * 255),
+    b: Math.round(channel(h - 1 / 3) * 255),
+    a: 255,
+  };
+}
+
+function toHex({ r, g, b }: Rgba): string {
+  const pair = (value: number): string => value.toString(16).padStart(2, '0');
+  return `#${pair(r)}${pair(g)}${pair(b)}`;
 }
 
 /** Spell out the roles a family defines, for an unknown-slot hint. */

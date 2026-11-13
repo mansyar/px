@@ -811,6 +811,34 @@ function normalizeStroke(
       op.width = 2;
     }
   }
+  const corner = source.corner;
+  if (corner !== undefined) {
+    if (corner !== 'miter' && corner !== 'round' && corner !== 'bevel') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (stroke) has corner ${JSON.stringify(corner)}; only "miter", "round" and "bevel" are supported`,
+        'Absent means miter, which is the pre-1.2 behaviour.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (corner !== 'miter') {
+      op.corner = corner;
+    }
+  }
+  const cap = source.cap;
+  if (cap !== undefined) {
+    if (cap !== 'butt' && cap !== 'round') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (stroke) has cap ${JSON.stringify(cap)}; only "butt" and "round" are supported`,
+        'Absent means butt, which is the pre-1.2 behaviour.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (cap === 'round') {
+      op.cap = 'round';
+    }
+  }
   return op;
 }
 
@@ -1046,6 +1074,20 @@ function normalizeTexture(
     }
     if (density !== 2) {
       op.density = density;
+    }
+  }
+  const fit = source.fit;
+  if (fit !== undefined) {
+    if (fit !== 'full' && fit !== 'region') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (texture) has fit ${JSON.stringify(fit)}; only "full" and "region" are supported`,
+        'Full fit needs a whole mark inside the part; region fit anchors one legal mark when the lattice cannot.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (fit === 'region') {
+      op.fit = 'region';
     }
   }
   const targetLayer = optionalStringParam(source, 'target_layer', 'texture', opIndex, layer);
@@ -1598,6 +1640,42 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   // contradiction. Rejecting it here is what lets the writer echo the caller's
   // version verbatim: a 1.0 recipe is always part-less, so no write can promote
   // it and silently change the depth `auto_outline` defaults to (AC-1).
+  // `fit: "region"` is a 1.2 option (FR-16). A 1.1 document that used it would
+  // otherwise compile to different pixels on either side of the upgrade, so it
+  // is rejected here with a message that names the version to set.
+  if (version !== '1.2') {
+    const palette = (raw.palette ?? {}) as Record<string, unknown>;
+    for (const [name, family] of Object.entries(palette)) {
+      if (typeof family === 'object' && family !== null && 'derive' in family) {
+        throw new PxError(
+          'E_BAD_VERSION',
+          `Palette family "${name}" is derived with version ${JSON.stringify(version)}, but derivation requires schema 1.2`,
+          'Set "version": "1.2" to derive a ramp from one base colour.',
+        );
+      }
+    }
+    const layers = Array.isArray(raw.layers) ? raw.layers : [];
+    for (const layer of layers) {
+      const ops = (layer as { ops?: unknown }).ops;
+      if (!Array.isArray(ops)) continue;
+      for (const op of ops) {
+        const candidate = op as { op?: unknown; fit?: unknown; corner?: unknown; cap?: unknown };
+        const gated =
+          (candidate.op === 'texture' && candidate.fit === 'region') ||
+          (candidate.op === 'stroke' &&
+            ((candidate.corner !== undefined && candidate.corner !== 'miter') ||
+              candidate.cap === 'round'));
+        if (gated) {
+          throw new PxError(
+            'E_BAD_VERSION',
+            `Op uses a 1.2-only option with version ${JSON.stringify(version)}, but it requires schema 1.2`,
+            'Set "version": "1.2" to use region texture fit or stroke corner/cap.',
+          );
+        }
+      }
+    }
+  }
+
   if ((version === 1 || version === '1.0') && raw.parts !== undefined) {
     throw new PxError(
       'E_BAD_VERSION',

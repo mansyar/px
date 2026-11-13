@@ -303,6 +303,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         op.pattern,
         context.profile.minCluster,
         op.density ?? 2,
+        op.fit ?? 'full',
       );
       return {
         clipped: false,

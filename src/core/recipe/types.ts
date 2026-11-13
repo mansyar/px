@@ -58,7 +58,12 @@ export interface FlatFamily {
   colors: string[];
 }
 
-export type PaletteFamily = RampFamily | FlatFamily;
+/** One base colour expanded to N tones, shadows cool and highlights warm. */
+export interface DeriveFamily {
+  derive: { base: string; stops?: number };
+}
+
+export type PaletteFamily = RampFamily | FlatFamily | DeriveFamily;
 
 export type Palette = Record<string, PaletteFamily>;
 
@@ -253,6 +258,10 @@ export interface StrokeOp extends OpBase {
   smooth?: boolean;
   /** 1 (default) or 2 pixels wide. */
   width?: 1 | 2;
+  /** How a corner closes; absent means `miter`, the pre-1.2 bytes. */
+  corner?: 'miter' | 'round' | 'bevel';
+  /** How an open path ends; absent means `butt`, the pre-1.2 bytes. */
+  cap?: 'butt' | 'round';
 }
 
 export interface EllipseOp extends OpBase {
@@ -300,6 +309,8 @@ export interface TextureOp extends OpBase {
   pattern: TexturePattern;
   color: SlotRef;
   density?: TextureDensity;
+  /** `full` needs a whole mark inside the part; `region` guarantees one if it can. */
+  fit?: 'full' | 'region';
   targetLayer?: string;
 }
 
@@ -488,10 +499,10 @@ export interface Layer {
  * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
  * byte-identical after a read-write cycle (FR-1).
  */
-export type RecipeVersion = 1 | '1.0' | '1.1';
+export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2';
 
 /** Versions this engine accepts on input. */
-export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1'];
+export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2'];
 
 /** The version a recipe is written with once it declares parts. */
 export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';
@@ -522,12 +533,12 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   set_pixels: ['points', 'color'],
   rect: ['x', 'y', 'w', 'h', 'color'],
   line: ['x1', 'y1', 'x2', 'y2', 'color'],
-  stroke: ['path', 'color', 'closed', 'smooth', 'width'],
+  stroke: ['path', 'color', 'closed', 'smooth', 'width', 'corner', 'cap'],
   ellipse: ['x', 'y', 'w', 'h', 'color', 'fill'],
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],
   dither_fill: ['x', 'y', 'w', 'h', 'color', 'pattern'],
-  texture: ['pattern', 'color', 'density', 'target_layer'],
+  texture: ['pattern', 'color', 'density', 'fit', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
   auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],

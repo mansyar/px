@@ -133,3 +133,12 @@ The Node major is pinned and bumped deliberately, only after re-verifying golden
 3. TypeScript 7's native compiler handles this project's declaration emit; verified in the scaffold task, with 6.x as the documented fallback.
 
 **Open:** the coverage gate number and the CI provider are configured in the workflow step, not here.
+
+## Recipe schema 1.2 (2026-11-13)
+
+Track `20261113-surface-fidelity` introduced options that change pixels only when
+used, so they are version-gated rather than backported: `texture` `fit: "region"`,
+a derived palette family (`{ "derive": { "base", "stops" } }`), and `stroke`
+`corner`/`cap`. `normalizeRecipe` accepts `"1.2"` and rejects those options under
+`1`/`"1.0"`/`"1.1"` with `E_BAD_VERSION` and a hint naming `"1.2"`. Absent
+options stay byte-identical, so `"1.1"` documents keep their digests.

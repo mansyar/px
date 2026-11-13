@@ -9,6 +9,7 @@
 
 import { UNOWNED } from '../core/canvas.js';
 import { buildSlotRoles, type Rgba, type SlotRoles, TRANSPARENT_SLOT } from '../core/palette.js';
+import type { Facing } from '../core/recipe/types.js';
 import { relativeLuminance } from './contrast.js';
 import type { LintContext } from './types.js';
 
@@ -21,6 +22,8 @@ export interface PartView {
   familyIndex: number;
   /** The material's base tone, when the family resolves one. */
   baseSlot: number | undefined;
+  /** The plane the part declared; absent when it is viewer-facing. */
+  facing: Facing | undefined;
   /** Slots (ramp tones or flat colours) the material exposes. */
   toneCount: number;
 }
@@ -41,6 +44,7 @@ export function partViews(context: LintContext): PartView[] {
       material: part.material,
       familyIndex,
       baseSlot: familyIndex === -1 ? undefined : roles.roleSlots[familyIndex]?.base,
+      facing: part.facing,
       toneCount: family === undefined ? 0 : family.slots.length,
     };
   });
@@ -89,6 +93,7 @@ export function lintRegions(context: LintContext): LintRegions {
         material: '',
         familyIndex: -1,
         baseSlot: undefined,
+        facing: undefined,
         toneCount: tones.size,
       },
     ],

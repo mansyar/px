@@ -90,6 +90,68 @@ describe('VALUE_COLLISION', () => {
     expect(ofCode(lintCompiled(compiled), 'VALUE_COLLISION')).toEqual([]);
   });
 
+  it('compares the plane each part paints, not the material they share', () => {
+    const WOOD = { ramp: { shadow: '#3a2a1e', base: '#7a5b3a', highlight: '#c9a878' } };
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 0, y: 0, w: 8, h: 16, color: 'wood.base', part: 'roof_l' },
+        { op: 'rect', x: 8, y: 0, w: 8, h: 16, color: 'wood.shadow', part: 'roof_r' },
+      ],
+      {
+        palette: { wood: WOOD },
+        parts: {
+          roof_l: { material: 'wood', facing: 'left' },
+          roof_r: { material: 'wood', facing: 'right' },
+        },
+      },
+    );
+    expect(ofCode(lintCompiled(compiled), 'VALUE_COLLISION')).toEqual([]);
+  });
+
+  it('still reports two planes that wear the same tone, as a plane comparison', () => {
+    const WOOD = { ramp: { shadow: '#3a2a1e', base: '#7a5b3a', highlight: '#c9a878' } };
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 0, y: 0, w: 8, h: 16, color: 'wood.base', part: 'roof_l' },
+        { op: 'rect', x: 8, y: 0, w: 8, h: 16, color: 'wood.base', part: 'roof_r' },
+      ],
+      {
+        palette: { wood: WOOD },
+        parts: {
+          roof_l: { material: 'wood', facing: 'left' },
+          roof_r: { material: 'wood', facing: 'left' },
+        },
+      },
+    );
+    const findings = ofCode(lintCompiled(compiled), 'VALUE_COLLISION');
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.message).toContain('plane-resolved');
+  });
+
+  it('accepts a seam drawn as its own part, which is how a gable ridge is built', () => {
+    const WOOD = { ramp: { shadow: '#3a2a1e', base: '#7a5b3a', highlight: '#c9a878' } };
+    // A ridge part has to clear one synthesis step from both planes, which is
+    // why the scene gives its ridge a distinct tone rather than the material's
+    // outline; a near-black ridge sits inside the shadow plane's step.
+    const OUTLINE = baseOnly('#d8cabc');
+    const compiled = compileSprite(
+      [
+        { op: 'rect', x: 0, y: 0, w: 7, h: 16, color: 'wood.base', part: 'roof_l' },
+        { op: 'rect', x: 8, y: 0, w: 8, h: 16, color: 'wood.shadow', part: 'roof_r' },
+        { op: 'rect', x: 7, y: 0, w: 1, h: 16, color: 'ridge.base', part: 'ridge' },
+      ],
+      {
+        palette: { wood: WOOD, ridge: OUTLINE },
+        parts: {
+          roof_l: { material: 'wood', facing: 'left' },
+          roof_r: { material: 'wood', facing: 'right' },
+          ridge: { material: 'ridge' },
+        },
+      },
+    );
+    expect(ofCode(lintCompiled(compiled), 'VALUE_COLLISION')).toEqual([]);
+  });
+
   it('needs a base role on both materials', () => {
     const compiled = colliding([
       { ...BLADE, color: 'steel.shadow' },

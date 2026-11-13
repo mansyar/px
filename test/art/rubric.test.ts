@@ -33,6 +33,8 @@ interface ScoredCriterion {
 interface Pass {
   pass: string;
   scorer: 'vision-model' | 'agent';
+  /** Required on a vision-model pass: the record must name its instrument. */
+  model?: string;
   self_review?: boolean;
   artifact_path: string;
   view: string;
@@ -164,6 +166,14 @@ describe('rubric record', () => {
     for (const asset of RECORD.assets) {
       for (const pass of asset.passes) {
         expect(['vision-model', 'agent'], `${asset.asset} ${pass.pass}`).toContain(pass.scorer);
+      }
+    }
+  });
+
+  it('names the instrument behind every vision-model pass', () => {
+    for (const asset of RECORD.assets) {
+      for (const pass of asset.passes.filter((entry) => entry.scorer === 'vision-model')) {
+        expect(pass.model?.trim().length ?? 0, `${asset.asset} ${pass.pass}`).toBeGreaterThan(0);
       }
     }
   });

@@ -24,6 +24,8 @@ import { TRANSPARENT_SLOT } from '../palette.js';
 import type { TexturePattern } from '../recipe/types.js';
 
 /** Mark size plus the gap it leaves; both derive from the profile minimum. */
+export type TextureFitName = 'full' | 'region';
+
 export interface TextureLattice {
   mark: number;
   gap: number;
@@ -190,6 +192,7 @@ export function applyTexture(
   pattern: TexturePattern,
   minCluster: number,
   density: number,
+  fit: TextureFitName = 'full',
 ): TextureOutcome {
   const lattice = textureLattice(minCluster, density);
   const marks = textureMarks(pattern, canvas.width, canvas.height, lattice);
@@ -207,5 +210,50 @@ export function applyTexture(
       }
     }
   }
+  if (fit === 'region' && drawn === 0) {
+    const anchor = regionMark(canvas.width, canvas.height, owners, source, part, lattice.mark);
+    if (anchor !== undefined) {
+      for (let y = anchor.y; y < anchor.y + anchor.h; y += 1) {
+        for (let x = anchor.x; x < anchor.x + anchor.w; x += 1) {
+          canvas.set(x, y, slot, owner);
+          painted += 1;
+        }
+      }
+      drawn = 1;
+    }
+  }
   return { marks: drawn, painted, mark: lattice.mark, gap: lattice.gap };
+}
+
+/**
+ * The first whole mark anchored on a pixel the part already owns.
+ *
+ * Region fit exists for shapes smaller than one lattice period: the lattice can
+ * legitimately put every mark on a boundary, and a part that asked for grain
+ * should get one legal mark rather than none. The mark is never clipped — a
+ * sliver would break the cluster floor that makes `texture` legal at all — so a
+ * part thinner than one mark still gets nothing, which the compiler already
+ * reports as a cleanup no-op.
+ */
+function regionMark(
+  width: number,
+  height: number,
+  owners: Int16Array,
+  source: Int16Array,
+  part: number,
+  mark: number,
+): TextureMark | undefined {
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      if (owners[index] !== part || source[index] === TRANSPARENT_SLOT) {
+        continue;
+      }
+      const candidate: TextureMark = { x, y, w: mark, h: mark };
+      if (fits(candidate, width, height, owners, source, part)) {
+        return candidate;
+      }
+    }
+  }
+  return undefined;
 }

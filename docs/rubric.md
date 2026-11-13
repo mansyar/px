@@ -131,7 +131,8 @@ lowered: the honest outcome is a named weakness, not a softer rubric.
 
 `test/art/scores.json`:
 
-Every pass carries `scorer`; an `agent` pass also carries `"self_review": true`. The
+Every pass carries `scorer`; a `vision-model` pass also carries `model`, the instrument
+id, so the record names what measured it. An `agent` pass carries `"self_review": true`. The
 verdict carries `basis` (`independent`, `self-review` or `mixed`) and, whenever it is not
 `independent`, a `caveat` naming the assets that were judged by their author.
 

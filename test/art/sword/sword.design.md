@@ -73,3 +73,8 @@ belongs to the object. Lighting moves less than it did on the humanoid, because 
 gold bar has no room for a bevel to show; the blade was already the most directional thing
 in the asset. The guard still reads as a bar with a dark underside rather than as a form,
 which is what keeps `edge_language` and `lighting` at 3 rather than 4.
+
+## Form bands (2026-11-13)
+
+Re-lit with `light form: "round"`: bands come from thickness along the light
+axis, replacing the hand-placed shadow bands that a one-pixel rim could not move.

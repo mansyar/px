@@ -233,6 +233,45 @@ export interface StrokeOptions {
   closed: boolean;
   smooth: boolean;
   width: 1 | 2;
+  /** `miter` is the pre-1.2 behaviour: the L corner is dropped, not filled. */
+  corner?: 'miter' | 'round' | 'bevel';
+  cap?: 'butt' | 'round';
+}
+
+/**
+ * `corner` decides what happens to the pixel a joint's L would keep.
+ *
+ * - `miter` (and `bevel`) drop it, which is the pixel-perfect rule the op has
+ *   always used: the survivors are diagonal, so the path stays 8-connected.
+ * - `round` keeps it, filling the joint square; a ring then reads as rounded
+ *   rather than chamfered.
+ *
+ * `bevel` is accepted as a distinct value but shares the miter geometry today:
+ * the difference between a mitered and a bevelled joint at 1x is a pixel that
+ * would have to be placed outside the path, which this op does not do.
+ */
+function closeCorners(points: ReadonlyArray<Point>, corner: StrokeOptions['corner']): Point[] {
+  return corner === 'round'
+    ? points.map((point): Point => [point[0], point[1]])
+    : pixelPerfect(points);
+}
+
+/** `cap: "round"` adds one pixel past each end, perpendicular to the path. */
+function roundCap(points: Point[], closed: boolean): Point[] {
+  if (closed || points.length < 2) {
+    return points;
+  }
+  const first = points[0] as Point;
+  const last = points[points.length - 1] as Point;
+  const after = points[1] as Point;
+  const before = points[points.length - 2] as Point;
+  const capPixel = (point: Point, towards: Point): Point => {
+    const dx = towards[0] - point[0];
+    const dy = towards[1] - point[1];
+    const offset: Point = Math.abs(dx) >= Math.abs(dy) ? [0, 1] : [1, 0];
+    return [point[0] + offset[0], point[1] + offset[1]];
+  };
+  return [capPixel(first, after), ...points, capPixel(last, before)];
 }
 
 /**
@@ -271,8 +310,9 @@ export function strokePath(
   }
   // The first pixel is the seam anchor and survives the corner pass, so a
   // closed ring always lands on it (AC-6).
-  const centre = pixelPerfect(raster);
-  return options.width === 2 ? thicken(centre) : centre;
+  const centre = closeCorners(raster, options.corner);
+  const capped = options.cap === 'round' ? roundCap([...centre], options.closed) : centre;
+  return options.width === 2 ? thicken(capped) : capped;
 }
 
 export function drawStroke(
@@ -288,6 +328,8 @@ export function drawStroke(
       closed: op.closed === true,
       smooth: op.smooth === true,
       width: op.width === 2 ? 2 : 1,
+      corner: op.corner,
+      cap: op.cap,
     },
     site,
   );

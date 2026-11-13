@@ -372,6 +372,7 @@ async function main() {
   const scored = {
     pass: options.pass,
     scorer: 'vision-model',
+    model,
     artifact_path: relative,
     view: relative.includes('debug')
       ? 'debug sheet (8x panel, 1x panel, silhouette, part crops)'
