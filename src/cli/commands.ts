@@ -257,7 +257,7 @@ function partsFromFlag(value: string | undefined, cwd: string): Parts | undefine
     throw new PxError(
       'E_BAD_PARAM',
       'Parts must be an object of part name to material',
-      'Each part is {"material": "<family>", "gloss": "matte|metal|gem|cloth", "z": 0}.',
+      'Each part is {"material": "<family>", "gloss": "matte|metal|gem|cloth", "z": 0, "facing": "front|back|left|right|top|bottom" or [x, y, z]}.',
     );
   }
   return raw as Parts;
@@ -411,15 +411,18 @@ function parseOpList(value: string): unknown[] {
 }
 
 /**
- * What the cleanup passes changed, plus the warnings compiling them raised,
- * when the recipe uses one. Compiling is the only way to know, so recipes
- * without a cleanup op pay nothing and their responses stay byte-identical.
+ * What the reporting passes changed, plus the warnings compiling them raised,
+ * when the recipe uses one. Compiling is the only way to know, so recipes with
+ * neither a cleanup pass nor a texture pass pay nothing and their responses
+ * stay byte-identical.
  */
 function cleanupOf(recipe: Recipe): {
   cleanup?: CleanupReport[];
   warnings: PxWarning[];
 } {
-  const uses = recipe.layers.some((layer) => layer.ops.some((op) => isCleanupOp(op.op)));
+  const uses = recipe.layers.some((layer) =>
+    layer.ops.some((op) => isCleanupOp(op.op) || op.op === 'texture'),
+  );
   if (!uses) {
     return { warnings: [] };
   }

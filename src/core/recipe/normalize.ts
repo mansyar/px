@@ -6,6 +6,7 @@
  */
 
 import { PxError, type PxWarning } from '../errors.js';
+import { FACING_UNIT_EPSILON } from '../facing.js';
 import { normalizeFamily } from '../palette.js';
 import { parseScaleProfile, profileWarnings } from '../profile.js';
 import { parseRef, REF_GRAMMAR } from '../refs.js';
@@ -23,6 +24,8 @@ import {
   type DitherFillOp,
   type DitherPattern,
   type EllipseOp,
+  FACING_NAMES,
+  type Facing,
   type FloodFillOp,
   GLOSS_PROFILES,
   type GlossProfile,
@@ -60,12 +63,16 @@ import {
   type SetPixelsOp,
   type SlotRef,
   type StraysOp,
+  type StrokeOp,
+  TEXTURE_PATTERNS,
+  type TextureOp,
+  type TexturePattern,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
 const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
 const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
-const PART_KEYS = ['material', 'gloss', 'z'];
+const PART_KEYS = ['material', 'gloss', 'z', 'facing'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -223,11 +230,67 @@ function normalizePart(name: string, raw: unknown): Part {
     );
   }
 
+  const facing = facingParam(name, raw.facing);
+
   return {
     material,
     gloss: glossParam(name, raw.gloss),
     z: z ?? 0,
+    ...(facing === undefined ? {} : { facing }),
   };
+}
+
+/**
+ * `facing` is a plane name or an explicit unit vector. The vector is stored as
+ * given rather than renormalised, so a canonical write reproduces the authored
+ * bytes; the length check is what guarantees the stored vector is unit.
+ */
+function facingParam(name: string, value: unknown): Facing | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const match = FACING_NAMES.find((facing) => facing === value);
+    if (match === undefined) {
+      throw new PxError(
+        'E_FACING_UNKNOWN',
+        `Part "${name}" has an unknown facing ${JSON.stringify(value)}`,
+        `Facing is ${FACING_NAMES.join(', ')}, or a unit [x, y, z] vector.`,
+      );
+    }
+    return match;
+  }
+  if (!Array.isArray(value) || value.length !== 3) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a "facing" that is neither a name nor a 3-element vector: ${JSON.stringify(value)}`,
+      `Facing is ${FACING_NAMES.join(', ')}, or a unit [x, y, z] vector.`,
+    );
+  }
+  if (!value.every((component) => typeof component === 'number' && Number.isFinite(component))) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a non-numeric facing vector ${JSON.stringify(value)}`,
+      'Each component of a facing vector is a finite number.',
+    );
+  }
+  const [x, y, z] = value as [number, number, number];
+  const length = Math.hypot(x, y, z);
+  if (length === 0) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a zero facing vector [0, 0, 0]`,
+      'A zero vector has no direction: name a plane such as "front", or give a unit vector.',
+    );
+  }
+  if (Math.abs(length - 1) > FACING_UNIT_EPSILON) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a facing vector of length ${length}, which is not 1 within ${FACING_UNIT_EPSILON}`,
+      `Normalise the vector, or name one of ${FACING_NAMES.join(', ')}.`,
+    );
+  }
+  return [x, y, z];
 }
 
 function glossParam(name: string, value: unknown): GlossProfile {
@@ -609,6 +672,53 @@ function pointsParam(
   });
 }
 
+/**
+ * `stroke`'s vertex list. Consecutive duplicates are legal input (the op
+ * deduplicates them); a list with fewer than two entries, or an entry that is
+ * not an integer pair, is `E_BAD_PATH`.
+ */
+function pathParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): Array<[number, number]> {
+  const value = source.path;
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (stroke) is missing "path"`,
+      'Pass path as [[x, y], ...].',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (!Array.isArray(value) || value.length < 2) {
+    throw new PxError(
+      'E_BAD_PATH',
+      `Op ${opIndex} (stroke) has ${Array.isArray(value) ? value.length : 'no'} path points; at least two are required`,
+      'Pass path as [[x, y], ...] with at least two different integer coordinates.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value.map((entry, pointIndex) => {
+    if (
+      !Array.isArray(entry) ||
+      entry.length !== 2 ||
+      typeof entry[0] !== 'number' ||
+      typeof entry[1] !== 'number' ||
+      !Number.isInteger(entry[0]) ||
+      !Number.isInteger(entry[1])
+    ) {
+      throw new PxError(
+        'E_BAD_PATH',
+        `Op ${opIndex} (stroke) path point ${pointIndex} is not an [x, y] integer pair`,
+        'Pass path as [[x, y], ...].',
+        opLocation(layer, opIndex),
+      );
+    }
+    return [entry[0], entry[1]];
+  });
+}
+
 /** Shared x, y, w, h reader for the rectangle-shaped ops. */
 function regionParams(
   source: Record<string, unknown>,
@@ -669,6 +779,39 @@ function normalizeLine(
     y2: coordParam(source, 'y2', 'line', opIndex, layer),
     color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
+}
+
+function normalizeStroke(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): StrokeOp {
+  const op: StrokeOp = {
+    op: 'stroke',
+    path: pathParam(source, opIndex, layer),
+    color: colorParam(source, 'stroke', opIndex, layer) ?? null,
+  };
+  if (boolParam(source, 'closed', 'stroke', opIndex, layer) === true) {
+    op.closed = true;
+  }
+  if (boolParam(source, 'smooth', 'stroke', opIndex, layer) === true) {
+    op.smooth = true;
+  }
+  const width = source.width;
+  if (width !== undefined) {
+    if (width !== 1 && width !== 2) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (stroke) has width ${String(width)}; only 1 and 2 are supported`,
+        'Stroke width is 1 (default) or 2 pixels; a wider stroke is a shape, not a path.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (width === 2) {
+      op.width = 2;
+    }
+  }
+  return op;
 }
 
 function normalizeEllipse(
@@ -856,6 +999,60 @@ function legendParam(
     legend[glyph] = slot;
   }
   return legend;
+}
+
+/**
+ * `texture` reads a part's mask, so the pattern is required and its own code
+ * names the legal set. `color` may be a slot or a bare ramp role, resolved
+ * against the part's material at compile time; `density` defaults to 2 and is
+ * written back only when it differs, so a plain texture stays compact.
+ */
+function normalizeTexture(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): TextureOp {
+  const pattern = source.pattern;
+  if (pattern === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (texture) is missing "pattern"`,
+      `Parameters for texture are ${OP_PARAM_ORDER.texture.join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof pattern !== 'string' || !TEXTURE_PATTERNS.includes(pattern as TexturePattern)) {
+    throw new PxError(
+      'E_PATTERN_UNKNOWN',
+      `Op ${opIndex} (texture) has pattern ${JSON.stringify(pattern)}, which is not a texture pattern`,
+      `Patterns are ${TEXTURE_PATTERNS.join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  const op: TextureOp = {
+    op: 'texture',
+    pattern: pattern as TexturePattern,
+    color: colorParam(source, 'texture', opIndex, layer) ?? null,
+  };
+  const density = source.density;
+  if (density !== undefined) {
+    if (density !== 1 && density !== 2 && density !== 3) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (texture) has density ${String(density)}; only 1, 2 and 3 are supported`,
+        'Density 1 is sparsest and 3 is densest; it scales the gap between marks, not their size.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (density !== 2) {
+      op.density = density;
+    }
+  }
+  const targetLayer = optionalStringParam(source, 'target_layer', 'texture', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
 }
 
 function normalizeAsciiBlit(
@@ -1258,6 +1455,8 @@ function normalizeOpBody(
       return normalizeRect(raw, opIndex, layer);
     case 'line':
       return normalizeLine(raw, opIndex, layer);
+    case 'stroke':
+      return normalizeStroke(raw, opIndex, layer);
     case 'ellipse':
       return normalizeEllipse(raw, opIndex, layer);
     case 'polygon':
@@ -1266,6 +1465,8 @@ function normalizeOpBody(
       return normalizeFloodFill(raw, opIndex, layer);
     case 'dither_fill':
       return normalizeDitherFill(raw, opIndex, layer);
+    case 'texture':
+      return normalizeTexture(raw, opIndex, layer);
     case 'ascii_blit':
       return normalizeAsciiBlit(raw, opIndex, layer);
     case 'mirror':

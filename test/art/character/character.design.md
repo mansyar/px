@@ -73,3 +73,14 @@ heads tall in the legs rather than three. The shield's cross is legible but plai
 charge, no border, and the boss is a 3×3 square rather than a roundel. The sword's grip
 is short enough that the hand does not visibly hold it, and the blade's lit spine is a
 single column, so at true size the weapon is a bright line with a gold guard.
+
+## Re-authoring (2026-11-13)
+
+- **`form: flat` → `bevel`**, so the plate, helm and greaves band on one axis instead of
+  relying on the hand-painted dither to imply one. AO and the edge rim are unchanged.
+
+Judgement (author's self-review): the plate and greaves pick up a lit band that agrees with
+the helm and blade, which is a small but real `lighting` gain; the dithered shading on the
+greaves still leaves single-pixel steps that blur the form planes, and that is what holds
+`edge_language` and `cluster_discipline` where they were. This asset needed the larger
+change — replacing its dither with 2×2 shading — and did not get it in this pass.

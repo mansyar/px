@@ -28,6 +28,7 @@ export type ErrorCode =
   | 'E_BAD_GRID'
   | 'E_UNKNOWN_GLYPH'
   | 'E_BAD_POLYGON'
+  | 'E_BAD_PATH'
   | 'E_NO_RAMP'
   | 'E_BANDS_RANGE'
   | 'E_REGION_TOO_THIN'
@@ -37,6 +38,8 @@ export type ErrorCode =
   | 'E_EMPTY_PART'
   | 'E_MATERIAL_UNKNOWN'
   | 'E_GLOSS_UNKNOWN'
+  | 'E_FACING_UNKNOWN'
+  | 'E_PATTERN_UNKNOWN'
   | 'E_PROFILE_UNKNOWN'
   | 'E_RAMP_STEPS_RANGE'
   | 'E_RAMP_UNSEPARABLE'
@@ -107,7 +110,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
   E_UNKNOWN_OP:
-    'Ops are set_pixels, rect, line, ellipse, polygon, flood_fill, dither_fill, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, replace_slot, seal, strays, and deband.',
+    'Ops are set_pixels, rect, line, stroke, ellipse, polygon, flood_fill, dither_fill, texture, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, replace_slot, seal, strays, and deband.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_MISSING_COLOR:
@@ -118,6 +121,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_UNKNOWN_GLYPH:
     'Add the character to the legend, or use "." for transparency, then re-run the op.',
   E_BAD_POLYGON: 'A polygon needs at least three points, each an [x, y] integer pair.',
+  E_BAD_PATH:
+    'Pass path as [[x, y], ...] with at least two different integer coordinates; consecutive repeats are removed.',
   E_NO_RAMP:
     'Declare outline/shadow/base/highlight roles for the family, or derive a ramp from the flat colours with --derive-ramps.',
   E_BANDS_RANGE:
@@ -133,6 +138,9 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_MATERIAL_UNKNOWN:
     'A part material names a palette family; run `px inspect` to see the families this recipe declares.',
   E_GLOSS_UNKNOWN: 'Gloss is one of matte, metal, gem, cloth.',
+  E_FACING_UNKNOWN:
+    'Facing is one of front, back, left, right, top, bottom, or a unit [x, y, z] vector.',
+  E_PATTERN_UNKNOWN: 'Pattern is one of stipple, hatch, grain, brick, mottle.',
   E_PROFILE_UNKNOWN: 'Profile is one of tiny, small, medium, large.',
   E_RAMP_STEPS_RANGE:
     'Steps is 3 to 6: three tones is the fewest a ramp can shade with, and six is more than any profile expects.',

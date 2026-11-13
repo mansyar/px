@@ -75,6 +75,8 @@ const CLEANUP_NOOP_HINTS: Record<CleanupReport['op'], string> = {
   strays: 'Nothing in that layer is smaller than the cluster minimum for this profile.',
   deband:
     'Equal-width runs need three rows, and the darkest tone of a family has nowhere darker to go.',
+  texture:
+    'The part is smaller than one mark at this profile: raise density, or texture a larger part.',
 };
 
 function nameList(names: readonly string[]): string {

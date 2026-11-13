@@ -79,7 +79,7 @@ export const TOOL_DEFINITIONS: Tool[] = [
         },
         parts: {
           description:
-            'Parts to declare, as an inline object or a path to a JSON file: {"blade": {"material": "steel", "gloss": "metal", "z": 1}}. Each material must name a palette family.',
+            'Parts to declare, as an inline object or a path to a JSON file: {"blade": {"material": "steel", "gloss": "metal", "z": 1}, "wall": {"material": "stone", "facing": "right"}}. Each material must name a palette family; "facing" names the plane the part looks at (front, back, left, right, top, bottom) or gives a unit [x, y, z] vector, and makes "light" shade it per plane.',
           anyOf: [{ type: 'object' }, { type: 'string' }],
         },
         profile: {

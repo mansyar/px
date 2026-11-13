@@ -142,6 +142,31 @@ describe('inspect and render', () => {
     ]);
   });
 
+  it('carries a declared facing through inspect, and omits it when undeclared', () => {
+    const path = join(workspace, 'facing.px.json');
+    initWithBlade('facing.px.json');
+    const recipe = parseRecipe(readFileSync(path, 'utf8')).recipe;
+    const withFacing: Recipe = {
+      ...recipe,
+      parts: { blade: { material: 'steel', gloss: 'matte', z: 0, facing: 'right' } },
+    };
+    writeFileSync(path, serializeRecipe(withFacing), 'utf8');
+    run([
+      'draw',
+      '--file',
+      'facing.px.json',
+      '--ops',
+      '[{"op":"rect","x":1,"y":1,"w":2,"h":2,"color":"steel.base","part":"blade"}]',
+    ]);
+
+    const inspect = run(['inspect', '--file', 'facing.px.json', '--summary']);
+
+    expect(inspect.code).toBe(0);
+    const parts = inspect.envelope.parts as Array<{ name: string; facing?: string }>;
+    expect(parts[0]?.facing).toBe('right');
+    expect(parts[0]?.name).toBe('blade');
+  });
+
   it('exposes part names on a render', () => {
     initWithBlade('render.px.json');
     run([

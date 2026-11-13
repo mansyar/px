@@ -16,11 +16,19 @@ function slotReferences(op: RawOp): string[] {
     case 'set_pixels':
     case 'rect':
     case 'line':
+    case 'stroke':
     case 'ellipse':
     case 'polygon':
     case 'flood_fill':
     case 'dither_fill':
       return op.color === null ? [] : [op.color];
+    case 'texture':
+      // A bare ramp role resolves against the part's material at compile time,
+      // where a missing role is `E_NO_RAMP` rather than an unknown slot.
+      if (op.color === null || RAMP_ROLES.some((role) => role === op.color)) {
+        return [];
+      }
+      return [op.color];
     case 'auto_outline':
       return typeof op.color === 'string' ? [op.color] : [];
     case 'ascii_blit':
@@ -146,6 +154,7 @@ export function validateReferences(
         op.op === 'auto_shade' ||
         op.op === 'ramp_fill' ||
         op.op === 'light' ||
+        op.op === 'texture' ||
         op.op === 'seal' ||
         op.op === 'strays' ||
         op.op === 'deband'

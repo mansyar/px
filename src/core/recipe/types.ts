@@ -120,15 +120,45 @@ export type GlossProfile = 'matte' | 'metal' | 'gem' | 'cloth';
 
 export const GLOSS_PROFILES: readonly GlossProfile[] = ['matte', 'metal', 'gem', 'cloth'];
 
+/** The six named directions a part's broad surface can look. */
+export type FacingName = 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom';
+
+export const FACING_NAMES: readonly FacingName[] = [
+  'front',
+  'back',
+  'left',
+  'right',
+  'top',
+  'bottom',
+];
+
+/**
+ * A facing as an explicit unit vector.
+ *
+ * The frame is right-handed: `+x` right, `+y` up, `+z` toward the viewer. A part
+ * that declares no facing is viewer-facing, `[0, 0, 1]`. Screen space grows
+ * downward, so the `light` pass converts a screen step `(tx, ty)` into this frame
+ * as `(tx, -ty)`; the light itself lies in the picture plane, `z = 0`. That whole
+ * derivation lives in `src/core/facing.ts`, which is the single place the sign is
+ * decided.
+ */
+export type FacingVector = [number, number, number];
+
+/** A plane direction, by name or as an explicit unit vector. */
+export type Facing = FacingName | FacingVector;
+
 /**
  * One declared part. `material` names a palette family; `gloss` defaults to
  * `matte`; `z` orders parts for shading questions and never decides which
- * pixels exist (FR-3). Part masks are derived on replay, never stored.
+ * pixels exist (FR-3). `facing` is the plane the part's surface looks at, read
+ * by the `light` pass only: a part without it keeps exactly the tone it is
+ * painted with. Part masks are derived on replay, never stored.
  */
 export interface Part {
   material: string;
   gloss: GlossProfile;
   z: number;
+  facing?: Facing;
 }
 
 export type Parts = Record<string, Part>;
@@ -165,6 +195,19 @@ export const OUTLINE_WHERES: readonly OutlineWhere[] = ['inner', 'outer'];
 export type DitherPattern = 'checker_50' | 'bayer_25';
 export const DITHER_PATTERNS: readonly DitherPattern[] = ['checker_50', 'bayer_25'];
 
+/** The closed set of texture patterns; every one is cluster-legal by construction. */
+export type TexturePattern = 'stipple' | 'hatch' | 'grain' | 'brick' | 'mottle';
+export const TEXTURE_PATTERNS: readonly TexturePattern[] = [
+  'stipple',
+  'hatch',
+  'grain',
+  'brick',
+  'mottle',
+];
+
+/** 1 sparsest, 3 densest; scales the gap, never the mark. */
+export type TextureDensity = 1 | 2 | 3;
+
 /** Every op may carry a stable id; `px edit` addresses ops by it. */
 export interface OpBase {
   id?: string;
@@ -199,6 +242,19 @@ export interface LineOp extends OpBase {
   color: SlotRef;
 }
 
+export interface StrokeOp extends OpBase {
+  op: 'stroke';
+  /** Polyline vertices, chained in order; at least two distinct points. */
+  path: Array<[number, number]>;
+  color: SlotRef;
+  /** Joins the last vertex to the first. */
+  closed?: boolean;
+  /** Chamfers interior vertices before rasterising. */
+  smooth?: boolean;
+  /** 1 (default) or 2 pixels wide. */
+  width?: 1 | 2;
+}
+
 export interface EllipseOp extends OpBase {
   op: 'ellipse';
   x: number;
@@ -231,6 +287,20 @@ export interface DitherFillOp extends OpBase {
   h: number;
   color: SlotRef;
   pattern: DitherPattern;
+}
+
+/**
+ * The texture pass. It reads a layer, masks on a declared part's pixels, and
+ * writes marks into the active layer, so `part` is required rather than optional
+ * in practice: the op has no mask without one. `color` is a slot name or one of
+ * the four ramp roles, resolved against the part's material.
+ */
+export interface TextureOp extends OpBase {
+  op: 'texture';
+  pattern: TexturePattern;
+  color: SlotRef;
+  density?: TextureDensity;
+  targetLayer?: string;
 }
 
 export interface AsciiBlitOp extends OpBase {
@@ -305,10 +375,12 @@ export type Op =
   | SetPixelsOp
   | RectOp
   | LineOp
+  | StrokeOp
   | EllipseOp
   | PolygonOp
   | FloodFillOp
   | DitherFillOp
+  | TextureOp
   | AsciiBlitOp
   | MirrorOp
   | AutoOutlineOp
@@ -377,11 +449,13 @@ export type OpName = Op['op'];
 export const PART_TAGGED_OPS: readonly OpName[] = [
   'set_pixels',
   'line',
+  'stroke',
   'rect',
   'ellipse',
   'polygon',
   'flood_fill',
   'dither_fill',
+  'texture',
   'ascii_blit',
 ];
 
@@ -391,6 +465,7 @@ export const POST_PASS_OPS: readonly OpName[] = [
   'auto_shade',
   'ramp_fill',
   'light',
+  'texture',
   'seal',
   'strays',
   'deband',
@@ -447,10 +522,12 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   set_pixels: ['points', 'color'],
   rect: ['x', 'y', 'w', 'h', 'color'],
   line: ['x1', 'y1', 'x2', 'y2', 'color'],
+  stroke: ['path', 'color', 'closed', 'smooth', 'width'],
   ellipse: ['x', 'y', 'w', 'h', 'color', 'fill'],
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],
   dither_fill: ['x', 'y', 'w', 'h', 'color', 'pattern'],
+  texture: ['pattern', 'color', 'density', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
   auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],

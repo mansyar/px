@@ -14,6 +14,11 @@
  * therefore does not assert `mean >= 4.0`; it asserts that whatever `scores.json`
  * claims matches what it measured. See `docs/rubric.md` and
  * `verification/phase-7.md`.
+ *
+ * A pass names its scoring path in `scorer`. The `agent` path exists so a track can be
+ * scored without a model credential; it is a self-review, so an agent pass must say so
+ * and the verdict must carry a `caveat` naming what was judged by its author. The test
+ * enforces the labelling, not the quality of the judgement.
  */
 
 import { readFileSync } from 'node:fs';
@@ -27,6 +32,8 @@ interface ScoredCriterion {
 
 interface Pass {
   pass: string;
+  scorer: 'vision-model' | 'agent';
+  self_review?: boolean;
   artifact_path: string;
   view: string;
   subject: string;
@@ -54,6 +61,8 @@ interface ScoreRecord {
     mean: number;
     threshold_mean: number;
     min_allowed: number;
+    basis: 'independent' | 'self-review' | 'mixed';
+    caveat?: string;
     failures: Failure[];
   };
   assets: AssetRecord[];
@@ -149,6 +158,31 @@ describe('rubric record', () => {
       RECORD.verdict.result,
       `mean ${RECORD.verdict.mean}, ${belowFloor.length} below floor`,
     ).toBe(expected);
+  });
+
+  it('names the scoring path behind every pass', () => {
+    for (const asset of RECORD.assets) {
+      for (const pass of asset.passes) {
+        expect(['vision-model', 'agent'], `${asset.asset} ${pass.pass}`).toContain(pass.scorer);
+      }
+    }
+  });
+
+  it('marks agent passes as self-review and declares the verdict basis it implies', () => {
+    const passes = RECORD.assets.flatMap((asset) => asset.passes);
+    const agent = passes.filter((pass) => pass.scorer === 'agent');
+    for (const pass of agent) {
+      expect(pass.self_review, `${pass.artifact_path}`).toBe(true);
+    }
+    for (const pass of passes.filter((entry) => entry.scorer === 'vision-model')) {
+      expect(pass.self_review).toBeUndefined();
+    }
+    const expected =
+      agent.length === 0 ? 'independent' : agent.length === passes.length ? 'self-review' : 'mixed';
+    expect(RECORD.verdict.basis).toBe(expected);
+    if (expected !== 'independent') {
+      expect(RECORD.verdict.caveat?.trim().length ?? 0).toBeGreaterThan(0);
+    }
   });
 
   it('lists exactly the scores below the floor, so the failure cannot be softened', () => {

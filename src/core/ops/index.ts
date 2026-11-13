@@ -11,7 +11,13 @@ import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
 import type { ProfileNumbers } from '../profile.js';
-import type { Op, Parts, RecipeVersion } from '../recipe/types.js';
+import {
+  type Op,
+  type Parts,
+  RAMP_ROLES,
+  type RecipeVersion,
+  type TextureOp,
+} from '../recipe/types.js';
 import { drawAsciiBlit } from './ascii-blit.js';
 import { type CleanupReport, deband, seal, strays } from './cleanup.js';
 import { drawEllipse } from './ellipse.js';
@@ -20,12 +26,15 @@ import { applyLight } from './light.js';
 import { drawLine } from './line.js';
 import { drawMirror } from './mirror.js';
 import { autoOutline } from './outline.js';
+import { partRampError } from './pass.js';
 import { drawPolygon } from './polygon.js';
 import { rampFill } from './ramp.js';
 import { drawRect } from './rect.js';
 import { replaceSlot } from './replace-slot.js';
 import { drawSetPixels } from './set-pixels.js';
 import { autoShade } from './shade.js';
+import { drawStroke } from './stroke.js';
+import { applyTexture } from './texture.js';
 
 export interface OpContext {
   /** The active layer. Every write lands here, through the clipped writer. */
@@ -91,6 +100,36 @@ function colorSlot(context: OpContext, color: string | null): number {
   const slot = context.slots.resolve(color);
   if (slot === undefined) {
     throw unknownSlot(context, color);
+  }
+  return slot;
+}
+
+/**
+ * A texture colour: an explicit slot, or a bare ramp role resolved against the
+ * material of the part being textured. A family without the role is `E_NO_RAMP`
+ * with the shared hint machinery, never a silent skip.
+ */
+function textureSlot(context: OpContext, op: TextureOp): number {
+  if (op.color === null) {
+    return TRANSPARENT_SLOT;
+  }
+  const role = RAMP_ROLES.find((candidate) => candidate === op.color);
+  if (role === undefined) {
+    return colorSlot(context, op.color);
+  }
+  const part = op.part === undefined ? undefined : context.parts[op.part];
+  const family = part?.material;
+  if (family === undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${context.opIndex} (texture) names role "${role}" but carries no part`,
+      'A role resolves against the material of the part being textured; add "part": "<name>".',
+      { layer: context.layerId, op_index: context.opIndex },
+    );
+  }
+  const slot = context.slots.resolve(`${family}.${role}`);
+  if (slot === undefined) {
+    throw partRampError(op.part ?? '', family, role);
   }
   return slot;
 }
@@ -180,6 +219,16 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           ownerFor(context, op.color),
         ),
       );
+    case 'stroke':
+      return result(
+        drawStroke(
+          context.canvas,
+          op,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+          site,
+        ),
+      );
     case 'ellipse':
       return result(
         drawEllipse(
@@ -226,6 +275,51 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           ownerFor(context, op.color),
         ),
       );
+    case 'texture': {
+      if (op.part === undefined) {
+        throw new PxError(
+          'E_BAD_PARAM',
+          `Op ${context.opIndex} (texture) has no part to texture`,
+          'Add "part": "<name>" so texture knows which pixels to cover.',
+          { layer: context.layerId, op_index: context.opIndex },
+        );
+      }
+      const part = context.partIndexes.get(op.part);
+      if (part === undefined) {
+        throw new PxError(
+          'E_BAD_PARAM',
+          `Op ${context.opIndex} (texture) names part "${op.part}", which is not declared`,
+          'Declare the part in "parts" before texturing it.',
+          { layer: context.layerId, op_index: context.opIndex },
+        );
+      }
+      const outcome = applyTexture(
+        context.canvas,
+        snapshot(context, op.targetLayer),
+        snapshotOwners(context, op.targetLayer),
+        part,
+        textureSlot(context, op),
+        ownerFor(context, op.color),
+        op.pattern,
+        context.profile.minCluster,
+        op.density ?? 2,
+      );
+      return {
+        clipped: false,
+        noop: outcome.painted === 0,
+        // Counts only: a texture reports marks and pixels, never coordinates.
+        cleanup: {
+          op: 'texture',
+          changed: outcome.painted,
+          coords: [],
+          marks: outcome.marks,
+          pattern: op.pattern,
+          density: op.density ?? 2,
+          mark: outcome.mark,
+          gap: outcome.gap,
+        },
+      };
+    }
     case 'ascii_blit': {
       const cells = new Map<string, number>();
       for (const [glyph, name] of Object.entries(op.legend)) {
@@ -397,4 +491,12 @@ export { drawRect } from './rect.js';
 export { replaceSlot } from './replace-slot.js';
 export { drawSetPixels } from './set-pixels.js';
 export { autoShade } from './shade.js';
+export {
+  balancedSegment,
+  drawStroke,
+  pixelPerfect,
+  roundedPath,
+  strokePath,
+} from './stroke.js';
+export { applyTexture, textureLattice, textureMarks } from './texture.js';
 export { writePoints } from './write-points.js';

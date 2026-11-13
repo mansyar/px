@@ -10,6 +10,7 @@
 import { type Band, bandRow, findBands } from '../bands.js';
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { roleSlot, type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
+import type { TexturePattern } from '../recipe/types.js';
 
 export type CleanupCoord = [number, number];
 
@@ -266,9 +267,17 @@ export function deband(
   return changed;
 }
 
-/** One entry per cleanup pass that actually ran, with exact counts. */
+/** One entry per pass that actually ran, with exact counts. */
 export interface CleanupReport {
-  op: 'seal' | 'strays' | 'deband';
+  op: 'seal' | 'strays' | 'deband' | 'texture';
   changed: number;
+  /** Coordinates for the cleanup passes; texture reports counts only (FR-12). */
   coords: CleanupCoord[];
+  /** Texture only: how many marks were painted whole. */
+  marks?: number;
+  /** Texture only: the pattern, the density, and the lattice it produced. */
+  pattern?: TexturePattern;
+  density?: number;
+  mark?: number;
+  gap?: number;
 }

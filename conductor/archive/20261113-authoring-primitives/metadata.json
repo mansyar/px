@@ -1,0 +1,35 @@
+{
+  "spec": "spec.md",
+  "updated_at": "2026-11-13T21:10:00Z",
+  "revert_pr_url": null,
+  "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
+  "type": "feature",
+  "doc_sync": "updated",
+  "status": "complete",
+  "priority": "high",
+  "review_rounds": 1,
+  "review_verdict": "PASS WITH FINDINGS",
+  "depends_on": [
+    "20261113-static-art-quality"
+  ],
+  "plan": "plan.md",
+  "id": "20261113-authoring-primitives",
+  "archive_path": "conductor/archive/20261113-authoring-primitives",
+  "reverted_at": null,
+  "pr_state": "open",
+  "title": "Authoring Primitives",
+  "pr_url": "https://github.com/mansyar/px/pull/3",
+  "created_at": "2026-11-13T02:39:14Z",
+  "branch": "feat/20261113-authoring-primitives",
+  "archived_at": "2026-11-13T21:10:00Z",
+  "base_branch": "main",
+  "last_checkpoint": "7af131a",
+  "progress": {
+    "phases_total": 6,
+    "tasks_total": 52,
+    "phases_verified": 5,
+    "tasks_done": 52
+  },
+  "revert_commit": null,
+  "completed_at": "2026-11-13T21:10:00Z"
+}
