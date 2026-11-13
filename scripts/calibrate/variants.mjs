@@ -261,11 +261,19 @@ const VARIANTS = [
 
 /* ------------------------------------------------------------------- render */
 
+/**
+ * Run a command without `shell: true` (deprecated with an args array on Node 24).
+ * Windows resolves `pnpm` through the command interpreter, which handles the
+ * `.cmd` shim; POSIX resolves it on PATH directly.
+ */
 function run(command, args) {
-  return spawnSync(command, args, {
-    encoding: "utf8",
-    shell: process.platform === "win32",
-  });
+  if (process.platform === "win32") {
+    return spawnSync(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", command, ...args], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+  }
+  return spawnSync(command, args, { encoding: "utf8" });
 }
 
 function render(recipePath) {

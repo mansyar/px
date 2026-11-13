@@ -94,6 +94,22 @@ adjusted by this track.
   - [x] P4.T3.1: lighting, edge language and palette craft are recorded as having no 4-anchor; the gate is unchanged and the decision is handed to the owner.
 - [x] **P4.T4: Final checks** — covers: AC-8, AC-9, AC-10
 
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve review findings F2, F3, F5, F6, F7.
+- **Depends on:** Phase 4
+- **Covers:** F2, F3, F5, F6, F7
+- **Touches:** `docs/rubric.md`, `scripts/calibrate/variants.mjs`,
+  `conductor/tracks/20261113-rubric-calibration/verification/calibration/`
+- **Verification:** `node scripts/calibrate/variants.mjs` (artifacts byte-identical),
+  `pnpm verify`
+- **Status:** verified
+
+- [x] **R1.T1: Commit the calibration report and cite a path that exists** — covers: F2
+- [x] **R1.T2: State the stimulus confound** — covers: F3
+- [x] **R1.T3: Remove the deprecated `spawnSync` shell usage** — covers: F5
+- [x] **R1.T4: Fix the garbled sentence** — covers: F6
+
 ## Verification Strategy
 
 Each phase runs its own command, then `pnpm verify` at acceptance. The model is

@@ -136,7 +136,7 @@ never drift into the document.
 | exceptional mean | **4.0** |
 | exceptional floor | **3.5** |
 | exceptional status | **unreachable** (calibrated 2026-11-13) |
-| evidence | `.conductor/evidence/calibration/report.md` (2026-11-13) |
+| evidence | `conductor/tracks/20261113-rubric-calibration/verification/calibration/report.md` (2026-11-13) |
 
 | criterion | target |
 | --- | --- |
@@ -170,9 +170,11 @@ mean with Δ ≥ 1 on each pass; a criterion whose high variant never exceeds 3 
 recorded as having no 4-anchor.
 
 The harness is `pnpm rubric:calibrate` (`scripts/calibrate.mjs`), the variants
-come from `scripts/calibrate/variants.mjs`, and the report is written to
-`.conductor/evidence/calibration/report.md`. Rules use `node` only; no
-credential is stored in the repository.
+come from `scripts/calibrate/variants.mjs`, and both use Node built-ins only; no
+credential is stored in the repository. The report is scanned into
+`.conductor/evidence/calibration/` at run time and its committed copy lives with
+the track that produced it, at
+`conductor/tracks/20261113-rubric-calibration/verification/calibration/report.md`.
 
 | criterion | low A/B | high A/B | Δ | verdict | 4-anchor |
 | --- | --- | --- | --- | --- | --- |
@@ -191,9 +193,15 @@ warring hues all still scored 3. That is the finding this calibration records:
 **the judge discriminates the bottom of the scale, not the top.**
 
 A first round with milder stimuli (a desaturated chest, a chest with outlines
-removed, light confetti) scored those variants 3–4 and is kept at
+removed, light confetti) scored those variants 3–4 and is kept under
 `.conductor/evidence/calibration/v1/`; it is the reason the stimuli were
 strengthened, not evidence of separation.
+
+The strengthened stimuli are not perfectly independent: the cluster and palette
+`low` variants are both 1 px checkerboards, so they overlap in what they destroy.
+The comparison that carries the finding is between them — cluster discipline
+dropped to 1 against 4 while palette craft stayed at 2 and 3 — and not the
+absolute score of either variant.
 
 The consequences, stated plainly:
 
