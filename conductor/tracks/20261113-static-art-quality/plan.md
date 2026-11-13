@@ -212,9 +212,12 @@
 - **Covers:** F11, F14, F15, F16
 - **Touches:** src/**, test/**, docs/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — the outline depth is version-gated, so a 1.0 recipe keeps its 1 px border at any canvas size, and no digest moved
+- **Checkpoint:** d1233d4
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-R2.md
 
-- [ ] **R2.T1: Outline depth is version-gated** - covers: F11, FR-13, AC-1
-- [ ] **R2.T2: Seal tie has fixtures** - covers: F14, FR-3
-- [ ] **R2.T3: Init reports its own profile warning** - covers: F15, FR-14
-- [ ] **R2.T4: Threshold header cites its own task** - covers: F16
+- [x] **R2.T1: Outline depth is version-gated** - covers: F11, FR-13, AC-1
+- [x] **R2.T2: Seal tie has fixtures** - covers: F14, FR-3
+- [x] **R2.T3: Init reports its own profile warning** - covers: F15, FR-14
+- [x] **R2.T4: Threshold header cites its own task** - covers: F16
