@@ -95,19 +95,19 @@ then a single re-score that judges the gate. No phase touches the engine.
   `conductor/tracks/20261113-lighting-recovery/verification/`
 - **Verification:** `pnpm verify`, `pnpm vitest run test/art/rubric.test.ts`, the
   report output, and a prop digest comparison
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P4.T1: Regenerate artifacts and run 14 passes** — covers: FR-8
-  - [ ] P4.T1.1: Retry at most four times on a non-JSON reply; never write a
+- [x] **P4.T1: Regenerate artifacts and run 14 passes** — covers: FR-8
+  - [x] P4.T1.1: Retry at most four times on a non-JSON reply; never write a
         partial pass.
-- [ ] **P4.T2: Review the reasoning** — covers: AC-6, AC-7
-  - [ ] P4.T2.1: `pnpm rubric:report --below 4`; check the scene's lighting text
+- [x] **P4.T2: Review the reasoning** — covers: AC-6, AC-7
+  - [x] P4.T2.1: `pnpm rubric:report --below 4`; check the scene's lighting text
         and the palette text per asset.
-- [ ] **P4.T3: Apply the gate** — covers: AC-5
-  - [ ] P4.T3.1: Record each criterion mean against its target; on a miss, write
+- [x] **P4.T3: Apply the gate** — covers: AC-5
+  - [x] P4.T3.1: Record each criterion mean against its target; on a miss, write
         the failure and stop — no further art edits in this track.
-- [ ] **P4.T4: Evidence** — covers: AC-9, AC-10
-  - [ ] P4.T4.1: Write `verification/phase-4.md`, including the prop digest
+- [x] **P4.T4: Evidence** — covers: AC-9, AC-10
+  - [x] P4.T4.1: Write `verification/phase-4.md`, including the prop digest
         comparison as the noise control.
 
 ## Verification Strategy
@@ -131,3 +131,7 @@ to `.conductor/evidence/`, which is gitignored.
   0.12 adjacency target may be unreachable for some pairs; those are recorded.
 - **Churn.** Three rounds of art have moved the mean 3.71 → 3.69. If the targets
   are missed, this track records the failure and stops rather than iterating.
+
+**Result:** verified (gate missed; art iteration stopped)
+**Checkpoint:** 6ada08f
+**Evidence:** conductor/tracks/20261113-lighting-recovery/verification/phase-4.md
