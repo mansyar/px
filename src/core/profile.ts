@@ -40,7 +40,10 @@ export interface ProfileNumbers {
   readonly ditherAllowed: boolean;
   /** Ramp tones dither needs before it is a fade instead of a speckle. */
   readonly ditherMinTones: number;
-  /** Depth `auto_outline` uses when an op names no width of its own. */
+  /**
+   * Depth `auto_outline` defaults to in a 1.1 recipe when the op names no width
+   * of its own. A 1.0 recipe keeps the historical one pixel (AC-1).
+   */
   readonly outlineWidth: number;
   /** Device pixels per source pixel in the debug sheet's zoom panel. */
   readonly debugZoom: number;

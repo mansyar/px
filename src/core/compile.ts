@@ -153,6 +153,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           owner,
           parts: declared,
           partIndexes: indexes,
+          version: recipe.version,
           profile: numbers,
         },
         resolved,

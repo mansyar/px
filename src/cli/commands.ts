@@ -335,6 +335,12 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   if (parts !== undefined) {
     payload.parts = Object.keys(parts).sort();
   }
+  // The document just written is the one that will be read next, so the warnings
+  // it raises belong to this envelope: a `--profile` that contradicts the canvas
+  // reports `W_PROFILE_MISMATCH` here, not only at the next `validate`.
+  if (parsed.warnings.length > 0) {
+    payload.warnings = parsed.warnings;
+  }
   return payload;
 }
 

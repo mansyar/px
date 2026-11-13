@@ -11,7 +11,7 @@ import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
 import type { ProfileNumbers } from '../profile.js';
-import type { Op, Parts } from '../recipe/types.js';
+import type { Op, Parts, RecipeVersion } from '../recipe/types.js';
 import { drawAsciiBlit } from './ascii-blit.js';
 import { type CleanupReport, deband, seal, strays } from './cleanup.js';
 import { drawEllipse } from './ellipse.js';
@@ -45,6 +45,11 @@ export interface OpContext {
   parts: Parts;
   /** Declared part name to owner index, in canonical declaration order. */
   partIndexes: ReadonlyMap<string, number>;
+  /**
+   * The schema version the recipe declared. Defaults that were introduced after
+   * 1.0 are gated on it, so a 1.0 recipe keeps rendering the bytes it always did.
+   */
+  version: RecipeVersion;
   /** The numbers the active profile gives every pass, resolved once per compile. */
   profile: ProfileNumbers;
 }
@@ -127,6 +132,16 @@ function sourceCanvas(context: OpContext, targetLayer: string | undefined): Slot
  */
 function ownerFor(context: OpContext, color: string | null): number {
   return color === null ? UNOWNED : context.owner;
+}
+
+/**
+ * The depth `auto_outline` uses when the op names no `width`. Before profiles
+ * existed the pass drew one pixel and nothing else, so `1` and `"1.0"` keep that
+ * border (AC-1: a 1.0 recipe renders byte-identically); a 1.1 recipe may take the
+ * profile's recommendation (FR-13).
+ */
+function outlineDepth(context: OpContext): number {
+  return context.version === 1 || context.version === '1.0' ? 1 : context.profile.outlineWidth;
 }
 
 export function applyOp(context: OpContext, op: Op): OpResult {
@@ -230,8 +245,8 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           where: op.where ?? 'outer',
           selective: op.selective === true,
           color: op.color === undefined ? undefined : colorSlot(context, op.color),
-          // The profile recommends a depth for this scale; an explicit width wins.
-          thickness: op.width ?? context.profile.outlineWidth,
+          // The profile recommends a depth at 1.1; an explicit width always wins.
+          thickness: op.width ?? outlineDepth(context),
         },
         snapshotOwners(context, op.targetLayer),
       );

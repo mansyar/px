@@ -399,6 +399,39 @@ describe('init: parts, profiles and role palettes', () => {
     expect(existsSync(join(workspace, 'bad-material.px.json'))).toBe(false);
   });
 
+  it('reports its own profile warning instead of waiting for the next verb', () => {
+    const init = run([
+      'init',
+      '--file',
+      'mismatch.px.json',
+      '--width',
+      '256',
+      '--height',
+      '256',
+      '--profile',
+      'small',
+    ]);
+    expect(init.code).toBe(0);
+    // The recipe it just wrote is a 256 px canvas claiming `small`, which is
+    // `large` by size, so the contradiction is in the document as written and
+    // belongs to this envelope (FR-14).
+    const warnings = init.envelope.warnings as Array<{ code: string }>;
+    expect(warnings.map((warning) => warning.code)).toEqual(['W_PROFILE_MISMATCH']);
+
+    const quiet = run([
+      'init',
+      '--file',
+      'init-clean.px.json',
+      '--width',
+      '256',
+      '--height',
+      '256',
+    ]);
+    expect(quiet.code).toBe(0);
+    // A clean init keeps the envelope it always had.
+    expect('warnings' in quiet.envelope).toBe(false);
+  });
+
   it('rejects a parts file that is not JSON, and an unknown profile', () => {
     writeFileSync(join(workspace, 'broken.json'), '{');
     const broken = run(['init', '--file', 'broken.px.json', '--parts', 'broken.json']);

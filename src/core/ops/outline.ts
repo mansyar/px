@@ -46,7 +46,7 @@ export interface OutlineOptions {
   selective: boolean;
   /** Resolved slot, or undefined when the op supplied no colour. */
   color: number | undefined;
-  /** How many pixels deep the border runs; defaults to the profile's outlineWidth. */
+  /** How many pixels deep the border runs; the caller resolves the default. */
   thickness: number;
 }
 

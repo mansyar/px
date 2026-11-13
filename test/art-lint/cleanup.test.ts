@@ -311,6 +311,52 @@ describe('ownership', () => {
     expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'body'));
   });
 
+  it('breaks a two-against-two seam tie by the lower part index', () => {
+    // Four neighbours of one tone split evenly, which is exactly the shape of a
+    // hole straddling the seam between two parts: no majority exists, so the
+    // canonical owner index decides. `seam_b` is declared first on purpose — the
+    // canonical order is alphabetical, so `seam_a` is index 0.
+    const compiled = compileSprite(
+      [
+        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base', part: 'seam_a' },
+        { op: 'set_pixels', points: [[3, 4]], color: 'steel.base', part: 'seam_a' },
+        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base', part: 'seam_b' },
+        { op: 'set_pixels', points: [[4, 5]], color: 'steel.base', part: 'seam_b' },
+        { op: 'seal' },
+      ],
+      {
+        width: 16,
+        height: 16,
+        palette: PALETTE,
+        parts: { seam_b: { material: 'steel' }, seam_a: { material: 'steel' } },
+      },
+    );
+    expect(compiled.cleanup).toEqual([{ op: 'seal', changed: 1, coords: [[4, 4]] }]);
+    expect(ownerOf(compiled, 'seam_a')).toBeLessThan(ownerOf(compiled, 'seam_b'));
+    expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'seam_a'));
+    expect(at(compiled, 4, 4)).toBe(slotOf(compiled, 'steel.base'));
+  });
+
+  it('prefers an owned neighbour over an unowned one at the same tone and count', () => {
+    // The winning tone is supplied once by the part and once by bare canvas. The
+    // counts tie, so the rule prefers the owned pixel: a hole inside a part never
+    // comes out unowned. The other two neighbours carry different tones, so the
+    // winning tone has no tone tie of its own.
+    const compiled = compileSprite(
+      [
+        { op: 'set_pixels', points: [[4, 3]], color: 'steel.base', part: 'body' },
+        { op: 'set_pixels', points: [[5, 4]], color: 'steel.base' },
+        { op: 'set_pixels', points: [[4, 5]], color: 'steel.shadow' },
+        { op: 'set_pixels', points: [[3, 4]], color: 'steel.highlight' },
+        { op: 'seal' },
+      ],
+      { width: 16, height: 16, palette: PALETTE, parts: BODY },
+    );
+    expect(compiled.cleanup).toEqual([{ op: 'seal', changed: 1, coords: [[4, 4]] }]);
+    expect(ownerAt(compiled, 4, 4)).toBe(ownerOf(compiled, 'body'));
+    expect(at(compiled, 4, 4)).toBe(slotOf(compiled, 'steel.base'));
+  });
+
   it('keeps the owner of a pixel deband recolours', () => {
     const compiled = compileSprite(
       [

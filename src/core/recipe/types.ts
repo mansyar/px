@@ -254,7 +254,10 @@ export interface AutoOutlineOp extends OpBase {
   /** Required unless `selective` supplies the colour from each family. */
   color?: SlotRef;
   selective?: boolean;
-  /** Border depth in pixels (1-4); defaults to the profile's outlineWidth. */
+  /**
+   * Border depth in pixels (1-4). Absent, a 1.1 recipe takes the profile's
+   * `outlineWidth` and a 1.0 recipe keeps the historical one pixel.
+   */
   width?: number;
   targetLayer?: string;
 }

@@ -121,13 +121,16 @@ reviewer reads and re-renders.
 | `debugZoom` | the debug sheet's zoom panel and its ruler interval |
 | `minCluster` | `strays` and `CLUSTER_THIN` (Phase 5) |
 | `ditherAllowed`, `ditherMinTones` | `DITHER_NOISE` (Phase 5) |
-| `outlineWidth` | the depth `auto_outline` uses when an op names no `width` |
+| `outlineWidth` | the depth `auto_outline` defaults to in a 1.1 recipe |
 
 `ditherAllowed` does **not** ban `dither_fill`: the op still works at every size.
 It says that at that scale a dither reads as noise rather than as a fade, which is
 what the rule reports. `outlineWidth` works the same way: it is the *default*
 thickness, so a 32 px sprite can still ask for `"width": 2` on an `auto_outline`
-op, and a large scene gets a 2 px border without saying so.
+op, and a large scene gets a 2 px border without saying so. The default is gated
+on the schema: it applies to a recipe that declares parts (`"version": "1.1"`),
+while a 1.0 recipe keeps the historical 1 px border unless the op asks for more,
+so re-rendering a 1.0 recipe on a 256 px canvas cannot gain a border it never had.
 
 ## When a finding misfires
 

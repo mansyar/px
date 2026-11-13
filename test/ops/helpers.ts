@@ -8,7 +8,7 @@
 import { SlotCanvas } from '../../src/core/canvas.js';
 import { type CompiledRecipe, compileRecipe } from '../../src/core/compile.js';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
-import type { Palette, Recipe } from '../../src/core/recipe/types.js';
+import type { Palette, Recipe, RecipeVersion } from '../../src/core/recipe/types.js';
 
 /** One flat family: enough for geometry and fill tests. */
 export const INK: Palette = { ink: { colors: ['#ffffff'] } };
@@ -29,11 +29,13 @@ export interface RecipeOptions {
   height?: number;
   palette?: Palette;
   layers?: Array<{ id: string; ops: unknown[] }>;
+  /** Defaults to 1, the pre-profile schema; 1.1 is the one that declares parts. */
+  version?: RecipeVersion;
 }
 
 export function recipeOf(ops: unknown[], options: RecipeOptions = {}): Recipe {
   const recipe = {
-    version: 1,
+    version: options.version ?? 1,
     meta: {
       name: 'ops',
       width: options.width ?? 16,
