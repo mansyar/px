@@ -6,6 +6,7 @@
  */
 
 import { PxError, type PxWarning } from '../errors.js';
+import { FACING_UNIT_EPSILON } from '../facing.js';
 import { normalizeFamily } from '../palette.js';
 import { parseScaleProfile, profileWarnings } from '../profile.js';
 import { parseRef, REF_GRAMMAR } from '../refs.js';
@@ -23,6 +24,8 @@ import {
   type DitherFillOp,
   type DitherPattern,
   type EllipseOp,
+  FACING_NAMES,
+  type Facing,
   type FloodFillOp,
   GLOSS_PROFILES,
   type GlossProfile,
@@ -65,7 +68,7 @@ import {
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
 const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
 const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
-const PART_KEYS = ['material', 'gloss', 'z'];
+const PART_KEYS = ['material', 'gloss', 'z', 'facing'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -223,11 +226,67 @@ function normalizePart(name: string, raw: unknown): Part {
     );
   }
 
+  const facing = facingParam(name, raw.facing);
+
   return {
     material,
     gloss: glossParam(name, raw.gloss),
     z: z ?? 0,
+    ...(facing === undefined ? {} : { facing }),
   };
+}
+
+/**
+ * `facing` is a plane name or an explicit unit vector. The vector is stored as
+ * given rather than renormalised, so a canonical write reproduces the authored
+ * bytes; the length check is what guarantees the stored vector is unit.
+ */
+function facingParam(name: string, value: unknown): Facing | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const match = FACING_NAMES.find((facing) => facing === value);
+    if (match === undefined) {
+      throw new PxError(
+        'E_FACING_UNKNOWN',
+        `Part "${name}" has an unknown facing ${JSON.stringify(value)}`,
+        `Facing is ${FACING_NAMES.join(', ')}, or a unit [x, y, z] vector.`,
+      );
+    }
+    return match;
+  }
+  if (!Array.isArray(value) || value.length !== 3) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a "facing" that is neither a name nor a 3-element vector: ${JSON.stringify(value)}`,
+      `Facing is ${FACING_NAMES.join(', ')}, or a unit [x, y, z] vector.`,
+    );
+  }
+  if (!value.every((component) => typeof component === 'number' && Number.isFinite(component))) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a non-numeric facing vector ${JSON.stringify(value)}`,
+      'Each component of a facing vector is a finite number.',
+    );
+  }
+  const [x, y, z] = value as [number, number, number];
+  const length = Math.hypot(x, y, z);
+  if (length === 0) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a zero facing vector [0, 0, 0]`,
+      'A zero vector has no direction: name a plane such as "front", or give a unit vector.',
+    );
+  }
+  if (Math.abs(length - 1) > FACING_UNIT_EPSILON) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Part "${name}" has a facing vector of length ${length}, which is not 1 within ${FACING_UNIT_EPSILON}`,
+      `Normalise the vector, or name one of ${FACING_NAMES.join(', ')}.`,
+    );
+  }
+  return [x, y, z];
 }
 
 function glossParam(name: string, value: unknown): GlossProfile {

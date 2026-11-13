@@ -70,7 +70,9 @@ function canonicalAnchors(anchors: Anchors): Record<string, number[]> {
 
 /**
  * Parts sorted by name, each writing `material`, then `gloss` (always, so a
- * matte part stays explicit), then `z` only when it is not zero.
+ * matte part stays explicit), then `z` only when it is not zero, then `facing`
+ * only when declared. A part without a facing writes exactly the bytes it wrote
+ * before the field existed, which is what keeps older recipes byte-identical.
  */
 function canonicalParts(parts: Parts): Record<string, Record<string, unknown>> {
   const out: Record<string, Record<string, unknown>> = {};
@@ -82,6 +84,10 @@ function canonicalParts(parts: Parts): Record<string, Record<string, unknown>> {
     const entry: Record<string, unknown> = { material: part.material, gloss: part.gloss };
     if (part.z !== 0) {
       entry.z = part.z;
+    }
+    if (part.facing !== undefined) {
+      // Names stay names and vectors stay vectors, so both forms round-trip.
+      entry.facing = Array.isArray(part.facing) ? [...part.facing] : part.facing;
     }
     out[name] = entry;
   }

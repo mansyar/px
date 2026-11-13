@@ -1,12 +1,27 @@
 /**
- * `light`: form and ambient occlusion.
+ * `light`: plane shading, form, ambient occlusion, cast and rim.
+ *
+ * Stage order is fixed: **plane -> form -> gloss -> AO -> cast -> rim**. Plane
+ * shading runs first and is the only stage that reads `parts.<name>.facing`: it
+ * paints each declared plane with the ramp role `dot(facing, towardLight)`
+ * earns (the frame and the three-band arithmetic are pinned in
+ * `src/core/facing.ts`). A part with no `facing` is skipped entirely, so an
+ * older recipe renders exactly the bytes it rendered before the field existed.
+ * Because plane shading is not part of `form`, `form: "flat"` still plane-shades
+ * a part that declares a facing — a flat plane still faces somewhere — while
+ * `form: "flat"` on a part with no facing still shades nothing.
+ *
+ * Every later stage refines within each part and resolves the pixel's ramp role,
+ * which is why the plane stage writes a role rather than an arbitrary tone: an
+ * AO step, a cloth dither cell or a `deband` run can only continue a ramp it can
+ * name.
  *
  * The pass reads ownership and transparency from the snapshot taken at op
  * entry and writes only colours into the containing layer, so it never consumes
- * its own output. `flat` shades nothing; `bevel` paints a one-pixel band on each
- * part's own silhouette; `round` bevels and then bands the part along the light
- * axis with the same occupied-rank arithmetic `ramp_fill` uses, restricted to
- * that part's pixels.
+ * its own output and never writes an owner. `bevel` paints a one-pixel band on
+ * each part's own silhouette; `round` bevels and then bands the part along the
+ * light axis with the same occupied-rank arithmetic `ramp_fill` uses, restricted
+ * to that part's pixels.
  *
  * AO follows form inside the same op: an opaque pixel whose 4-neighbour belongs
  * to another part with a greater `z` steps one role darker in its own family,
@@ -53,6 +68,7 @@
  */
 
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
+import { planeDot, planeRole, SHADOW_STEP, towardLight } from '../facing.js';
 import { type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
 import { partNames } from '../parts.js';
 import type {
@@ -67,6 +83,9 @@ import { RAMP_ROLES } from '../recipe/types.js';
 import { noRampError, type PassSite } from './pass.js';
 import { bandRole, type RankedProjections, rankProjections } from './ramp.js';
 
+/** `towardLight` lives with the frame that defines its sign; re-exported here. */
+export { towardLight };
+
 type Step = readonly [number, number];
 
 /** Neighbour scan order is fixed so every rule resolves ties identically. */
@@ -76,20 +95,6 @@ const NEIGHBOURS_4: readonly Step[] = [
   [0, 1],
   [-1, 0],
 ];
-
-/** Direction the light travels, i.e. the offset of a cast shadow, per corner. */
-const SHADOW_STEP: Record<LightDir, Step> = {
-  'top-left': [1, 1],
-  'top-right': [-1, 1],
-  'bottom-left': [1, -1],
-  'bottom-right': [-1, -1],
-};
-
-/** Unit vector toward the light source; this is what an outward normal faces. */
-export function towardLight(angle: LightDir): Step {
-  const [dx, dy] = SHADOW_STEP[angle];
-  return [-dx, -dy];
-}
 
 /**
  * The role an outward normal takes from `dot(normal, towardLight(angle))`.
@@ -146,6 +151,8 @@ interface PartSurface {
   family: number | undefined;
   z: number;
   gloss: GlossProfile;
+  /** Plane role the part's `facing` earns, or undefined when it declares none. */
+  plane: RampRole | undefined;
 }
 
 export function applyLight(
@@ -169,6 +176,10 @@ export function applyLight(
           family: family === -1 ? undefined : family,
           z: part.z,
           gloss: part.gloss,
+          // The plane is a function of the declared facing and the light angle
+          // only, so it resolves once per op rather than once per pixel.
+          plane:
+            part.facing === undefined ? undefined : planeRole(planeDot(part.facing, options.angle)),
         };
       })
     : [
@@ -176,6 +187,9 @@ export function applyLight(
           family: slots.families.length === 0 ? undefined : 0,
           z: 0,
           gloss: 'matte',
+          // An implicit part has no declaration, so it declares no facing and
+          // keeps the tone it was painted with.
+          plane: undefined,
         },
       ];
 
@@ -253,6 +267,33 @@ export function applyLight(
       return 'highlight';
     }
     return dark ? 'shadow' : undefined;
+  };
+
+  /**
+   * Plane shading: every pixel of a part that declared a facing takes the ramp
+   * role its plane earns. Colour only — no owner argument reaches `set` — so a
+   * colour pass cannot displace a part (the previous track's High was exactly a
+   * pass writing owners it did not own).
+   *
+   * A part that declares no facing is skipped, which is what keeps older
+   * recipes byte-identical: the stage does not "default to front" and recolour
+   * anything, it does not run for that part at all.
+   */
+  const planeShade = (): void => {
+    const targets = surfaces.map((surface, owner) =>
+      surface.plane === undefined ? undefined : roleSlotFor(owner, surface.plane),
+    );
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const owner = ownerAt(x, y);
+        const target = targets[owner];
+        if (owner === UNOWNED || target === undefined) {
+          continue;
+        }
+        canvas.set(x, y, target);
+        painted += 1;
+      }
+    }
   };
 
   const bevel = (): void => {
@@ -533,6 +574,9 @@ export function applyLight(
     }
   };
 
+  // Stage order: plane -> form -> gloss -> AO -> cast -> rim. Plane shading is
+  // independent of `form`, so `flat` keeps it and only skips the form stages.
+  planeShade();
   if (options.form === 'bevel') {
     bevel();
   } else if (options.form === 'round') {

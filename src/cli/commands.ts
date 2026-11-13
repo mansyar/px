@@ -257,7 +257,7 @@ function partsFromFlag(value: string | undefined, cwd: string): Parts | undefine
     throw new PxError(
       'E_BAD_PARAM',
       'Parts must be an object of part name to material',
-      'Each part is {"material": "<family>", "gloss": "matte|metal|gem|cloth", "z": 0}.',
+      'Each part is {"material": "<family>", "gloss": "matte|metal|gem|cloth", "z": 0, "facing": "front|back|left|right|top|bottom" or [x, y, z]}.',
     );
   }
   return raw as Parts;

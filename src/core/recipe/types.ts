@@ -120,15 +120,45 @@ export type GlossProfile = 'matte' | 'metal' | 'gem' | 'cloth';
 
 export const GLOSS_PROFILES: readonly GlossProfile[] = ['matte', 'metal', 'gem', 'cloth'];
 
+/** The six named directions a part's broad surface can look. */
+export type FacingName = 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom';
+
+export const FACING_NAMES: readonly FacingName[] = [
+  'front',
+  'back',
+  'left',
+  'right',
+  'top',
+  'bottom',
+];
+
+/**
+ * A facing as an explicit unit vector.
+ *
+ * The frame is right-handed: `+x` right, `+y` up, `+z` toward the viewer. A part
+ * that declares no facing is viewer-facing, `[0, 0, 1]`. Screen space grows
+ * downward, so the `light` pass converts a screen step `(tx, ty)` into this frame
+ * as `(tx, -ty)`; the light itself lies in the picture plane, `z = 0`. That whole
+ * derivation lives in `src/core/facing.ts`, which is the single place the sign is
+ * decided.
+ */
+export type FacingVector = [number, number, number];
+
+/** A plane direction, by name or as an explicit unit vector. */
+export type Facing = FacingName | FacingVector;
+
 /**
  * One declared part. `material` names a palette family; `gloss` defaults to
  * `matte`; `z` orders parts for shading questions and never decides which
- * pixels exist (FR-3). Part masks are derived on replay, never stored.
+ * pixels exist (FR-3). `facing` is the plane the part's surface looks at, read
+ * by the `light` pass only: a part without it keeps exactly the tone it is
+ * painted with. Part masks are derived on replay, never stored.
  */
 export interface Part {
   material: string;
   gloss: GlossProfile;
   z: number;
+  facing?: Facing;
 }
 
 export type Parts = Record<string, Part>;

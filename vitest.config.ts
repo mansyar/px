@@ -11,6 +11,7 @@ export default defineConfig({
             'test/art/**/*.test.ts',
             'test/art-lint/**/*.test.ts',
             'test/ergonomics/**/*.test.ts',
+            'test/facing/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/ops/**/*.test.ts',
             'test/light/**/*.test.ts',

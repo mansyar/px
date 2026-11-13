@@ -37,6 +37,7 @@ export type ErrorCode =
   | 'E_EMPTY_PART'
   | 'E_MATERIAL_UNKNOWN'
   | 'E_GLOSS_UNKNOWN'
+  | 'E_FACING_UNKNOWN'
   | 'E_PROFILE_UNKNOWN'
   | 'E_RAMP_STEPS_RANGE'
   | 'E_RAMP_UNSEPARABLE'
@@ -133,6 +134,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_MATERIAL_UNKNOWN:
     'A part material names a palette family; run `px inspect` to see the families this recipe declares.',
   E_GLOSS_UNKNOWN: 'Gloss is one of matte, metal, gem, cloth.',
+  E_FACING_UNKNOWN:
+    'Facing is one of front, back, left, right, top, bottom, or a unit [x, y, z] vector.',
   E_PROFILE_UNKNOWN: 'Profile is one of tiny, small, medium, large.',
   E_RAMP_STEPS_RANGE:
     'Steps is 3 to 6: three tones is the fewest a ramp can shade with, and six is more than any profile expects.',
