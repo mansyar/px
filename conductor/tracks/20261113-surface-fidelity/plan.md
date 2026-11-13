@@ -40,18 +40,22 @@
 - **Covers:** FR-4, FR-6, FR-7, FR-20, AC-4, AC-6, AC-17
 - **Touches:** `src/lint/**`, `test/art-lint/**`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Plane-aware value comparison** — covers: FR-4
-  - [ ] **P2.T1.1:** Resolve each part's comparison tone from its `facing` plane before falling back to the material base tone.
-  - [ ] **P2.T1.2:** Suppress `VALUE_COLLISION` for a 4-adjacent pair that shares a material but declares different planes whose resolved tones clear one step.
-  - [ ] **P2.T1.3:** Keep reporting exactly one finding when the resolved tones collide, and name both parts.
-- [ ] **P2.T2: Seam-by-construction idiom** — covers: FR-20
-  - [ ] **P2.T2.1:** Fixture the gable seam as the scene builds it — two facing planes with a one-pixel ridge part between them — and assert it reports no `VALUE_COLLISION` and compiles without a part-overwrite warning.
-  - [ ] **P2.T2.2:** Assert that a ridge tone inside a plane's synthesis step still reports once, so the idiom cannot be used to hide a collision.
-- [ ] **P2.T3: Regression coverage** — covers: FR-6, FR-7
-  - [ ] **P2.T3.1:** Fixtures for the four cases: clean plane pair, colliding plane pair, different material, real overwrite.
-  - [ ] **P2.T3.2:** Make the finding text say the comparison was plane-resolved, and assert it.
+- [x] **P2.T1: Plane-aware value comparison** — covers: FR-4
+  - [x] **P2.T1.1:** Resolve each part's comparison tone from its `facing` plane before falling back to the material base tone.
+  - [x] **P2.T1.2:** Suppress `VALUE_COLLISION` for a 4-adjacent pair that shares a material but declares different planes whose resolved tones clear one step.
+  - [x] **P2.T1.3:** Keep reporting exactly one finding when the resolved tones collide, and name both parts.
+- [x] **P2.T2: Seam-by-construction idiom** — covers: FR-20
+  - [x] **P2.T2.1:** Fixture the gable seam as the scene builds it — two facing planes with a one-pixel ridge part between them — and assert it reports no `VALUE_COLLISION` and compiles without a part-overwrite warning.
+  - [x] **P2.T2.2:** Assert that a ridge tone inside a plane's synthesis step still reports once, so the idiom cannot be used to hide a collision.
+- [x] **P2.T3: Regression coverage** — covers: FR-6, FR-7
+  - [x] **P2.T3.1:** Fixtures for the four cases: clean plane pair, colliding plane pair, different material, real overwrite.
+  - [x] **P2.T3.2:** Make the finding text say the comparison was plane-resolved, and assert it.
+
+**Result:** verified
+**Checkpoint:** e77d3a2
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-2.md
 
 ## Phase 3: Form Lighting
 
