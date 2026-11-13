@@ -1205,7 +1205,7 @@
         {
           "op": "light",
           "angle": "top-left",
-          "form": "flat",
+          "form": "bevel",
           "ao": false,
           "cast": null,
           "cast_offset": 1,

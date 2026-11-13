@@ -57,3 +57,19 @@ The blade is four pixels wide at its base, so the cylinder shading is three tone
 column each — at 1× the spine is a bright line, not a lit surface. The grip is eight rows
 for a one-handed weapon and would read better at five with a visible hand. The gem is a
 2×3 rectangle with an outline ring; a true cushion cut needs one more row.
+
+## Re-authoring (2026-11-13)
+
+- **The gem's ramp is warm now.** `ruby` was `#b32338` with a pink highlight: a magenta dot
+  in a gold guard, scored `palette_craft` 3 for a hue nothing else in the asset shared. The
+  ramp keeps its shape and moves its hues toward the brass — `#a83a2a` base, `#ff8a6a`
+  highlight — so the same three-pixel gem reads as an ember set in gold rather than as an
+  imported colour.
+- **`form: flat` → `bevel`**, so the guard, pommel and grip band on one light axis instead
+  of only the hand-painted edges doing so.
+
+Judgement (author's self-review): palette integration is the real gain — the gem now
+belongs to the object. Lighting moves less than it did on the humanoid, because a two-pixel
+gold bar has no room for a bevel to show; the blade was already the most directional thing
+in the asset. The guard still reads as a bar with a dark underside rather than as a form,
+which is what keeps `edge_language` and `lighting` at 3 rather than 4.

@@ -30,10 +30,10 @@
     },
     "ruby": {
       "ramp": {
-        "outline": "#24080e",
-        "shadow": "#5c0f1e",
-        "base": "#b32338",
-        "highlight": "#ff6f7a"
+        "outline": "#2a0d0b",
+        "shadow": "#5e1a17",
+        "base": "#a83a2a",
+        "highlight": "#ff8a6a"
       }
     },
     "steel": {
@@ -379,7 +379,7 @@
         {
           "op": "light",
           "angle": "top-left",
-          "form": "flat",
+          "form": "bevel",
           "ao": true,
           "cast": null,
           "cast_offset": 1,

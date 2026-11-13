@@ -13,7 +13,7 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.81,
+    "mean": 3.83,
     "threshold_mean": 4.0,
     "min_allowed": 3,
     "failures": [
@@ -38,7 +38,7 @@
     ],
     "note": "Recorded as measured. The bar was not met and was not lowered; the failing criteria are named above. Two passes are agent self-reviews (humanoid) and the record says so; they were scored against the same anchors and arithmetic as the model passes, and the verdict is recomputed from all fourteen passes by `test/art/rubric.test.ts`.",
     "basis": "mixed",
-    "caveat": "humanoid pass A and pass B are agent self-review scores of the 2026-11-13 re-authoring; the other twelve passes are vision-model scores of art that did not change."
+    "caveat": "humanoid, sword and character are agent self-review scores of the 2026-11-13 re-authoring (six passes); the other eight passes are vision-model scores of art that did not change."
   },
   "assets": [
     {
@@ -119,67 +119,69 @@
       "passes": [
         {
           "pass": "A",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/sword.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
           "subject": "sword",
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "guard, grip and pommel read at a glance"
+              "why": "blade, guard, grip and pommel read at a glance"
             },
             "value_separation": {
               "score": 4,
-              "why": "steel, gold and wood separate clearly"
+              "why": "steel, gold and leather separate by value; the blade highlight sits close to the white backdrop"
             },
             "lighting": {
               "score": 3,
-              "why": "top-left overall, but the guard's shading is blocky and locally inconsistent"
+              "why": "the blade's lit edge and the guard's lit top row agree on top-left, but the guard's underside is one dark step with no turn"
             },
             "edge_language": {
               "score": 3,
-              "why": "outline consistent; internal texture lines on the hilt feel arbitrary"
+              "why": "silhouette outline is consistent; the grip wrap and pommel bands are hand-blocked rather than following a rule"
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "solid clusters, minor roughness at the guard"
+              "why": "solid clusters; the gem highlight is a deliberate accent"
             },
             "palette_craft": {
-              "score": 3,
-              "why": "ramps functional but the red gem's hue is isolated from the rest"
+              "score": 4,
+              "why": "the warmed ruby reads as an ember against the gold instead of an isolated magenta"
             }
           }
         },
         {
           "pass": "B",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/sword.debug.png",
           "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
           "subject": "sword",
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "reads as a short sword with guard and pommel"
+              "why": "panel C and the crops are unambiguous"
             },
             "value_separation": {
               "score": 3,
-              "why": "outline bleeds into adjacent areas and the guard's mid-tones overlap"
+              "why": "the guard mid-tones and the dark grip still sit within one step in the crops"
             },
             "lighting": {
               "score": 3,
-              "why": "top-left on the blade, but the handle's cylindrical shading contradicts it"
+              "why": "one direction reads on the blade; the guard is a bar rather than a form"
             },
             "edge_language": {
-              "score": 3,
-              "why": "detail edges mix pillow-shading with hard lines"
+              "score": 4,
+              "why": "material edges are treated consistently in the crops"
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "solid clusters; isolated gem highlights"
+              "why": "solid parts, deliberate accents only"
             },
             "palette_craft": {
               "score": 4,
-              "why": "steel, gold and leather ramps step logically"
+              "why": "coherent steel, brass and leather with a warm accent that belongs"
             }
           }
         }
@@ -337,55 +339,57 @@
       "passes": [
         {
           "pass": "A",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/character.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
           "subject": "knight with sword and shield",
           "scores": {
             "silhouette": {
               "score": 3,
-              "why": "reads as an armoured figure, but blocky proportions keep it generic"
+              "why": "reads as an armoured figure; the blocky proportions keep it generic"
             },
             "value_separation": {
               "score": 3,
-              "why": "sword against the shoulder and armour overlap in value"
+              "why": "sword against the shoulder and armour overlap in value; greaves separate from the boots"
             },
             "lighting": {
               "score": 3,
-              "why": "mostly right-side shading, flat on the cylindrical limbs"
+              "why": "bevel bands plate, helm and greaves along one axis, but the greave dither still breaks the surface"
             },
             "edge_language": {
               "score": 3,
-              "why": "dithered shading edges blur form planes"
+              "why": "dithered shading edges blur the form planes they sit on"
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "disciplined blocks, some scatter from the dither"
+              "why": "solid blocks; the dither leaves only single-pixel steps"
             },
             "palette_craft": {
               "score": 3,
-              "why": "fitting hues, uneven ramp steps"
+              "why": "fitting hues with uneven ramp steps"
             }
           }
         },
         {
           "pass": "B",
-          "scorer": "vision-model",
+          "scorer": "agent",
+          "self_review": true,
           "artifact_path": ".conductor/evidence/art/character.debug.png",
           "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
           "subject": "medieval knight",
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "helm, torso, shield and raised sword read instantly"
+              "why": "helm, torso, shield and raised sword read instantly in panel C"
             },
             "value_separation": {
               "score": 4,
-              "why": "plates, cloth, shield and sword all separate"
+              "why": "plates, cloth, shield and sword all separate in the crops"
             },
             "lighting": {
               "score": 4,
-              "why": "top-left consistent across helm, greaves and blade"
+              "why": "top-left reads on helm, greaves and blade after the bevel change"
             },
             "edge_language": {
               "score": 4,
