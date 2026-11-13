@@ -77,3 +77,7 @@ which is why the digest was re-baselined.
 ## Lighting
 
 The body front face is shaded on a diagonal: the upper-left corner is the brightest tone and the ramp steps down toward the lower-right, so the face is a lit surface rather than a flat fill with two horizontal lines. The lid follows the same direction with a shallower range.
+
+## Interior edges
+
+The lid, body, bands and lock all take a light tone on their top and left boundary and the darkest tone on their bottom and right, so the metal trim and the wood share one edge treatment.

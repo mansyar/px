@@ -96,3 +96,7 @@ Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance a
 each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
 Geometry is unchanged; only the palette blocks and the legend's tone names moved,
 which is why the digest was re-baselined.
+
+## Interior edges
+
+The blade takes a light tone on its top and left boundary and the darkest tone on its bottom and right, matching the treatment used on the larger assets; smaller parts are exempt.

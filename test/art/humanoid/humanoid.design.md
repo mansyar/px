@@ -120,3 +120,7 @@ which is why the digest was re-baselined.
 ## Lighting
 
 The torso is shaded from the upper-left: the ramp runs from the lit shoulder tone across the chest to the shadowed flank, so the mass reads as a form rather than a flat field.
+
+## Interior edges
+
+The torso takes a light tone on its top and left boundary and the darkest tone on its bottom and right; the other parts are under the area floor, where the convention would erase the form.

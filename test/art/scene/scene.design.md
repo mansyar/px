@@ -168,3 +168,7 @@ which is why the digest was re-baselined.
 ## Lighting
 
 Light comes from high and to the left. Both roof planes share one hue and fall from a bright ridge to darker eaves, with the right plane one ladder step behind the left, so the ridge is a single-tone crease rather than a boundary between two lighting schemes. The stone well body, rim, posts and wall carry a left-to-right falloff that matches the cast shadow on the ground.
+
+## Interior edges
+
+Every raised face takes a light tone on its top and left boundary and the darkest tone on its bottom and right, so brick courses, planks and the roof trim share one edge treatment. Parts under 70 painted pixels are exempt: on a rope the convention would consume the whole form.

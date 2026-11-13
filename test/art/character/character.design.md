@@ -114,3 +114,7 @@ which is why the digest was re-baselined.
 ## Lighting
 
 The torso is shaded from the upper-left: the ramp runs from the lit shoulder tone across the chest to the shadowed flank, so the mass reads as a form rather than a flat field.
+
+## Interior edges
+
+Torso, arms, legs, boots, blade, helm, pauldron, shield and boss take a light tone on their top and left boundary and the darkest tone on their bottom and right.

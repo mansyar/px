@@ -82,3 +82,7 @@ which is why the digest was re-baselined.
 ## Lighting
 
 The liquid is lit from above: a bright surface line, then successive steps down through the body of the liquid, so the glass reads as containing depth rather than a flat fill.
+
+## Interior edges
+
+All potion parts are under the 70-pixel area floor (the brew is 38 pixels), so the convention is deliberately not applied here: on a four-pixel-tall liquid it would become a solid outline rather than an edge treatment.
