@@ -45,14 +45,18 @@ to the art that actually changes.
 - **Covers:** FR-3, AC-3, AC-4
 - **Touches:** `src/core/ops/light.ts`, `src/core/recipe/normalize.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P2.T1: `parts` and `skip`**
-  - [ ] **P2.T1.1:** Allow-list and deny-list, mutually exclusive, resolved against declared parts at normalize time.
-  - [ ] **P2.T1.2:** Undeclared part name is `E_BAD_VERSION`-class caller error with the part named; both lists together is `E_BAD_PARAM`.
-  - [ ] **P2.T1.3:** Test that a skipped part keeps its tone while neighbours move, and that no `skip` means today's bytes.
-- [ ] **P2.T2: Scene idiom**
-  - [ ] **P2.T2.1:** Re-run the scene's gable with `skip` instead of post-light ordering and confirm the same pixels; record which idiom the design file should keep.
+- [x] **P2.T1: `parts` and `skip`**
+  - [x] **P2.T1.1:** Allow-list and deny-list, mutually exclusive, resolved against declared parts at normalize time.
+  - [x] **P2.T1.2:** Undeclared part name is `E_BAD_VERSION`-class caller error with the part named; both lists together is `E_BAD_PARAM`.
+  - [x] **P2.T1.3:** Test that a skipped part keeps its tone while neighbours move, and that no `skip` means today's bytes.
+- [x] **P2.T2: Scene idiom**
+  - [x] **P2.T2.1:** Re-run the scene's gable with `skip` instead of post-light ordering and confirm the same pixels; record which idiom the design file should keep.
+
+**Result:** verified
+**Checkpoint:** ff5f353
+**Evidence:** conductor/tracks/20261113-surface-resolution/verification/phase-2.md
 
 ## Phase 3: Interior Edge Role
 
