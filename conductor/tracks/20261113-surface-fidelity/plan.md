@@ -113,7 +113,7 @@
 - **Covers:** FR-14, FR-15, FR-16, AC-13, AC-14
 - **Touches:** `src/core/palette.ts`, `src/core/ops/ramp.ts`, `src/core/ops/stroke.ts`, `src/core/recipe/{types,normalize}.ts`, `test/ops/**`, `test/recipe/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P5.T1: Hue-shifted ramp derivation** — covers: FR-14
   - [ ] **P5.T1.1:** Derive N stops from a base colour with cool shadows and warm highlights, deterministic rounding, per material.
