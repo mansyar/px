@@ -1,6 +1,6 @@
 {
   "spec": "spec.md",
-  "updated_at": "2026-11-13T03:11:51Z",
+  "updated_at": "2026-11-13T15:20:00Z",
   "revert_pr_url": null,
   "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
   "type": "feature",
@@ -23,12 +23,12 @@
   "branch": "feat/20261113-authoring-primitives",
   "archived_at": null,
   "base_branch": "main",
-  "last_checkpoint": "dbcd353",
+  "last_checkpoint": "cab8949",
   "progress": {
     "phases_total": 6,
-    "tasks_total": 17,
-    "phases_verified": 1,
-    "tasks_done": 4
+    "tasks_total": 52,
+    "phases_verified": 2,
+    "tasks_done": 23
   },
   "revert_commit": null
 }

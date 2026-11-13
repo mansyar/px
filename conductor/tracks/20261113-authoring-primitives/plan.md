@@ -38,18 +38,21 @@
 - **Covers:** FR-5, FR-6, FR-7, FR-8, AC-5, AC-6, AC-7, AC-8
 - **Touches:** `src/core/ops/**`, `src/core/recipe/**`, `src/cli/**`, `src/mcp/**`, `test/stroke/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — L-turn doubles are dropped, the 256 px diagonal's 126-step cadence becomes gaps of 1–4 with no run longer than two, and closure, smoothing, width and erase are pinned by fixtures
+- **Checkpoint:** cab8949
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-2.md
 
-- [ ] **P2.T1: Path rasteriser** — covers: FR-5, AC-5
-    - [ ] **P2.T1.1:** polyline segments between consecutive points, deduplicating repeats, `E_BAD_PATH` below two points
-    - [ ] **P2.T1.2:** `closed` joining last to first with no missing pixel at the seam
-- [ ] **P2.T2: Self-cleanup (the point of the op)** — covers: FR-6, AC-5
-    - [ ] **P2.T2.1:** remove L-turn double pixels along the whole path
-    - [ ] **P2.T2.2:** detect and break repeating step runs, documented, with a fixture proving `line` stairsteps and `stroke` does not on the same 256 px diagonal
-- [ ] **P2.T3: Width, smoothing and erase** — covers: FR-7, FR-8, AC-7, AC-8
-    - [ ] **P2.T3.1:** `width` 1 or 2, overhang clipped with one warning
-    - [ ] **P2.T3.2:** `smooth: true` rounding interior points while staying one connected path with no gaps
-    - [ ] **P2.T3.3:** `color: null` erases along the path and clears ownership
+- [x] **P2.T1: Path rasteriser** — covers: FR-5, AC-5
+    - [x] **P2.T1.1:** polyline segments between consecutive points, deduplicating repeats, `E_BAD_PATH` below two points
+    - [x] **P2.T1.2:** `closed` joining last to first with no missing pixel at the seam
+- [x] **P2.T2: Self-cleanup (the point of the op)** — covers: FR-6, AC-5
+    - [x] **P2.T2.1:** remove L-turn double pixels along the whole path
+    - [x] **P2.T2.2:** detect and break repeating step runs, documented, with a fixture proving `line` stairsteps and `stroke` does not on the same 256 px diagonal
+- [x] **P2.T3: Width, smoothing and erase** — covers: FR-7, FR-8, AC-7, AC-8
+    - [x] **P2.T3.1:** `width` 1 or 2, overhang clipped with one warning
+    - [x] **P2.T3.2:** `smooth: true` rounding interior points while staying one connected path with no gaps
+    - [x] **P2.T3.3:** `color: null` erases along the path and clears ownership
 
 ## Phase 3: Texture
 
