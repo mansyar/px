@@ -229,6 +229,19 @@ export interface LineOp extends OpBase {
   color: SlotRef;
 }
 
+export interface StrokeOp extends OpBase {
+  op: 'stroke';
+  /** Polyline vertices, chained in order; at least two distinct points. */
+  path: Array<[number, number]>;
+  color: SlotRef;
+  /** Joins the last vertex to the first. */
+  closed?: boolean;
+  /** Chamfers interior vertices before rasterising. */
+  smooth?: boolean;
+  /** 1 (default) or 2 pixels wide. */
+  width?: 1 | 2;
+}
+
 export interface EllipseOp extends OpBase {
   op: 'ellipse';
   x: number;
@@ -335,6 +348,7 @@ export type Op =
   | SetPixelsOp
   | RectOp
   | LineOp
+  | StrokeOp
   | EllipseOp
   | PolygonOp
   | FloodFillOp
@@ -407,6 +421,7 @@ export type OpName = Op['op'];
 export const PART_TAGGED_OPS: readonly OpName[] = [
   'set_pixels',
   'line',
+  'stroke',
   'rect',
   'ellipse',
   'polygon',
@@ -477,6 +492,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   set_pixels: ['points', 'color'],
   rect: ['x', 'y', 'w', 'h', 'color'],
   line: ['x1', 'y1', 'x2', 'y2', 'color'],
+  stroke: ['path', 'color', 'closed', 'smooth', 'width'],
   ellipse: ['x', 'y', 'w', 'h', 'color', 'fill'],
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],

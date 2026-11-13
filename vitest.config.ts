@@ -18,6 +18,7 @@ export default defineConfig({
             'test/mcp/**/*.test.ts',
             'test/palettes/**/*.test.ts',
             'test/parts/**/*.test.ts',
+            'test/stroke/**/*.test.ts',
             'test/profiles/**/*.test.ts',
           ],
         },

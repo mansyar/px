@@ -26,6 +26,7 @@ import { drawRect } from './rect.js';
 import { replaceSlot } from './replace-slot.js';
 import { drawSetPixels } from './set-pixels.js';
 import { autoShade } from './shade.js';
+import { drawStroke } from './stroke.js';
 
 export interface OpContext {
   /** The active layer. Every write lands here, through the clipped writer. */
@@ -178,6 +179,16 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           op.y2,
           colorSlot(context, op.color),
           ownerFor(context, op.color),
+        ),
+      );
+    case 'stroke':
+      return result(
+        drawStroke(
+          context.canvas,
+          op,
+          colorSlot(context, op.color),
+          ownerFor(context, op.color),
+          site,
         ),
       );
     case 'ellipse':
@@ -397,4 +408,11 @@ export { drawRect } from './rect.js';
 export { replaceSlot } from './replace-slot.js';
 export { drawSetPixels } from './set-pixels.js';
 export { autoShade } from './shade.js';
+export {
+  balancedSegment,
+  drawStroke,
+  pixelPerfect,
+  roundedPath,
+  strokePath,
+} from './stroke.js';
 export { writePoints } from './write-points.js';

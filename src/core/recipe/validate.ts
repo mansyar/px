@@ -16,6 +16,7 @@ function slotReferences(op: RawOp): string[] {
     case 'set_pixels':
     case 'rect':
     case 'line':
+    case 'stroke':
     case 'ellipse':
     case 'polygon':
     case 'flood_fill':

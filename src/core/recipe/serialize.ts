@@ -148,6 +148,14 @@ function opParams(op: RawOp): Record<string, unknown> {
         y2: coordJson(op.y2),
         color: op.color,
       };
+    case 'stroke':
+      return defined({
+        path: op.path.map(([x, y]) => [x, y]),
+        color: op.color,
+        closed: op.closed === true ? true : undefined,
+        smooth: op.smooth === true ? true : undefined,
+        width: op.width === 2 ? 2 : undefined,
+      });
     case 'ellipse':
       return defined({
         x: coordJson(op.x),

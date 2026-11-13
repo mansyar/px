@@ -63,6 +63,7 @@ import {
   type SetPixelsOp,
   type SlotRef,
   type StraysOp,
+  type StrokeOp,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
@@ -668,6 +669,53 @@ function pointsParam(
   });
 }
 
+/**
+ * `stroke`'s vertex list. Consecutive duplicates are legal input (the op
+ * deduplicates them); a list with fewer than two entries, or an entry that is
+ * not an integer pair, is `E_BAD_PATH`.
+ */
+function pathParam(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): Array<[number, number]> {
+  const value = source.path;
+  if (value === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (stroke) is missing "path"`,
+      'Pass path as [[x, y], ...].',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (!Array.isArray(value) || value.length < 2) {
+    throw new PxError(
+      'E_BAD_PATH',
+      `Op ${opIndex} (stroke) has ${Array.isArray(value) ? value.length : 'no'} path points; at least two are required`,
+      'Pass path as [[x, y], ...] with at least two different integer coordinates.',
+      opLocation(layer, opIndex),
+    );
+  }
+  return value.map((entry, pointIndex) => {
+    if (
+      !Array.isArray(entry) ||
+      entry.length !== 2 ||
+      typeof entry[0] !== 'number' ||
+      typeof entry[1] !== 'number' ||
+      !Number.isInteger(entry[0]) ||
+      !Number.isInteger(entry[1])
+    ) {
+      throw new PxError(
+        'E_BAD_PATH',
+        `Op ${opIndex} (stroke) path point ${pointIndex} is not an [x, y] integer pair`,
+        'Pass path as [[x, y], ...].',
+        opLocation(layer, opIndex),
+      );
+    }
+    return [entry[0], entry[1]];
+  });
+}
+
 /** Shared x, y, w, h reader for the rectangle-shaped ops. */
 function regionParams(
   source: Record<string, unknown>,
@@ -728,6 +776,39 @@ function normalizeLine(
     y2: coordParam(source, 'y2', 'line', opIndex, layer),
     color: colorParam(source, 'line', opIndex, layer) ?? null,
   };
+}
+
+function normalizeStroke(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): StrokeOp {
+  const op: StrokeOp = {
+    op: 'stroke',
+    path: pathParam(source, opIndex, layer),
+    color: colorParam(source, 'stroke', opIndex, layer) ?? null,
+  };
+  if (boolParam(source, 'closed', 'stroke', opIndex, layer) === true) {
+    op.closed = true;
+  }
+  if (boolParam(source, 'smooth', 'stroke', opIndex, layer) === true) {
+    op.smooth = true;
+  }
+  const width = source.width;
+  if (width !== undefined) {
+    if (width !== 1 && width !== 2) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (stroke) has width ${String(width)}; only 1 and 2 are supported`,
+        'Stroke width is 1 (default) or 2 pixels; a wider stroke is a shape, not a path.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (width === 2) {
+      op.width = 2;
+    }
+  }
+  return op;
 }
 
 function normalizeEllipse(
@@ -1317,6 +1398,8 @@ function normalizeOpBody(
       return normalizeRect(raw, opIndex, layer);
     case 'line':
       return normalizeLine(raw, opIndex, layer);
+    case 'stroke':
+      return normalizeStroke(raw, opIndex, layer);
     case 'ellipse':
       return normalizeEllipse(raw, opIndex, layer);
     case 'polygon':
