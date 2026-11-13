@@ -113,3 +113,21 @@ move at all (222 coords before and after), which says the remaining thinness is 
 to hand-drawn masonry rather than to stray pixels. Raising `cluster_discipline` and
 `edge_language` to 4 needs the wall rebuilt the way the roof was — geometry for the
 courses, not a speck sweep — and that is the honest next step, not a score adjustment.
+
+## Gable planes (2026-11-13)
+
+The gable is two facing planes plus a ridge, not one part with hand-set tones:
+
+- `roof_left` (`facing: "left"`) is `wood.highlight`; `roof_right` (`facing: "right"`)
+  is `wood.base`; the one-pixel seam at x=128 is `ridge` (`facing: "front"`,
+  `wood.outline`). The seam is owned once, by its own part, with its own tone.
+- Both planes and the ridge are painted **after** `light`. `light form: "bevel"`
+  resolves tones from geometry, so a plane authored before it would have its tone
+  replaced and two adjacent planes collapse onto one role at the ridge. Painting
+  after the pass makes the recipe's tones final for the gable and leaves the rest
+  of the scene shaded by `light`.
+- Cost of that ordering: the gable gets no automatic AO or cast shading. Its
+  bands are authored, which is what this scene's design already did by hand.
+- The right plane carries no ascii detail: the old shingle rows read as a pillow
+  shade once the plane was isolated, so the plane is a flat lit surface and the
+  left plane keeps the hatch course.
