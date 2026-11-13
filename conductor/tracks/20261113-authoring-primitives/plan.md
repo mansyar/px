@@ -104,16 +104,18 @@
 - **Covers:** FR-16, AC-13
 - **Touches:** `test/art/**`, `docs/rubric.md`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
-- **Judge:** `scripts/rubric.mjs` needs `PX_RUBRIC_API_KEY` and none is configured, so the model path cannot run. The agent path in `docs/rubric.md` (owner-approved) is now the scoring route: the implementing agent authors, scores both artifacts against the same anchors, and records each pass as `scorer: "agent"` with `self_review: true`. The verdict then carries `basis: "mixed"` and a caveat naming the self-scored assets; the bar and its arithmetic are unchanged.
-- **Progress:** humanoid (`9d7509e`), sword and character (`1bd72c5`) re-authored and re-scored on the agent path; potion, chest and prop untouched, as P5.T2.1 allows. **Scene is not re-authored**: it still carries the three 2s that fail AC-14, and its roof and arches are hand-painted ASCII that need a real redraw, not a form switch. P5.T1.1 is therefore partial and Phase 5 stays `in_progress`.
+- **Status:** verified
+- **Result:** verified — humanoid, sword and character re-shaded with `bevel` and targeted edits, the scene's gable redrawn as two polygon planes with a stroke ridge and hatch-shingle texture; all four re-scored on the agent path from 19/21, 21/21, 19/24 and 16/24 to 20/22, 22/21, 19/24 and 22/24; potion, chest and prop untouched
+- **Checkpoint:** 7af131a
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-5.md
+- **Judge:** the agent path in `docs/rubric.md` (owner-approved): each pass recorded as `scorer: "agent"` with `self_review: true`, verdict `basis: "mixed"` with a caveat naming the self-scored assets. The bar and its arithmetic are unchanged.
 
-- [ ] **P5.T1: The four weak assets** — covers: FR-16
-    - [ ] **P5.T1.1:** humanoid, character, sword, scene re-authored with facing, stroke and texture where they address the failing criterion
-    - [ ] **P5.T1.2:** design notes record what changed, why, and what still does not work
-- [ ] **P5.T2: The three passing assets** — covers: FR-16
-    - [ ] **P5.T2.1:** potion, chest, prop touched only where the primitives clearly help; a pass must not be traded for a regression
-    - [ ] **P5.T2.2:** digests re-baselined with the reason for each change; `px diff` shows a bounded region per asset
+- [x] **P5.T1: The four weak assets** — covers: FR-16
+    - [x] **P5.T1.1:** humanoid, character, sword, scene re-authored with facing, stroke and texture where they address the failing criterion
+    - [x] **P5.T1.2:** design notes record what changed, why, and what still does not work
+- [x] **P5.T2: The three passing assets** — covers: FR-16
+    - [x] **P5.T2.1:** potion, chest, prop touched only where the primitives clearly help; a pass must not be traded for a regression
+    - [x] **P5.T2.2:** digests re-baselined with the reason for each change; `px diff` shows a bounded region per asset
 
 ## Phase 6: Re-scoring
 
@@ -122,13 +124,13 @@
 - **Covers:** FR-17, NFR-3, NFR-7, AC-14, AC-15, AC-16
 - **Touches:** `test/art/**`, `test/benchmarks/**`, `scripts/**`, `docs/rubric.md`, `verification/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
-- **Status of AC-14:** scoring runs through the agent path in `docs/rubric.md` (`scorer: "agent"`, `self_review: true`), so the record can be produced without the key. The verdict is labelled `basis: "mixed"` or `"self-review"` and carries a caveat naming the assets its author judged; the mean and floor are unchanged and `test/art/rubric.test.ts` recomputes both. AC-14 is met only when that arithmetic clears 4.0 with nothing below 3 — as of the humanoid re-score it is `fail` at 3.81 with three scene scores at 2.
-- **Blocked:** a fully independent record still needs `PX_RUBRIC_API_KEY`; `scripts/rubric.mjs` exits 2 without it. P6.T2 is implementable without a key and is not started because it is gated on P6.T1 in the plan order.
+- **Status:** failed
+- **Result:** failed — AC-14 is not met. All fourteen passes are recorded (two per asset, eight of them agent self-reviews), no criterion sits below the floor, and the mean is **3.90** against a bar of 4.0. The bar was not lowered; the record's verdict is recomputed by `test/art/rubric.test.ts` and cannot drift into a pass.
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-6.md
 
-- [ ] **P6.T1: Score** — covers: FR-17, AC-14
-    - [ ] **P6.T1.1:** two passes per asset, rationale per criterion, recorded in `scores.json`
-    - [ ] **P6.T1.2:** integrity test recomputes the verdict; a sub-4.0 mean fails the track rather than being softened
-- [ ] **P6.T2: Budget and coverage** — covers: NFR-3, NFR-7, AC-15, AC-16
-    - [ ] **P6.T2.1:** 256×256 with 2,000 ops plus light and texture under 500 ms median of five
-    - [ ] **P6.T2.2:** new modules in the coverage numerator, gate unchanged
+- [x] **P6.T1: Score** — covers: FR-17, AC-14
+    - [x] **P6.T1.1:** two passes per asset, rationale per criterion, recorded in `scores.json`
+    - [x] **P6.T1.2:** integrity test recomputes the verdict; a sub-4.0 mean fails the track rather than being softened — it does
+- [x] **P6.T2: Budget and coverage** — covers: NFR-3, NFR-7, AC-15, AC-16
+    - [x] **P6.T2.1:** 256×256 with 2,000 ops plus light and texture under 500 ms median of five
+    - [x] **P6.T2.2:** new modules in the coverage numerator, gate unchanged
