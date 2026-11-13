@@ -484,16 +484,15 @@
         {
           "op": "ascii_blit",
           "part": "legs",
-          "x": 12,
+          "x": 16,
           "y": 21,
           "grid": [
-            "..x....x",
-            "..x....x",
-            "xxx..xxx",
-            "xxx..xxx",
-            "..x....x",
-            "..x....x",
-            "xxx..xxx"
+            "xx..",
+            "xx..",
+            "..xx",
+            "..xx",
+            "xx..",
+            "xx.."
           ],
           "legend": {
             "x": "tunic.shadow"
@@ -742,7 +741,7 @@
         {
           "op": "light",
           "angle": "top-left",
-          "form": "flat",
+          "form": "bevel",
           "ao": true,
           "cast": null,
           "cast_offset": 1,
