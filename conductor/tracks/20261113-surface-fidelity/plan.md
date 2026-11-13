@@ -15,7 +15,7 @@
 - **Covers:** FR-1, FR-2, FR-3, NFR-2, NFR-5, NFR-8, AC-1, AC-2, AC-3
 - **Touches:** `scripts/rubric.mjs`, `test/art/scores.json`, `test/art/rubric.test.ts`, `docs/rubric.md`
 - **Verification:** `pnpm verify && pnpm vitest run test/art`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Pin the record instrument** — covers: FR-1
   - [ ] **P1.T1.1:** Pin `gemini-3.5-flash-lite` as the record model (owner decision) and record it, with the two dry-run results that justify keeping it, in the phase evidence.
