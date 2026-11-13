@@ -30,3 +30,5 @@ the six assets below 4.0, and re-scores on the same independent instrument.
 - `verification/` — phase evidence, created during implementation
 - `review.md` — created by `conductor-review`
 - `pr.md` — created by `conductor-implement` before opening a PR
+
+> **Merged** as PR #5 with AC-8 and AC-9 open. The independent rubric score is documented in `review.md` and `verification/`; the bar was not lowered.
