@@ -21,7 +21,7 @@ then a single re-score that judges the gate. No phase touches the engine.
 - **Touches:** `test/art/{potion,sword,humanoid,chest,character,scene}/*`
 - **Verification:** `pnpm exec tsx src/cli.ts render --file <recipe> --strict` per
   asset, then `pnpm vitest run test/art/assets.test.ts`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Audit the six palettes** — covers: FR-1
   - [ ] P1.T1.1: Record each family's tone count, hue direction and which
