@@ -131,3 +131,12 @@ The gable is two facing planes plus a ridge, not one part with hand-set tones:
 - The right plane carries no ascii detail: the old shingle rows read as a pillow
   shade once the plane was isolated, so the plane is a flat lit surface and the
   left plane keeps the hatch course.
+
+## Wall courses (2026-11-13)
+
+The wall's masonry is geometry now: the silhouette stays a single base blit, and
+the three detail blits that carried mortar, rim and column shadow are replaced by
+part-clipped texture courses — `brick` in `stone.outline` for courses and joints,
+`stipple` in `stone.shadow` for weathering, `hatch` in `stone.highlight` for the
+lit face. Textures cannot leave the part, so a course can never paint a stray row
+outside the drum the way a hand-placed ASCII line could.
