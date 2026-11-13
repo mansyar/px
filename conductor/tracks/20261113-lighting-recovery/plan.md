@@ -73,13 +73,17 @@ then a single re-score that judges the gate. No phase touches the engine.
   each recipe's part adjacency
 - **Status:** pending
 
-- [ ] **P3.T1: Apply the detail-edge convention to potion, sword and chest** —
+- [x] **P3.T1: Apply the detail-edge convention to potion, sword and chest** —
       covers: FR-6
-- [ ] **P3.T2: Apply it to humanoid, character and scene** — covers: FR-6
-- [ ] **P3.T3: Raise adjacency steps to 0.12** — covers: FR-7
-  - [ ] P3.T3.1: Where the silhouette floor forbids it, record the pair and keep
+- [x] **P3.T2: Apply it to humanoid, character and scene** — covers: FR-6
+- [x] **P3.T3: Raise adjacency steps to 0.12** — covers: FR-7
+  - [x] P3.T3.1: Where the silhouette floor forbids it, record the pair and keep
         the floor.
-- [ ] **P3.T4: Re-baseline and document** — covers: AC-8
+- [x] **P3.T4: Re-baseline and document** — covers: AC-8
+
+**Result:** verified
+**Checkpoint:** 1f02c88
+**Evidence:** conductor/tracks/20261113-lighting-recovery/verification/phase-3.md
 
 ## Phase 4: Re-score and Verdict
 
@@ -91,7 +95,7 @@ then a single re-score that judges the gate. No phase touches the engine.
   `conductor/tracks/20261113-lighting-recovery/verification/`
 - **Verification:** `pnpm verify`, `pnpm vitest run test/art/rubric.test.ts`, the
   report output, and a prop digest comparison
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Regenerate artifacts and run 14 passes** — covers: FR-8
   - [ ] P4.T1.1: Retry at most four times on a non-JSON reply; never write a
