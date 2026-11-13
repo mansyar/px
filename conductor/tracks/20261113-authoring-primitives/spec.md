@@ -137,3 +137,14 @@ Each gap is a missing capability, not missing effort: another revision round wit
 - `test/art/scores.json` — the fourteen recorded passes.
 - `docs/rubric.md` — the six criteria, anchors, method and record shape.
 - `docs/art-profiles.md` — profile boundaries and thresholds.
+
+## Amendments
+
+- **2026-11-13 — scoring path for FR-17 and AC-14.** The model instrument needed
+  `PX_RUBRIC_API_KEY`, which was not configured, so eight of the fourteen passes were
+  produced by the implementing agent under the `agent` path documented in
+  `docs/rubric.md` (owner-approved), each labelled `scorer: "agent"` with
+  `self_review: true`. The verdict therefore records `basis: "mixed"` and a caveat naming
+  the self-scored assets, and it measures 3.90, not 4.0. Requirement IDs are unchanged and
+  the bar was not lowered; an independent record still needs a scoring run with the key.
+  A follow-up track owns the art work that AC-14 exposes.

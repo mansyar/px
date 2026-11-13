@@ -1,7 +1,7 @@
 {
   "schema": 3,
   "rubric": "docs/rubric.md",
-  "scored_by": "vision model via the agent-vision tool, two passes per asset on faithful nearest-neighbour views",
+  "scored_by": "fourteen passes: eight agent self-reviews of the 2026-11-13 re-authoring (humanoid, sword, character, scene) and six vision-model passes over art that did not change; see verdict.basis and verdict.caveat",
   "scored_at": "2026-11-13",
   "criteria": [
     "silhouette",

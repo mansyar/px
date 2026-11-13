@@ -130,33 +130,52 @@ verdict carries `basis` (`independent`, `self-review` or `mixed`) and, whenever 
 
 ```json
 {
-  "v": 1,
-  "assets": {
-    "potion": {
+  "schema": 3,
+  "rubric": "docs/rubric.md",
+  "scored_by": "<one sentence naming which paths produced the passes>",
+  "scored_at": "YYYY-MM-DD",
+  "criteria": ["silhouette", "value_separation", "lighting", "edge_language", "cluster_discipline", "palette_craft"],
+  "verdict": {
+    "result": "pass | fail",
+    "mean": 4.0,
+    "threshold_mean": 4.0,
+    "min_allowed": 3,
+    "basis": "independent | self-review | mixed",
+    "caveat": "required when basis is not independent: name the self-scored assets",
+    "failures": [{ "asset": "potion", "pass": "A", "criterion": "lighting", "score": 2 }]
+  },
+  "assets": [
+    {
+      "asset": "potion",
+      "artifact": "16x16",
       "passes": [
         {
-          "pass": 1,
+          "pass": "A",
           "scorer": "vision-model",
-          "model": "<model id>",
-          "date": "YYYY-MM-DD",
-          "artifact": ".conductor/evidence/art/potion.png",
-          "criteria": {
-            "silhouette": { "score": 4, "rationale": "one sentence" },
-            "value_separation": { "score": 4, "rationale": "one sentence" },
-            "lighting": { "score": 4, "rationale": "one sentence" },
-            "edge_language": { "score": 4, "rationale": "one sentence" },
-            "cluster_discipline": { "score": 4, "rationale": "one sentence" },
-            "palette_craft": { "score": 4, "rationale": "one sentence" }
+          "self_review": true,
+          "artifact_path": ".conductor/evidence/art/potion.8x.png",
+          "view": "plain 8x nearest-neighbour on #808080",
+          "subject": "potion bottle",
+          "scores": {
+            "silhouette": { "score": 5, "why": "one sentence" },
+            "value_separation": { "score": 4, "why": "one sentence" },
+            "lighting": { "score": 4, "why": "one sentence" },
+            "edge_language": { "score": 3, "why": "one sentence" },
+            "cluster_discipline": { "score": 5, "why": "one sentence" },
+            "palette_craft": { "score": 4, "why": "one sentence" }
           }
         }
       ],
       "tiebreak": { "party": "human", "criterion": "lighting", "score": 4, "reason": "..." }
     }
-  }
+  ]
 }
 ```
 
-`tiebreak` is optional and appears only when the passes disagree. On the model path the
+`self_review` is present only on `agent` passes. `tiebreak` is optional and appears only when
+a pass pair disagrees by more than one point on a criterion.
+
+On the model path the
 script is the only writer of a pass and `--replace` is the only way to change one; on the
 agent path the implementing agent appends its own passes, marked as self-review. Neither
 path may write a score to fit a target, and a re-authored asset is re-scored rather than
