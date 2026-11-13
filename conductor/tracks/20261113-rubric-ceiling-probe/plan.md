@@ -81,6 +81,21 @@ are in, and a null result is published as the finding.
   - [x] P4.T2.1: `palette_craft` target raised 3.0 → 4.0 on the demonstrated anchor; the vector still sums to 23.0.
 - [x] **P4.T3: Final checks** — covers: AC-7, AC-8
 
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve review findings F1, F2, F3.
+- **Depends on:** Phase 4
+- **Covers:** F1, F2, F3
+- **Touches:** `scripts/calibrate.mjs`, `scripts/calibrate/ceiling.mjs`,
+  `conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling/`
+- **Verification:** `pnpm verify`; 9/9 recipe hashes match; no backslash paths in
+  the committed JSON
+- **Status:** verified
+
+- [x] **R1.T1: Normalise committed paths to POSIX** — covers: F1
+- [x] **R1.T2: Record which candidates a merged report re-scored** — covers: F2
+- [x] **R1.T3: Fail clearly when artifacts are not registered** — covers: F3
+
 ## Verification Strategy
 
 Phases 1 and 2 spend no calls: the generator is deterministic and the probe mode is
