@@ -84,3 +84,11 @@ the helm and blade, which is a small but real `lighting` gain; the dithered shad
 greaves still leaves single-pixel steps that blur the form planes, and that is what holds
 `edge_language` and `cluster_discipline` where they were. This asset needed the larger
 change — replacing its dither with 2×2 shading — and did not get it in this pass.
+
+## Form bands (2026-11-13)
+
+`light` uses `form: "round"` instead of `bevel`: the pass bands each mass by its
+thickness along the light axis, so the body reads as a lit form rather than a
+one-pixel rim. The outline stays a single `auto_outline` pass — the character has
+no authored stroke to give a corner or cap to, so Phase 5's controls do not apply
+here and the treatment was already uniform.

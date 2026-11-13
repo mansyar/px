@@ -379,7 +379,7 @@
         {
           "op": "light",
           "angle": "top-left",
-          "form": "bevel",
+          "form": "round",
           "ao": true,
           "cast": null,
           "cast_offset": 1,

@@ -93,3 +93,8 @@ reads as a slab with a seam rather than as a chest over an abdomen. The sleeves 
 two-pixel strips with no shoulder cap, and the sword is thin enough that its guard is the
 only part that reads at true size. The face is a tan rectangle plus a visor slit; the
 helmet's brow is a single row and could carry a nose guard.
+
+## Form bands (2026-11-13)
+
+Re-lit with `light form: "round"`: bands come from thickness along the light
+axis, replacing the hand-placed shadow bands that a one-pixel rim could not move.
