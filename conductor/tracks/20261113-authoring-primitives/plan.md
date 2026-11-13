@@ -38,7 +38,7 @@
 - **Covers:** FR-5, FR-6, FR-7, FR-8, AC-5, AC-6, AC-7, AC-8
 - **Touches:** `src/core/ops/**`, `src/core/recipe/**`, `src/cli/**`, `src/mcp/**`, `test/stroke/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Path rasteriser** — covers: FR-5, AC-5
     - [ ] **P2.T1.1:** polyline segments between consecutive points, deduplicating repeats, `E_BAD_PATH` below two points
