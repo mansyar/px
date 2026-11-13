@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.3",
   "meta": {
     "name": "character",
     "width": 48,
@@ -1209,13 +1209,15 @@
           "ao": false,
           "cast": null,
           "cast_offset": 1,
-          "rim": "edge"
+          "rim": "edge",
+          "bands": 3
         },
         {
           "op": "auto_outline",
           "mode": "4-way",
           "where": "outer",
-          "color": "ink.outline"
+          "color": "ink.outline",
+          "seam": "crest.outline"
         }
       ]
     }

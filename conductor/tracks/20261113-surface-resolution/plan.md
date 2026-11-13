@@ -107,18 +107,22 @@ to the art that actually changes.
 - **Covers:** FR-9, FR-10, AC-8, AC-9, AC-10
 - **Touches:** `test/art/**`, `test/art/scores.json`, `docs/rubric.md` if the view guidance changes
 - **Verification:** `pnpm verify && pnpm vitest run test/art` plus fourteen scorer runs
-- **Status:** pending
+- **Status:** failed
 
-- [ ] **P5.T1: Scene lighting**
-  - [ ] **P5.T1.1:** Give the wall drum and apron real bands with `bands: 3`; restore a lit rim on the mouth; remove the stray pixel and the wall-side rectangle recorded in the last track's review.
-  - [ ] **P5.T1.2:** Reach `lighting` ≥ 3 on both views, then re-baseline with a reason.
-- [ ] **P5.T2: Six assets**
-  - [ ] **P5.T2.1:** Adopt tone-valued ramps where `base`/`highlight` are one step apart (potion, sword, humanoid, chest, character, prop).
-  - [ ] **P5.T2.2:** Add `inner` edges where detail currently blurs into the silhouette; re-baseline each digest with a reason.
-- [ ] **P5.T3: Re-score**
-  - [ ] **P5.T3.1:** Fourteen independent passes on `gemini-3.5-flash-lite`, same views as the baseline, artifacts regenerated from the committed recipes.
-  - [ ] **P5.T3.2:** Recompute the verdict; confirm mean ≥ 4.0, no criterion below 3, `basis: "independent"`.
-  - [ ] **P5.T3.3:** If the bar is missed, record the failing criteria and stop — do not lower the bar, re-score to fit, or mix instruments.
+- [x] **P5.T1: Scene lighting**
+  - [x] **P5.T1.1:** Give the wall drum and apron real bands with `bands: 3`; restore a lit rim on the mouth; remove the stray pixel and the wall-side rectangle recorded in the last track's review.
+  - [x] **P5.T1.2:** Reach `lighting` ≥ 3 on both views, then re-baseline with a reason.
+- [x] **P5.T2: Six assets**
+  - [x] **P5.T2.1:** Adopt tone-valued ramps where `base`/`highlight` are one step apart (potion, sword, humanoid, chest, character, prop).
+  - [x] **P5.T2.2:** Add `inner` edges where detail currently blurs into the silhouette; re-baseline each digest with a reason.
+- [x] **P5.T3: Re-score**
+  - [x] **P5.T3.1:** Fourteen independent passes on `gemini-3.5-flash-lite`, same views as the baseline, artifacts regenerated from the committed recipes.
+  - [x] **P5.T3.2:** Recompute the verdict; confirm mean ≥ 4.0, no criterion below 3, `basis: "independent"`.
+  - [x] **P5.T3.3:** If the bar is missed, record the failing criteria and stop — do not lower the bar, re-score to fit, or mix instruments.
+
+**Result:** failed — mean 3.71, scene pass A cluster_discipline 2.
+**Checkpoint:** (see next commit)
+**Evidence:** conductor/tracks/20261113-surface-resolution/verification/phase-5.md
 
 ## Verification
 

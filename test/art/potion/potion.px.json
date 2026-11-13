@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.3",
   "meta": {
     "name": "potion",
     "width": 16,
@@ -172,7 +172,8 @@
           "ao": true,
           "cast": "cork",
           "cast_offset": 1,
-          "rim": "edge"
+          "rim": "edge",
+          "bands": 3
         },
         {
           "op": "auto_outline",

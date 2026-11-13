@@ -757,7 +757,8 @@
             "roof_left",
             "roof_right",
             "ridge"
-          ]
+          ],
+          "bands": 3
         },
         {
           "op": "polygon",
