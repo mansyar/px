@@ -30,6 +30,9 @@ const BACKUP = join(OUT, 'scores-backup.json');
 const VARIANTS = join(OUT, 'variants');
 const PROBE_TRACK = join(ROOT, 'conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling');
 const PROBE_REGISTRY = join(PROBE_TRACK, 'candidates.json');
+const VIEWS_TRACK = join(ROOT, 'conductor/tracks/20261113-rubric-view-comparison/verification/views');
+const VIEWS_REGISTRY = join(VIEWS_TRACK, 'artifacts.json');
+const VIEWS_OUT = join(ROOT, '.conductor/evidence/views');
 
 const CRITERIA = [
   'silhouette',
@@ -59,6 +62,11 @@ function parseArgs(argv) {
     recompute: false,
     probes: false,
     candidate: null,
+    views: false,
+    asset: null,
+    view: null,
+    repeat: null,
+    mergeViews: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -77,6 +85,19 @@ function parseArgs(argv) {
     } else if (flag === '--candidate') {
       options.candidate = argv[index + 1];
       index += 1;
+    } else if (flag === '--views') {
+      options.views = true;
+    } else if (flag === '--asset') {
+      options.asset = argv[index + 1];
+      index += 1;
+    } else if (flag === '--view') {
+      options.view = argv[index + 1];
+      index += 1;
+    } else if (flag === '--repeat') {
+      options.repeat = Number(argv[index + 1]);
+      index += 1;
+    } else if (flag === '--merge-views') {
+      options.mergeViews = true;
     } else {
       throw new Error(`unknown argument: ${flag}`);
     }
@@ -292,6 +313,238 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
   }
 }
 
+/** Score every registered view twice, verifying each artifact hash first. */
+function runViews(options) {
+  const registry = JSON.parse(readFileSync(VIEWS_REGISTRY, 'utf8'));
+  const calls = { attempted: 0, rejected: 0 };
+  const results = [];
+
+  for (const entry of registry.artifacts) {
+    if (options.asset && entry.asset !== options.asset) continue;
+    const asset = { asset: entry.asset, width: entry.width, height: entry.height, views: {} };
+    for (const view of registry.plan.views) {
+      if (options.view && options.view !== view) continue;
+      const artifact = entry.views[view];
+      const path = resolve(ROOT, artifact.path);
+      const repeats = [];
+      for (let repeat = 1; repeat <= registry.plan.repeats; repeat += 1) {
+        if (options.repeat && options.repeat !== repeat) {
+          repeats.push(null);
+          continue;
+        }
+        const actual = createHash('sha256').update(readFileSync(path)).digest('hex');
+        if (actual !== artifact.sha256) {
+          throw new Error(
+            `artifact hash mismatch for ${entry.asset}/${view}: ${actual} does not match the registered ${artifact.sha256}`,
+          );
+        }
+        calls.attempted += 1;
+        const outcome = scoreWithRetries(
+          path,
+          repeat === 1 ? 'A' : 'B',
+          `view comparison ${entry.asset} ${view} repeat ${repeat}`,
+          options.model,
+        );
+        if (outcome.attempts.length > 0) calls.rejected += 1;
+        repeats.push(outcome.ok ? outcome.scores : null);
+        if (!outcome.ok) process.stderr.write(`unscored: ${entry.asset} ${view} repeat ${repeat}\n`);
+      }
+      asset.views[view] = { path: artifact.path, sha256: artifact.sha256, repeats };
+    }
+    results.push(asset);
+    process.stdout.write(
+      `${entry.asset}: ${registry.plan.views
+        .map((view) => `${view} ${asset.views[view] ? asset.views[view].repeats.map((r) => (r ? 'ok' : '—')).join('/') : 'skipped'}`)
+        .join(' · ')}\n`,
+    );
+  }
+  return { registry, calls, results };
+}
+
+/** Apply the pre-registered rule to the recorded scores. No judgement in code. */
+function analyseViews(registry, results) {
+  const rule = registry.plan.rule;
+  const perAsset = results.map((entry) => {
+    const criteria = CRITERIA.map((criterion) => {
+      const means = {};
+      let excluded = false;
+      let reason = null;
+      for (const view of registry.plan.views) {
+        const artifact = entry.views[view];
+        if (!artifact) {
+          excluded = true;
+          reason = 'not scored in this run';
+          means[view] = null;
+          continue;
+        }
+        const repeats = artifact.repeats;
+        if (repeats.some((repeat) => repeat === null)) {
+          excluded = true;
+          reason = 'unscored repeat';
+        }
+        const values = repeats.filter(Boolean).map((repeat) => repeat[criterion]);
+        means[view] = values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+        if (values.length === 2 && Math.abs(values[0] - values[1]) > rule.repeat_agreement) {
+          excluded = true;
+          reason = `repeats disagree by more than ${rule.repeat_agreement}`;
+        }
+      }
+      const scored = Object.values(means).filter((value) => value !== null);
+      const delta = scored.length === registry.plan.views.length ? Math.max(...scored) - Math.min(...scored) : null;
+      return { criterion, means, delta, excluded, reason };
+    });
+    const included = criteria.filter((row) => !row.excluded && row.delta !== null);
+    const meanAbs =
+      included.length > 0 ? included.reduce((sum, row) => sum + row.delta, 0) / included.length : null;
+    return {
+      asset: entry.asset,
+      width: entry.width,
+      criteria,
+      included: included.length,
+      mean_abs_delta: meanAbs,
+    };
+  });
+
+  const blocking = [];
+  for (const asset of perAsset) {
+    for (const row of asset.criteria) {
+      if (row.excluded || row.delta === null) continue;
+      if (row.delta > rule.max_criterion_delta) {
+        blocking.push({ asset: asset.asset, criterion: row.criterion, delta: row.delta });
+      }
+    }
+  }
+  const meanOk = perAsset.every(
+    (asset) => asset.mean_abs_delta !== null && asset.mean_abs_delta < rule.max_mean_delta,
+  );
+  const allExcluded = perAsset.some((asset) => asset.included === 0);
+  const verdict = allExcluded
+    ? 'inconclusive'
+    : blocking.length === 0 && meanOk
+      ? 'accept 1x for assets >= 32px'
+      : 'keep 8x and debug';
+
+  return { rule, perAsset, blocking, meanOk, verdict };
+}
+
+/** Refill the slots a lost reply left empty, keeping every other score.
+ * The refill is recorded explicitly, so a replaced call is never invisible. */
+function mergeIntoViews(raw, previous) {
+  const refills = [...(previous.refills ?? [])];
+  const byAsset = new Map(previous.artifacts.map((entry) => [entry.asset, entry]));
+  for (const entry of raw.results) {
+    const recorded = byAsset.get(entry.asset);
+    if (!recorded) continue;
+    for (const [view, artifact] of Object.entries(entry.views)) {
+      const target = recorded.views[view];
+      if (!target) continue;
+      artifact.repeats.forEach((scores, index) => {
+        if (!scores) return;
+        target.repeats[index] = scores;
+        refills.push({ asset: entry.asset, view, repeat: index + 1 });
+      });
+    }
+  }
+  return {
+    registry: raw.registry,
+    results: previous.artifacts,
+    calls: {
+      attempted: (previous.calls?.attempted ?? 0) + raw.calls.attempted,
+      rejected: (previous.calls?.rejected ?? 0) + raw.calls.rejected,
+    },
+    refills,
+  };
+}
+
+function writeViews(raw, analysis) {
+  const { registry, calls } = raw;
+  const lines = [
+    '# Rubric view comparison',
+    '',
+    `- Model: \`${raw.model}\``,
+    `- Assets: ${analysis.perAsset.map((asset) => `${asset.asset} (${asset.width}px)`).join(', ')}`,
+    `- Views: ${registry.plan.views.join(', ')} · repeats per view: ${registry.plan.repeats}`,
+    `- Calls: ${calls.attempted} attempted, ${calls.rejected} rejected`,
+    '',
+    'Rule, fixed before the first call: two repeats of the same view must agree',
+    'within 1 step or the criterion is excluded; accept 1x only if every included',
+    'criterion moves by at most 1 across views and the mean move is below 0.25.',
+    '',
+  ];
+  for (const asset of analysis.perAsset) {
+    lines.push(`## ${asset.asset} (${asset.width}px)`, '');
+    lines.push(`| criterion | ${registry.plan.views.join(' | ')} | Δ | status |`);
+    lines.push(`| --- | ${registry.plan.views.map(() => '---').join(' | ')} | --- | --- |`);
+    for (const row of asset.criteria) {
+      const cells = registry.plan.views.map((view) => {
+        const value = row.means[view];
+        return value === null ? '—' : value.toFixed(1);
+      });
+      const status = row.excluded ? `excluded (${row.reason})` : 'included';
+      lines.push(
+        `| \`${row.criterion}\` | ${cells.join(' | ')} | ${row.delta === null ? '—' : row.delta.toFixed(1)} | ${status} |`,
+      );
+    }
+    lines.push('');
+    lines.push(
+      `Included criteria: ${asset.included} · mean |Δ|: ${asset.mean_abs_delta === null ? '—' : asset.mean_abs_delta.toFixed(2)}`,
+    );
+    lines.push('');
+  }
+  if ((raw.refills ?? []).length > 0) {
+    lines.push('## Refills', '');
+    lines.push('A pass that lost its reply is re-scored in the same registered slot; no');
+    lines.push('other score is touched and no candidate is revised.', '');
+    for (const refill of raw.refills) {
+      lines.push(`- ${refill.asset} · ${refill.view} · repeat ${refill.repeat}`);
+    }
+    lines.push('');
+  }
+  lines.push('## Decision', '');
+  lines.push(`**${analysis.verdict}**`);
+  lines.push('');
+  if (analysis.blocking.length > 0) {
+    lines.push('Blocking criteria (Δ above the tolerance):', '');
+    for (const item of analysis.blocking) {
+      lines.push(`- ${item.asset} · \`${item.criterion}\` Δ ${item.delta.toFixed(1)}`);
+    }
+    lines.push('');
+  }
+  if (!analysis.meanOk) {
+    lines.push(
+      `Mean |Δ| exceeded 0.25 for at least one asset: ${analysis.perAsset
+        .map((asset) => `${asset.asset} ${asset.mean_abs_delta === null ? '—' : asset.mean_abs_delta.toFixed(2)}`)
+        .join(', ')}.`,
+    );
+    lines.push('');
+  }
+
+  const report = {
+    schema: 1,
+    kind: 'view-comparison',
+    model: raw.model,
+    generated_at: new Date().toISOString(),
+    calls,
+    refills: raw.refills ?? [],
+    registry: { plan: registry.plan },
+    analysis,
+    artifacts: raw.results,
+  };
+  writeFileSync(join(VIEWS_OUT, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(join(VIEWS_OUT, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
+  writeFileSync(join(VIEWS_TRACK, 'views.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeFileSync(join(VIEWS_TRACK, 'views.md'), `${lines.join('\n')}\n`, 'utf8');
+  process.stdout.write(`${lines.join('\n')}\n`);
+
+  const unscored = raw.results.some((entry) =>
+    Object.values(entry.views).some((view) => view.repeats.some((repeat) => repeat === null)),
+  );
+  if (unscored) {
+    process.stderr.write('incomplete: at least one repeat could not be scored\n');
+    process.exitCode = 1;
+  }
+}
+
 function mean(values) {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
@@ -402,6 +655,16 @@ function main() {
   try {
     if (options.probes) {
       writeProbe(runProbes(options), options);
+      return;
+    }
+    if (options.views) {
+      let raw = runViews(options);
+      if (options.mergeViews) {
+        const path = join(VIEWS_TRACK, 'views.json');
+        if (!existsSync(path)) throw new Error('--merge-views needs an existing views.json');
+        raw = mergeIntoViews(raw, JSON.parse(readFileSync(path, 'utf8')));
+      }
+      writeViews({ ...raw, model: options.model }, analyseViews(raw.registry, raw.results));
       return;
     }
     for (const criterion of selected) {

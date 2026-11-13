@@ -1,0 +1,354 @@
+{
+  "schema": 1,
+  "kind": "view-comparison",
+  "model": "gemini-3.5-flash-lite",
+  "generated_at": "2026-11-13T20:51:58.850Z",
+  "calls": {
+    "attempted": 13,
+    "rejected": 2
+  },
+  "refills": [
+    {
+      "asset": "chest",
+      "view": "debug",
+      "repeat": 2
+    }
+  ],
+  "registry": {
+    "plan": {
+      "assets": [
+        "chest",
+        "humanoid"
+      ],
+      "views": [
+        "1x",
+        "8x",
+        "debug"
+      ],
+      "repeats": 2,
+      "rule": {
+        "repeat_agreement": 1,
+        "max_criterion_delta": 1,
+        "max_mean_delta": 0.25,
+        "accept": "1x for assets at or above 32px",
+        "otherwise": "keep the 8x and debug artifacts"
+      }
+    }
+  },
+  "analysis": {
+    "rule": {
+      "repeat_agreement": 1,
+      "max_criterion_delta": 1,
+      "max_mean_delta": 0.25,
+      "accept": "1x for assets at or above 32px",
+      "otherwise": "keep the 8x and debug artifacts"
+    },
+    "perAsset": [
+      {
+        "asset": "chest",
+        "width": 48,
+        "criteria": [
+          {
+            "criterion": "silhouette",
+            "means": {
+              "1x": 5,
+              "8x": 5,
+              "debug": 5
+            },
+            "delta": 0,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "value_separation",
+            "means": {
+              "1x": 4,
+              "8x": 4,
+              "debug": 4
+            },
+            "delta": 0,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "lighting",
+            "means": {
+              "1x": 3,
+              "8x": 3,
+              "debug": 3
+            },
+            "delta": 0,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "edge_language",
+            "means": {
+              "1x": 4,
+              "8x": 3.5,
+              "debug": 3
+            },
+            "delta": 1,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "cluster_discipline",
+            "means": {
+              "1x": 4,
+              "8x": 4.5,
+              "debug": 4
+            },
+            "delta": 0.5,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "palette_craft",
+            "means": {
+              "1x": 4,
+              "8x": 4,
+              "debug": 3
+            },
+            "delta": 1,
+            "excluded": false,
+            "reason": null
+          }
+        ],
+        "included": 6,
+        "mean_abs_delta": 0.4166666666666667
+      },
+      {
+        "asset": "humanoid",
+        "width": 32,
+        "criteria": [
+          {
+            "criterion": "silhouette",
+            "means": {
+              "1x": 3,
+              "8x": 3,
+              "debug": 3
+            },
+            "delta": 0,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "value_separation",
+            "means": {
+              "1x": 3,
+              "8x": 3,
+              "debug": 3
+            },
+            "delta": 0,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "lighting",
+            "means": {
+              "1x": 2,
+              "8x": 2,
+              "debug": 3
+            },
+            "delta": 1,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "edge_language",
+            "means": {
+              "1x": 3,
+              "8x": 2.5,
+              "debug": 3
+            },
+            "delta": 0.5,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "cluster_discipline",
+            "means": {
+              "1x": 3.5,
+              "8x": 4,
+              "debug": 2.5
+            },
+            "delta": 1.5,
+            "excluded": false,
+            "reason": null
+          },
+          {
+            "criterion": "palette_craft",
+            "means": {
+              "1x": 3,
+              "8x": 2.5,
+              "debug": 3
+            },
+            "delta": 0.5,
+            "excluded": false,
+            "reason": null
+          }
+        ],
+        "included": 6,
+        "mean_abs_delta": 0.5833333333333334
+      }
+    ],
+    "blocking": [
+      {
+        "asset": "humanoid",
+        "criterion": "cluster_discipline",
+        "delta": 1.5
+      }
+    ],
+    "meanOk": false,
+    "verdict": "keep 8x and debug"
+  },
+  "artifacts": [
+    {
+      "asset": "chest",
+      "width": 48,
+      "height": 48,
+      "views": {
+        "1x": {
+          "path": ".conductor/evidence/views/chest/1x.png",
+          "sha256": "07193f4570790b3d5c4df8cf2a8bcf9339b3e63f70dbc36f5d36a101d06906b6",
+          "repeats": [
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 4,
+              "cluster_discipline": 4,
+              "palette_craft": 4
+            },
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 4,
+              "cluster_discipline": 4,
+              "palette_craft": 4
+            }
+          ]
+        },
+        "8x": {
+          "path": ".conductor/evidence/views/chest/8x.png",
+          "sha256": "7429dca76f158343776462e268262ec281cf11011b7ba515fa7a5e3a582374b5",
+          "repeats": [
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 3,
+              "cluster_discipline": 4,
+              "palette_craft": 4
+            },
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 4,
+              "cluster_discipline": 5,
+              "palette_craft": 4
+            }
+          ]
+        },
+        "debug": {
+          "path": ".conductor/evidence/views/chest/debug.png",
+          "sha256": "e81307b238d18a4103655803d044622e0637d85506e1ce47d3ba4803e8528d3c",
+          "repeats": [
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 3,
+              "cluster_discipline": 4,
+              "palette_craft": 3
+            },
+            {
+              "silhouette": 5,
+              "value_separation": 4,
+              "lighting": 3,
+              "edge_language": 3,
+              "cluster_discipline": 4,
+              "palette_craft": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "asset": "humanoid",
+      "width": 32,
+      "height": 32,
+      "views": {
+        "1x": {
+          "path": ".conductor/evidence/views/humanoid/1x.png",
+          "sha256": "ebb87295b32deeb2ab5233ce45ba82eaded2513763717e6736196639ada368cb",
+          "repeats": [
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 2,
+              "edge_language": 3,
+              "cluster_discipline": 3,
+              "palette_craft": 3
+            },
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 2,
+              "edge_language": 3,
+              "cluster_discipline": 4,
+              "palette_craft": 3
+            }
+          ]
+        },
+        "8x": {
+          "path": ".conductor/evidence/views/humanoid/8x.png",
+          "sha256": "39c25ac8d2be5dc310e78b223c1f68aca050b025e6dcc97d187242f0d2dd643a",
+          "repeats": [
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 2,
+              "edge_language": 2,
+              "cluster_discipline": 4,
+              "palette_craft": 3
+            },
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 2,
+              "edge_language": 3,
+              "cluster_discipline": 4,
+              "palette_craft": 2
+            }
+          ]
+        },
+        "debug": {
+          "path": ".conductor/evidence/views/humanoid/debug.png",
+          "sha256": "50595a47750da1d615447e22f140f76b49693a147b25fb53c68f9869bb77cdb3",
+          "repeats": [
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 3,
+              "edge_language": 3,
+              "cluster_discipline": 2,
+              "palette_craft": 3
+            },
+            {
+              "silhouette": 3,
+              "value_separation": 3,
+              "lighting": 3,
+              "edge_language": 3,
+              "cluster_discipline": 3,
+              "palette_craft": 3
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

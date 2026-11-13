@@ -37,6 +37,7 @@ A pass is one scorer's look at one artifact. Two paths produce passes, and every
 | `scorer` | how | independence |
 | --- | --- | --- |
 | `vision-model` | `scripts/rubric.mjs` sends the artifact to a vision model | the two passes may be different models; neither is the author |
+| `method` | `scripts/calibrate.mjs --views` scores registered views for a measurement | not a pass on an asset's record; it never writes `scores.json` |
 | `agent` | the implementing agent views the artifact and scores it against the same anchors | none — it is the author, so the pass is a **self-review** |
 
 ### Agent review
@@ -86,6 +87,19 @@ a `self-review` or `mixed` verdict must name the assets its author judged — th
    valid evidence and must not be offered as a scoring artifact. The rubric's anchors are
    written against the 1× panel of the debug sheet, so both passes must see pixels the
    anchor can be judged on.
+
+   That rule was learned on one small asset, so it was re-measured on 2026-11-13 at the
+   sizes where it might not hold: chest (48 px) and humanoid (32 px), each scored from
+   `1x`, `8x` and `debug`, twice per view, against a tolerance registered before the first
+   call (one step per criterion, mean |Δ| below 0.25). The views are **not**
+   interchangeable. Chest moved 1.0 on `edge_language` and 1.0 on `palette_craft`;
+   humanoid moved 1.5 on `cluster_discipline` and 1.0 on `lighting`. Mean |Δ| was 0.42 and
+   0.58, both above the tolerance, and only `silhouette` and `value_separation` held still
+   on both assets. The 1× artifact was not uniformly worse — it scored *higher* than the
+   debug sheet on chest `edge_language` (4 against 3) — so what moves a score is which
+   pixels a view makes visible, not a general penalty for small files. `1x` therefore stays
+   refused as a scoring artifact at every size, and the 8× upscale and debug sheet remain
+   the two passes. Evidence: `conductor/tracks/20261113-rubric-view-comparison/verification/views/`.
 3. Score **twice per asset, independently** — two passes, ideally two different models.
    Each pass is a separate model call with no memory of the other.
 4. Run the scorer once per pass:
