@@ -229,8 +229,11 @@
 - **Covers:** F17, F18, F19
 - **Touches:** src/**, test/**, docs/**
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — parts now require schema 1.1 so no write can promote a 1.0 recipe into a different border, and the seal tie fixtures were seen to fail without the tie-break
+- **Checkpoint:** 6c8efb4
+- **Evidence:** conductor/tracks/20261113-static-art-quality/verification/phase-R3.md
 
-- [ ] **R3.T1: Parts require schema 1.1** - covers: F17, AC-1
-- [ ] **R3.T2: Tie fixtures fail without the tie-break** - covers: F18, FR-3
-- [ ] **R3.T3: Outline paragraph matches the gate** - covers: F19, FR-13
+- [x] **R3.T1: Parts require schema 1.1** - covers: F17, AC-1
+- [x] **R3.T2: Tie fixtures fail without the tie-break** - covers: F18, FR-3
+- [x] **R3.T3: Outline paragraph matches the gate** - covers: F19, FR-13
