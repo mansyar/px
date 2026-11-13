@@ -8,7 +8,7 @@
     "20261113-authoring-primitives"
   ],
   "created_at": "2026-11-13T05:23:08Z",
-  "updated_at": "2026-11-13T07:42:47Z",
+  "updated_at": "2026-11-13T07:51:29Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-surface-fidelity",
@@ -30,5 +30,9 @@
   "revert_commit": null,
   "revert_pr_url": null,
   "archived_at": null,
-  "archive_path": null
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-15"
+  ],
+  "merge_decision": "merged 2026-11-13 by owner with AC-15 open (score 3.73 vs 4.0)"
 }

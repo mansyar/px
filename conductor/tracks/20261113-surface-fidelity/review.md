@@ -71,6 +71,13 @@ written reason in their design files.
    shipped.
 3. Fix or file L1's two visible defects.
 
+## Merge decision
+
+**Owner decision, 2026-11-13:** merged as-is with **AC-15 recorded as open**. The
+engine and lint work is additive and fully tested; the score of 3.73 against 4.0
+stays a known, documented gap rather than a merge blocker. M1, M2 and L1 remain
+open as debt and are carried in the resolution follow-up where they apply.
+
 ## Note on process
 
 Performed by the implementing agent; no independent reviewer subagent is configured
