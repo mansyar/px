@@ -126,6 +126,7 @@
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** failed
 - **Result:** failed — AC-14 is not met. All fourteen passes are recorded (two per asset, eight of them agent self-reviews), no criterion sits below the floor, and the mean is **3.90** against a bar of 4.0. The bar was not lowered; the record's verdict is recomputed by `test/art/rubric.test.ts` and cannot drift into a pass.
+- **Attempt to close the gap:** `f9927c0` sweeps 76 stray cells out of the scene's masonry and apron. It is a real but marginal cleanup: the recorded scores did not move, so the mean stays 3.90. Raising `cluster_discipline` and `edge_language` to 4 needs the wall rebuilt on geometry the way the roof was (`7af131a`), plus even ramp steps across the palettes — authoring work, not a rubric change.
 - **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-6.md
 
 - [x] **P6.T1: Score** — covers: FR-17, AC-14
