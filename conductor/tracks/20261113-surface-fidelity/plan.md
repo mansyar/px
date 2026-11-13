@@ -62,9 +62,9 @@
 - **Goal:** an agent can shade a mass with interior bands from its form, not just a rim.
 - **Depends on:** Phase 2
 - **Covers:** FR-8, FR-9, FR-10, NFR-1, NFR-4, AC-7, AC-8, AC-9
-- **Touches:** `src/core/ops/form-shade.ts`, `src/core/ops/index.ts`, `src/core/recipe/{types,normalize}.ts`, `test/ops/**`, `test/recipe/**`, `test/benchmarks/**`
+- **Touches:** `src/core/ops/light.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Op surface and normalization** — covers: FR-8
   - [ ] **P3.T1.1:** Write the design note that picks between a new `form_shade` op and an `auto_shade` option, with the compatibility argument for the choice.
