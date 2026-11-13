@@ -23,7 +23,7 @@ to the art that actually changes.
 - **Covers:** FR-1, FR-2, AC-1, AC-2
 - **Touches:** `src/core/ops/light.ts`, `src/core/recipe/{types,normalize}.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Band derivation**
   - [ ] **P1.T1.1:** `bands: 2|3|4` and `band_scale: "thickness" | "uniform"` on `light`, defaulting to today's single band.
