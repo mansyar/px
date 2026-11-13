@@ -55,3 +55,7 @@ straight down a dome that curves, so their top ends float off the lid's surface.
 body's grain is three 1 px spans and is invisible at 1×. The lock is 5×7 and reads as a
 mail slot rather than a keyhole plate. If this were re-authored I would narrow the
 straps to 2 px and let them follow the dome's curve two pixels at a time.
+
+## Redraw
+
+Redrawn 2026-11-13: domed lid with a lit top, rim highlight, iron bands with rivets and a keyhole plate. The lid lip is painted inside the body part.

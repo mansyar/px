@@ -98,3 +98,7 @@ helmet's brow is a single row and could carry a nose guard.
 
 Re-lit with `light form: "round"`: bands come from thickness along the light
 axis, replacing the hand-placed shadow bands that a one-pixel rim could not move.
+
+## Redraw
+
+Redrawn 2026-11-13: plate rows across the torso, a gorget under the helm, and a vertical sword instead of a grey bar. Boots and grip are painted inside the leg and hilt parts so no tone collision crosses a part boundary.
