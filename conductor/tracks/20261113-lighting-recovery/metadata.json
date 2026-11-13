@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-13T19:40:00Z",
-  "updated_at": "2026-11-13T09:06:32Z",
+  "updated_at": "2026-11-13T09:10:26Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-lighting-recovery",
@@ -19,14 +19,22 @@
     "tasks_done": 17
   },
   "last_checkpoint": "6ada08f",
-  "review_verdict": null,
-  "review_rounds": 0,
-  "doc_sync": "pending",
+  "review_verdict": "PASS WITH FINDINGS",
+  "review_rounds": 1,
+  "doc_sync": "none",
   "pr_url": null,
   "pr_state": null,
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
   "archived_at": null,
-  "archive_path": null
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-5",
+    "AC-7"
+  ],
+  "merge_decision": "owner override 2026-11-13: land with the five missed criteria open"
 }
