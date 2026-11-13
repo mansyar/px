@@ -138,19 +138,24 @@
 - **Covers:** FR-17, FR-18, FR-19, NFR-1, NFR-7, AC-15, AC-16
 - **Touches:** `test/art/**`, `docs/rubric.md`
 - **Verification:** `pnpm verify && pnpm vitest run test/art && node scripts/rubric.mjs --asset <name> ...` (see tasks)
-- **Status:** pending
+- **Status:** failed
 
-- [ ] **P6.T1: Scene wall on geometry** — covers: FR-17
-  - [ ] **P6.T1.1:** Replace the ASCII masonry with polygon courses, stroke joints and a texture course, keeping the roof, well and apron.
-  - [ ] **P6.T1.2:** Split the gable into two facing planes now that Phase 2 allows it, or record why not.
-  - [ ] **P6.T1.3:** Render `--strict` clean, re-baseline the digest with a reason, and re-run the thin-cluster count against the archived 222.
-- [ ] **P6.T2: Character rebuild** — covers: FR-18
-  - [ ] **P6.T2.1:** Replace the 1 px dither with 2×2 form shading on the body masses.
-  - [ ] **P6.T2.2:** Give the outline one treatment using Phase 5's corner and cap controls, and note the rule in the design file.
-- [ ] **P6.T3: Humanoid and sword lighting** — covers: FR-19
-  - [ ] **P6.T3.1:** Re-light both with `form_shade`, replacing the hand-placed shadow bands.
-  - [ ] **P6.T3.2:** Re-run the four benchmark digests that must not change and record the two that do.
-- [ ] **P6.T4: Independent re-score** — covers: FR-19, AC-15
-  - [ ] **P6.T4.1:** Score all seven assets twice on the Phase 1 instrument, with the same views as the baseline.
-  - [ ] **P6.T4.2:** Recompute the verdict in `scores.json` and confirm `mean ≥ 4.0`, no score below 3, `basis: "independent"`.
-  - [ ] **P6.T4.3:** If the bar is missed, record the failing criteria and stop — do not lower the bar or re-score to fit.
+- [x] **P6.T1: Scene wall on geometry** — covers: FR-17
+  - [x] **P6.T1.1:** Replace the ASCII masonry with polygon courses, stroke joints and a texture course, keeping the roof, well and apron.
+  - [x] **P6.T1.2:** Split the gable into two facing planes now that Phase 2 allows it, or record why not.
+  - [x] **P6.T1.3:** Render `--strict` clean, re-baseline the digest with a reason, and re-run the thin-cluster count against the archived 222.
+- [x] **P6.T2: Character rebuild** — covers: FR-18
+  - [x] **P6.T2.1:** Replace the 1 px dither with 2×2 form shading on the body masses.
+  - [x] **P6.T2.2:** Give the outline one treatment using Phase 5's corner and cap controls, and note the rule in the design file.
+- [x] **P6.T3: Humanoid and sword lighting** — covers: FR-19
+  - [x] **P6.T3.1:** Re-light both with `form_shade`, replacing the hand-placed shadow bands.
+  - [x] **P6.T3.2:** Re-run the four benchmark digests that must not change and record the two that do.
+- [x] **P6.T4: Independent re-score** — covers: FR-19, AC-15
+  - [x] **P6.T4.1:** Score all seven assets twice on the Phase 1 instrument, with the same views as the baseline.
+  - [x] **P6.T4.2:** Recompute the verdict in `scores.json` and confirm `mean ≥ 4.0`, no score below 3, `basis: "independent"`.
+  - [x] **P6.T4.3:** If the bar is missed, record the failing criteria and stop — do not lower the bar or re-score to fit.
+
+**Result:** failed — mean 3.73 against the 4.0 bar; scene pass A lighting 2.
+**Checkpoint:** 6b4510b
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-6.md
+
