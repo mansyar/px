@@ -6,4 +6,4 @@
 
 - [x] **Track: Surface Fidelity** — [20261113-surface-fidelity](./archive/20261113-surface-fidelity/index.md) — feature — high — *merged PR #4, AC-15 open (3.73 vs 4.0)*
 - [x] **Track: Surface Resolution** — [20261113-surface-resolution](./archive/20261113-surface-resolution/index.md) — feature — high — *merged PR #5, AC-8/AC-9 open (3.71 vs 4.0)*
-- [ ] **Track: Lighting Recovery** — [20261113-lighting-recovery](./tracks/20261113-lighting-recovery/index.md) — feature — high
+- [~] **Track: Lighting Recovery** — [20261113-lighting-recovery](./tracks/20261113-lighting-recovery/index.md) — feature — high
