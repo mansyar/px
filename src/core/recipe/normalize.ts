@@ -1365,6 +1365,51 @@ function normalizeLight(source: Record<string, unknown>, opIndex: number, layer:
       op.bandScale = 'uniform';
     }
   }
+  const names = (key: 'parts' | 'skip'): string[] | undefined => {
+    const raw = source[key];
+    if (raw === undefined) {
+      return undefined;
+    }
+    if (!Array.isArray(raw) || raw.length === 0) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has ${key} ${JSON.stringify(raw)}; expected a non-empty list of part names`,
+        'Name at least one declared part.',
+        opLocation(layer, opIndex),
+      );
+    }
+    const out: string[] = [];
+    for (const entry of raw) {
+      if (typeof entry !== 'string' || entry === '') {
+        throw new PxError(
+          'E_BAD_PARAM',
+          `Op ${opIndex} (light) has a non-string entry in ${key}`,
+          'Part names are strings copied from the recipe parts block.',
+          opLocation(layer, opIndex),
+        );
+      }
+      if (!out.includes(entry)) {
+        out.push(entry);
+      }
+    }
+    return out;
+  };
+  const include = names('parts');
+  const exclude = names('skip');
+  if (include !== undefined && exclude !== undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `Op ${opIndex} (light) sets both parts and skip`,
+      'An allow-list and a deny-list cannot both decide which parts are shaded.',
+      opLocation(layer, opIndex),
+    );
+  }
+  if (include !== undefined) {
+    op.parts = include;
+  }
+  if (exclude !== undefined) {
+    op.skip = exclude;
+  }
   const targetLayer = optionalStringParam(source, 'target_layer', 'light', opIndex, layer);
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;
@@ -1688,7 +1733,32 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
         );
       }
     }
+    const declaredParts = new Set(
+      typeof raw.parts === 'object' && raw.parts !== null ? Object.keys(raw.parts) : [],
+    );
     const layers = Array.isArray(raw.layers) ? raw.layers : [];
+    for (const layer of layers) {
+      const ops = (layer as { ops?: unknown }).ops;
+      if (!Array.isArray(ops)) continue;
+      for (const op of ops) {
+        const candidate = op as { op?: unknown; parts?: unknown; skip?: unknown };
+        if (candidate.op !== 'light') continue;
+        for (const key of ['parts', 'skip'] as const) {
+          const list = candidate[key];
+          if (!Array.isArray(list)) continue;
+          for (const name of list) {
+            if (!declaredParts.has(String(name))) {
+              throw new PxError(
+                'E_BAD_PARAM',
+                `Op (light) names part "${String(name)}" in ${key}, which the recipe does not declare`,
+                `Declared parts are ${[...declaredParts].join(', ') || 'none'}.`,
+                { layer: String((layer as { id?: unknown }).id ?? 'base') },
+              );
+            }
+          }
+        }
+      }
+    }
     for (const layer of layers) {
       const ops = (layer as { ops?: unknown }).ops;
       if (!Array.isArray(ops)) continue;

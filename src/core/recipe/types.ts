@@ -383,6 +383,10 @@ export interface LightOp extends OpBase {
   bands?: number;
   /** How band widths are measured. Absent means `thickness`. */
   bandScale?: 'thickness' | 'uniform';
+  /** Only these parts are recoloured. Mutually exclusive with `skip`. */
+  parts?: string[];
+  /** These parts keep their authored tones. Mutually exclusive with `parts`. */
+  skip?: string[];
   targetLayer?: string;
 }
 
@@ -557,6 +561,8 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
     'rim',
     'bands',
     'band_scale',
+    'parts',
+    'skip',
     'target_layer',
   ],
   replace_slot: ['from', 'to'],

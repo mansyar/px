@@ -752,7 +752,12 @@
           "ao": true,
           "cast": null,
           "cast_offset": 1,
-          "rim": "edge"
+          "rim": "edge",
+          "skip": [
+            "roof_left",
+            "roof_right",
+            "ridge"
+          ]
         },
         {
           "op": "polygon",

@@ -386,6 +386,12 @@ export function applyOp(context: OpContext, op: Op): OpResult {
           castOffset: op.castOffset,
           bands: op.bands,
           bandScale: op.bandScale,
+          shadeInclude: op.parts
+            ? new Set(op.parts.map((name) => context.partIndexes.get(name) ?? UNOWNED))
+            : undefined,
+          shadeExclude: op.skip
+            ? new Set(op.skip.map((name) => context.partIndexes.get(name) ?? UNOWNED))
+            : undefined,
           rim: op.rim,
         },
         { opIndex: context.opIndex, layerId: context.layerId },
