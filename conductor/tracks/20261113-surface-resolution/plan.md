@@ -66,14 +66,18 @@ to the art that actually changes.
 - **Covers:** FR-4, FR-5, AC-5
 - **Touches:** `src/core/ops/outline.ts` (or `auto_outline`), `src/core/recipe/normalize.ts`, `test/ops/**`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P3.T1: Boundary walk**
-  - [ ] **P3.T1.1:** `inner` role written on the inside of a boundary between two parts, once per boundary.
-  - [ ] **P3.T1.2:** Never on a silhouette pixel, never over a ridge part's own tone, no `W_PART_OVERWRITE`.
-  - [ ] **P3.T1.3:** Test two adjacent materials gain one inner edge while the outer outline is unchanged; same-role boundaries draw nothing.
-- [ ] **P3.T2: Bounded output**
-  - [ ] **P3.T2.1:** The op reports a count, not a per-pixel list, so `render` output stays bounded (NFR-6).
+- [x] **P3.T1: Boundary walk**
+  - [x] **P3.T1.1:** `inner` role written on the inside of a boundary between two parts, once per boundary.
+  - [x] **P3.T1.2:** Never on a silhouette pixel, never over a ridge part's own tone, no `W_PART_OVERWRITE`.
+  - [x] **P3.T1.3:** Test two adjacent materials gain one inner edge while the outer outline is unchanged; same-role boundaries draw nothing.
+- [x] **P3.T2: Bounded output**
+  - [x] **P3.T2.1:** The op reports a count, not a per-pixel list, so `render` output stays bounded (NFR-6).
+
+**Result:** verified
+**Checkpoint:** 5fe532e
+**Evidence:** conductor/tracks/20261113-surface-resolution/verification/phase-3.md
 
 ## Phase 4: Palette Tones and Schema 1.3
 
