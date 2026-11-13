@@ -110,3 +110,7 @@ Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance a
 each base clears the backdrop floor (minimum adjacent gap after fitting: 0.065).
 Geometry is unchanged; only the palette blocks and the legend's tone names moved,
 which is why the digest was re-baselined.
+
+## Lighting
+
+The torso is shaded from the upper-left: the ramp runs from the lit shoulder tone across the chest to the shadowed flank, so the mass reads as a form rather than a flat field.

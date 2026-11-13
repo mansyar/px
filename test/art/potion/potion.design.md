@@ -78,3 +78,7 @@ Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance a
 each base clears the backdrop floor (minimum adjacent gap after fitting: 0.570).
 Geometry is unchanged; only the palette blocks and the legend's tone names moved,
 which is why the digest was re-baselined.
+
+## Lighting
+
+The liquid is lit from above: a bright surface line, then successive steps down through the body of the liquid, so the glass reads as containing depth rather than a flat fill.

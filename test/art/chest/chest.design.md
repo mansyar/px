@@ -73,3 +73,7 @@ Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance a
 each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
 Geometry is unchanged; only the palette blocks and the legend's tone names moved,
 which is why the digest was re-baselined.
+
+## Lighting
+
+The body front face is shaded on a diagonal: the upper-left corner is the brightest tone and the ramp steps down toward the lower-right, so the face is a lit surface rather than a flat fill with two horizontal lines. The lid follows the same direction with a shallower range.

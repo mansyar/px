@@ -13,28 +13,10 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.69,
+    "mean": 3.76,
     "threshold_mean": 4,
     "min_allowed": 3,
     "failures": [
-      {
-        "asset": "chest",
-        "pass": "A",
-        "criterion": "lighting",
-        "score": 2
-      },
-      {
-        "asset": "chest",
-        "pass": "A",
-        "criterion": "edge_language",
-        "score": 2
-      },
-      {
-        "asset": "chest",
-        "pass": "B",
-        "criterion": "lighting",
-        "score": 1
-      },
       {
         "asset": "scene",
         "pass": "A",
@@ -288,27 +270,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The asset has a clear rectangular chest shape with a rounded lid that is instantly recognizable at 1x scale."
+              "why": "The rounded rectangular profile and distinct proportion instantly read as a chest at 1x scale without color."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Major parts are separated, but some adjacent wood and metal tones merge closely together in value."
+              "score": 4,
+              "why": "The major masses like the lid, body, and metal bands are easily distinguished, though a few adjacent tone steps are quite close."
             },
             "lighting": {
-              "score": 2,
-              "why": "The lighting lacks clear directional consistency, appearing mostly flat with minimal form shading."
+              "score": 3,
+              "why": "The lighting generally establishes a top-down source, but some shading on the wooden body and metal structures conflicts with a unified direction."
             },
             "edge_language": {
-              "score": 2,
-              "why": "The thick black outline frames the asset well, but interior material edges lack deliberate, consistent treatment."
+              "score": 3,
+              "why": "The outer outline is mostly consistent, but the transition between metal trim and wood details lacks a fully deliberate separation treatment."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Pixels are grouped cleanly into solid clusters with very little stray noise."
+              "why": "Most forms are built with clean pixel groups, avoiding distracting single-pixel noise except for intended highlights."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The color palette is coherent and fits the subject, but the shading ramps are flat and lack temperature shifts."
+              "why": "The color selection is coherent for a wooden and metallic chest, but the ramps and hue shifts could be more harmoniously balanced."
             }
           }
         },
@@ -316,33 +298,33 @@
           "pass": "B",
           "scorer": "vision-model",
           "model": "gemini-3.5-flash-lite",
-          "artifact_path": ".conductor/evidence/art/chest.debug.png",
-          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "artifact_path": ".conductor/evidence/art/chest.8x.png",
+          "view": "plain 8x nearest-neighbour on #808080",
           "subject": "chest",
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The asset has a clean, readable boxy shape that is instantly recognisable as a chest even at 1x scale."
+              "why": "The asset has a clear, boxy outline with a distinctive curved lid that instantly reads as a treasure chest."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Key components are generally distinct, but some adjacent wood and metal values blend closely together without strong contrast steps."
+              "score": 4,
+              "why": "Most elements like the metal bands, lock, and wooden body separate well, though a few adjacent tone steps are close."
             },
             "lighting": {
-              "score": 1,
-              "why": "There is virtually no directional shading or lighting applied to define the form of the chest."
+              "score": 4,
+              "why": "The light source generally comes from the top left, though some shadow planes on the wood and metal bands feel slightly inconsistent."
             },
             "edge_language": {
               "score": 3,
-              "why": "The dark outline is consistent around the silhouette, but internal details lack a deliberate and varied edge treatment."
+              "why": "The dark outer outline is consistent, but interior metal lines and wood shapes blur boundaries between silhouette and detail."
             },
             "cluster_discipline": {
-              "score": 5,
-              "why": "The pixel placement is clean with solid pixel clusters and no noisy single-pixel confetti."
+              "score": 4,
+              "why": "Forms are built from solid pixel clusters with minimal noise, though some jagged stair-stepping on the diagonal shading could be smoother."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The colours function adequately for wood, metal, and gold, but the ramps are flat and lack sophisticated hue shifting."
+              "why": "The colour palette is coherent for a chest, but the hue shifts and ramps feel somewhat flat and lack rich temperature contrast."
             }
           }
         }
@@ -510,27 +492,27 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The roof, pillars, well structure, and platform form a clearly identifiable well even at small scale."
+              "why": "The well structure and roof are instantly recognizable as a covered well at 1x scale without needing color information."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Major components are generally separated, but certain adjacent tones like the ground and shadow blur together."
+              "score": 4,
+              "why": "Most parts separate cleanly, though some adjacent tones on the roof and stonework are close in value."
             },
             "lighting": {
               "score": 2,
-              "why": "The division between light and shadow is unnaturally split right down the middle, creating a flat two-tone effect rather than coherent volumetric lighting."
+              "why": "The shading on the roof faces and cylindrical well structure present inconsistent or conflicting light source directions."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are generally consistent, but internal details lack a deliberate and varied edge hierarchy."
+              "why": "Outlines are generally consistent, but some internal material edges lack clear differentiation from the main structure."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Most pixel groups are well-formed with minimal isolated single-pixel noise."
+              "why": "Pixel clusters are well-formed and readable with minimal stray pixels or unnecessary single-pixel noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The colors are functional and fit the subject, but the shading steps feel a bit rigid and flat."
+              "why": "The color ramps are coherent and fit the subject well, but the shadow choices and value progression feel a bit flat."
             }
           }
         },
@@ -538,33 +520,33 @@
           "pass": "B",
           "scorer": "vision-model",
           "model": "gemini-3.5-flash-lite",
-          "artifact_path": ".conductor/evidence/art/scene.debug.png",
-          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "artifact_path": ".conductor/evidence/art/scene.8x.png",
+          "view": "plain 8x nearest-neighbour on #808080",
           "subject": "scene",
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The well structure and roof read clearly as a well even without color data."
+              "why": "The well structure and roof read instantly and clearly as a complete architectural asset."
             },
             "value_separation": {
               "score": 4,
-              "why": "Most parts separate distinctly, though some adjacent grey tones on the well wall are quite close."
+              "why": "Distinct parts are generally easy to separate, though some adjacent mid-tones share similar values."
             },
             "lighting": {
               "score": 2,
-              "why": "The lighting is split arbitrarily down the middle rather than following a unified directional light source."
+              "why": "The shading on the roof and pillars feels somewhat inconsistent and lacks a unified light source."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are generally consistent, but some internal details blend into the silhouette boundaries."
+              "why": "Outlines are consistently maintained, but internal detail edges lack clear differentiation from the silhouette."
             },
             "cluster_discipline": {
-              "score": 5,
-              "why": "Pixels are cleanly grouped into solid clusters without unwanted single-pixel noise."
+              "score": 4,
+              "why": "Most shapes use solid pixel clusters, though some details lean toward smaller fragments."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent and fits the subject, but the split lighting makes the hues feel flat and mechanically separated."
+              "why": "The color ramps are coherent for the asset, but some values step rather abruptly without much temperature shift."
             }
           }
         }

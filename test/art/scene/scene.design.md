@@ -164,3 +164,7 @@ Bases were fitted so adjacent parts stay at least 0.06 apart in WCAG luminance a
 each base clears the backdrop floor (minimum adjacent gap after fitting: 0.072).
 Geometry is unchanged; only the palette blocks and the legend's tone names moved,
 which is why the digest was re-baselined.
+
+## Lighting
+
+Light comes from high and to the left. Both roof planes share one hue and fall from a bright ridge to darker eaves, with the right plane one ladder step behind the left, so the ridge is a single-tone crease rather than a boundary between two lighting schemes. The stone well body, rim, posts and wall carry a left-to-right falloff that matches the cast shadow on the ground.
