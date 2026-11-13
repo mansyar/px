@@ -1,14 +1,14 @@
 {
   "spec": "spec.md",
-  "updated_at": "2026-11-13T19:10:00Z",
+  "updated_at": "2026-11-13T20:05:00Z",
   "revert_pr_url": null,
   "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
   "type": "feature",
   "doc_sync": "pending",
   "status": "in_progress",
   "priority": "high",
-  "review_rounds": 0,
-  "review_verdict": null,
+  "review_rounds": 1,
+  "review_verdict": "BLOCK",
   "depends_on": [
     "20261113-static-art-quality"
   ],
