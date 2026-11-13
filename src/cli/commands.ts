@@ -411,15 +411,18 @@ function parseOpList(value: string): unknown[] {
 }
 
 /**
- * What the cleanup passes changed, plus the warnings compiling them raised,
- * when the recipe uses one. Compiling is the only way to know, so recipes
- * without a cleanup op pay nothing and their responses stay byte-identical.
+ * What the reporting passes changed, plus the warnings compiling them raised,
+ * when the recipe uses one. Compiling is the only way to know, so recipes with
+ * neither a cleanup pass nor a texture pass pay nothing and their responses
+ * stay byte-identical.
  */
 function cleanupOf(recipe: Recipe): {
   cleanup?: CleanupReport[];
   warnings: PxWarning[];
 } {
-  const uses = recipe.layers.some((layer) => layer.ops.some((op) => isCleanupOp(op.op)));
+  const uses = recipe.layers.some((layer) =>
+    layer.ops.some((op) => isCleanupOp(op.op) || op.op === 'texture'),
+  );
   if (!uses) {
     return { warnings: [] };
   }

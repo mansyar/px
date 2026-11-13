@@ -195,6 +195,19 @@ export const OUTLINE_WHERES: readonly OutlineWhere[] = ['inner', 'outer'];
 export type DitherPattern = 'checker_50' | 'bayer_25';
 export const DITHER_PATTERNS: readonly DitherPattern[] = ['checker_50', 'bayer_25'];
 
+/** The closed set of texture patterns; every one is cluster-legal by construction. */
+export type TexturePattern = 'stipple' | 'hatch' | 'grain' | 'brick' | 'mottle';
+export const TEXTURE_PATTERNS: readonly TexturePattern[] = [
+  'stipple',
+  'hatch',
+  'grain',
+  'brick',
+  'mottle',
+];
+
+/** 1 sparsest, 3 densest; scales the gap, never the mark. */
+export type TextureDensity = 1 | 2 | 3;
+
 /** Every op may carry a stable id; `px edit` addresses ops by it. */
 export interface OpBase {
   id?: string;
@@ -276,6 +289,20 @@ export interface DitherFillOp extends OpBase {
   pattern: DitherPattern;
 }
 
+/**
+ * The texture pass. It reads a layer, masks on a declared part's pixels, and
+ * writes marks into the active layer, so `part` is required rather than optional
+ * in practice: the op has no mask without one. `color` is a slot name or one of
+ * the four ramp roles, resolved against the part's material.
+ */
+export interface TextureOp extends OpBase {
+  op: 'texture';
+  pattern: TexturePattern;
+  color: SlotRef;
+  density?: TextureDensity;
+  targetLayer?: string;
+}
+
 export interface AsciiBlitOp extends OpBase {
   op: 'ascii_blit';
   x: number;
@@ -353,6 +380,7 @@ export type Op =
   | PolygonOp
   | FloodFillOp
   | DitherFillOp
+  | TextureOp
   | AsciiBlitOp
   | MirrorOp
   | AutoOutlineOp
@@ -427,6 +455,7 @@ export const PART_TAGGED_OPS: readonly OpName[] = [
   'polygon',
   'flood_fill',
   'dither_fill',
+  'texture',
   'ascii_blit',
 ];
 
@@ -436,6 +465,7 @@ export const POST_PASS_OPS: readonly OpName[] = [
   'auto_shade',
   'ramp_fill',
   'light',
+  'texture',
   'seal',
   'strays',
   'deband',
@@ -497,6 +527,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],
   dither_fill: ['x', 'y', 'w', 'h', 'color', 'pattern'],
+  texture: ['pattern', 'color', 'density', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
   auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],

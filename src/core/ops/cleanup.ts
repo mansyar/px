@@ -266,9 +266,12 @@ export function deband(
   return changed;
 }
 
-/** One entry per cleanup pass that actually ran, with exact counts. */
+/** One entry per pass that actually ran, with exact counts. */
 export interface CleanupReport {
-  op: 'seal' | 'strays' | 'deband';
+  op: 'seal' | 'strays' | 'deband' | 'texture';
   changed: number;
+  /** Coordinates for the cleanup passes; texture reports counts only (FR-12). */
   coords: CleanupCoord[];
+  /** Texture only: how many marks were painted whole. */
+  marks?: number;
 }

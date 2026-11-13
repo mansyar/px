@@ -64,6 +64,9 @@ import {
   type SlotRef,
   type StraysOp,
   type StrokeOp,
+  TEXTURE_PATTERNS,
+  type TextureOp,
+  type TexturePattern,
 } from './types.js';
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
@@ -998,6 +1001,60 @@ function legendParam(
   return legend;
 }
 
+/**
+ * `texture` reads a part's mask, so the pattern is required and its own code
+ * names the legal set. `color` may be a slot or a bare ramp role, resolved
+ * against the part's material at compile time; `density` defaults to 2 and is
+ * written back only when it differs, so a plain texture stays compact.
+ */
+function normalizeTexture(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): TextureOp {
+  const pattern = source.pattern;
+  if (pattern === undefined) {
+    throw new PxError(
+      'E_MISSING_PARAM',
+      `Op ${opIndex} (texture) is missing "pattern"`,
+      `Parameters for texture are ${OP_PARAM_ORDER.texture.join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  if (typeof pattern !== 'string' || !TEXTURE_PATTERNS.includes(pattern as TexturePattern)) {
+    throw new PxError(
+      'E_PATTERN_UNKNOWN',
+      `Op ${opIndex} (texture) has pattern ${JSON.stringify(pattern)}, which is not a texture pattern`,
+      `Patterns are ${TEXTURE_PATTERNS.join(', ')}.`,
+      opLocation(layer, opIndex),
+    );
+  }
+  const op: TextureOp = {
+    op: 'texture',
+    pattern: pattern as TexturePattern,
+    color: colorParam(source, 'texture', opIndex, layer) ?? null,
+  };
+  const density = source.density;
+  if (density !== undefined) {
+    if (density !== 1 && density !== 2 && density !== 3) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (texture) has density ${String(density)}; only 1, 2 and 3 are supported`,
+        'Density 1 is sparsest and 3 is densest; it scales the gap between marks, not their size.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (density !== 2) {
+      op.density = density;
+    }
+  }
+  const targetLayer = optionalStringParam(source, 'target_layer', 'texture', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
 function normalizeAsciiBlit(
   source: Record<string, unknown>,
   opIndex: number,
@@ -1408,6 +1465,8 @@ function normalizeOpBody(
       return normalizeFloodFill(raw, opIndex, layer);
     case 'dither_fill':
       return normalizeDitherFill(raw, opIndex, layer);
+    case 'texture':
+      return normalizeTexture(raw, opIndex, layer);
     case 'ascii_blit':
       return normalizeAsciiBlit(raw, opIndex, layer);
     case 'mirror':

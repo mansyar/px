@@ -19,6 +19,7 @@ export default defineConfig({
             'test/palettes/**/*.test.ts',
             'test/parts/**/*.test.ts',
             'test/stroke/**/*.test.ts',
+            'test/texture/**/*.test.ts',
             'test/profiles/**/*.test.ts',
           ],
         },

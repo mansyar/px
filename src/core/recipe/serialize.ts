@@ -186,6 +186,13 @@ function opParams(op: RawOp): Record<string, unknown> {
         color: op.color,
         pattern: op.pattern,
       };
+    case 'texture':
+      return defined({
+        pattern: op.pattern,
+        color: op.color,
+        density: op.density,
+        target_layer: op.targetLayer,
+      });
     case 'ascii_blit':
       return {
         x: coordJson(op.x),
