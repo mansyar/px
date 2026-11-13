@@ -7,3 +7,4 @@
 - [x] **Track: Surface Fidelity** — [20261113-surface-fidelity](./archive/20261113-surface-fidelity/index.md) — feature — high — *merged PR #4, AC-15 open (3.73 vs 4.0)*
 - [x] **Track: Surface Resolution** — [20261113-surface-resolution](./archive/20261113-surface-resolution/index.md) — feature — high — *merged PR #5, AC-8/AC-9 open (3.71 vs 4.0)*
 - [x] **Track: Lighting Recovery** — [20261113-lighting-recovery](./archive/20261113-lighting-recovery/index.md) — feature — high — *merged PR #7, AC-1/2/3/5/7 open (3.69 vs 4.0)*
+- [ ] **Track: Rubric Calibration** — [20261113-rubric-calibration](./tracks/20261113-rubric-calibration/index.md) — feature — high

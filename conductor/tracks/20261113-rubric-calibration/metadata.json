@@ -1,0 +1,32 @@
+{
+  "id": "20261113-rubric-calibration",
+  "title": "Rubric Calibration",
+  "type": "feature",
+  "status": "in_progress",
+  "priority": "high",
+  "depends_on": [],
+  "created_at": "2026-11-13T20:40:00Z",
+  "updated_at": "2026-11-13T22:00:00Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261113-rubric-calibration",
+  "base_branch": "main",
+  "base_sha": "54c0b13",
+  "progress": {
+    "phases_total": 4,
+    "phases_verified": 4,
+    "tasks_total": 16,
+    "tasks_done": 15
+  },
+  "last_checkpoint": null,
+  "review_verdict": "PASS WITH FINDINGS",
+  "review_rounds": 1,
+  "doc_sync": "updated",
+  "pr_url": null,
+  "pr_state": null,
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null
+}

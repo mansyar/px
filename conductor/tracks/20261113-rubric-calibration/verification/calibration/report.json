@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "rubric": "docs/rubric.md",
+  "base_asset": "test/art/chest/chest.px.json",
+  "model": "gemini-3.5-flash-lite",
+  "generated_at": "2026-11-13T10:31:28.110Z",
+  "thresholds": {
+    "separates_delta": 2,
+    "min_pass_delta": 1,
+    "saturated_max": 3,
+    "anchor4_min": 4
+  },
+  "calls": {
+    "attempted": 28,
+    "rejected": 6
+  },
+  "criteria": [
+    {
+      "criterion": "silhouette",
+      "low": {
+        "A": 1,
+        "B": 1,
+        "mean": 1
+      },
+      "high": {
+        "A": 5,
+        "B": 5,
+        "mean": 5
+      },
+      "rationale": {
+        "low": {
+          "A": "The shape reads only as a generic rounded rectangle rather than a distinct chest.",
+          "B": "The shape reads merely as an unidentifiable filled rounded rectangle with no chest-specific features."
+        },
+        "high": {
+          "A": "The blocky, rounded-top shape clearly reads as a chest instantly even without colour.",
+          "B": "The rounded rectangular shape with its distinct top lid reads immediately as a chest even at 1x resolution."
+        }
+      },
+      "attempts": [],
+      "delta": 4,
+      "verdict": "separates",
+      "saturated": false,
+      "anchor4": true
+    },
+    {
+      "criterion": "value_separation",
+      "low": {
+        "A": 3,
+        "B": 3,
+        "mean": 3
+      },
+      "high": {
+        "A": 4,
+        "B": 4,
+        "mean": 4
+      },
+      "rationale": {
+        "low": {
+          "A": "Major regions are separated, but the brown body and blue strap values are quite close in tone.",
+          "B": "The major parts like the wooden body, straps, and lid separate adequately, but some adjacent color tones are quite close in value."
+        },
+        "high": {
+          "A": "Most structural elements contrast well, though the dark wooden lid blends slightly with the outer outline in places.",
+          "B": "Most distinct parts like the metal bands, lock, and wooden body separate well, though some adjacent tones are quite close."
+        }
+      },
+      "attempts": [],
+      "delta": 1,
+      "verdict": "ambiguous",
+      "saturated": false,
+      "anchor4": true
+    },
+    {
+      "criterion": "lighting",
+      "low": {
+        "A": 1,
+        "B": 1,
+        "mean": 1
+      },
+      "high": {
+        "A": 3,
+        "B": 3,
+        "mean": 3
+      },
+      "rationale": {
+        "low": {
+          "A": "There is no shading or directional light source applied to the asset, leaving it completely flat.",
+          "B": "There is a complete absence of lighting and shading, rendering the asset entirely flat."
+        },
+        "high": {
+          "A": "The lighting generally comes from the top-left, but the shading on the right side and metal bands feels somewhat flat and inconsistent.",
+          "B": "The lighting generally indicates a top-down source, but shading across the wooden planks and metal bands is inconsistent in direction and application."
+        }
+      },
+      "attempts": [],
+      "delta": 2,
+      "verdict": "separates",
+      "saturated": true,
+      "anchor4": false
+    },
+    {
+      "criterion": "edge_language",
+      "low": {
+        "A": 3,
+        "B": 3,
+        "mean": 3
+      },
+      "high": {
+        "A": 3,
+        "B": 3,
+        "mean": 3
+      },
+      "rationale": {
+        "low": {
+          "A": "The outer silhouette is distinct, but the internal textures rely on scattered single pixels that blur the distinction between material and detail edges.",
+          "B": "The outer silhouette is well defined, but some internal details and material edges blur into each other without distinct treatment."
+        },
+        "high": {
+          "A": "The outline is consistently dark, but some internal detail edges blend into the silhouette and lack clear material definition.",
+          "B": "The outer outline is clean and consistent, but some interior material boundaries blend into adjacent pixels without a clear edge treatment."
+        }
+      },
+      "attempts": [],
+      "delta": 0,
+      "verdict": "ambiguous",
+      "saturated": true,
+      "anchor4": false
+    },
+    {
+      "criterion": "cluster_discipline",
+      "low": {
+        "A": 1,
+        "B": 1,
+        "mean": 1
+      },
+      "high": {
+        "A": 4,
+        "B": 4,
+        "mean": 4
+      },
+      "rationale": {
+        "low": {
+          "A": "The asset consists almost entirely of isolated single-pixel checkerboard patterns, creating severe pixel confetti.",
+          "B": "The entire image is composed of alternating single-pixel checks, violating cluster discipline completely with checkerboard noise."
+        },
+        "high": {
+          "A": "Pixels are mostly grouped into solid clusters, with only minor jaggedness along diagonal steps.",
+          "B": "Pixel clusters are well-formed and avoid single-pixel noise, though some minor color transitions could be cleaner."
+        }
+      },
+      "attempts": [],
+      "delta": 3,
+      "verdict": "separates",
+      "saturated": false,
+      "anchor4": true
+    },
+    {
+      "criterion": "palette_craft",
+      "low": {
+        "A": 2,
+        "B": 1,
+        "mean": 1.5
+      },
+      "high": {
+        "A": 3,
+        "B": 3,
+        "mean": 3
+      },
+      "rationale": {
+        "low": {
+          "A": "The colors create a coherent base, but the heavy checkered dithering results in a flat and noisy overall look.",
+          "B": "The colours are arranged in harsh alternating checkerboard ramps that fight the form rather than defining material or lighting."
+        },
+        "high": {
+          "A": "The palette is cohesive and thematic for wood and metal, but certain ramps do not step evenly across values.",
+          "B": "The palette is coherent and fits a wooden chest with metal hardware, but the ramps could step more evenly across values."
+        }
+      },
+      "attempts": [],
+      "delta": 1.5,
+      "verdict": "ambiguous",
+      "saturated": true,
+      "anchor4": false
+    }
+  ]
+}
