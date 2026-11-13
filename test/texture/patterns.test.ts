@@ -36,7 +36,8 @@ describe('texture — patterns (FR-9, FR-11)', () => {
   });
 
   it('grows the mark with the profile at the same density', () => {
-    const tiny = compileScene([wall(16, 16), texture('stipple')], { width: 16, height: 16 });
+    // AC-10 names an 8 px canvas; 8 is the smallest canvas the engine accepts.
+    const tiny = compileScene([wall(8, 8), texture('stipple')], { width: 8, height: 8 });
     expect(tiny.profile).toBe('tiny');
     // tiny: mark 1, gap 2 — one pixel per mark, three pixels apart.
     expect(pixelsOf(tiny, 'cloth.shadow')).toContainEqual([0, 0]);
