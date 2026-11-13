@@ -61,19 +61,22 @@
 - **Covers:** FR-9, FR-10, FR-11, FR-12, FR-13, NFR-2, NFR-4, AC-9, AC-10, AC-11
 - **Touches:** `src/core/**`, `src/lint/**`, `src/cli/**`, `src/mcp/**`, `docs/art-profiles.md`, `test/texture/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** verified
+- **Result:** verified — five patterns, mark size = `profile.minCluster` with a gap that is a multiple of it, and a full-fit rule that leaves no partial mark at a mask edge; `src/lint` is unchanged and `dither_fill` still flags
+- **Checkpoint:** 2c9b7ab
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-3.md
 
-- [ ] **P3.T1: Patterns** — covers: FR-9, FR-11, AC-9, AC-10
-    - [ ] **P3.T1.1:** `stipple`, `hatch`, `grain`, `brick`, `mottle` over a part mask, deterministic and position-stable
-    - [ ] **P3.T1.2:** `density` 1–3 scaling spacing, `E_PATTERN_UNKNOWN` and `E_BAD_PARAM` per FR-12
-- [ ] **P3.T2: Cluster floor** — covers: FR-10, AC-9, AC-10
-    - [ ] **P3.T2.1:** mark size and spacing derived from `profile.minCluster` (a `textureSpacing` field if a pattern needs its own), marks grow with the profile
-    - [ ] **P3.T2.2:** no legal texture produces `CLUSTER_THIN` at any profile
-- [ ] **P3.T3: Lint acceptance without weakening** — covers: FR-13, AC-11
-    - [ ] **P3.T3.1:** `DITHER_NOISE`/`CLUSTER_THIN` silent for texture-produced marks
-    - [ ] **P3.T3.2:** `dither_fill` below the floor still fires, proven by fixture
-- [ ] **P3.T4: Range and emptiness** — covers: FR-12, NFR-4, AC-9
-    - [ ] **P3.T4.1:** empty part no-ops with `W_CLEANUP_NOOP`; missing role raises `E_NO_RAMP`; report counts, not pixels
+- [x] **P3.T1: Patterns** — covers: FR-9, FR-11, AC-9, AC-10
+    - [x] **P3.T1.1:** `stipple`, `hatch`, `grain`, `brick`, `mottle` over a part mask, deterministic and position-stable
+    - [x] **P3.T1.2:** `density` 1–3 scaling spacing, `E_PATTERN_UNKNOWN` and `E_BAD_PARAM` per FR-12
+- [x] **P3.T2: Cluster floor** — covers: FR-10, AC-9, AC-10
+    - [x] **P3.T2.1:** mark size and spacing derived from `profile.minCluster` (a `textureSpacing` field if a pattern needs its own), marks grow with the profile
+    - [x] **P3.T2.2:** no legal texture produces `CLUSTER_THIN` at any profile
+- [x] **P3.T3: Lint acceptance without weakening** — covers: FR-13, AC-11
+    - [x] **P3.T3.1:** `DITHER_NOISE`/`CLUSTER_THIN` silent for texture-produced marks
+    - [x] **P3.T3.2:** `dither_fill` below the floor still fires, proven by fixture
+- [x] **P3.T4: Range and emptiness** — covers: FR-12, NFR-4, AC-9
+    - [x] **P3.T4.1:** empty part no-ops with `W_CLEANUP_NOOP`; missing role raises `E_NO_RAMP`; report counts, not pixels
 
 ## Phase 4: Feedback and Compatibility
 
