@@ -16,7 +16,15 @@ export interface SpriteOptions {
   width?: number;
   height?: number;
   palette?: Palette;
-  parts?: Record<string, { material: string; gloss?: string; z?: number }>;
+  parts?: Record<
+    string,
+    {
+      material: string;
+      gloss?: string;
+      z?: number;
+      facing?: 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom' | [number, number, number];
+    }
+  >;
   profile?: ScaleProfile;
 }
 
