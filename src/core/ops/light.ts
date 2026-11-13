@@ -132,6 +132,9 @@ export interface LightOptions {
   cast: number | null;
   castOffset: number;
   rim: LightRim;
+  /** Interior band count; absent keeps the historical three. */
+  bands?: number;
+  bandScale?: 'thickness' | 'uniform';
 }
 
 export interface LightResult {
@@ -339,8 +342,18 @@ export function applyLight(
       if (ranked === undefined) {
         continue;
       }
+      const bands = options.bands ?? 3;
+      // `thickness` shares the part's own extent equally, so every band covers the
+      // same number of ranks. `uniform` uses a fixed pixel width taken from the
+      // extent, so a short part may never reach the last band.
+      const bandWidth =
+        options.bandScale === 'uniform' ? Math.max(1, Math.floor(ranked.occupiedCount / bands)) : 0;
       for (const cell of ranked.cells) {
-        const role = bandRole(Math.floor((cell.rank * 3) / ranked.occupiedCount), 3);
+        const bucket =
+          bandWidth === 0
+            ? Math.floor((cell.rank * bands) / ranked.occupiedCount)
+            : Math.min(bands - 1, Math.floor(cell.rank / bandWidth));
+        const role = bandRole(bucket, bands);
         const target = roleSlotFor(owner, role);
         if (target === undefined) {
           continue;

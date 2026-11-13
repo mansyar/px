@@ -1331,6 +1331,40 @@ function normalizeLight(source: Record<string, unknown>, opIndex: number, layer:
     castOffset: castOffset ?? 1,
     rim: rim ?? 'edge',
   };
+  const bands = source.bands;
+  if (bands !== undefined) {
+    if (typeof bands !== 'number' || !Number.isInteger(bands) || bands < 2 || bands > 4) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has bands ${JSON.stringify(bands)}; only 2, 3 and 4 are supported`,
+        'Bands split the part along the light axis; a part thinner than the count degrades to fewer bands.',
+        opLocation(layer, opIndex),
+      );
+    }
+    op.bands = bands;
+  }
+  const bandScale = source.band_scale;
+  if (bandScale !== undefined) {
+    if (bands === undefined) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) sets band_scale without bands`,
+        'band_scale only means something when bands says how many to place.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (bandScale !== 'thickness' && bandScale !== 'uniform') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (light) has band_scale ${JSON.stringify(bandScale)}; only "thickness" and "uniform" are supported`,
+        'thickness shares the part`s extent equally; uniform uses a fixed pixel width.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (bandScale === 'uniform') {
+      op.bandScale = 'uniform';
+    }
+  }
   const targetLayer = optionalStringParam(source, 'target_layer', 'light', opIndex, layer);
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;

@@ -379,6 +379,10 @@ export interface LightOp extends OpBase {
   /** Shadow offset in pixels along the light vector, 1-4. */
   castOffset: number;
   rim: LightRim;
+  /** Interior band count, 2–4. Absent means the pre-track three-band round form. */
+  bands?: number;
+  /** How band widths are measured. Absent means `thickness`. */
+  bandScale?: 'thickness' | 'uniform';
   targetLayer?: string;
 }
 
@@ -544,7 +548,17 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
-  light: ['angle', 'form', 'ao', 'cast', 'cast_offset', 'rim', 'target_layer'],
+  light: [
+    'angle',
+    'form',
+    'ao',
+    'cast',
+    'cast_offset',
+    'rim',
+    'bands',
+    'band_scale',
+    'target_layer',
+  ],
   replace_slot: ['from', 'to'],
   seal: ['target_layer'],
   strays: ['target_layer'],
