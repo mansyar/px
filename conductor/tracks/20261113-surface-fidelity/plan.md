@@ -15,18 +15,22 @@
 - **Covers:** FR-1, FR-2, FR-3, NFR-2, NFR-5, NFR-8, AC-1, AC-2, AC-3
 - **Touches:** `scripts/rubric.mjs`, `test/art/scores.json`, `test/art/rubric.test.ts`, `docs/rubric.md`
 - **Verification:** `pnpm verify && pnpm vitest run test/art`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Pin the record instrument** — covers: FR-1
-  - [ ] **P1.T1.1:** Pin `gemini-3.5-flash-lite` as the record model (owner decision) and record it, with the two dry-run results that justify keeping it, in the phase evidence.
-  - [ ] **P1.T1.2:** Make `scripts/rubric.mjs` record `model` on every pass and assert in `test/art/rubric.test.ts` that a `vision-model` pass names its model; a pass from any other model id is a record error.
-  - [ ] **P1.T1.3:** Measure the instrument's own disagreement: score one asset's two views twice and record the per-criterion spread, so Phase 6 can tell noise from progress.
-- [ ] **P1.T2: Baseline re-score, before any art change** — covers: FR-2
-  - [ ] **P1.T2.1:** Score all seven assets twice each on `gemini-3.5-flash-lite`, pass A on the 8× view and pass B on the debug sheet, replacing the mixed record.
-  - [ ] **P1.T2.2:** Recompute the verdict and confirm `basis: "independent"`, the recomputed mean, and the listed failures are consistent.
-- [ ] **P1.T3: Calibration note against the archived result** — covers: FR-3
-  - [ ] **P1.T3.1:** Compare the independent baseline with the archived 3.90 per criterion and per asset; record the deltas and which instrument produced each number.
-  - [ ] **P1.T3.2:** Record whether the independent bar is stricter or looser, and therefore whether Phase 6's 4.0 target is comparable; if a below-floor score appears on unchanged art, name it as an instrument effect and keep it in the baseline rather than adjusting the bar.
+- [x] **P1.T1: Pin the record instrument** — covers: FR-1
+  - [x] **P1.T1.1:** Pin `gemini-3.5-flash-lite` as the record model (owner decision) and record it, with the two dry-run results that justify keeping it, in the phase evidence.
+  - [x] **P1.T1.2:** Make `scripts/rubric.mjs` record `model` on every pass and assert in `test/art/rubric.test.ts` that a `vision-model` pass names its model; a pass from any other model id is a record error.
+  - [x] **P1.T1.3:** Measure the instrument's own disagreement: score one asset's two views twice and record the per-criterion spread, so Phase 6 can tell noise from progress.
+- [x] **P1.T2: Baseline re-score, before any art change** — covers: FR-2
+  - [x] **P1.T2.1:** Score all seven assets twice each on `gemini-3.5-flash-lite`, pass A on the 8× view and pass B on the debug sheet, replacing the mixed record.
+  - [x] **P1.T2.2:** Recompute the verdict and confirm `basis: "independent"`, the recomputed mean, and the listed failures are consistent.
+- [x] **P1.T3: Calibration note against the archived result** — covers: FR-3
+  - [x] **P1.T3.1:** Compare the independent baseline with the archived 3.90 per criterion and per asset; record the deltas and which instrument produced each number.
+  - [x] **P1.T3.2:** Record whether the independent bar is stricter or looser, and therefore whether Phase 6's 4.0 target is comparable; if a below-floor score appears on unchanged art, name it as an instrument effect and keep it in the baseline rather than adjusting the bar.
+
+**Result:** verified
+**Checkpoint:** ca0bde5
+**Evidence:** conductor/tracks/20261113-surface-fidelity/verification/phase-1.md
 
 ## Phase 2: Plane Ownership
 
