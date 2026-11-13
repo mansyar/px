@@ -1,0 +1,61 @@
+{
+  "plan": {
+    "assets": [
+      "chest",
+      "humanoid"
+    ],
+    "views": [
+      "1x",
+      "8x",
+      "debug"
+    ],
+    "repeats": 2,
+    "rule": {
+      "repeat_agreement": 1,
+      "max_criterion_delta": 1,
+      "max_mean_delta": 0.25,
+      "accept": "1x for assets at or above 32px",
+      "otherwise": "keep the 8x and debug artifacts"
+    }
+  },
+  "artifacts": [
+    {
+      "asset": "chest",
+      "width": 48,
+      "height": 48,
+      "views": {
+        "1x": {
+          "path": ".conductor/evidence/views/chest/1x.png",
+          "sha256": "07193f4570790b3d5c4df8cf2a8bcf9339b3e63f70dbc36f5d36a101d06906b6"
+        },
+        "8x": {
+          "path": ".conductor/evidence/views/chest/8x.png",
+          "sha256": "7429dca76f158343776462e268262ec281cf11011b7ba515fa7a5e3a582374b5"
+        },
+        "debug": {
+          "path": ".conductor/evidence/views/chest/debug.png",
+          "sha256": "e81307b238d18a4103655803d044622e0637d85506e1ce47d3ba4803e8528d3c"
+        }
+      }
+    },
+    {
+      "asset": "humanoid",
+      "width": 32,
+      "height": 32,
+      "views": {
+        "1x": {
+          "path": ".conductor/evidence/views/humanoid/1x.png",
+          "sha256": "ebb87295b32deeb2ab5233ce45ba82eaded2513763717e6736196639ada368cb"
+        },
+        "8x": {
+          "path": ".conductor/evidence/views/humanoid/8x.png",
+          "sha256": "39c25ac8d2be5dc310e78b223c1f68aca050b025e6dcc97d187242f0d2dd643a"
+        },
+        "debug": {
+          "path": ".conductor/evidence/views/humanoid/debug.png",
+          "sha256": "50595a47750da1d615447e22f140f76b49693a147b25fb53c68f9869bb77cdb3"
+        }
+      }
+    }
+  ]
+}
