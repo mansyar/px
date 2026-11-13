@@ -1,6 +1,6 @@
 {
   "spec": "spec.md",
-  "updated_at": "2026-11-13T21:10:00Z",
+  "updated_at": "2026-11-13T21:25:00Z",
   "revert_pr_url": null,
   "base_sha": "f0850a201a9ed87ebcc83af56e5779c49416523b",
   "type": "feature",
@@ -16,7 +16,7 @@
   "id": "20261113-authoring-primitives",
   "archive_path": "conductor/archive/20261113-authoring-primitives",
   "reverted_at": null,
-  "pr_state": "open",
+  "pr_state": "merged",
   "title": "Authoring Primitives",
   "pr_url": "https://github.com/mansyar/px/pull/3",
   "created_at": "2026-11-13T02:39:14Z",
