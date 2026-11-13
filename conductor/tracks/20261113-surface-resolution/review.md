@@ -76,6 +76,13 @@ working in 1.3 documents.
 3. The stacked base (`feat/20261113-surface-fidelity`) must merge first or be
    retargeted; its own review is separate.
 
+## Merge decision
+
+**Owner decision, 2026-11-13:** merged as-is with **AC-8 and AC-9 recorded as
+open**. The engine work is additive, gated at 1.3 and digest-invariant when the new
+options are absent; the 3.71 score is carried as documented debt. M1 (the unlit
+scene) and M2 (the dead 1.2 loop) remain open.
+
 ## Note on process
 
 This review was performed by the same agent that implemented the track, because no

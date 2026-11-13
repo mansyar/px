@@ -8,7 +8,7 @@
     "20261113-surface-fidelity"
   ],
   "created_at": "2026-11-13T17:40:00Z",
-  "updated_at": "2026-11-13T07:42:56Z",
+  "updated_at": "2026-11-13T07:51:48Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-surface-resolution",
@@ -30,5 +30,10 @@
   "revert_commit": null,
   "revert_pr_url": null,
   "archived_at": null,
-  "archive_path": null
+  "archive_path": null,
+  "open_acceptance_criteria": [
+    "AC-8",
+    "AC-9"
+  ],
+  "merge_decision": "merged 2026-11-13 by owner with AC-8/AC-9 open (score 3.71 vs 4.0)"
 }
