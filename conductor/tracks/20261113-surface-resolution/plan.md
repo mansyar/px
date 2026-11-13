@@ -86,15 +86,19 @@ to the art that actually changes.
 - **Covers:** FR-6, FR-7, FR-8, AC-6, AC-7
 - **Touches:** `src/core/palette.ts`, `src/core/recipe/{types,normalize}.ts`, `test/palette/**`, `test/recipe/**`, `conductor/tech-stack.md`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P4.T1: Tone-valued roles**
-  - [ ] **P4.T1.1:** `base: "t3"` resolves to that tone's slot; mixed role/tone ramps normalize deterministically.
-  - [ ] **P4.T1.2:** A role naming a missing tone errors with both names.
-  - [ ] **P4.T1.3:** Explicit hex-only ramps are byte-identical and keep today's `VALUE_COLLISION` and `E_NO_RAMP` behaviour.
-- [ ] **P4.T2: Schema 1.3**
-  - [ ] **P4.T2.1:** Accept `"1.3"`; reject `bands`, `band_scale`, `parts`, `skip`, `inner` and tone-valued roles under `1.2` with a message naming `"1.3"`.
-  - [ ] **P4.T2.2:** Record the version decision in `conductor/tech-stack.md` and add the migration test.
+- [x] **P4.T1: Tone-valued roles**
+  - [x] **P4.T1.1:** `base: "t3"` resolves to that tone's slot; mixed role/tone ramps normalize deterministically.
+  - [x] **P4.T1.2:** A role naming a missing tone errors with both names.
+  - [x] **P4.T1.3:** Explicit hex-only ramps are byte-identical and keep today's `VALUE_COLLISION` and `E_NO_RAMP` behaviour.
+- [x] **P4.T2: Schema 1.3**
+  - [x] **P4.T2.1:** Accept `"1.3"`; reject `bands`, `band_scale`, `parts`, `skip`, `inner` and tone-valued roles under `1.2` with a message naming `"1.3"`.
+  - [x] **P4.T2.2:** Record the version decision in `conductor/tech-stack.md` and add the migration test.
+
+**Result:** verified
+**Checkpoint:** 16ed5da
+**Evidence:** conductor/tracks/20261113-surface-resolution/verification/phase-4.md
 
 ## Phase 5: Re-authoring and Independent Score
 
