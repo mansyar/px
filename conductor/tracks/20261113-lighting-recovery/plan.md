@@ -46,7 +46,7 @@ then a single re-score that judges the gate. No phase touches the engine.
   `.conductor/evidence/`
 - **Verification:** strict renders and the assets test, plus the interim probe
   logs; AC-6 is checked against the extracted `why` text.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Scene roof under one light** — covers: FR-2
   - [ ] P2.T1.1: Continue a single gradient across both planes; express
