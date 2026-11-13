@@ -105,7 +105,8 @@
 - **Touches:** `test/art/**`, `docs/rubric.md`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
-- **Blocked:** `scripts/rubric.mjs` is the only judge of AC-13, and it exits 2 without `PX_RUBRIC_API_KEY`; no key or model id is configured here. P5.T2.1 forbids trading a pass for a regression, which cannot be checked without a score, so re-authoring four hand-painted ASCII assets now would be unverifiable and could regress the three that pass. Needs a scoring run first (or an explicit decision to author blind).
+- **Judge:** `scripts/rubric.mjs` needs `PX_RUBRIC_API_KEY` and none is configured, so the model score cannot be produced. On the owner's instruction the implementing agent authors and judges the work itself; that judgement is recorded in each asset's design note as an author's self-review, never as a rubric score, and `test/art/scores.json` is left untouched (its verdict stays `fail` until a real scoring run).
+- **Progress:** humanoid re-authored at `9d7509e` — `bevel` form and 2×2 camo on the shadow side; `px diff` 112 px inside a 19×29 region (one light pass rebanded every part, so the change is figure-wide by design). Remaining: character, sword, scene; potion, chest and prop untouched.
 
 - [ ] **P5.T1: The four weak assets** — covers: FR-16
     - [ ] **P5.T1.1:** humanoid, character, sword, scene re-authored with facing, stroke and texture where they address the failing criterion
