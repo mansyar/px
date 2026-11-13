@@ -90,3 +90,17 @@ registry and report copy live under
   example preferring sharper edges at 8×. That is exactly what the Δ measures.
 - **12 calls is small.** The rule is deliberately tolerant of one step, so the
   decision is about systematic effects, not single scores.
+
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve review findings F1–F4.
+- **Depends on:** Phase 4
+- **Covers:** F1, F2, F3, F4
+- **Touches:** `scripts/calibrate.mjs`, `scripts/calibrate/views.mjs`
+- **Verification:** `pnpm verify`; filtered-run guard; unscored-run guard; generator determinism
+- **Status:** verified
+
+- [x] **R1.T1: Require `--merge-views` for slot selection** — covers: F1
+- [x] **R1.T2: Protect the committed report from incomplete runs** — covers: F2
+- [x] **R1.T3: Remove the generator's duplicate artifact** — covers: F3
+- [x] **R1.T4: Parse `--replace`** — covers: F4
