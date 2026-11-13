@@ -20,10 +20,11 @@
 
 import type { CompiledRecipe } from '../../core/compile.js';
 import { PxError } from '../../core/errors.js';
+import { facingVector } from '../../core/facing.js';
 import { hasBinaryAlpha, parseHex, type Rgba, TRANSPARENT_SLOT } from '../../core/palette.js';
 import type { CompiledPart } from '../../core/parts.js';
 import { profileNumbers, type ScaleProfile } from '../../core/profile.js';
-import type { Anchors } from '../../core/recipe/types.js';
+import type { Anchors, Facing } from '../../core/recipe/types.js';
 import { DEFAULT_BACKDROP_HEX, LOW_CONTRAST_BACKDROP } from '../../lint/thresholds.js';
 import { rasterizeSlots } from '../flatten.js';
 import { encodePng } from '../png.js';
@@ -102,6 +103,10 @@ export interface DebugSheet {
   strip?: PanelRect;
   /** One entry per drawn crop, in strip order: which part, where, at what zoom. */
   crops?: Array<{ part: string; rect: PanelRect }>;
+  /** Feedback lines printed under the caption, when there is anything to say. */
+  notes?: string[];
+  /** Where the texture gauge landed, in sheet coordinates. */
+  gauge?: { x: number; y: number; w: number; h: number; mark: number; gap: number; zoom: number };
 }
 
 /** Distance between the same corner of two neighbouring cells, at this zoom. */
@@ -380,6 +385,141 @@ function drawCrop(
   buffer.drawText(cell.label, x, y + cellH + 2, BLACK, 1);
 }
 
+/** Canonical key for a facing: an undeclared plane is viewer-facing. */
+function facingKey(facing: Facing | undefined): string {
+  return facingVector(facing ?? 'front')
+    .map((value) => value.toFixed(3))
+    .join(',');
+}
+
+/** A short plane name the 3x5 font can set. */
+function facingLabel(facing: Facing | undefined): string {
+  if (facing === undefined) {
+    return 'FRONT';
+  }
+  if (typeof facing === 'string') {
+    return facing.toUpperCase();
+  }
+  const [x, y, z] = facing;
+  const ax = Math.abs(x);
+  const ay = Math.abs(y);
+  const az = Math.abs(z);
+  if (az >= ax && az >= ay) {
+    return z >= 0 ? 'FRONT' : 'BACK';
+  }
+  if (ax >= ay) {
+    return x >= 0 ? 'RIGHT' : 'LEFT';
+  }
+  return y >= 0 ? 'TOP' : 'BOTTOM';
+}
+
+/** A shared edge between two parts whose planes differ. */
+interface PlaneEdge {
+  x: number;
+  y: number;
+  /** `v` is the vertical edge right of the cell, `h` the horizontal one below. */
+  axis: 'v' | 'h';
+}
+
+/**
+ * Every edge where two adjacent parts declare different planes. Facings compare
+ * by vector, so `right` and `[1, 0, 0]` are the same plane and an undeclared part
+ * is viewer-facing like an explicit `front`. The facing pairs are named in the
+ * notes line: a text label at every edge would be unbounded and unreadable at the
+ * profile zoom, while a two-tone dash on the shared grid line is not.
+ */
+function planeEdges(compiled: CompiledRecipe): { edges: PlaneEdge[]; labels: string[] } {
+  const { width, height, owners } = compiled;
+  const keys = compiled.parts.map((part) => facingKey(part.facing));
+  const edges: PlaneEdge[] = [];
+  const labels = new Set<string>();
+
+  const differs = (here: number, other: number): boolean => {
+    const hereKey = keys[here];
+    const otherKey = keys[other];
+    return (
+      here !== other && hereKey !== undefined && otherKey !== undefined && hereKey !== otherKey
+    );
+  };
+
+  const label = (here: number, other: number): void => {
+    labels.add(
+      [facingLabel(compiled.parts[here]?.facing), facingLabel(compiled.parts[other]?.facing)]
+        .sort()
+        .join('-'),
+    );
+  };
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      const here = owners[index] ?? -1;
+      if (here < 0) {
+        continue;
+      }
+      if (x + 1 < width) {
+        const other = owners[index + 1] ?? -1;
+        if (other >= 0 && differs(here, other)) {
+          label(here, other);
+          edges.push({ x, y, axis: 'v' });
+        }
+      }
+      if (y + 1 < height) {
+        const other = owners[index + width] ?? -1;
+        if (other >= 0 && differs(here, other)) {
+          label(here, other);
+          edges.push({ x, y, axis: 'h' });
+        }
+      }
+    }
+  }
+  return { edges, labels: [...labels].sort() };
+}
+
+/** Two-tone dashes on the shared grid line: shape and luminance, never hue. */
+function drawPlaneEdges(
+  buffer: PixelBuffer,
+  panel: PanelRect,
+  edges: readonly PlaneEdge[],
+  zoom: number,
+): void {
+  for (const edge of edges) {
+    const cell = panelACell(panel, edge.x, edge.y, zoom);
+    for (let offset = 0; offset < zoom; offset += 1) {
+      const color = offset % 4 < 2 ? BLACK : WHITE;
+      if (edge.axis === 'v') {
+        buffer.set(cell.x + zoom, cell.y + offset, color);
+      } else {
+        buffer.set(cell.x + offset, cell.y + zoom, color);
+      }
+    }
+  }
+}
+
+interface SheetNote {
+  text: string;
+  gauge?: { mark: number; gap: number };
+}
+
+/** The texture lattice the recipe ran, if any: the sheet shows it at panel zoom. */
+function textureNote(compiled: CompiledRecipe): SheetNote | null {
+  const report = compiled.cleanup?.find((entry) => entry.op === 'texture');
+  if (report?.pattern === undefined || report.mark === undefined || report.gap === undefined) {
+    return null;
+  }
+  return {
+    text: `TEXTURE ${report.pattern.toUpperCase()} D${report.density ?? 2} M${report.mark} G${report.gap}`,
+    gauge: { mark: report.mark, gap: report.gap },
+  };
+}
+
+/** Device height a note occupies, its gauge included. */
+function noteHeight(note: SheetNote, zoom: number): number {
+  return note.gauge === undefined
+    ? GLYPH_HEIGHT + 2
+    : GLYPH_HEIGHT + 2 + note.gauge.mark * zoom + 3;
+}
+
 export function renderDebugSheet(
   compiled: CompiledRecipe,
   anchors: Anchors,
@@ -408,13 +548,29 @@ export function renderDebugSheet(
   const captionHeight = GLYPH_HEIGHT * LABEL_SCALE;
   const caption = `${profile.toUpperCase()} ${zoom}X`;
 
+  // Feedback lines below the caption: where two planes meet, and the texture
+  // lattice at the panel's zoom. Both are fixed lines of bounded length, so the
+  // sheet grows by a few rows instead of by a panel.
+  const planes = planeEdges(compiled);
+  const notes: SheetNote[] = [];
+  if (planes.edges.length > 0) {
+    const pairs = planes.labels.slice(0, 3).join(' ');
+    notes.push({ text: `PLANES ${planes.edges.length} ${pairs}`.trim() });
+  }
+  const texture = textureNote(compiled);
+  if (texture !== null) {
+    notes.push(texture);
+  }
+  const notesY = captionY + captionHeight + PAD;
+  const notesHeight = notes.reduce((total, note) => total + noteHeight(note, zoom), 0);
+
   const sheetWidth = imageX + imageWidth + PAD;
   const available = sheetWidth - PAD * 2;
 
   // The crop strip packs left to right inside the sheet's existing width and
   // wraps into rows, so declaring many parts never widens the image.
   const cells = compiled.parts.length === 0 ? [] : cropCells(compiled, available);
-  const stripCaptionY = captionY + captionHeight + PAD;
+  const stripCaptionY = notes.length === 0 ? notesY : notesY + notesHeight;
   const rowsStart = stripCaptionY + captionHeight + 2;
   const placed: Array<{ cell: CropCell; x: number; y: number }> = [];
   let cursorX = PAD;
@@ -436,13 +592,15 @@ export function renderDebugSheet(
     cells.length === 0
       ? undefined
       : { x: PAD, y: stripCaptionY, w: available, h: bottom + PAD - stripCaptionY };
-  const sheetHeight = strip === undefined ? captionY + captionHeight + PAD : bottom + PAD;
+  const notesBottom = notes.length === 0 ? captionY + captionHeight + PAD : notesY + notesHeight;
+  const sheetHeight = strip === undefined ? notesBottom : bottom + PAD;
 
   const buffer = new PixelBuffer(sheetWidth, sheetHeight);
   buffer.fillRect(0, 0, sheetWidth, sheetHeight, WHITE);
 
   drawCells(buffer, a, compiled, zoom);
   drawGrid(buffer, a, width, height, zoom);
+  drawPlaneEdges(buffer, a, planes.edges, zoom);
   drawRulers(buffer, a, width, height, zoom);
   for (const anchor of Object.values(anchors)) {
     const [anchorX, anchorY] = anchor;
@@ -459,6 +617,34 @@ export function renderDebugSheet(
   buffer.drawGlyph('B', PAD, b.y, BLACK, LABEL_SCALE);
   buffer.drawGlyph('C', PAD, c.y, BLACK, LABEL_SCALE);
   buffer.drawText(caption, PAD, captionY, BLACK, LABEL_SCALE);
+
+  let noteY = notesY;
+  let gauge: DebugSheet['gauge'];
+  for (const note of notes) {
+    buffer.drawText(note.text, PAD, noteY, BLACK);
+    noteY += GLYPH_HEIGHT + 2;
+    if (note.gauge === undefined) {
+      continue;
+    }
+    // The gauge is drawn at the panel's zoom, so the spacing the pass produced
+    // can be read against the marks in panel A rather than trusted from a number.
+    const size = note.gauge.mark * zoom;
+    const span = size * 2 + note.gauge.gap * zoom;
+    buffer.fillRect(PAD, noteY, size, size, BLACK);
+    buffer.fillRect(PAD + size + note.gauge.gap * zoom, noteY, size, size, BLACK);
+    // A rule under the span makes the gap countable without relying on hue.
+    buffer.fillRect(PAD, noteY + size + 1, span, 1, GRID);
+    gauge = {
+      x: PAD,
+      y: noteY,
+      w: span,
+      h: size,
+      mark: note.gauge.mark,
+      gap: note.gauge.gap,
+      zoom,
+    };
+    noteY += size + 3;
+  }
 
   if (strip !== undefined) {
     const hidden = compiled.parts.length - cells.length;
@@ -491,5 +677,7 @@ export function renderDebugSheet(
     zoom,
     panels: { a, b, c },
     ...(strip === undefined ? {} : { strip, crops }),
+    ...(notes.length === 0 ? {} : { notes: notes.map((note) => note.text) }),
+    ...(gauge === undefined ? {} : { gauge }),
   };
 }

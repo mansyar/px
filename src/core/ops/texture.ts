@@ -169,6 +169,9 @@ export interface TextureOutcome {
   marks: number;
   /** Pixels those marks cover. */
   painted: number;
+  /** The lattice the profile and density produced, for the report and the sheet. */
+  mark: number;
+  gap: number;
 }
 
 /**
@@ -204,5 +207,5 @@ export function applyTexture(
       }
     }
   }
-  return { marks: drawn, painted };
+  return { marks: drawn, painted, mark: lattice.mark, gap: lattice.gap };
 }

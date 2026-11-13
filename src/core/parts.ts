@@ -9,7 +9,7 @@
 
 import { UNOWNED } from './canvas.js';
 import { type Rgba, type SlotTable, TRANSPARENT_SLOT } from './palette.js';
-import type { GlossProfile, Parts } from './recipe/types.js';
+import type { Facing, GlossProfile, Parts } from './recipe/types.js';
 
 export interface PartBounds {
   x: number;
@@ -23,6 +23,8 @@ export interface CompiledPart {
   material: string;
   gloss: GlossProfile;
   z: number;
+  /** The plane the part declared; absent when it is viewer-facing. */
+  facing?: Facing;
   painted: number;
   /** `null` for a part that owns no pixels; representable, never serialised. */
   bounds: PartBounds | null;
@@ -113,6 +115,7 @@ export function partStats(
       material: declaration?.material ?? '',
       gloss: declaration?.gloss ?? 'matte',
       z: declaration?.z ?? 0,
+      ...(declaration?.facing === undefined ? {} : { facing: declaration.facing }),
       painted,
       bounds:
         painted === 0
@@ -243,6 +246,7 @@ export function partDetails(
       material: declaration?.material ?? '',
       gloss: declaration?.gloss ?? 'matte',
       z: declaration?.z ?? 0,
+      ...(declaration?.facing === undefined ? {} : { facing: declaration.facing }),
       painted,
       bounds:
         painted === 0

@@ -308,7 +308,16 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         clipped: false,
         noop: outcome.painted === 0,
         // Counts only: a texture reports marks and pixels, never coordinates.
-        cleanup: { op: 'texture', changed: outcome.painted, coords: [], marks: outcome.marks },
+        cleanup: {
+          op: 'texture',
+          changed: outcome.painted,
+          coords: [],
+          marks: outcome.marks,
+          pattern: op.pattern,
+          density: op.density ?? 2,
+          mark: outcome.mark,
+          gap: outcome.gap,
+        },
       };
     }
     case 'ascii_blit': {

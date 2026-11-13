@@ -10,6 +10,7 @@
 import { type Band, bandRow, findBands } from '../bands.js';
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
 import { roleSlot, type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
+import type { TexturePattern } from '../recipe/types.js';
 
 export type CleanupCoord = [number, number];
 
@@ -274,4 +275,9 @@ export interface CleanupReport {
   coords: CleanupCoord[];
   /** Texture only: how many marks were painted whole. */
   marks?: number;
+  /** Texture only: the pattern, the density, and the lattice it produced. */
+  pattern?: TexturePattern;
+  density?: number;
+  mark?: number;
+  gap?: number;
 }
