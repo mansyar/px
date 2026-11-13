@@ -23,12 +23,12 @@
           "name": "warm-cool",
           "intent": "one light direction, with the shadow ramp pulled toward blue and the highlight ramp toward yellow",
           "treatment": "directional ramp plus explicit warm/cool ramps",
-          "recipe": ".conductor\\evidence\\ceiling\\lighting\\warm-cool.px.json",
+          "recipe": ".conductor/evidence/ceiling/lighting/warm-cool.px.json",
           "sha256": "f7b7a4843a4dbd3d2f874896974e247b4cbcdb873ea9ce8d7f4f36a614dea8e8",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\lighting\\warm-cool.png",
-            "eight": ".conductor\\evidence\\ceiling\\lighting\\warm-cool.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\lighting\\warm-cool.debug.png"
+            "png": ".conductor/evidence/ceiling/lighting/warm-cool.png",
+            "eight": ".conductor/evidence/ceiling/lighting/warm-cool.8x.png",
+            "debug": ".conductor/evidence/ceiling/lighting/warm-cool.debug.png"
           },
           "passes": {
             "A": {
@@ -60,12 +60,12 @@
           "name": "dither-band",
           "intent": "a two-tone surface whose band boundary is dithered, so the falloff reads as a gradient at 1x",
           "treatment": "directional ramp, then a checkerboard mix across each band edge",
-          "recipe": ".conductor\\evidence\\ceiling\\lighting\\dither-band.px.json",
+          "recipe": ".conductor/evidence/ceiling/lighting/dither-band.px.json",
           "sha256": "b3635f740369f00716136483d17fb3a9f44dd424265c2901b5e2aa56870eb0c7",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\lighting\\dither-band.png",
-            "eight": ".conductor\\evidence\\ceiling\\lighting\\dither-band.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\lighting\\dither-band.debug.png"
+            "png": ".conductor/evidence/ceiling/lighting/dither-band.png",
+            "eight": ".conductor/evidence/ceiling/lighting/dither-band.8x.png",
+            "debug": ".conductor/evidence/ceiling/lighting/dither-band.debug.png"
           },
           "passes": {
             "A": {
@@ -97,12 +97,12 @@
           "name": "engine-deband",
           "intent": "engine-banded falloff that the engine itself dithers, so the band edge is not a hard line",
           "treatment": "flat paint, ramp_fill with three bands, then the deband pass",
-          "recipe": ".conductor\\evidence\\ceiling\\lighting\\engine-deband.px.json",
+          "recipe": ".conductor/evidence/ceiling/lighting/engine-deband.px.json",
           "sha256": "0b7158c9599fdce5c1415ce0c6f8b415f680c7b5ab77d713f89357ac11f7dee4",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\lighting\\engine-deband.png",
-            "eight": ".conductor\\evidence\\ceiling\\lighting\\engine-deband.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\lighting\\engine-deband.debug.png"
+            "png": ".conductor/evidence/ceiling/lighting/engine-deband.png",
+            "eight": ".conductor/evidence/ceiling/lighting/engine-deband.8x.png",
+            "debug": ".conductor/evidence/ceiling/lighting/engine-deband.debug.png"
           },
           "passes": {
             "A": {
@@ -141,12 +141,12 @@
           "name": "selective",
           "intent": "a selective outline: dark where the form turns away, light where it faces the light",
           "treatment": "auto-outline removed; per-cell rim chosen by which neighbour is empty",
-          "recipe": ".conductor\\evidence\\ceiling\\edge_language\\selective.px.json",
+          "recipe": ".conductor/evidence/ceiling/edge_language/selective.px.json",
           "sha256": "d70a50d731c913aa86289764443add475ceaa5d3c6398f09c043dc283ec74c0d",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\edge_language\\selective.png",
-            "eight": ".conductor\\evidence\\ceiling\\edge_language\\selective.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\edge_language\\selective.debug.png"
+            "png": ".conductor/evidence/ceiling/edge_language/selective.png",
+            "eight": ".conductor/evidence/ceiling/edge_language/selective.8x.png",
+            "debug": ".conductor/evidence/ceiling/edge_language/selective.debug.png"
           },
           "passes": {
             "A": {
@@ -178,12 +178,12 @@
           "name": "hue-shift",
           "intent": "an outline tinted toward the material's own hue instead of black, so edges belong to the surface",
           "treatment": "auto-outline colour points at a dark navy family rather than ink",
-          "recipe": ".conductor\\evidence\\ceiling\\edge_language\\hue-shift.px.json",
+          "recipe": ".conductor/evidence/ceiling/edge_language/hue-shift.px.json",
           "sha256": "88a0c263a9e0785443e2eb3fef5c80074d29f1fc3b63259620d4a894c78614fd",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\edge_language\\hue-shift.png",
-            "eight": ".conductor\\evidence\\ceiling\\edge_language\\hue-shift.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\edge_language\\hue-shift.debug.png"
+            "png": ".conductor/evidence/ceiling/edge_language/hue-shift.png",
+            "eight": ".conductor/evidence/ceiling/edge_language/hue-shift.8x.png",
+            "debug": ".conductor/evidence/ceiling/edge_language/hue-shift.debug.png"
           },
           "passes": {
             "A": {
@@ -215,12 +215,12 @@
           "name": "hierarchy",
           "intent": "three edge treatments: dark silhouette, mid-tone detail lines, and no outline inside a mass",
           "treatment": "interior outline tones lifted to the mid tone; silhouette outline kept",
-          "recipe": ".conductor\\evidence\\ceiling\\edge_language\\hierarchy.px.json",
+          "recipe": ".conductor/evidence/ceiling/edge_language/hierarchy.px.json",
           "sha256": "0e92a92e684c8577f03705e735d05ef8ff68601f49bb5789b10cae74c201f7ee",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\edge_language\\hierarchy.png",
-            "eight": ".conductor\\evidence\\ceiling\\edge_language\\hierarchy.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\edge_language\\hierarchy.debug.png"
+            "png": ".conductor/evidence/ceiling/edge_language/hierarchy.png",
+            "eight": ".conductor/evidence/ceiling/edge_language/hierarchy.8x.png",
+            "debug": ".conductor/evidence/ceiling/edge_language/hierarchy.debug.png"
           },
           "passes": {
             "A": {
@@ -261,12 +261,12 @@
           "name": "hue-ramp",
           "intent": "ramps that step in hue as well as value: shadows run cool, highlights run warm",
           "treatment": "explicit ramps with a wider hue arc, no change to tone assignment",
-          "recipe": ".conductor\\evidence\\ceiling\\palette_craft\\hue-ramp.px.json",
+          "recipe": ".conductor/evidence/ceiling/palette_craft/hue-ramp.px.json",
           "sha256": "d35fbbf460fec293410c7a64fc4a43e23ce27407e831f604d292cec3e25bcfb0",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\palette_craft\\hue-ramp.png",
-            "eight": ".conductor\\evidence\\ceiling\\palette_craft\\hue-ramp.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\palette_craft\\hue-ramp.debug.png"
+            "png": ".conductor/evidence/ceiling/palette_craft/hue-ramp.png",
+            "eight": ".conductor/evidence/ceiling/palette_craft/hue-ramp.8x.png",
+            "debug": ".conductor/evidence/ceiling/palette_craft/hue-ramp.debug.png"
           },
           "passes": {
             "A": {
@@ -298,12 +298,12 @@
           "name": "accent",
           "intent": "one saturated accent against quiet surroundings, so the palette has a focal point",
           "treatment": "wood and metal desaturated; the lock ramp saturated and widened",
-          "recipe": ".conductor\\evidence\\ceiling\\palette_craft\\accent.px.json",
+          "recipe": ".conductor/evidence/ceiling/palette_craft/accent.px.json",
           "sha256": "9462bf923c2b3a386360ce39c8870858ea45ee3e1b489919b43874ae4800f0b2",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\palette_craft\\accent.png",
-            "eight": ".conductor\\evidence\\ceiling\\palette_craft\\accent.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\palette_craft\\accent.debug.png"
+            "png": ".conductor/evidence/ceiling/palette_craft/accent.png",
+            "eight": ".conductor/evidence/ceiling/palette_craft/accent.8x.png",
+            "debug": ".conductor/evidence/ceiling/palette_craft/accent.debug.png"
           },
           "passes": {
             "A": {
@@ -335,12 +335,12 @@
           "name": "nonlinear",
           "intent": "a ramp weighted toward the darks, so form reads with few tones and the highlight stays small",
           "treatment": "explicit ramps with uneven steps",
-          "recipe": ".conductor\\evidence\\ceiling\\palette_craft\\nonlinear.px.json",
+          "recipe": ".conductor/evidence/ceiling/palette_craft/nonlinear.px.json",
           "sha256": "632364b08f6c806eca55bc0f10b9e5c7f30b49b53f9a63238d2616fd545b59a1",
           "artifacts": {
-            "png": ".conductor\\evidence\\ceiling\\palette_craft\\nonlinear.png",
-            "eight": ".conductor\\evidence\\ceiling\\palette_craft\\nonlinear.8x.png",
-            "debug": ".conductor\\evidence\\ceiling\\palette_craft\\nonlinear.debug.png"
+            "png": ".conductor/evidence/ceiling/palette_craft/nonlinear.png",
+            "eight": ".conductor/evidence/ceiling/palette_craft/nonlinear.8x.png",
+            "debug": ".conductor/evidence/ceiling/palette_craft/nonlinear.debug.png"
           },
           "passes": {
             "A": {

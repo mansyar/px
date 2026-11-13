@@ -150,6 +150,12 @@ function runProbes(options) {
       (!options.candidate || entry.name === options.candidate),
   );
   for (const entry of selected) {
+    if (!entry.artifacts?.eight || !entry.artifacts?.debug) {
+      throw new Error(
+        `candidate ${entry.criterion}/${entry.name} has no rendered artifacts registered; ` +
+          're-run scripts/calibrate/ceiling.mjs without --no-render',
+      );
+    }
     const recipePath = resolve(ROOT, entry.recipe);
     const candidate = { ...entry, passes: {} };
     for (const pass of ['A', 'B']) {
@@ -188,6 +194,7 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
   // lost reply costs one candidate rather than a full 18-call round.
   let results = fresh;
   let calls = freshCalls;
+  let mergedCandidates = [];
   if (options.merge && existsSync(join(OUT, 'probe.json'))) {
     const previous = JSON.parse(readFileSync(join(OUT, 'probe.json'), 'utf8'));
     const byName = new Map(
@@ -199,6 +206,7 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
       attempted: previous.calls.attempted + calls.attempted,
       rejected: previous.calls.rejected + calls.rejected,
     };
+    mergedCandidates = fresh.map((entry) => entry.name);
   }
   const criteria = [...new Set(results.map((entry) => entry.criterion))];
   const summary = criteria.map((criterion) => {
@@ -224,6 +232,7 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
     generated_at: new Date().toISOString(),
     threshold: { reached_min: 4, passes_required: 2 },
     calls,
+    ...(mergedCandidates.length > 0 ? { merged_candidates: mergedCandidates } : {}),
     criteria: summary,
   };
 

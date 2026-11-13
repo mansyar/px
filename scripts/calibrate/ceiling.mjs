@@ -341,15 +341,22 @@ for (const candidate of CANDIDATES) {
   const body = `${JSON.stringify(recipe, null, 2)}\n`;
   writeFileSync(path, body, "utf8");
   const sha256 = createHash("sha256").update(body).digest("hex");
+  // POSIX separators: the registry is committed and read on both CI platforms.
+  const posix = (value) => value.replaceAll("\\", "/");
   const entry = {
     criterion: candidate.criterion,
     name: candidate.name,
     intent: candidate.intent,
     treatment: candidate.treatment,
-    recipe: path,
+    recipe: posix(path),
     sha256,
   };
-  if (renderArtifacts) entry.artifacts = render(path);
+  if (renderArtifacts) {
+    const artifacts = render(path);
+    entry.artifacts = Object.fromEntries(
+      Object.entries(artifacts).map(([key, value]) => [key, posix(value)]),
+    );
+  }
   registry.push(entry);
   console.log(`${candidate.criterion}/${candidate.name}: ${sha256.slice(0, 12)}`);
 }
