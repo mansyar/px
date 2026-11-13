@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-13T19:40:00Z",
-  "updated_at": "2026-11-13T08:47:40Z",
+  "updated_at": "2026-11-13T08:54:20Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261113-lighting-recovery",
@@ -14,11 +14,11 @@
   "base_sha": "a8e9db8",
   "progress": {
     "phases_total": 4,
-    "phases_verified": 0,
-    "tasks_total": 15,
-    "tasks_done": 0
+    "phases_verified": 1,
+    "tasks_total": 17,
+    "tasks_done": 4
   },
-  "last_checkpoint": null,
+  "last_checkpoint": "40fac77",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",

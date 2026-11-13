@@ -21,16 +21,20 @@ then a single re-score that judges the gate. No phase touches the engine.
 - **Touches:** `test/art/{potion,sword,humanoid,chest,character,scene}/*`
 - **Verification:** `pnpm exec tsx src/cli.ts render --file <recipe> --strict` per
   asset, then `pnpm vitest run test/art/assets.test.ts`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Audit the six palettes** — covers: FR-1
-  - [ ] P1.T1.1: Record each family's tone count, hue direction and which
+- [x] **P1.T1: Audit the six palettes** — covers: FR-1
+  - [x] P1.T1.1: Record each family's tone count, hue direction and which
         families are still explicit hex roles.
-- [ ] **P1.T2: Derive ramps for potion, sword and humanoid** — covers: FR-1
-- [ ] **P1.T3: Derive ramps for chest, character and scene** — covers: FR-1
-- [ ] **P1.T4: Re-baseline and document** — covers: AC-8
-  - [ ] P1.T4.1: Render each asset `--strict`, write its digest.
-  - [ ] P1.T4.2: Record the palette change and its reason in each design note.
+- [x] **P1.T2: Derive ramps for potion, sword and humanoid** — covers: FR-1
+- [x] **P1.T3: Derive ramps for chest, character and scene** — covers: FR-1
+- [x] **P1.T4: Re-baseline and document** — covers: AC-8
+  - [x] P1.T4.1: Render each asset `--strict`, write its digest.
+  - [x] P1.T4.2: Record the palette change and its reason in each design note.
+
+**Result:** verified
+**Checkpoint:** 40fac77
+**Evidence:** conductor/tracks/20261113-lighting-recovery/verification/phase-1.md
 
 ## Phase 2: Lighting
 
