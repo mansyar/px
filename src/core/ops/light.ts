@@ -16,9 +16,12 @@
  *
  * Cast comes next: every pixel of the `cast` part throws its own pixel of that
  * family's `shadow` role `cast_offset` steps along the light vector. A shadow
- * may land on a shorter or equal part, and those pixels become the caster's;
- * it skips a strictly taller owner and skips the space outside the canvas. Both
- * masks come from the entry snapshot, so shadows never cast shadows.
+ * may land on a shorter or equal part, and it shades that surface without
+ * taking the pixel from the part that owns it — the pass never changes
+ * ownership of an owned pixel, so a cast is not a part overwrite. Space that
+ * was transparent joins the caster's own mask, a strictly taller owner is
+ * skipped, and so is the space outside the canvas. Both masks come from the
+ * entry snapshot, so shadows never cast shadows.
  *
  * Rim closes the pass over the pixels that touch transparency, never the
  * interior. `edge` lights the normals that face the light and shadows the ones
@@ -379,7 +382,10 @@ export function applyLight(
         if (occupant !== UNOWNED && other !== undefined && other.z > caster.z) {
           continue;
         }
-        canvas.set(targetX, targetY, shadow, options.cast);
+        // A shadow shades the surface it lands on; it does not take the pixel
+        // from the part that owns it. Only empty space joins the caster's mask,
+        // so W_PART_OVERWRITE stays for a genuine part-over-part repaint.
+        canvas.set(targetX, targetY, shadow, occupant === UNOWNED ? options.cast : undefined);
         painted += 1;
       }
     }

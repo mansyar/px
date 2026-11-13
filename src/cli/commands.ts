@@ -313,7 +313,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   }
 
   const text = serializeRecipe(recipe);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { derivedRamps: args.deriveRamps });
   writeOut(target, text);
 
   const payload: Record<string, unknown> = {

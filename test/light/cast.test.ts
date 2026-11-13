@@ -106,7 +106,7 @@ describe('light cast: who the shadow may cover', () => {
     expect(ownerRows(compiledRecipe)[2]).toBe('..0.....');
   });
 
-  it('covers an equal owner and takes the pixel from it', () => {
+  it('covers an equal owner without taking the pixel from it', () => {
     const compiledRecipe = compiled({
       parts: { body: { material: 'steel' }, rock: { material: 'iron' } },
       ops: [
@@ -117,11 +117,28 @@ describe('light cast: who the shadow may cover', () => {
         { op: 'light', form: 'flat', ao: false, rim: 'none', cast: 'rock' },
       ],
     });
-    // The colour is the caster's shadow and the owner moved with it, which is
-    // what W_PART_OVERWRITE reports: the body lost a pixel to the rock.
+    // The colour is the caster's shadow, but shading the receiving surface is
+    // what `cast` is for: the body keeps the pixel, so nothing was repainted.
     expect(familyRows(compiledRecipe)[2]).toBe('....si..........');
-    expect(ownerRows(compiledRecipe)[2]).toBe('..1.....');
-    expect(compiledRecipe.warnings.map((warning) => warning.code)).toContain('W_PART_OVERWRITE');
+    expect(ownerRows(compiledRecipe)[2]).toBe('..0.....');
+    expect(compiledRecipe.warnings.map((warning) => warning.code)).not.toContain(
+      'W_PART_OVERWRITE',
+    );
+  });
+
+  it('still reports a draw op that genuinely repaints another part', () => {
+    const compiledRecipe = compiled({
+      parts: { body: { material: 'steel' }, rock: { material: 'iron' } },
+      ops: [
+        { op: 'rect', x: 1, y: 1, w: 2, h: 1, color: 'iron.base', part: 'rock' },
+        { op: 'rect', x: 2, y: 1, w: 1, h: 1, color: 'steel.base', part: 'body' },
+      ],
+    });
+    const overwrites = compiledRecipe.warnings.filter(
+      (warning) => warning.code === 'W_PART_OVERWRITE',
+    );
+    expect(overwrites).toHaveLength(1);
+    expect(overwrites[0]?.message).toContain('rock');
   });
 
   it('claims pixels that were transparent for the caster', () => {

@@ -44,7 +44,22 @@ function unknownPartHint(declared: string[]): string {
     : `Declared parts are ${declared.join(', ')}.`;
 }
 
-export function validateReferences(recipe: Recipe, slots: SlotTable): void {
+export interface ValidateOptions {
+  /**
+   * True when the palette was derived from flat colours, which is only known
+   * while the derivation is in hand (an init, not a later read): the derived
+   * ramp cannot fill a role no palette colour can supply, so its hint must not
+   * name the derivation as the fix (F20).
+   */
+  derivedRamps?: boolean;
+}
+
+export function validateReferences(
+  recipe: Recipe,
+  slots: SlotTable,
+  options: ValidateOptions = {},
+): void {
+  const derivedRamps = options.derivedRamps === true;
   const layerIds = new Set(recipe.layers.map((layer) => layer.id));
   const parts = recipeParts(recipe);
   const declared = Object.keys(parts).sort();
@@ -70,7 +85,7 @@ export function validateReferences(recipe: Recipe, slots: SlotTable): void {
         continue;
       }
       if (roles.roleSlots[familyIndex]?.[role] === undefined) {
-        throw partRampError(name, part.material, role);
+        throw partRampError(name, part.material, role, derivedRamps);
       }
     }
   }
