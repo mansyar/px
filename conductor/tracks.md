@@ -5,3 +5,4 @@
 - [x] **Track: Authoring Primitives** — [20261113-authoring-primitives](./archive/20261113-authoring-primitives/index.md) — feature — high
 
 - [~] **Track: Surface Fidelity** — [20261113-surface-fidelity](./tracks/20261113-surface-fidelity/index.md) — feature — high
+- [ ] **Track: Surface Resolution** — [20261113-surface-resolution](./tracks/20261113-surface-resolution/index.md) — feature — high

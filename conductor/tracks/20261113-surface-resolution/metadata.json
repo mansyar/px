@@ -1,0 +1,34 @@
+{
+  "id": "20261113-surface-resolution",
+  "title": "Surface Resolution",
+  "type": "feature",
+  "status": "planned",
+  "priority": "high",
+  "depends_on": [
+    "20261113-surface-fidelity"
+  ],
+  "created_at": "2026-11-13T17:40:00Z",
+  "updated_at": "2026-11-13T17:40:00Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261113-surface-resolution",
+  "base_branch": "feat/20261113-surface-fidelity",
+  "base_sha": "316568a",
+  "progress": {
+    "phases_total": 5,
+    "phases_verified": 0,
+    "tasks_total": 18,
+    "tasks_done": 0
+  },
+  "last_checkpoint": null,
+  "review_verdict": null,
+  "review_rounds": 0,
+  "doc_sync": "pending",
+  "pr_url": null,
+  "pr_state": null,
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null
+}
