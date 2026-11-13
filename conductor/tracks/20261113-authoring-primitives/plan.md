@@ -12,21 +12,24 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, NFR-1, NFR-6, AC-1, AC-2, AC-3, AC-4
 - **Touches:** `src/core/**`, `src/cli/**`, `src/mcp/**`, `test/facing/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — a declared `facing` earns a per-plane role from `dot(facing, towardLight)`, `flat` still plane-shades, and an undeclared part keeps its bytes
+- **Checkpoint:** dbcd353
+- **Evidence:** conductor/tracks/20261113-authoring-primitives/verification/phase-1.md
 
-- [ ] **P1.T1: Facing in the schema** — covers: FR-1, FR-4
-    - [ ] **P1.T1.1:** `facing` on a part, accepting the six names or a 3-vector; omitted means viewer-facing
-    - [ ] **P1.T1.2:** `E_FACING_UNKNOWN` for an unknown name and `E_BAD_PARAM` for a zero or non-unit vector, both with hints
-    - [ ] **P1.T1.3:** canonical serialisation and round-trip of both forms
-- [ ] **P1.T2: Plane tone resolution** — covers: FR-2, AC-1, AC-2
-    - [ ] **P1.T2.1:** `dot(facing, towardLight)` mapped onto the family's tone set, most-facing lightest, least darkest
-    - [ ] **P1.T2.2:** a part without `facing` keeps today's tone exactly
-- [ ] **P1.T3: Light integration** — covers: FR-3, AC-3
-    - [ ] **P1.T3.1:** plane tone applied before the existing stage order, with `form` still refining within each part
-    - [ ] **P1.T3.2:** `form: "flat"` plane-shades with `facing` and shades nothing without it
-- [ ] **P1.T4: Surface and compatibility** — covers: NFR-1, NFR-6, AC-4
-    - [ ] **P1.T4.1:** `facing` authorable through the recipe, CLI `--parts` and `px_init`
-    - [ ] **P1.T4.2:** hero and all committed digests unchanged; `test/facing/**` in the unit project
+- [x] **P1.T1: Facing in the schema** — covers: FR-1, FR-4
+    - [x] **P1.T1.1:** `facing` on a part, accepting the six names or a 3-vector; omitted means viewer-facing
+    - [x] **P1.T1.2:** `E_FACING_UNKNOWN` for an unknown name and `E_BAD_PARAM` for a zero or non-unit vector, both with hints
+    - [x] **P1.T1.3:** canonical serialisation and round-trip of both forms
+- [x] **P1.T2: Plane tone resolution** — covers: FR-2, AC-1, AC-2
+    - [x] **P1.T2.1:** `dot(facing, towardLight)` mapped onto the family's tone set, most-facing lightest, least darkest
+    - [x] **P1.T2.2:** a part without `facing` keeps today's tone exactly
+- [x] **P1.T3: Light integration** — covers: FR-3, AC-3
+    - [x] **P1.T3.1:** plane tone applied before the existing stage order, with `form` still refining within each part
+    - [x] **P1.T3.2:** `form: "flat"` plane-shades with `facing` and shades nothing without it
+- [x] **P1.T4: Surface and compatibility** — covers: NFR-1, NFR-6, AC-4
+    - [x] **P1.T4.1:** `facing` authorable through the recipe, CLI `--parts` and `px_init`
+    - [x] **P1.T4.2:** hero and all committed digests unchanged; `test/facing/**` in the unit project
 
 ## Phase 2: Stroke
 
