@@ -98,3 +98,18 @@ and `cluster_discipline` off 2. What remains, and what keeps both at 3, is the m
 its joints still mix 1 px notches with 2 px courses, and the apron keeps sub-3 px specks
 that the lint reports as thin clusters. `palette_craft` stays 3 for the same reason as
 before: the ramps do not step evenly.
+
+## Second pass (2026-11-13): specks and joints
+
+Two mechanical cleanups on the non-base ascii layers: 31 pixels with no same-role 4-neighbour
+were cleared, then 45 pixels belonging to same-role components smaller than the large
+profile's three-pixel floor. Clearing a highlight or shadow cell reveals the base tone
+painted underneath it, so this removes specks without punching holes.
+
+Judgement (author's self-review): this is a marginal change, not the 4 the criterion needs.
+The apron is a little quieter and a handful of masonry notches are gone, but the joints
+still read as 1 px lines against 2 px courses, and the lint's thin-cluster count does not
+move at all (222 coords before and after), which says the remaining thinness is structural
+to hand-drawn masonry rather than to stray pixels. Raising `cluster_discipline` and
+`edge_language` to 4 needs the wall rebuilt the way the roof was — geometry for the
+courses, not a speck sweep — and that is the honest next step, not a score adjustment.
