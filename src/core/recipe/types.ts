@@ -300,6 +300,8 @@ export interface TextureOp extends OpBase {
   pattern: TexturePattern;
   color: SlotRef;
   density?: TextureDensity;
+  /** `full` needs a whole mark inside the part; `region` guarantees one if it can. */
+  fit?: 'full' | 'region';
   targetLayer?: string;
 }
 
@@ -527,7 +529,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   polygon: ['points', 'color'],
   flood_fill: ['x', 'y', 'color', 'connectivity'],
   dither_fill: ['x', 'y', 'w', 'h', 'color', 'pattern'],
-  texture: ['pattern', 'color', 'density', 'target_layer'],
+  texture: ['pattern', 'color', 'density', 'fit', 'target_layer'],
   ascii_blit: ['x', 'y', 'grid', 'legend'],
   mirror: ['axis', 'pivot'],
   auto_outline: ['mode', 'where', 'color', 'selective', 'width', 'target_layer'],

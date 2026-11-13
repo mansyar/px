@@ -1048,6 +1048,20 @@ function normalizeTexture(
       op.density = density;
     }
   }
+  const fit = source.fit;
+  if (fit !== undefined) {
+    if (fit !== 'full' && fit !== 'region') {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `Op ${opIndex} (texture) has fit ${JSON.stringify(fit)}; only "full" and "region" are supported`,
+        'Full fit needs a whole mark inside the part; region fit anchors one legal mark when the lattice cannot.',
+        opLocation(layer, opIndex),
+      );
+    }
+    if (fit === 'region') {
+      op.fit = 'region';
+    }
+  }
   const targetLayer = optionalStringParam(source, 'target_layer', 'texture', opIndex, layer);
   if (targetLayer !== undefined) {
     op.targetLayer = targetLayer;
