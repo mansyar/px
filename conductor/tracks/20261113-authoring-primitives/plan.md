@@ -106,7 +106,7 @@
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
 - **Judge:** `scripts/rubric.mjs` needs `PX_RUBRIC_API_KEY` and none is configured, so the model path cannot run. The agent path in `docs/rubric.md` (owner-approved) is now the scoring route: the implementing agent authors, scores both artifacts against the same anchors, and records each pass as `scorer: "agent"` with `self_review: true`. The verdict then carries `basis: "mixed"` and a caveat naming the self-scored assets; the bar and its arithmetic are unchanged.
-- **Progress:** humanoid re-authored at `9d7509e` — `bevel` form and 2×2 camo on the shadow side; `px diff` 112 px inside a 19×29 region (one light pass rebanded every part, so the change is figure-wide by design). Remaining: character, sword, scene; potion, chest and prop untouched.
+- **Progress:** humanoid (`9d7509e`), sword and character (`1bd72c5`) re-authored and re-scored on the agent path; potion, chest and prop untouched, as P5.T2.1 allows. **Scene is not re-authored**: it still carries the three 2s that fail AC-14, and its roof and arches are hand-painted ASCII that need a real redraw, not a form switch. P5.T1.1 is therefore partial and Phase 5 stays `in_progress`.
 
 - [ ] **P5.T1: The four weak assets** — covers: FR-16
     - [ ] **P5.T1.1:** humanoid, character, sword, scene re-authored with facing, stroke and texture where they address the failing criterion
