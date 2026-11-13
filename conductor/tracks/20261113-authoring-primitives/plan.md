@@ -105,7 +105,7 @@
 - **Touches:** `test/art/**`, `docs/rubric.md`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
-- **Judge:** `scripts/rubric.mjs` needs `PX_RUBRIC_API_KEY` and none is configured, so the model score cannot be produced. On the owner's instruction the implementing agent authors and judges the work itself; that judgement is recorded in each asset's design note as an author's self-review, never as a rubric score, and `test/art/scores.json` is left untouched (its verdict stays `fail` until a real scoring run).
+- **Judge:** `scripts/rubric.mjs` needs `PX_RUBRIC_API_KEY` and none is configured, so the model path cannot run. The agent path in `docs/rubric.md` (owner-approved) is now the scoring route: the implementing agent authors, scores both artifacts against the same anchors, and records each pass as `scorer: "agent"` with `self_review: true`. The verdict then carries `basis: "mixed"` and a caveat naming the self-scored assets; the bar and its arithmetic are unchanged.
 - **Progress:** humanoid re-authored at `9d7509e` — `bevel` form and 2×2 camo on the shadow side; `px diff` 112 px inside a 19×29 region (one light pass rebanded every part, so the change is figure-wide by design). Remaining: character, sword, scene; potion, chest and prop untouched.
 
 - [ ] **P5.T1: The four weak assets** — covers: FR-16
@@ -123,7 +123,8 @@
 - **Touches:** `test/art/**`, `test/benchmarks/**`, `scripts/**`, `docs/rubric.md`, `verification/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** pending
-- **Blocked:** scoring is `scripts/rubric.mjs`, networked and credential-gated: it exits 2 with no `PX_RUBRIC_API_KEY`, and neither the key nor a model id is configured here. AC-14 cannot be produced or checked by the agent; the recorded verdict stays `fail` (mean 3.79) until a scoring run happens. P6.T2 is implementable without a key and is not started because it is gated on P6.T1 in the plan order.
+- **Status of AC-14:** scoring runs through the agent path in `docs/rubric.md` (`scorer: "agent"`, `self_review: true`), so the record can be produced without the key. The verdict is labelled `basis: "mixed"` or `"self-review"` and carries a caveat naming the assets its author judged; the mean and floor are unchanged and `test/art/rubric.test.ts` recomputes both. AC-14 is met only when that arithmetic clears 4.0 with nothing below 3 — as of the humanoid re-score it is `fail` at 3.81 with three scene scores at 2.
+- **Blocked:** a fully independent record still needs `PX_RUBRIC_API_KEY`; `scripts/rubric.mjs` exits 2 without it. P6.T2 is implementable without a key and is not started because it is gated on P6.T1 in the plan order.
 
 - [ ] **P6.T1: Score** — covers: FR-17, AC-14
     - [ ] **P6.T1.1:** two passes per asset, rationale per criterion, recorded in `scores.json`
