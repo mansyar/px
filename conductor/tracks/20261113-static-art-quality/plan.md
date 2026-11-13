@@ -221,3 +221,16 @@
 - [x] **R2.T2: Seal tie has fixtures** - covers: F14, FR-3
 - [x] **R2.T3: Init reports its own profile warning** - covers: F15, FR-14
 - [x] **R2.T4: Threshold header cites its own task** - covers: F16
+
+## Phase R3: Review Fixes (Round 3)
+
+- **Goal:** Remove the last path by which AC-1 can be false, and make the seal tie fixtures fail when the tie-break is removed.
+- **Depends on:** Phase R2
+- **Covers:** F17, F18, F19
+- **Touches:** src/**, test/**, docs/**
+- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Status:** in_progress
+
+- [ ] **R3.T1: Parts require schema 1.1** - covers: F17, AC-1
+- [ ] **R3.T2: Tie fixtures fail without the tie-break** - covers: F18, FR-3
+- [ ] **R3.T3: Outline paragraph matches the gate** - covers: F19, FR-13
