@@ -23,7 +23,7 @@ function compileWith(
   light: Record<string, unknown>,
 ): CompiledRecipe {
   const recipe = {
-    version: '1.1',
+    version: '1.3',
     meta: { name: 'bands', width, height, alpha_mode: 'binary' },
     palette: RAMP,
     anchors: {},

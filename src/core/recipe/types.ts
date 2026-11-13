@@ -509,10 +509,10 @@ export interface Layer {
  * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
  * byte-identical after a read-write cycle (FR-1).
  */
-export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2';
+export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2' | '1.3';
 
 /** Versions this engine accepts on input. */
-export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2'];
+export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2', '1.3'];
 
 /** The version a recipe is written with once it declares parts. */
 export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';

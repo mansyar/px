@@ -57,6 +57,7 @@ import {
   type RawOp,
   type Recipe,
   type RecipeMeta,
+  type RecipeVersion,
   type RectOp,
   type ReplaceSlotOp,
   type SealOp,
@@ -1712,6 +1713,21 @@ export interface NormalizeResult {
   warnings: PxWarning[];
 }
 
+/** Ordering for gates: a 1.0 document predates every option a later version adds. */
+function versionRank(version: RecipeVersion): number {
+  switch (version) {
+    case 1:
+    case '1.0':
+      return 0;
+    case '1.1':
+      return 1;
+    case '1.2':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
 export function normalizeRecipe(raw: unknown): NormalizeResult {
   if (!isRecord(raw)) {
     throw new PxError(
@@ -1730,6 +1746,75 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
     );
   }
 
+  // Part selection names must exist at any version, not only the one that
+  // introduced the option: a typo should not wait for a second error.
+  const namedParts = new Set(
+    typeof raw.parts === 'object' && raw.parts !== null ? Object.keys(raw.parts) : [],
+  );
+  for (const layer of Array.isArray(raw.layers) ? raw.layers : []) {
+    const ops = (layer as { ops?: unknown }).ops;
+    if (!Array.isArray(ops)) continue;
+    for (const op of ops) {
+      const candidate = op as { op?: unknown; parts?: unknown; skip?: unknown };
+      if (candidate.op !== 'light') continue;
+      for (const key of ['parts', 'skip'] as const) {
+        const list = candidate[key];
+        if (!Array.isArray(list)) continue;
+        for (const name of list) {
+          if (!namedParts.has(String(name))) {
+            throw new PxError(
+              'E_BAD_PARAM',
+              `Op (light) names part "${String(name)}" in ${key}, which the recipe does not declare`,
+              `Declared parts are ${[...namedParts].join(', ') || 'none'}.`,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  // 1.3 options: band count and scale, part selection, the outline seam, and a
+  // role that names a tone. Each changes pixels only when used, so a document
+  // that does not use them keeps its bytes at any version.
+  if (versionRank(version) < 3) {
+    const rawLayers = Array.isArray(raw.layers) ? raw.layers : [];
+    for (const layer of rawLayers) {
+      const ops = (layer as { ops?: unknown }).ops;
+      if (!Array.isArray(ops)) continue;
+      for (const op of ops) {
+        const candidate = op as Record<string, unknown>;
+        const lightUses =
+          candidate.op === 'light' &&
+          (candidate.bands !== undefined ||
+            candidate.band_scale !== undefined ||
+            candidate.parts !== undefined ||
+            candidate.skip !== undefined);
+        const seamUses = candidate.op === 'auto_outline' && candidate.seam !== undefined;
+        if (lightUses || seamUses) {
+          throw new PxError(
+            'E_BAD_VERSION',
+            `Op uses a 1.3-only option with version ${JSON.stringify(version)}, but it requires schema 1.3`,
+            'Set "version": "1.3" to use light bands, part selection or the outline seam.',
+          );
+        }
+      }
+    }
+    const families = (raw.palette ?? {}) as Record<string, unknown>;
+    for (const [name, family] of Object.entries(families)) {
+      const ramp = (family as { ramp?: Record<string, unknown> }).ramp;
+      if (typeof ramp !== 'object' || ramp === null) continue;
+      for (const [role, value] of Object.entries(ramp)) {
+        if (typeof value === 'string' && /^t\d+$/.test(value)) {
+          throw new PxError(
+            'E_BAD_VERSION',
+            `Palette family "${name}" role "${role}" names a tone with version ${JSON.stringify(version)}, which requires schema 1.3`,
+            'Set "version": "1.3" to point a role at a tone.',
+          );
+        }
+      }
+    }
+  }
+
   // Parts are a 1.1 feature (FR-5), so a 1.0 document that declares them is a
   // contradiction. Rejecting it here is what lets the writer echo the caller's
   // version verbatim: a 1.0 recipe is always part-less, so no write can promote
@@ -1737,7 +1822,7 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   // `fit: "region"` is a 1.2 option (FR-16). A 1.1 document that used it would
   // otherwise compile to different pixels on either side of the upgrade, so it
   // is rejected here with a message that names the version to set.
-  if (version !== '1.2') {
+  if (versionRank(version) < 2) {
     const palette = (raw.palette ?? {}) as Record<string, unknown>;
     for (const [name, family] of Object.entries(palette)) {
       if (typeof family === 'object' && family !== null && 'derive' in family) {

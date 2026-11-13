@@ -15,7 +15,7 @@ const RAMP: Palette = {
 
 function compileWith(light: Record<string, unknown>): CompiledRecipe {
   const recipe = {
-    version: '1.1',
+    version: '1.3',
     meta: { name: 'parts', width: 32, height: 8, alpha_mode: 'binary' },
     palette: RAMP,
     anchors: {},

@@ -19,7 +19,7 @@ const PALETTE: Palette = {
 
 function compileWith(ops: unknown[]): CompiledRecipe {
   const recipe = {
-    version: '1.1',
+    version: '1.3',
     meta: { name: 'seam', width: 16, height: 16, alpha_mode: 'binary' },
     palette: PALETTE,
     anchors: {},
