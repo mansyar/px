@@ -22,16 +22,16 @@ are in, and a null result is published as the finding.
   `conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling/`
 - **Verification:** `node scripts/calibrate/ceiling.mjs` then
   `git diff --stat test/art` (empty)
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **P1.T1: Define the nine candidates** — covers: FR-1
-  - [ ] P1.T1.1: lighting — `warm-cool`, `dither-band`, `form-ao`
-  - [ ] P1.T1.2: edge language — `selective`, `hue-shift`, `hierarchy`
-  - [ ] P1.T1.3: palette craft — `hue-ramp`, `accent`, `nonlinear`
-- [ ] **P1.T2: Emit recipes from the chest base** — covers: FR-1
-- [ ] **P1.T3: Render 8× and debug artifacts** — covers: FR-2
-- [ ] **P1.T4: Write and commit the hash registry** — covers: AC-1
-  - [ ] P1.T4.1: `verification/ceiling/candidates.json` with name, intent, treatment and sha256 per recipe.
+- [x] **P1.T1: Define the nine candidates** — covers: FR-1
+  - [x] P1.T1.1: lighting — `warm-cool`, `dither-band`, `engine-deband`
+  - [x] P1.T1.2: edge language — `selective`, `hue-shift`, `hierarchy`
+  - [x] P1.T1.3: palette craft — `hue-ramp`, `accent`, `nonlinear`
+- [x] **P1.T2: Emit recipes from the chest base** — covers: FR-1
+- [x] **P1.T3: Render 8× and debug artifacts** — covers: FR-2
+- [x] **P1.T4: Write and commit the hash registry** — covers: AC-1
+  - [x] P1.T4.1: `verification/ceiling/candidates.json` with name, intent, treatment and sha256 per recipe.
 
 ## Phase 2: Probe Mode
 
