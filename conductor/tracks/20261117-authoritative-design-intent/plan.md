@@ -45,7 +45,10 @@
 - **Covers:** FR-2, FR-5, FR-6, FR-7, FR-8, AC-4, AC-5, AC-6
 - **Touches:** `src/core/ops/**`, `src/core/recipe/**`, `src/core/compile.ts`, `src/core/design.ts`, `src/core/errors.ts`, `src/cli/**`, `src/mcp/**`, `docs/**`, `test/intent-passes/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — declared intent drives light, edges and value targets; overrides are reported; harmonize rewrites tones without touching geometry or ownership
+- **Checkpoint:** 57a246f
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-2.md
 
 - [x] **P2.T1: Default resolution and deviation reporting** — covers: FR-2, AC-4
   - [x] **P2.T1.1:** passes read declared defaults; explicit op flags win and are reported in response deviations
