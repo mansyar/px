@@ -43,9 +43,9 @@
 - **Goal:** Declared intent drives the shading passes, explicit flags override it visibly, and `harmonize` rewrites the whole sprite without touching geometry or ownership.
 - **Depends on:** Phase 1
 - **Covers:** FR-2, FR-5, FR-6, FR-7, FR-8, AC-4, AC-5, AC-6
-- **Touches:** `src/core/ops/**`, `src/core/compile.ts`, `src/core/design.ts`, `test/intent-passes/**`
+- **Touches:** `src/core/ops/**`, `src/core/recipe/**`, `src/core/compile.ts`, `src/core/design.ts`, `src/core/errors.ts`, `src/cli/**`, `src/mcp/**`, `docs/**`, `test/intent-passes/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Default resolution and deviation reporting** — covers: FR-2, AC-4
   - [ ] **P2.T1.1:** passes read declared defaults; explicit op flags win and are reported in response deviations
