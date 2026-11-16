@@ -64,3 +64,19 @@ Both files are outside this phase's `Touches` and were changed by the minimum am
 - Reachability is bidirectional across nine tools: every `inputSchema` parameter has an argv mapping and every mapped flag is declared; the `px_render` tool now declares and forwards `--blockout` / `--values`.
 - No new runtime dependency; `package.json` and the lockfile are untouched. Views reuse the existing renderer rather than adding a second rasteriser.
 - The closed `Design` schema from Phase 1 was not expanded; the brief scaffold exposes a valid `design` block plus separate planning fields (`parts`, `hero`) in the flat CLI/MCP envelope.
+
+## Primary verification
+
+Independent check at the phase head `5e8d2c5` before the squash:
+
+| Check | Result |
+| --- | --- |
+| Scope filter outside Touches | Empty; two declared deviations are `src/core/errors.ts` (new `E_SUBJECT_UNKNOWN`) and `test/smoke/mcp-stdio.test.ts` (nine-tool list) |
+| `git log --merges 8510a45..HEAD` | Empty; three reported commits |
+| `git diff --stat 8510a45..HEAD -- test/goldens test/benchmarks test/art` | Empty — all twelve digests and the rubric record untouched |
+| `pnpm verify` | Exit 0: 110 files / 957 tests, build clean, one pre-existing warning at `test/recipe/version-1-2.test.ts:50` |
+| `pnpm vitest run --coverage` | Exit 0: statements 94.79% (3660/3861), branches 85.50% (2430/2842), functions 98.33%, lines 94.56% |
+
+Design spot-checks: `test/brief/no-network.test.ts` statically rejects `node:http`, `node:https`, `node:http2`, `node:net`, scoring-script imports and non-local imports from `src/brief/**`, which makes NFR-5 a test rather than a promise; `test/brief/views.test.ts` captures the normal-render digest and both recipe and `--out` bytes before invoking `--blockout` or `--values 5`, then asserts all three unchanged and checks that only the three shading roles appear in the blockout; `src/mcp/tools.ts:47,64,350` registers, declares and dispatches `px_brief` as the ninth tool.
+
+Squashed to checkpoint `758fa53`.

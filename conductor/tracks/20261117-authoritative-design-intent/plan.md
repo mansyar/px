@@ -69,15 +69,18 @@
 - **Covers:** FR-9, FR-10, NFR-5, AC-7, AC-8
 - **Touches:** `src/brief/**`, `src/core/design.ts`, `src/render/**`, `src/cli/**`, `src/mcp/**`, `test/brief/**`, `test/mcp/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — `px brief` plans locally with nine-tool parity, and value views leave recipes and committed digests untouched
+- **Checkpoint:** 758fa53
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-3.md
 
-- [ ] **P3.T1: Built-in subject templates** — covers: FR-9, NFR-5
-  - [ ] **P3.T1.1:** structured scaffolds for at least three subjects with parts, proportion ranges, hero part and value hierarchy
-  - [ ] **P3.T1.2:** `E_SUBJECT_UNKNOWN` lists known subjects; templates are local data only
-- [ ] **P3.T2: Brief verb and MCP tool** — covers: FR-9, AC-7
-  - [ ] **P3.T2.1:** `px brief <subject> --size N` emits a design scaffold in the same commit as its MCP tool
-- [ ] **P3.T3: Blockout and posterise render modes** — covers: FR-10, AC-8
-  - [ ] **P3.T3.1:** `--blockout` and `--values N` render views without writing a recipe or changing the committed digest
+- [x] **P3.T1: Built-in subject templates** — covers: FR-9, NFR-5
+  - [x] **P3.T1.1:** structured scaffolds for at least three subjects with parts, proportion ranges, hero part and value hierarchy
+  - [x] **P3.T1.2:** `E_SUBJECT_UNKNOWN` lists known subjects; templates are local data only
+- [x] **P3.T2: Brief verb and MCP tool** — covers: FR-9, AC-7
+  - [x] **P3.T2.1:** `px brief <subject> --size N` emits a design scaffold in the same commit as its MCP tool
+- [x] **P3.T3: Blockout and posterise render modes** — covers: FR-10, AC-8
+  - [x] **P3.T3.1:** `--blockout` and `--values N` render views without writing a recipe or changing the committed digest
 
 ## Phase 4: Critique and Fix
 
