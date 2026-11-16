@@ -87,9 +87,9 @@
 - **Goal:** Feedback becomes a ranked whole-image gap report with applyable fixes, bounded at 256×256 and fully reachable from both tool surfaces.
 - **Depends on:** Phase 3
 - **Covers:** FR-11, FR-12, FR-13, FR-14, NFR-4, NFR-5, AC-9, AC-10, AC-11, AC-15
-- **Touches:** `src/critique/**`, `src/cli/**`, `src/mcp/**`, `test/critique/**`, `vitest.config.ts`
+- **Touches:** `src/critique/**`, `src/core/**`, `src/cli/**`, `src/mcp/**`, `test/critique/**`, `test/mcp/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Gap report** — covers: FR-11, AC-9
   - [ ] **P4.T1.1:** intended vs observed per criterion, ranked, each fix with `{op, why, expected_delta}` and an index
