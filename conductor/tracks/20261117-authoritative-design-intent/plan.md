@@ -67,9 +67,9 @@
 - **Goal:** An agent can plan a subject and judge masses and values before drawing detail, with no network dependency and no recipe writes.
 - **Depends on:** Phase 2
 - **Covers:** FR-9, FR-10, NFR-5, AC-7, AC-8
-- **Touches:** `src/brief/**`, `src/render/**`, `src/cli/**`, `src/mcp/**`, `test/brief/**`
+- **Touches:** `src/brief/**`, `src/core/design.ts`, `src/render/**`, `src/cli/**`, `src/mcp/**`, `test/brief/**`, `test/mcp/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Built-in subject templates** — covers: FR-9, NFR-5
   - [ ] **P3.T1.1:** structured scaffolds for at least three subjects with parts, proportion ranges, hero part and value hierarchy
