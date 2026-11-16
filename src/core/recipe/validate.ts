@@ -39,6 +39,7 @@ function slotReferences(op: RawOp): string[] {
     case 'auto_shade':
     case 'ramp_fill':
     case 'light':
+    case 'harmonize':
     case 'seal':
     case 'strays':
     case 'deband':

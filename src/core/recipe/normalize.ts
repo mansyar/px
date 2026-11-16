@@ -31,6 +31,7 @@ import {
   type FloodFillOp,
   GLOSS_PROFILES,
   type GlossProfile,
+  type HarmonizeOp,
   isCoordRef,
   type Layer,
   LIGHT_DIRS,
@@ -1240,6 +1241,31 @@ function normalizeAutoOutline(
   return op;
 }
 
+function normalizeHarmonize(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): HarmonizeOp {
+  const where = enumParam<OutlineWhere>(
+    source,
+    'where',
+    'harmonize',
+    opIndex,
+    layer,
+    OUTLINE_WHERES,
+    false,
+  );
+  const op: HarmonizeOp = { op: 'harmonize' };
+  if (where !== undefined) {
+    op.where = where;
+  }
+  const targetLayer = optionalStringParam(source, 'target_layer', 'harmonize', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
 function normalizeAutoShade(
   source: Record<string, unknown>,
   opIndex: number,
@@ -1342,13 +1368,17 @@ function normalizeLight(source: Record<string, unknown>, opIndex: number, layer:
   const castOffset = castOffsetParam(source, opIndex, layer);
   const op: LightOp = {
     op: 'light',
-    angle: angle ?? 'top-left',
     form: form ?? 'bevel',
     ao: ao ?? true,
     cast: castParam(source, opIndex, layer),
     castOffset: castOffset ?? 1,
     rim: rim ?? 'edge',
   };
+  // Keep an omitted angle omitted: the compiler resolves it from the design,
+  // and a recipe that restates the design default must not look like an override.
+  if (angle !== undefined) {
+    op.angle = angle;
+  }
   const bands = source.bands;
   if (bands !== undefined) {
     if (typeof bands !== 'number' || !Number.isInteger(bands) || bands < 2 || bands > 4) {
@@ -1618,6 +1648,8 @@ function normalizeOpBody(
       return normalizeRampFill(raw, opIndex, layer);
     case 'light':
       return normalizeLight(raw, opIndex, layer);
+    case 'harmonize':
+      return normalizeHarmonize(raw, opIndex, layer);
     case 'replace_slot':
       return normalizeReplaceSlot(raw, opIndex, layer);
     case 'seal':

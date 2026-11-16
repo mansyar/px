@@ -21,7 +21,7 @@ function makeDir(): string {
     join(dir, 'px.style.json'),
     JSON.stringify({
       allowed_ramps: ['brass'],
-      edge_vocabulary: ['hard', 'crease', 'soft'],
+      edge_vocabulary: ['none', 'outline', 'shadow', 'highlight'],
       default_light: 'top-left',
       min_contrast: 2,
       value_rules: {},
@@ -62,7 +62,7 @@ function design(): Design {
     light: 'top-left',
     hierarchy: ['body'],
     values: { body: 3 },
-    edges: { silhouette: 'hard', material: 'crease', detail: 'soft' },
+    edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
     materials: ['brass'],
     style: '@project',
   };

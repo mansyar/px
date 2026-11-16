@@ -23,7 +23,7 @@ function writeStyle(dir: string) {
     join(dir, 'px.style.json'),
     JSON.stringify({
       allowed_ramps: ['brass', 'glass'],
-      edge_vocabulary: ['hard', 'crease', 'soft'],
+      edge_vocabulary: ['none', 'outline', 'shadow', 'highlight'],
       default_light: 'top-left',
       min_contrast: 2,
       value_rules: { hero: 5 },
@@ -51,7 +51,7 @@ function recipe(overrides: Record<string, unknown> = {}) {
       light: 'top-left',
       hierarchy: ['body'],
       values: { body: 3 },
-      edges: { silhouette: 'hard', material: 'crease', detail: 'soft' },
+      edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
       materials: ['brass'],
       style: '@project',
       ...overrides,
@@ -107,14 +107,14 @@ describe('parse-time intent validation', () => {
     const dir = makeDir();
     writeStyle(dir);
     const error = failure(() =>
-      parseRecipe(recipe({ edges: { silhouette: 'jagged', material: 'crease', detail: 'soft' } }), {
-        baseDir: dir,
-      }),
+      parseRecipe(
+        recipe({ edges: { silhouette: 'jagged', material: 'shadow', detail: 'highlight' } }),
+        { baseDir: dir },
+      ),
     );
     expect(error.code).toBe('E_INTENT_EDGE');
     expect(error.message).toContain('jagged');
-    expect(error.hint).toContain(join(dir, 'px.style.json'));
-    expect(error.hint).toContain('hard');
+    expect(error.hint).toContain('none, outline, shadow, highlight');
   });
 
   it('rejects a hierarchy entry that names an undeclared part', () => {

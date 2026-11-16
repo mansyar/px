@@ -18,7 +18,7 @@ const DESIGN = {
   light: 'top-left',
   hierarchy: ['body'],
   values: { body: 3 },
-  edges: { silhouette: 'hard', material: 'crease', detail: 'soft' },
+  edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
   materials: ['ink'],
   style: '@project',
 };
@@ -30,7 +30,7 @@ function makeDir(): string {
     join(dir, 'px.style.json'),
     JSON.stringify({
       allowed_ramps: ['ink'],
-      edge_vocabulary: ['hard', 'crease', 'soft'],
+      edge_vocabulary: ['none', 'outline', 'shadow', 'highlight'],
       default_light: 'bottom-right',
       min_contrast: 2,
       value_rules: {},

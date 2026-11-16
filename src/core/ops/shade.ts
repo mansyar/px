@@ -18,6 +18,7 @@ import type { SlotCanvas } from '../canvas.js';
 import { roleSlot, type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
 import type { LightDir, RampRole } from '../recipe/types.js';
 import { noRampError, type PassSite } from './pass.js';
+import { type IntentValues, resolveValueSlot, valueForPixel } from './values.js';
 
 type Offset = readonly [number, number];
 
@@ -93,6 +94,7 @@ export function autoShade(
   slots: SlotTable,
   lightDir: LightDir,
   site: PassSite,
+  intent?: IntentValues,
 ): number {
   const { width, height } = canvas;
   const adjacency = ADJACENCY[lightDir];
@@ -123,7 +125,11 @@ export function autoShade(
       if (family.kind === 'flat') {
         throw noRampError('auto_shade', family.name, role, site, [x, y]);
       }
-      const target = roleSlot(roles, here, role);
+      const value = intent === undefined ? undefined : valueForPixel(intent, index);
+      const target =
+        value === undefined
+          ? roleSlot(roles, here, role)
+          : resolveValueSlot(slots, roles, here, value);
       if (target === undefined) {
         continue;
       }

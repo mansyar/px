@@ -14,7 +14,7 @@ function design() {
     light: 'top-left',
     hierarchy: ['body', 'flame'],
     values: { body: 3, flame: 5 },
-    edges: { silhouette: 'hard', material: 'crease', detail: 'soft' },
+    edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
     materials: ['brass', 'glass'],
     style: '@project',
   };
@@ -105,7 +105,7 @@ describe('design schema', () => {
     expect(
       codeOf(() =>
         normalizeRecipe(
-          rawRecipe('1.2', { ...design(), edges: { silhouette: 'hard', glow: 'soft' } }),
+          rawRecipe('1.2', { ...design(), edges: { silhouette: 'outline', glow: 'highlight' } }),
         ),
       ),
     ).toBe('E_BAD_PARAM');

@@ -372,7 +372,8 @@ export interface ReplaceSlotOp extends OpBase {
  */
 export interface LightOp extends OpBase {
   op: 'light';
-  angle: LightDir;
+  /** Absent means the declared design light, or top-left when there is none. */
+  angle?: LightDir;
   form: LightForm;
   /** Ambient occlusion, on by default. */
   ao: boolean;
@@ -389,6 +390,17 @@ export interface LightOp extends OpBase {
   parts?: string[];
   /** These parts keep their authored tones. Mutually exclusive with `parts`. */
   skip?: string[];
+  targetLayer?: string;
+}
+
+/**
+ * Re-applies the declared light, edges and value targets to pixels that already
+ * exist. Geometry and ownership are immutable: only existing colours change.
+ */
+export interface HarmonizeOp extends OpBase {
+  op: 'harmonize';
+  /** Which side of an edge supplies the ramp family; defaults to `inner`. */
+  where?: OutlineWhere;
   targetLayer?: string;
 }
 
@@ -409,6 +421,7 @@ export type Op =
   | RampFillOp
   | ReplaceSlotOp
   | LightOp
+  | HarmonizeOp
   | SealOp
   | StraysOp
   | DebandOp;
@@ -486,6 +499,7 @@ export const POST_PASS_OPS: readonly OpName[] = [
   'auto_shade',
   'ramp_fill',
   'light',
+  'harmonize',
   'texture',
   'seal',
   'strays',
@@ -527,6 +541,13 @@ export type DesignEdgeClass = 'silhouette' | 'material' | 'detail';
 
 /** Canonical write order of the edge treatments. */
 export const DESIGN_EDGE_CLASSES: readonly DesignEdgeClass[] = ['silhouette', 'material', 'detail'];
+
+/**
+ * The closed edge vocabulary. A treatment names the role of the neighbour
+ * family's ramp to paint on the boundary; `none` paints nothing.
+ */
+export type EdgeTreatment = 'none' | 'outline' | 'shadow' | 'highlight';
+export const EDGE_TREATMENTS: readonly EdgeTreatment[] = ['none', 'outline', 'shadow', 'highlight'];
 
 export interface DesignEdges {
   silhouette: string;
@@ -605,6 +626,7 @@ export const OP_PARAM_ORDER: Record<OpName, readonly string[]> = {
   auto_outline: ['mode', 'where', 'color', 'seam', 'selective', 'width', 'target_layer'],
   auto_shade: ['light_dir', 'target_layer'],
   ramp_fill: ['bands', 'light_dir', 'target_layer'],
+  harmonize: ['where', 'target_layer'],
   light: [
     'angle',
     'form',

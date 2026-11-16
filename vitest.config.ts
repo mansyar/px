@@ -23,6 +23,7 @@ export default defineConfig({
             'test/texture/**/*.test.ts',
             'test/feedback/**/*.test.ts',
             'test/profiles/**/*.test.ts',
+            'test/intent-passes/**/*.test.ts',
           ],
         },
       },

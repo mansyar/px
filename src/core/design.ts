@@ -17,6 +17,7 @@ import {
   DESIGN_VALUE_MIN,
   type Design,
   type DesignEdges,
+  EDGE_TREATMENTS,
   LIGHT_DIRS,
   type LightDir,
   PROJECT_STYLE,
@@ -34,6 +35,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function nonEmptyString(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new PxError('E_BAD_PARAM', `design.${field} must be a non-empty string`);
+  }
+  return value;
+}
+
+/** The edge vocabulary is closed by intent, not by whatever a style file lists. */
+function edgeTreatmentError(value: string, field: string): PxError {
+  return new PxError(
+    'E_INTENT_EDGE',
+    `${field} uses unknown edge treatment "${value}"`,
+    `Use exactly one of ${EDGE_TREATMENTS.join(', ')}.`,
+  );
+}
+
+function edgeTreatment(value: string, field: string): string {
+  if (!EDGE_TREATMENTS.includes(value as never)) {
+    throw edgeTreatmentError(value, `design.${field}`);
   }
   return value;
 }
@@ -72,9 +89,12 @@ function normalizeEdges(value: unknown): DesignEdges {
     );
   }
   const edges: DesignEdges = {
-    silhouette: nonEmptyString(value.silhouette, 'edges.silhouette'),
-    material: nonEmptyString(value.material, 'edges.material'),
-    detail: nonEmptyString(value.detail, 'edges.detail'),
+    silhouette: edgeTreatment(
+      nonEmptyString(value.silhouette, 'edges.silhouette'),
+      'edges.silhouette',
+    ),
+    material: edgeTreatment(nonEmptyString(value.material, 'edges.material'), 'edges.material'),
+    detail: edgeTreatment(nonEmptyString(value.detail, 'edges.detail'), 'edges.detail'),
   };
   return edges;
 }
@@ -194,6 +214,11 @@ export function parseProjectStyle(text: string, stylePath: string): ProjectStyle
 
   const allowedRamps = stringList(raw.allowed_ramps, 'allowed_ramps');
   const edgeVocabulary = stringList(raw.edge_vocabulary, 'edge_vocabulary');
+  for (const treatment of edgeVocabulary) {
+    if (!EDGE_TREATMENTS.includes(treatment as never)) {
+      throw edgeTreatmentError(treatment, `${stylePath} edge_vocabulary`);
+    }
+  }
   let defaultLight: LightDir | undefined;
   if (raw.default_light !== undefined) {
     const light = raw.default_light;
@@ -316,10 +341,13 @@ export function validateIntent(recipe: Recipe, resolved: ResolvedDesign): void {
 
   for (const edgeClass of DESIGN_EDGE_CLASSES) {
     const treatment = design.edges[edgeClass];
+    if (!EDGE_TREATMENTS.includes(treatment as never)) {
+      throw edgeTreatmentError(treatment, `design.edges.${edgeClass}`);
+    }
     if (!style.edgeVocabulary.includes(treatment)) {
       throw new PxError(
         'E_INTENT_EDGE',
-        `design.edges.${edgeClass} uses unknown treatment "${treatment}"`,
+        `design.edges.${edgeClass} uses undeclared treatment "${treatment}"`,
         `Choose from ${style.edgeVocabulary.join(', ')} declared in ${stylePath}.`,
       );
     }

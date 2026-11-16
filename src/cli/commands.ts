@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
-import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
+import { type CompiledRecipe, compileRecipe, type Deviation } from '../core/compile.js';
 import { resolveDesign } from '../core/design.js';
 import { diffRgba } from '../core/diff.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
@@ -481,6 +481,11 @@ function cleanupOf(recipe: Recipe): {
   };
 }
 
+/** Overrides recorded by the compiler, exposed only when the recipe declares intent. */
+function deviationsOf(recipe: Recipe): Deviation[] {
+  return compileRecipe(recipe).deviations ?? [];
+}
+
 export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   const target = resolve(cwd, file);
@@ -528,6 +533,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const pass = cleanupOf(parsed.recipe);
   const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings, pass.warnings);
+  const deviations = deviationsOf(parsed.recipe);
 
   return {
     file: outFile,
@@ -537,6 +543,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
     ...(pass.cleanup === undefined ? {} : { cleanup: pass.cleanup }),
+    ...(deviations.length > 0 ? { deviations } : {}),
     ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
@@ -782,6 +789,9 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
     id: layer.id,
     painted: layer.canvas.paintedCount(),
   }));
+  if (compiled.deviations !== undefined && compiled.deviations.length > 0) {
+    payload.deviations = compiled.deviations;
+  }
   // Only a recipe that declares parts grows this key, so a part-less envelope
   // stays exactly what it was before parts existed. FR-24 appends the tone
   // table and the value histogram to each entry rather than replacing it.
@@ -866,6 +876,9 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   };
   if (result.compiled.parts.length > 0) {
     payload.parts = result.compiled.parts;
+  }
+  if (result.compiled.deviations !== undefined && result.compiled.deviations.length > 0) {
+    payload.deviations = result.compiled.deviations;
   }
   const allWarnings = [...warnings, ...result.warnings];
   if (allWarnings.length > 0) {
@@ -1064,6 +1077,9 @@ export function runValidate(args: ParsedArgs, cwd: string): Record<string, unkno
     })),
     findings: lintCompiled(compiled),
     ...(compiled.cleanup === undefined ? {} : { cleanup: compiled.cleanup }),
+    ...(compiled.deviations === undefined || compiled.deviations.length === 0
+      ? {}
+      : { deviations: compiled.deviations }),
     warnings: [...warnings, ...compiled.warnings],
   };
 }

@@ -62,6 +62,7 @@ export type WarningCode =
   | 'W_PASS_NOOP'
   | 'W_PART_OVERWRITE'
   | 'W_CLEANUP_NOOP'
+  | 'W_HARMONIZE_NOOP'
   | 'W_DIFF_HASH_ONLY'
   | 'W_PROFILE_MISMATCH';
 
@@ -117,7 +118,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
   E_UNKNOWN_OP:
-    'Ops are set_pixels, rect, line, stroke, ellipse, polygon, flood_fill, dither_fill, texture, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, replace_slot, seal, strays, and deband.',
+    'Ops are set_pixels, rect, line, stroke, ellipse, polygon, flood_fill, dither_fill, texture, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, harmonize, replace_slot, seal, strays, and deband.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_MISSING_COLOR:
@@ -165,7 +166,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Create px.style.json in the recipe directory (or the caller cwd) with allowed_ramps, edge_vocabulary, default_light, min_contrast and value_rules.',
   E_INTENT_LIGHT:
     'Use one of the supported light directions: top-left, top-right, bottom-left, bottom-right.',
-  E_INTENT_EDGE: 'Use an edge treatment declared in px.style.json edge_vocabulary.',
+  E_INTENT_EDGE: 'Use one of the closed edge treatments: none, outline, shadow, highlight.',
   E_INTENT_HIERARCHY: 'Name only parts declared in the recipe parts block, in back-to-front order.',
   E_INTENT_VALUE: 'Use a whole target value from 1 to 5 for each part.',
   E_INTENT_RAMP: 'Use a ramp declared in px.style.json allowed_ramps.',

@@ -17,6 +17,7 @@ import { PxError } from '../errors.js';
 import { roleSlot, type SlotRoles, type SlotTable, TRANSPARENT_SLOT } from '../palette.js';
 import type { LightDir, RampRole } from '../recipe/types.js';
 import { noRampError, type PassSite } from './pass.js';
+import { type IntentValues, resolveValueSlot, valueForPixel } from './values.js';
 
 /** Distance from the dark corner along the light axis. */
 function axisProjection(x: number, y: number, box: Box, lightDir: LightDir): number {
@@ -157,6 +158,7 @@ export function rampFill(
   bands: number,
   lightDir: LightDir,
   site: PassSite,
+  intent?: IntentValues,
 ): number {
   const { width, height } = canvas;
   const ranked = rankProjections(source, width, height, lightDir);
@@ -198,7 +200,11 @@ export function rampFill(
     if (family.kind === 'flat') {
       throw noRampError('ramp_fill', family.name, role, site, [cell.x, cell.y]);
     }
-    const target = roleSlot(roles, here, role);
+    const value = intent === undefined ? undefined : valueForPixel(intent, cell.y * width + cell.x);
+    const target =
+      value === undefined
+        ? roleSlot(roles, here, role)
+        : resolveValueSlot(slots, roles, here, value);
     if (target === undefined) {
       throw noRampError('ramp_fill', family.name, role, site, [cell.x, cell.y]);
     }

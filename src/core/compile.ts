@@ -32,6 +32,17 @@ export interface CompiledLayer {
   canvas: SlotCanvas;
 }
 
+/**
+ * One explicit op flag that overrode a value the design would have supplied.
+ * `declared` is the design default, `actual` the flag the recipe wrote.
+ */
+export interface Deviation {
+  op_index: number;
+  field: string;
+  declared: string | number;
+  actual: string | number;
+}
+
 export interface CompiledRecipe {
   width: number;
   height: number;
@@ -46,6 +57,8 @@ export interface CompiledRecipe {
   profile: ScaleProfile;
   /** One entry per cleanup pass that ran, in recipe order; absent when none ran. */
   cleanup?: CleanupReport[];
+  /** Explicit flags that overrode a design default; absent when none did. */
+  deviations?: Deviation[];
   warnings: PxWarning[];
 }
 
@@ -99,6 +112,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
   const profile = recipe.meta.profile ?? profileFor(width, height);
   const numbers = profileNumbers(profile);
   const cleanup: CleanupReport[] = [];
+  const deviations: Deviation[] = [];
   let cleanupNoops = 0;
   let partOverwrites = 0;
 
@@ -157,6 +171,8 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           partIndexes: indexes,
           version: recipe.version,
           profile: numbers,
+          design: recipe.design,
+          deviations,
         },
         resolved,
       );
@@ -209,10 +225,13 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
           }
         }
       } else if (outcome.noop) {
+        const harmonize = op.op === 'harmonize';
         warnings.push({
-          code: 'W_PASS_NOOP',
+          code: harmonize ? 'W_HARMONIZE_NOOP' : 'W_PASS_NOOP',
           message: `Op ${opIndex} (${op.op}) of layer "${layer.id}" changed no pixels`,
-          hint: 'Draw into the layer it reads first, or point target_layer at a layer that has content.',
+          hint: harmonize
+            ? 'The declared light, edges and values already match this layer; add intent or point target_layer at a layer with different tones.'
+            : 'Draw into the layer it reads first, or point target_layer at a layer that has content.',
           layer: layer.id,
           op_index: opIndex,
         });
@@ -256,6 +275,7 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     owners,
     profile,
     ...(cleanup.length > 0 ? { cleanup } : {}),
+    ...(deviations.length > 0 ? { deviations } : {}),
     warnings,
   };
 }

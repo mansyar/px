@@ -259,6 +259,8 @@ function opParams(op: RawOp): Record<string, unknown> {
         rim: op.rim,
         target_layer: op.targetLayer,
       });
+    case 'harmonize':
+      return defined({ where: op.where, target_layer: op.targetLayer });
     case 'replace_slot':
       return { from: op.from, to: op.to };
     case 'seal':

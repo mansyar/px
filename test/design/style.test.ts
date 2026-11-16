@@ -22,7 +22,7 @@ function writeStyle(dir: string, file = 'px.style.json', overrides: Record<strin
     join(dir, file),
     JSON.stringify({
       allowed_ramps: ['brass', 'glass'],
-      edge_vocabulary: ['hard', 'crease', 'soft'],
+      edge_vocabulary: ['none', 'outline', 'shadow', 'highlight'],
       default_light: 'bottom-right',
       min_contrast: 2,
       value_rules: { hero: 5 },
@@ -50,7 +50,7 @@ function recipe(overrides: Record<string, unknown> = {}) {
       subject: 'lantern',
       hierarchy: ['body'],
       values: { body: 3 },
-      edges: { silhouette: 'hard', material: 'crease', detail: 'soft' },
+      edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
       materials: ['brass'],
       style: '@project',
       ...overrides,
