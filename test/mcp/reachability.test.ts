@@ -28,6 +28,18 @@ interface Mapping {
  * that a declared schema property is never actually sent.
  */
 const MAPPINGS: Mapping[] = [
+  {
+    flag: 'subject',
+    tool: 'px_brief',
+    params: { subject: 'character', size: 32 },
+    value: 'character',
+  },
+  {
+    flag: 'size',
+    tool: 'px_brief',
+    params: { subject: 'character', size: 32 },
+    value: '32',
+  },
   { flag: 'file', tool: 'px_inspect', params: { file: 'hero.px.json' }, value: 'hero.px.json' },
   {
     flag: 'layer',
@@ -172,9 +184,21 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', out: 'hero.png', swap: ['steel=gold'] },
     value: 'steel=gold',
   },
+  {
+    flag: 'blockout',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', blockout: true },
+  },
+  {
+    flag: 'values',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', values: 5 },
+    value: '5',
+  },
   { flag: 'strict', tool: 'px_validate', params: { file: 'hero.px.json', strict: true } },
   // Every tool declares `strict`, so every tool needs a row that proves it
-  // forwards it; px_validate alone would leave the other six unproven.
+  // forwards it; px_validate alone would leave the other tools unproven.
+  { flag: 'strict', tool: 'px_brief', params: { subject: 'character', strict: true } },
   { flag: 'strict', tool: 'px_init', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_draw', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_edit', params: { file: 'hero.px.json', strict: true } },
@@ -208,10 +232,22 @@ const NOT_AGENT_FLAGS = new Set([
 ]);
 
 describe('MCP flag reachability', () => {
-  it('publishes eight tools, each with a definition', () => {
+  it('publishes nine tools, each with a definition', () => {
     expect([...MCP_TOOLS].sort()).toEqual(TOOL_DEFINITIONS.map((tool) => tool.name).sort());
+    expect(MCP_TOOLS).toHaveLength(9);
+    expect(MCP_TOOLS).toContain('px_brief');
     expect(MCP_TOOLS).toContain('px_validate');
     expect(MCP_TOOLS).toContain('px_diff');
+  });
+
+  it('maps px_brief to the brief verb without a recipe file', () => {
+    expect(argvFor('px_brief', { subject: 'prop', size: 48 })).toEqual([
+      'brief',
+      '--subject',
+      'prop',
+      '--size',
+      '48',
+    ]);
   });
 
   it('maps px_diff to the diff verb with both comparison sources', () => {

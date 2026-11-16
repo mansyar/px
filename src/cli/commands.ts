@@ -5,6 +5,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
+import { briefScaffold } from '../brief/index.js';
 import { type CompiledRecipe, compileRecipe, type Deviation } from '../core/compile.js';
 import { resolveDesign } from '../core/design.js';
 import { diffRgba } from '../core/diff.js';
@@ -43,6 +44,15 @@ import { parseStepCount, synthesizeFamily } from '../palettes/synthesize.js';
 import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
 import { decodePng } from '../render/png.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
+import {
+  BLOCKOUT_BANDS,
+  BLOCKOUT_ROLES,
+  parseSteps,
+  renderView,
+  VALUES_MAPPING,
+  type ViewSpec,
+  viewPath,
+} from '../render/views.js';
 import type { ParsedArgs } from './args.js';
 import { inspectCodes, type Region, renderRegion, usedSlots } from './inspect.js';
 
@@ -838,6 +848,44 @@ function backdropFlag(value: string | undefined): string | null | undefined {
   return value;
 }
 
+/** Views are selectors on `render`, never verbs that write a recipe. */
+function renderViewSpec(args: ParsedArgs): ViewSpec | undefined {
+  if (args.blockout && args.values !== undefined) {
+    throw usageError(
+      '--blockout and --values are separate views',
+      'Ask for one view at a time, e.g. --blockout or --values 5.',
+    );
+  }
+  if (args.blockout) {
+    return { kind: 'blockout' };
+  }
+  if (args.values !== undefined) {
+    return { kind: 'values', steps: parseSteps(args.values) };
+  }
+  return undefined;
+}
+
+/**
+ * `px brief <subject> --size n` returns a design plan and writes nothing. The
+ * `design` member is a structurally valid 1.2 block; `parts`, `pixels` and
+ * `hero` are the planning detail that does not belong in a recipe.
+ */
+export function runBrief(args: ParsedArgs, _cwd: string): Record<string, unknown> {
+  const subject = args.subject;
+  if (subject === undefined || subject === '') {
+    throw usageError('Missing subject', 'Name a subject, e.g. px brief character --size 32.');
+  }
+  const scaffold = briefScaffold(subject, intFlag(args.size, 32, 'size'));
+  return {
+    subject: scaffold.subject,
+    size: scaffold.size,
+    canvas: scaffold.canvas,
+    design: scaffold.design,
+    parts: scaffold.parts,
+    hero: scaffold.hero,
+  };
+}
+
 export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   if (args.out === undefined || args.out === '') {
@@ -850,6 +898,13 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
       'Pass --debug as well, or drop --backdrop.',
     );
   }
+  const view = renderViewSpec(args);
+  if (view !== undefined && (args.debug || args.metaExport)) {
+    throw usageError(
+      'Render views cannot be combined with --debug or --export',
+      'Ask for a view on its own, e.g. px render --file hero.px.json --out hero.png --blockout.',
+    );
+  }
   const { recipe, warnings } = readSource(resolve(cwd, file), file);
   let effective = recipe;
   if (args.swap.length > 0) {
@@ -858,8 +913,14 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   const result = renderRecipe(effective);
 
-  const outTarget = resolve(cwd, args.out);
-  writeOut(outTarget, result.png);
+  // The view is drawn from this same compiled sprite. `result.png` is never
+  // touched, so a committed digest and the caller's --out file stay untouched.
+  const outFile = view === undefined ? args.out : viewPath(args.out, view);
+  const outPng =
+    view === undefined
+      ? result.png
+      : renderView(view, result.compiled, result.rgba, effective.design?.light ?? 'top-left').png;
+  writeOut(resolve(cwd, outFile), outPng);
 
   // Lint against the backdrop the caller asked to check, so a part that melts
   // into the panel is reported for that panel. Absent means the default grey.
@@ -867,13 +928,26 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
 
   const payload: Record<string, unknown> = {
     file,
-    out: args.out,
+    out: outFile,
     width: result.width,
     height: result.height,
-    bytes: result.png.length,
-    sha256: sha256Hex(result.png),
+    bytes: outPng.length,
+    sha256: sha256Hex(outPng),
     findings: lintCompiled(result.compiled, lintBackdrop),
   };
+  if (view !== undefined) {
+    payload.view =
+      view.kind === 'blockout'
+        ? {
+            kind: 'blockout',
+            bands: BLOCKOUT_BANDS,
+            roles: BLOCKOUT_ROLES,
+            outline: false,
+            ao: false,
+            texture: false,
+          }
+        : { kind: 'values', steps: view.steps, mapping: VALUES_MAPPING };
+  }
   if (result.compiled.parts.length > 0) {
     payload.parts = result.compiled.parts;
   }

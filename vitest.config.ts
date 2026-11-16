@@ -14,6 +14,7 @@ export default defineConfig({
             'test/ergonomics/**/*.test.ts',
             'test/facing/**/*.test.ts',
             'test/lint/**/*.test.ts',
+            'test/brief/**/*.test.ts',
             'test/ops/**/*.test.ts',
             'test/light/**/*.test.ts',
             'test/mcp/**/*.test.ts',

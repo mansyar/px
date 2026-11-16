@@ -13,6 +13,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { SUBJECTS } from '../brief/index.js';
 import { runCli } from '../cli/main.js';
 
 export type Params = Record<string, unknown>;
@@ -43,6 +44,7 @@ export const MCP_TOOLS: readonly string[] = [
   'px_validate',
   'px_render',
   'px_diff',
+  'px_brief',
 ];
 
 const STRICT = {
@@ -58,6 +60,29 @@ function schema(properties: Record<string, unknown>, required: string[]): Tool['
 }
 
 export const TOOL_DEFINITIONS: Tool[] = [
+  {
+    name: 'px_brief',
+    description:
+      'Plan a subject before drawing. Returns parts with proportion ranges, a hero part and a 1-5 value hierarchy, plus a paste-ready 1.2 design block. Local templates only; writes no recipe and no PNG.',
+    inputSchema: schema(
+      {
+        subject: {
+          type: 'string',
+          enum: [...SUBJECTS],
+          description: 'The built-in subject to plan.',
+        },
+        size: {
+          type: 'integer',
+          minimum: 8,
+          maximum: 256,
+          default: 32,
+          description: 'Square canvas size the proportion ranges are scaled against.',
+        },
+        strict: STRICT,
+      },
+      ['subject'],
+    ),
+  },
   {
     name: 'px_init',
     description:
@@ -210,6 +235,19 @@ export const TOOL_DEFINITIONS: Tool[] = [
             'Family swaps as from=to entries, an array or a comma-separated string. Applied to the rendered palette and the exported manifest; the recipe file is untouched.',
           anyOf: [{ type: 'array', items: { type: 'string' } }, { type: 'string' }],
         },
+        blockout: {
+          type: 'boolean',
+          default: false,
+          description:
+            'Judgement view: three flat value bands (highlight/base/shadow) per part from the compiled sprite. No outline, AO or texture. Writes a sibling PNG, never --out; cannot combine with debug, export or values.',
+        },
+        values: {
+          type: 'integer',
+          minimum: 2,
+          maximum: 8,
+          description:
+            'Judgement view: posterise the render into this many grey steps by fixed relative-luma mapping. Writes a sibling PNG, never --out; cannot combine with debug, export or blockout.',
+        },
         strict: STRICT,
       },
       ['file', 'out'],
@@ -309,6 +347,12 @@ export function argvFor(tool: string, params: Params): string[] {
   const file = str(params.file);
   const strict = params.strict === true;
   switch (tool) {
+    case 'px_brief': {
+      argv.push('brief');
+      flag(argv, 'subject', str(params.subject));
+      flag(argv, 'size', str(params.size));
+      break;
+    }
     case 'px_init': {
       argv.push('init');
       flag(argv, 'file', file);
@@ -385,6 +429,8 @@ export function argvFor(tool: string, params: Params): string[] {
       }
       booleanFlag(argv, 'export', params.export);
       repeatedFlag(argv, 'swap', params.swap);
+      booleanFlag(argv, 'blockout', params.blockout);
+      flag(argv, 'values', str(params.values));
       break;
     }
     case 'px_diff': {
@@ -433,7 +479,9 @@ export function callTool(tool: string, params: Params, options: { cwd?: string }
   const content: Array<TextBlock | ImageBlock> = [{ type: 'text', text: text.trimEnd() }];
 
   if (tool === 'px_render' && envelope.ok === true) {
-    const out = str(params.out);
+    // View modes write a sibling PNG, so the envelope is the authority: a tool
+    // client must receive the image it actually asked for, not the normal out.
+    const out = str(envelope.out) ?? str(params.out);
     const sheet = pngBlock(out ?? '', cwd);
     if (sheet !== null) {
       content.push(sheet);

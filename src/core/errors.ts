@@ -54,6 +54,7 @@ export type ErrorCode =
   | 'E_INTENT_HIERARCHY'
   | 'E_INTENT_VALUE'
   | 'E_INTENT_RAMP'
+  | 'E_SUBJECT_UNKNOWN'
   | 'E_INTERNAL';
 
 export type WarningCode =
@@ -170,6 +171,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_INTENT_HIERARCHY: 'Name only parts declared in the recipe parts block, in back-to-front order.',
   E_INTENT_VALUE: 'Use a whole target value from 1 to 5 for each part.',
   E_INTENT_RAMP: 'Use a ramp declared in px.style.json allowed_ramps.',
+  E_SUBJECT_UNKNOWN: 'Name a built-in brief subject; the error message lists every known one.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 
