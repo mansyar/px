@@ -19,7 +19,7 @@
 - **Covers:** FR-1, FR-3, FR-4, FR-15, FR-16, FR-17, NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3
 - **Touches:** `src/core/recipe/**`, `src/core/design.ts`, `src/core/errors.ts`, `src/style/**`, `src/cli/**`, `src/mcp/**`, `test/design/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Version 1.2 and the design type** — covers: FR-1, FR-17
   - [ ] **P1.T1.1:** accept `1.2`, model `subject`, `light`, `hierarchy`, `values`, `edges`, `materials`, `style`
