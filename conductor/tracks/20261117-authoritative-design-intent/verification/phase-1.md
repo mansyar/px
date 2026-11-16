@@ -78,4 +78,4 @@ Design spot-checks: `normalize.ts:1836-1845` rejects a `design` block below vers
 
 **Digest correction:** the phase brief's seven `test/art/` prefixes were stale — they came from an earlier track state. The digests committed at the phase base are the seven `1.3` values recorded above, and all twelve committed digests (hero, four `test/benchmarks/`, seven `test/art/`) are unchanged. This is a primary brief error, not an engine change; future briefs must read the committed digest files rather than a remembered list.
 
-Squashed to checkpoint `dfe2c9d`.
+Squashed to checkpoint `27d7a2a`.

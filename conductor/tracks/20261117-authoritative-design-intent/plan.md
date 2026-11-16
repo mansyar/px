@@ -19,21 +19,24 @@
 - **Covers:** FR-1, FR-3, FR-4, FR-15, FR-16, FR-17, NFR-1, NFR-2, NFR-6, AC-1, AC-2, AC-3
 - **Touches:** `src/core/recipe/**`, `src/core/design.ts`, `src/core/errors.ts`, `src/style/**`, `src/cli/**`, `src/mcp/**`, `test/design/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — a 1.2 design block is canonical, validated and authorable through both surfaces; no legacy digest moved
+- **Checkpoint:** 27d7a2a
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-1.md
 
-- [ ] **P1.T1: Version 1.2 and the design type** — covers: FR-1, FR-17
-  - [ ] **P1.T1.1:** accept `1.2`, model `subject`, `light`, `hierarchy`, `values`, `edges`, `materials`, `style`
-  - [ ] **P1.T1.2:** reject `design` on `1`/`"1.0"`/`"1.1"` with `E_BAD_VERSION`; no silent promotion
-- [ ] **P1.T2: Project style file and inheritance** — covers: FR-3, AC-3
-  - [ ] **P1.T2.1:** parse `px.style.json` with allowed ramps, edge vocabulary, default light, minimum contrast and value rules
-  - [ ] **P1.T2.2:** resolve `"style": "@project"` deterministically; `E_STYLE_MISSING` when absent
-- [ ] **P1.T3: Intent validation** — covers: FR-4
-  - [ ] **P1.T3.1:** `E_INTENT_*` codes and hints for unknown light, edge, undeclared hierarchy part, values outside 1–5, unknown ramp
-- [ ] **P1.T4: Canonical serialisation and hashing** — covers: FR-16, AC-1
-  - [ ] **P1.T4.1:** fixed `design` key order, untouched on round-trip, included in recipe hash
-- [ ] **P1.T5: Authoring surface and compatibility proof** — covers: FR-15, NFR-1, NFR-2, NFR-6, AC-2
-  - [ ] **P1.T5.1:** every `design` field authorable through CLI and `px_init` in the same commit; reachability test covers the new parameters
-  - [ ] **P1.T5.2:** digest sweep proving every committed 1.0/1.1 recipe renders byte-identically
+- [x] **P1.T1: Version 1.2 and the design type** — covers: FR-1, FR-17
+  - [x] **P1.T1.1:** accept `1.2`, model `subject`, `light`, `hierarchy`, `values`, `edges`, `materials`, `style`
+  - [x] **P1.T1.2:** reject `design` on `1`/`"1.0"`/`"1.1"` with `E_BAD_VERSION`; no silent promotion
+- [x] **P1.T2: Project style file and inheritance** — covers: FR-3, AC-3
+  - [x] **P1.T2.1:** parse `px.style.json` with allowed ramps, edge vocabulary, default light, minimum contrast and value rules
+  - [x] **P1.T2.2:** resolve `"style": "@project"` deterministically; `E_STYLE_MISSING` when absent
+- [x] **P1.T3: Intent validation** — covers: FR-4
+  - [x] **P1.T3.1:** `E_INTENT_*` codes and hints for unknown light, edge, undeclared hierarchy part, values outside 1–5, unknown ramp
+- [x] **P1.T4: Canonical serialisation and hashing** — covers: FR-16, AC-1
+  - [x] **P1.T4.1:** fixed `design` key order, untouched on round-trip, included in recipe hash
+- [x] **P1.T5: Authoring surface and compatibility proof** — covers: FR-15, NFR-1, NFR-2, NFR-6, AC-2
+  - [x] **P1.T5.1:** every `design` field authorable through CLI and `px_init` in the same commit; reachability test covers the new parameters
+  - [x] **P1.T5.2:** digest sweep proving every committed 1.0/1.1 recipe renders byte-identically
 
 ## Phase 2: Intent-Driven Passes
 
