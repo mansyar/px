@@ -69,3 +69,21 @@ The brief itself states the closed vocabulary is authoritative and that a contra
 - Edge vocabulary is enforced in two places: `parseProjectStyle` validates `edge_vocabulary` entries, and `normalizeEdges`/`validateIntent` reject any `design.edges.*` outside `EDGE_TREATMENTS`, naming the value and the legal set in `E_INTENT_EDGE`.
 - Value targets map `design.values[part]` (1–5) onto the family's numbered tone ladder (lightest→darkest), falling back to `[highlight, base, shadow]` when no numbered tones exist; ties go darker. Missing design keeps prior behaviour.
 - Harmonize writes only pixels that were painted in the entry snapshot, with no owner argument, so geometry, ownership, cast shadows and cleanup output are untouched; a no-op emits `W_HARMONIZE_NOOP`.
+
+## Primary verification
+
+Independent check at the phase head `23f5c3a` before the squash:
+
+| Check | Result |
+| --- | --- |
+| Scope filter outside Touches | Empty; six declared fixture/test deviations are inside `test/design/` and `test/light/` |
+| `git log --merges b43132c..HEAD` | Empty; four commits, all reported |
+| `git diff --stat b43132c..HEAD -- test/goldens test/benchmarks test/art` | Empty — no digest or score fixture changed |
+| `pnpm verify` | Exit 0: 106 files / 936 tests, build clean, one pre-existing warning at `test/recipe/version-1-2.test.ts:50` |
+| `pnpm vitest run --coverage` | Exit 0: statements 94.76% (3659/3861), branches 85.46% (2429/2842), functions 98.33%, lines 94.53% |
+
+Design spot-checks: `src/core/ops/harmonize.ts` documents and enforces that the painted-slot mask and owner buffer captured before the pass are the only addresses it may write, and writes colours with no owner argument; `src/core/ops/intent-edges.ts:4-13` pins the entry-snapshot classification and the `silhouette > material > detail` priority, with the rule implemented at lines 49-63; `src/core/compile.ts:278` adds `deviations` only when at least one override occurred, so part-less/undeclared responses keep their exact key set.
+
+The six fixture token substitutions (`hard`/`soft` → `outline`/`highlight`) are legitimate: the spec requires rejecting unknown edge treatments but does not enumerate them, and the brief's closed set is authoritative. No released recipe used those tokens — `design` exists only from Phase 1 of this track.
+
+Squashed to checkpoint `57a246f`.

@@ -47,17 +47,17 @@
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
 - **Status:** in_progress
 
-- [ ] **P2.T1: Default resolution and deviation reporting** — covers: FR-2, AC-4
-  - [ ] **P2.T1.1:** passes read declared defaults; explicit op flags win and are reported in response deviations
-  - [ ] **P2.T1.2:** a flag equal to the default records no deviation
-- [ ] **P2.T2: Light and outline read design** — covers: FR-5, FR-6, AC-4, AC-5
-  - [ ] **P2.T2.1:** `light` defaults its angle to `design.light`
-  - [ ] **P2.T2.2:** `auto_outline` produces distinct silhouette/material/detail treatments from `design.edges`
-- [ ] **P2.T3: Value targets for ramps** — covers: FR-7
-  - [ ] **P2.T3.1:** `ramp_fill` and `auto_shade` resolve tones from `design.values` for the owning part
-- [ ] **P2.T4: Harmonize pass** — covers: FR-8, AC-6
-  - [ ] **P2.T4.1:** rewrite light, edge and value structure across all parts
-  - [ ] **P2.T4.2:** prove geometry and ownership arrays byte-identical before/after, including cast shadows and cleanup ops; `W_HARMONIZE_NOOP` on no-op
+- [x] **P2.T1: Default resolution and deviation reporting** — covers: FR-2, AC-4
+  - [x] **P2.T1.1:** passes read declared defaults; explicit op flags win and are reported in response deviations
+  - [x] **P2.T1.2:** a flag equal to the default records no deviation
+- [x] **P2.T2: Light and outline read design** — covers: FR-5, FR-6, AC-4, AC-5
+  - [x] **P2.T2.1:** `light` defaults its angle to `design.light`
+  - [x] **P2.T2.2:** `auto_outline` produces distinct silhouette/material/detail treatments from `design.edges`
+- [x] **P2.T3: Value targets for ramps** — covers: FR-7
+  - [x] **P2.T3.1:** `ramp_fill` and `auto_shade` resolve tones from `design.values` for the owning part
+- [x] **P2.T4: Harmonize pass** — covers: FR-8, AC-6
+  - [x] **P2.T4.1:** rewrite light, edge and value structure across all parts
+  - [x] **P2.T4.2:** prove geometry and ownership arrays byte-identical before/after, including cast shadows and cleanup ops; `W_HARMONIZE_NOOP` on no-op
 
 ## Phase 3: Brief and Blockout
 
