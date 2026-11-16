@@ -48,6 +48,12 @@ export type ErrorCode =
   | 'E_SWAP_INCOMPATIBLE'
   | 'E_LINT_GATE'
   | 'E_DIFF_SIZE'
+  | 'E_STYLE_MISSING'
+  | 'E_INTENT_LIGHT'
+  | 'E_INTENT_EDGE'
+  | 'E_INTENT_HIERARCHY'
+  | 'E_INTENT_VALUE'
+  | 'E_INTENT_RAMP'
   | 'E_INTERNAL';
 
 export type WarningCode =
@@ -96,7 +102,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_WRITE_FAILED:
     'Pass --out as a path the process can write to, such as one under the working directory.',
   E_PARSE: 'The recipe must be valid JSON; check for a trailing comma or an unquoted key.',
-  E_BAD_VERSION: 'Recipe version is 1, "1.0" or "1.1"; parts require "1.1".',
+  E_BAD_VERSION:
+    'Recipe version is 1, "1.0", "1.1", "1.2" or "1.3"; parts require "1.1", a design block and the later op options require "1.2".',
   E_BAD_META:
     'meta requires a non-empty name, an integer width and height, and alpha_mode "binary".',
   E_BAD_CANVAS: 'Canvas width and height are integers between 8 and 256 inclusive.',
@@ -154,6 +161,14 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_DIFF_SIZE:
     'Diff compares renders pixel for pixel, so both images must share a canvas size; compare against a render of a recipe with the same width and height.',
+  E_STYLE_MISSING:
+    'Create px.style.json in the recipe directory (or the caller cwd) with allowed_ramps, edge_vocabulary, default_light, min_contrast and value_rules.',
+  E_INTENT_LIGHT:
+    'Use one of the supported light directions: top-left, top-right, bottom-left, bottom-right.',
+  E_INTENT_EDGE: 'Use an edge treatment declared in px.style.json edge_vocabulary.',
+  E_INTENT_HIERARCHY: 'Name only parts declared in the recipe parts block, in back-to-front order.',
+  E_INTENT_VALUE: 'Use a whole target value from 1 to 5 for each part.',
+  E_INTENT_RAMP: 'Use a ramp declared in px.style.json allowed_ramps.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 

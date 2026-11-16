@@ -517,9 +517,60 @@ export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.
 /** The version a recipe is written with once it declares parts. */
 export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';
 
+/**
+ * Authoritative design intent (FR-1). A 1.2 recipe may declare what the asset
+ * is meant to express; later passes read it rather than re-deriving intent from
+ * pixels. The block is deliberately closed: exactly these fields, in this
+ * canonical order, and no implicit guesses.
+ */
+export type DesignEdgeClass = 'silhouette' | 'material' | 'detail';
+
+/** Canonical write order of the edge treatments. */
+export const DESIGN_EDGE_CLASSES: readonly DesignEdgeClass[] = ['silhouette', 'material', 'detail'];
+
+export interface DesignEdges {
+  silhouette: string;
+  material: string;
+  detail: string;
+}
+
+/** The one style reference with special meaning: `px.style.json` in scope. */
+export const PROJECT_STYLE = '@project';
+
+/** Target values are a closed 1–5 scale, one per part. */
+export const DESIGN_VALUE_MIN = 1;
+export const DESIGN_VALUE_MAX = 5;
+
+export interface Design {
+  subject: string;
+  light: LightDir;
+  /** Part names in back-to-front paint order. */
+  hierarchy: string[];
+  /** Part name to target value on the 1–5 scale. */
+  values: Record<string, number>;
+  edges: DesignEdges;
+  /** Ramp names the asset intends to use, drawn from the project style. */
+  materials: string[];
+  /** Style reference; `@project` resolves to the project style file. */
+  style: string;
+}
+
+/** Canonical write order of the design block (FR-16). */
+export const DESIGN_FIELDS: readonly (keyof Design)[] = [
+  'subject',
+  'light',
+  'hierarchy',
+  'values',
+  'edges',
+  'materials',
+  'style',
+];
+
 export interface Recipe {
   version: RecipeVersion;
   meta: RecipeMeta;
+  /** Present only when the recipe declares design intent (1.2+). */
+  design?: Design;
   palette: Palette;
   /** Optional: absent and empty both mean every pixel is unassigned. */
   parts?: Parts;

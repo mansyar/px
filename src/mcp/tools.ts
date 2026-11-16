@@ -82,6 +82,11 @@ export const TOOL_DEFINITIONS: Tool[] = [
             'Parts to declare, as an inline object or a path to a JSON file: {"blade": {"material": "steel", "gloss": "metal", "z": 1}, "wall": {"material": "stone", "facing": "right"}}. Each material must name a palette family; "facing" names the plane the part looks at (front, back, left, right, top, bottom) or gives a unit [x, y, z] vector, and makes "light" shade it per plane.',
           anyOf: [{ type: 'object' }, { type: 'string' }],
         },
+        design: {
+          description:
+            'Authoritative design intent, as an inline object or a path to a JSON file. It declares subject, light, hierarchy, values (1-5 per part), edges (silhouette, material, detail), materials and style ("@project" inherits px.style.json). Declaring it writes schema 1.2.',
+          anyOf: [{ type: 'object' }, { type: 'string' }],
+        },
         profile: {
           type: 'string',
           description:
@@ -312,6 +317,7 @@ export function argvFor(tool: string, params: Params): string[] {
       flag(argv, 'height', str(params.height));
       flag(argv, 'palette', paletteArg(params.palette));
       flag(argv, 'parts', opsArg(params.parts));
+      flag(argv, 'design', opsArg(params.design));
       flag(argv, 'profile', str(params.profile));
       booleanFlag(argv, 'derive-ramps', params.derive_ramps);
       repeatedFlag(argv, 'synthesize', params.synthesize);

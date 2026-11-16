@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
+import { resolveDesign } from '../core/design.js';
 import { diffRgba } from '../core/diff.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
 import type { CleanupReport } from '../core/ops/index.js';
@@ -22,6 +23,7 @@ import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
+  type Design,
   isCleanupOp,
   LATEST_RECIPE_VERSION,
   type Palette,
@@ -77,7 +79,7 @@ function readSource(
       'Check the path passed to --file; it is resolved against the working directory.',
     );
   }
-  return parseRecipe(readFileSync(target, 'utf8'));
+  return parseRecipe(readFileSync(target, 'utf8'), { baseDir: dirname(resolve(target)) });
 }
 
 /**
@@ -263,6 +265,47 @@ function partsFromFlag(value: string | undefined, cwd: string): Parts | undefine
   return raw as Parts;
 }
 
+/**
+ * `--design` takes an inline JSON object or a path to one, resolved against the
+ * caller cwd. Resolution happens here, at authoring time, so the style file is
+ * read from the same directory the CLI was invoked from.
+ */
+function designFromFlag(value: string | undefined, cwd: string): Design | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    throw usageError(
+      '--design is empty',
+      'Pass an inline object, e.g. --design \'{"subject":"hero","light":"top-left","hierarchy":["body"],"values":{"body":3},"edges":{"silhouette":"hard","material":"soft","detail":"soft"},"materials":["ink"],"style":"@project"}\', or a JSON file.',
+    );
+  }
+  let text = trimmed;
+  if (!trimmed.startsWith('{')) {
+    try {
+      text = readFileSync(resolve(cwd, trimmed), 'utf8');
+    } catch (cause) {
+      throw new PxError(
+        'E_FILE_NOT_FOUND',
+        `Cannot read design file ${trimmed}: ${causeMessage(cause)}`,
+        'Pass a readable JSON file, or an inline object.',
+      );
+    }
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch (cause) {
+    throw new PxError(
+      'E_PARSE',
+      `Design is not valid JSON: ${causeMessage(cause)}`,
+      'Check for a trailing comma, a missing quote, or an unquoted key.',
+    );
+  }
+  return resolveDesign(raw, cwd).design;
+}
+
 function defaultName(file: string): string {
   const base = basename(file);
   if (base.endsWith('.px.json')) {
@@ -286,6 +329,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   const width = intFlag(args.width, 16, 'width');
   const height = intFlag(args.height, 16, 'height');
   const parts = partsFromFlag(args.parts, cwd);
+  const design = designFromFlag(args.design, cwd);
   let palette = paletteFromFlag(args.palette, args.deriveRamps);
   for (const entry of args.synthesize) {
     palette = synthesizeFamily(palette, entry, false);
@@ -300,20 +344,24 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     meta.profile = parseScaleProfile(args.profile);
   }
   const recipe: Recipe = {
-    // Parts are a 1.1 feature, so a recipe created with them is 1.1 from the
-    // start; a part-less init keeps the legacy numeric literal (FR-1).
-    version: parts === undefined ? RECIPE_VERSION : LATEST_RECIPE_VERSION,
+    // Parts are a 1.1 feature and design is 1.2; a recipe with neither keeps
+    // the legacy numeric literal (FR-1, FR-17).
+    version:
+      design !== undefined ? '1.2' : parts === undefined ? RECIPE_VERSION : LATEST_RECIPE_VERSION,
     meta,
     palette,
     anchors: { pivot: [Math.floor(width / 2), Math.floor(height / 2)] },
     layers: [{ id: DEFAULT_LAYER_ID, ops: [] }],
   };
+  if (design !== undefined) {
+    recipe.design = design;
+  }
   if (parts !== undefined) {
     recipe.parts = parts;
   }
 
   const text = serializeRecipe(recipe);
-  const parsed = parseRecipe(text, { derivedRamps: args.deriveRamps });
+  const parsed = parseRecipe(text, { derivedRamps: args.deriveRamps, baseDir: cwd });
   writeOut(target, text);
 
   const payload: Record<string, unknown> = {
@@ -372,7 +420,7 @@ export function runSynthesize(args: ParsedArgs, cwd: string): Record<string, unk
   );
   const next: Recipe = { ...recipe, palette };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
   writeOut(target, text);
 
   const family = parsed.recipe.palette[args.family];
@@ -472,7 +520,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     ),
   };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
@@ -603,7 +651,7 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     ),
   };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
@@ -644,7 +692,7 @@ export function runAnchor(args: ParsedArgs, cwd: string): Record<string, unknown
   const text = serializeRecipe(next);
   // Re-parsing is the validation: a non-integer pair would already have been
   // rejected, and an out-of-canvas pair is reported, never dropped.
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
   const outFile = args.out ?? file;
   const target = resolve(cwd, outFile);
   writeOut(target, text);

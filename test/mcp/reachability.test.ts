@@ -112,6 +112,24 @@ const MAPPINGS: Mapping[] = [
     value: '{"blade":{"material":"steel"}}',
   },
   {
+    flag: 'design',
+    tool: 'px_init',
+    params: {
+      file: 'hero.px.json',
+      design: {
+        subject: 'hero',
+        light: 'top-left',
+        hierarchy: ['body'],
+        values: { body: 3 },
+        edges: { silhouette: 'hard', material: 'soft', detail: 'soft' },
+        materials: ['ink'],
+        style: '@project',
+      },
+    },
+    value:
+      '{"subject":"hero","light":"top-left","hierarchy":["body"],"values":{"body":3},"edges":{"silhouette":"hard","material":"soft","detail":"soft"},"materials":["ink"],"style":"@project"}',
+  },
+  {
     flag: 'profile',
     tool: 'px_init',
     params: { file: 'hero.px.json', profile: 'small' },
