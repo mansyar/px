@@ -12,7 +12,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-11, NFR-4, NFR-5, AC-1, AC-2, AC-3, AC-12
 - **Touches:** `docs/rubric.md`, `test/unit/calibration/gate.test.ts`, `test/art/scores-agent-vision.json`, `test/art/rubric.test.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Bind the publishable gate in documentation** — covers: FR-1, FR-11, AC-1
   - [ ] **P1.T1.1:** Add a dated decision to `docs/rubric.md` making mean ≥ 3.5 / floor ≥ 3.0 the shipping gate and stating that the 4.0 exceptional tier is unreachable and not a track-failing criterion.
