@@ -15,6 +15,7 @@ export default defineConfig({
             'test/facing/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/brief/**/*.test.ts',
+            'test/render/**/*.test.ts',
             'test/ops/**/*.test.ts',
             'test/light/**/*.test.ts',
             'test/mcp/**/*.test.ts',
@@ -60,7 +61,15 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      include: ['src/core/**', 'src/lint/**', 'src/meta/**', 'src/palettes/**'],
+      include: [
+        'src/core/**',
+        'src/lint/**',
+        'src/meta/**',
+        'src/palettes/**',
+        'src/brief/**',
+        'src/critique/**',
+        'src/render/views.ts',
+      ],
       thresholds: {
         lines: 80,
         functions: 80,

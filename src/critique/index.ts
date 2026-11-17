@@ -430,7 +430,7 @@ function edgeLanguage(
     gap,
     fix: {
       op,
-      why: 'Edge-pixel classes do not carry their declared treatments; harmonize re-applies light, edges and values.',
+      why: 'Edge-pixel classes do not carry their declared treatments; the emitted auto_outline pass redraws those edges on the target layer.',
       expected_delta: 'edge_language: +1 treated edge',
     },
   };

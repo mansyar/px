@@ -68,7 +68,7 @@ Two files are outside this phase's `Touches` and were changed by the minimum amo
 - Five conventional commits: `37b0fe6` (T1 gap report), `768a343` (T2 fix verb + stale detection), `91ce8f2` (T3 stagnation), `7a3a58e` (T4 bounded response), `6760e79` (T5 tool parity and bidirectional reachability). No amend.
 - The six criteria keep their exact names `silhouette, value_separation, lighting, edge_language, cluster_discipline, palette_craft`. Ranking is descending absolute shortfall, then criterion name, then op name. A met criterion produces an observation with no finding; an empty/transparent canvas produces only `W_CRITIQUE_EMPTY` and an empty fix list.
 - `px fix` re-resolves the current report before applying, so a finding index generated against an older picture is rejected with `E_FIX_STALE` (naming the finding and current digest). Fixes append to a layer; existing ops, committed digests and `test/art/scores.json` are never rewritten.
-- `src/critique/**` is intentionally not in the v8 coverage include list, matching the established Phase 3 pattern for new feature modules; the `edgeClassCounts` diagnostic wrapper added to `src/core/ops/intent-edges.ts` is inside the include list and covered.
+- At acceptance time `src/critique/**` was not in the v8 coverage include list, which made the coverage gate blind to the new module. Review round 1 raised this as a High; Phase R1 added `src/brief/**`, `src/critique/**` and `src/render/views.ts` to the include list and pinned each above 80% statements and branches with real tests. The statement above is retained as the historical record, not as the current state.
 
 ## Primary verification
 

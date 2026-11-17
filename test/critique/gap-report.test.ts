@@ -183,6 +183,16 @@ describe('px critique gap report', () => {
     expect(report.truncated).toBe(false);
   });
 
+  it('explains the edge fix with the op it actually emits', () => {
+    const report = critique(workspace(true));
+    const edge = report.findings.find((finding) => finding.criterion === 'edge_language');
+    expect(edge).toBeDefined();
+    expect(edge?.fix.op).toMatchObject({ op: 'auto_outline' });
+    expect(edge?.fix.why).toContain('auto_outline');
+    expect(edge?.fix.why).not.toContain('harmonize');
+    expect(edge?.fix.why.endsWith('.')).toBe(true);
+  });
+
   it('is deterministic: the same recipe renders the same report and fingerprint', () => {
     const dir = workspace(true);
     expect(critique(dir)).toEqual(critique(dir));
