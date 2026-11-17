@@ -76,10 +76,13 @@
 - **Covers:** F1, F2, FR-7, FR-10
 - **Touches:** `test/art/**`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`
 - **Verification:** `pnpm verify` and the scoped coverage command
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — both record-accuracy findings closed; the score values and verdict are unchanged and a future stale tiebreak now fails CI.
+- **Checkpoint:** e736ac2
+- **Evidence:** conductor/tracks/20261117-gate-instrument-reconciliation/verification/phase-R1.md
 
-- [ ] **R1.T1: Remove stale tiebreaks and guard them** — covers: F1, FR-7
-  - [ ] **R1.T1.1:** Delete the three stale `tiebreak` arrays from `test/art/scores.json`; no A/B pair in this single-instrument baseline differs by more than one point.
-  - [ ] **R1.T1.2:** Add a test in `test/art/rubric.test.ts` that every remaining tiebreak corresponds to an actual pass pair with an absolute score difference greater than one.
-- [ ] **R1.T2: Align the retry provenance prose** — covers: F2, FR-10
-  - [ ] **R1.T2.1:** State one precise count in `verification/baseline.md` and `verification/integrated.md` — three passes required a retry after transient 503/429 and fetch failures.
+- [x] **R1.T1: Remove stale tiebreaks and guard them** — covers: F1, FR-7
+  - [x] **R1.T1.1:** Delete the three stale `tiebreak` arrays from `test/art/scores.json`; no A/B pair in this single-instrument baseline differs by more than one point.
+  - [x] **R1.T1.2:** Add a test in `test/art/rubric.test.ts` that every remaining tiebreak corresponds to an actual pass pair with an absolute score difference greater than one.
+- [x] **R1.T2: Align the retry provenance prose** — covers: F2, FR-10
+  - [x] **R1.T2.1:** State one precise count in `verification/baseline.md` and `verification/integrated.md` — three passes required a retry after transient 503/429 and fetch failures.
