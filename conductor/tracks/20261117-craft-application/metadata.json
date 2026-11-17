@@ -21,7 +21,7 @@
   "last_checkpoint": "d5b2da7",
   "review_verdict": null,
   "review_rounds": 0,
-  "doc_sync": "pending",
+  "doc_sync": "done — tech-stack.md dated note 2026-11-18 records user-authorized instrument-of-record switch; product.md/guidelines unchanged (no scoring content); spec frozen",
   "pr_url": null,
   "reverted_at": null,
   "revert_commit": null,
