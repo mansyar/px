@@ -46,6 +46,7 @@ interface AssetRecord {
   asset: string;
   artifact: string;
   passes: Pass[];
+  tiebreak?: Tiebreak[];
 }
 
 interface Failure {
@@ -55,8 +56,27 @@ interface Failure {
   score: number;
 }
 
+interface Tiebreak {
+  party: string;
+  criterion: string;
+  score: number;
+  reason: string;
+}
+
+interface Instrument {
+  script: string;
+  model: string;
+  fallback_model: string;
+  fallback_used: boolean;
+  views: { A: string; B: string };
+  asset_set: { path: string; assets: string[] };
+  date: string;
+  gate: string;
+}
+
 interface ScoreRecord {
   schema: number;
+  instrument: Instrument;
   criteria: string[];
   verdict: {
     result: 'pass' | 'fail';
@@ -178,6 +198,27 @@ describe('rubric record', () => {
     }
   });
 
+  it('records the frozen instrument and every required field', () => {
+    const instrument = RECORD.instrument;
+    expect(instrument).toBeDefined();
+    expect(instrument.script).toBe('scripts/rubric.mjs');
+    expect(instrument.model).toBe('gemini-4-hydrogen');
+    expect(instrument.fallback_model).toBe('gemini-3.5-flash-lite');
+    expect(instrument.fallback_used).toBe(false);
+    expect(instrument.views.A.trim().length).toBeGreaterThan(0);
+    expect(instrument.views.B.trim().length).toBeGreaterThan(0);
+    expect(instrument.asset_set.path).toBe('test/art/v2/');
+    expect([...instrument.asset_set.assets].sort()).toEqual([...ASSETS].sort());
+    expect(instrument.date).toBe('2026-11-17');
+    expect(instrument.gate).toBe('publishable 3.5/3.0');
+  });
+
+  it('writes no credential-shaped value into the repository record', () => {
+    const serialized = JSON.stringify(RECORD);
+    const credential = /(?:AIza[0-9A-Za-z_-]{20,}|sk-[A-Za-z0-9_-]{20,}|[A-Za-z0-9+/]{40,}={0,2})/;
+    expect(credential.test(serialized)).toBe(false);
+  });
+
   it('marks agent passes as self-review and declares the verdict basis it implies', () => {
     const passes = RECORD.assets.flatMap((asset) => asset.passes);
     const agent = passes.filter((pass) => pass.scorer === 'agent');
@@ -204,5 +245,25 @@ describe('rubric record', () => {
       .map((failure) => `${failure.asset}/${failure.pass}/${failure.criterion}=${failure.score}`)
       .sort();
     expect(recorded).toEqual(belowFloor);
+  });
+
+  it('only records a tiebreak where the two passes disagree by more than one point', () => {
+    for (const asset of RECORD.assets) {
+      for (const tiebreak of asset.tiebreak ?? []) {
+        const passA = asset.passes.find((pass) => pass.pass === 'A');
+        const passB = asset.passes.find((pass) => pass.pass === 'B');
+        expect(passA, `${asset.asset} needs pass A to adjudicate a tiebreak`).toBeDefined();
+        expect(passB, `${asset.asset} needs pass B to adjudicate a tiebreak`).toBeDefined();
+        const scoreA = passA?.scores[tiebreak.criterion]?.score;
+        const scoreB = passB?.scores[tiebreak.criterion]?.score;
+        expect(scoreA, `${asset.asset}/A/${tiebreak.criterion}`).toBeTypeOf('number');
+        expect(scoreB, `${asset.asset}/B/${tiebreak.criterion}`).toBeTypeOf('number');
+        const delta = Math.abs((scoreA ?? Number.NaN) - (scoreB ?? Number.NaN));
+        expect(
+          delta,
+          `${asset.asset}/${tiebreak.criterion} tiebreak requires a >1-point A/B disagreement`,
+        ).toBeGreaterThan(1);
+      }
+    }
   });
 });

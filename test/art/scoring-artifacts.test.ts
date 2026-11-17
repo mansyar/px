@@ -125,6 +125,8 @@ afterAll(() => {
 });
 
 describe('scoring artifact generation', () => {
+  // Renders all seven v2 assets in-process and can exceed the default 5 s on a
+  // loaded machine, so give it an explicit, generous timeout.
   it('renders the seven v2 assets and writes faithful 8x pass-A views', () => {
     mkdirSync(EVIDENCE, { recursive: true });
     const entries: AssetEntry[] = [];
@@ -208,5 +210,5 @@ describe('scoring artifact generation', () => {
       `${JSON.stringify({ assets: entries }, null, 2)}\n`,
     );
     expect(entries).toHaveLength(ASSETS.length);
-  });
+  }, 30000);
 });

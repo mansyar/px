@@ -9,11 +9,25 @@
  * deliberately: that status must cite dated evidence and must actually be
  * arithmetically short of the tier. The pair of checks makes silent drift in
  * either direction fail.
+ *
+ * The record in `scores.json` must also be bound to the documented publishable
+ * tier: its `threshold_mean` and `min_allowed` may not drift away from the
+ * publishable mean and floor the document states. The exceptional-tier check
+ * below is kept unchanged, so 4.0 cannot quietly become a failing bar again.
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const DOC = readFileSync('docs/rubric.md', 'utf8');
+
+interface ScoreRecord {
+  verdict: {
+    threshold_mean: number;
+    min_allowed: number;
+  };
+}
+
+const RECORD = JSON.parse(readFileSync('test/art/scores.json', 'utf8')) as ScoreRecord;
 
 const CRITERIA = [
   'silhouette',
@@ -104,6 +118,18 @@ describe('acceptance gate arithmetic', () => {
         publishableFloor,
       );
     }
+  });
+
+  it('binds the score record to the documented publishable gate', () => {
+    const { publishableMean, publishableFloor } = parseGate(DOC);
+    expect(
+      RECORD.verdict.threshold_mean,
+      'scores.json threshold_mean must match the documented publishable mean',
+    ).toBe(publishableMean);
+    expect(
+      RECORD.verdict.min_allowed,
+      'scores.json min_allowed must match the documented publishable floor',
+    ).toBe(publishableFloor);
   });
 
   it('states whether the exceptional tier is reachable, and proves it', () => {

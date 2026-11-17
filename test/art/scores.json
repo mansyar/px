@@ -1,8 +1,32 @@
 {
   "schema": 3,
   "rubric": "docs/rubric.md",
-  "scored_by": "agent-vision model via the primary, two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet), scored after the authoritative-design-intent re-authoring",
+  "scored_by": "scripts/rubric.mjs with gemini-4-hydrogen, run by the primary; two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet), baseline for the publishable gate",
   "scored_at": "2026-11-17",
+  "instrument": {
+    "script": "scripts/rubric.mjs",
+    "model": "gemini-4-hydrogen",
+    "fallback_model": "gemini-3.5-flash-lite",
+    "fallback_used": false,
+    "views": {
+      "A": "exact factor-8 nearest-neighbour on #808080",
+      "B": "engine debug sheet"
+    },
+    "asset_set": {
+      "path": "test/art/v2/",
+      "assets": [
+        "potion",
+        "sword",
+        "humanoid",
+        "chest",
+        "character",
+        "prop",
+        "scene"
+      ]
+    },
+    "date": "2026-11-17",
+    "gate": "publishable 3.5/3.0"
+  },
   "criteria": [
     "silhouette",
     "value_separation",
@@ -13,20 +37,144 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.39,
-    "threshold_mean": 4,
+    "mean": 3.25,
+    "threshold_mean": 3.5,
     "min_allowed": 3,
     "failures": [
-      { "asset": "chest", "pass": "A", "criterion": "value_separation", "score": 2 },
-      { "asset": "chest", "pass": "A", "criterion": "lighting", "score": 1 },
-      { "asset": "chest", "pass": "A", "criterion": "palette_craft", "score": 2 },
-      { "asset": "humanoid", "pass": "A", "criterion": "lighting", "score": 1 },
-      { "asset": "potion", "pass": "A", "criterion": "lighting", "score": 1 },
-      { "asset": "scene", "pass": "A", "criterion": "lighting", "score": 2 },
-      { "asset": "sword", "pass": "A", "criterion": "lighting", "score": 1 },
-      { "asset": "sword", "pass": "B", "criterion": "lighting", "score": 1 }
+      {
+        "asset": "potion",
+        "pass": "A",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
+        "asset": "potion",
+        "pass": "A",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "potion",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
+        "asset": "potion",
+        "pass": "B",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "sword",
+        "pass": "A",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "sword",
+        "pass": "A",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "sword",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
+        "asset": "sword",
+        "pass": "B",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "sword",
+        "pass": "B",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "A",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
+        "asset": "chest",
+        "pass": "A",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "A",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 1
+      },
+      {
+        "asset": "chest",
+        "pass": "B",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "chest",
+        "pass": "B",
+        "criterion": "palette_craft",
+        "score": 2
+      },
+      {
+        "asset": "character",
+        "pass": "A",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "character",
+        "pass": "B",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "prop",
+        "pass": "A",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "prop",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "scene",
+        "pass": "A",
+        "criterion": "edge_language",
+        "score": 2
+      },
+      {
+        "asset": "scene",
+        "pass": "B",
+        "criterion": "lighting",
+        "score": 2
+      },
+      {
+        "asset": "scene",
+        "pass": "B",
+        "criterion": "edge_language",
+        "score": 2
+      }
     ],
-    "note": "Seven v2 assets re-authored with authoritative design intent, scored with the unchanged rubric and both faithful views. Mean 3.39 against the 4.0 bar, with eight criterion scores below 3. The pre-track record is preserved byte-for-byte in test/art/scores-before-intent.json (mean 3.69). No score was revised upward to reach the bar; three >1-point pass disagreements are recorded as human tiebreaks, which the rubric treats as metadata and do not alter the mean. The 4.0 exceptional tier was calibrated unreachable in docs/rubric.md; this record does not lower it.",
+    "note": "Baseline for the binding publishable gate (mean >= 3.5, no criterion below 3). Seven v2 assets scored with the unchanged rubric, two faithful views, and one instrument: scripts/rubric.mjs with gemini-4-hydrogen for all 14 passes. No fallback was needed. Recorded mean 3.25 with 22 below-floor criterion scores, so the publishable gate is not met. Prior records are preserved byte-for-byte in test/art/scores-before-intent.json (mean 3.69, gemini-3.5-flash-lite) and test/art/scores-agent-vision.json (mean 3.39, agent-vision). No score was revised upward and no below-floor finding was removed. The 4.0 exceptional tier remains documented as unreachable in docs/rubric.md and is not the gate here.",
     "basis": "independent"
   },
   "assets": [
@@ -37,42 +185,70 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/potion.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "a pixel art potion bottle with a cork stopper",
+          "subject": "potion",
           "scores": {
-            "silhouette": { "score": 5, "why": "The bottle shape with neck, flared shoulders, and stopper is instantly recognizable at a glance." },
-            "value_separation": { "score": 3, "why": "The dark brown cork, minty green glass, and dark red liquid are distinct, though the liquid sits directly against the glass sides without clear internal depth." },
-            "lighting": { "score": 1, "why": "There is no internal shading or light source indicated on the materials; everything is flat local color." },
-            "edge_language": { "score": 3, "why": "The pixel stairs and outlines are relatively clean and consistent, though lacking variation between silhouette and inner details." },
-            "cluster_discipline": { "score": 5, "why": "Clean pixel art with solid block structures and no random single-pixel noise or confetti." },
-            "palette_craft": { "score": 3, "why": "Colors are pleasant and thematic for a potion, but lack step ramps or lighting variation." }
+            "silhouette": {
+              "score": 4,
+              "why": "The bottle shoulders, neck, and cap read clearly as a potion at 1x, though the wide brimmed stopper slightly resembles a top hat."
+            },
+            "value_separation": {
+              "score": 5,
+              "why": "The light mint glass, medium-dark red liquid, and very dark brown stopper occupy distinct value levels that separate cleanly."
+            },
+            "lighting": {
+              "score": 1,
+              "why": "All three regions are completely flat fills with no highlights or shadows to establish a light direction or three-dimensional form."
+            },
+            "edge_language": {
+              "score": 3,
+              "why": "Edges are clean and noise-free, but the silhouette and internal material transitions share the exact same raw, unoutlined treatment."
+            },
+            "cluster_discipline": {
+              "score": 5,
+              "why": "The sprite consists solely of three large, contiguous color blocks with zero single-pixel confetti."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The mint, crimson, and brown hues suit the subject coherently, but there are no value ramps or hue-shifted shading at all."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/potion.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "potion bottle",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "potion",
           "scores": {
-            "silhouette": { "score": 5, "why": "The bottle shape with cork and liquid is instantly recognizable at 1x from its silhouette alone." },
-            "value_separation": { "score": 4, "why": "Cork, glass, and brew are distinct, though the glass outline and light green fill share a close value range." },
-            "lighting": { "score": 3, "why": "Flat shaded style with solid color fills rather than directional lighting." },
-            "edge_language": { "score": 3, "why": "Clean pixel grid lines but minimal internal edge detailing beyond color changes." },
-            "cluster_discipline": { "score": 5, "why": "Solid contiguous pixel clusters with no confetti or stray pixels." },
-            "palette_craft": { "score": 4, "why": "Limited, harmonious palette fitting the retro aesthetic nicely." }
+            "silhouette": {
+              "score": 4,
+              "why": "The symmetrical flask shape with a rounded body, narrow neck, and stopper reads clearly at 1x without colour, though the wide flat cork slightly resembles a hat."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "The pale glass, dark brew, and darker cork separate cleanly from one another in value, even though each part has no internal tonal variation."
+            },
+            "lighting": {
+              "score": 1,
+              "why": "There is no lighting or shading anywhere on the sprite, leaving every surface completely flat with no implied volume or light direction."
+            },
+            "edge_language": {
+              "score": 3,
+              "why": "Edges are clean and consistent without pixel noise, but the lineless flat colour blocks treat silhouette and interior material boundaries identically."
+            },
+            "cluster_discipline": {
+              "score": 5,
+              "why": "Each material forms a single clean, contiguous cluster with zero stray pixels or broken confetti."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The mint, burgundy, and brown hues suit a potion bottle, but each material uses only a single flat colour with no value or hue ramps."
+            }
           }
-        }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 2,
-          "reason": "The two passes disagree by two points. The image is flat local colour with no directional cue, which is better than contradictory light (anchor 1) but short of one consistent direction (anchor 3)."
         }
       ]
     },
@@ -83,33 +259,69 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/sword.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "pixel art sword",
+          "subject": "sword",
           "scores": {
-            "silhouette": { "score": 5, "why": "The distinct shapes of blade, crossguard, hilt, and pommel make the sword immediately identifiable by silhouette alone at 1x scale." },
-            "value_separation": { "score": 3, "why": "Light blue blade and yellow crossguard separate, but the brown hilt and yellow pommel have similar luminance values without enough contrast." },
-            "lighting": { "score": 1, "why": "There is no directional shading or lighting applied to the blade, hilt, or pommel; they are rendered as flat color fills." },
-            "edge_language": { "score": 3, "why": "Edges are clean without pixel noise, but there is no differentiation in treatment between silhouette boundaries and internal material divisions." },
-            "cluster_discipline": { "score": 3, "why": "Some elements like the single-pixel blade tip and pommel details are very small, though mostly the piece uses solid blocks." },
-            "palette_craft": { "score": 3, "why": "Colors are appropriate for a fantasy sword, but the palette lacks internal shading ramps or temperature shifts for depth." }
+            "silhouette": {
+              "score": 5,
+              "why": "The upright blade, crossguard, grip, and pommel create a classic sword silhouette that is immediately recognizable at 1x without color."
+            },
+            "value_separation": {
+              "score": 5,
+              "why": "All adjacent parts—the pale blade, olive guard, dark center block, brown grip, and bright yellow pommel—have distinct luminance steps that separate cleanly."
+            },
+            "lighting": {
+              "score": 2,
+              "why": "Every material is filled with completely flat color, providing neither a consistent light direction nor any highlight and shadow modeling to define the form."
+            },
+            "edge_language": {
+              "score": 3,
+              "why": "The lineless silhouette edges are clean and consistent, but interior material transitions use the same flat hard cuts without distinct detail-edge treatment."
+            },
+            "cluster_discipline": {
+              "score": 5,
+              "why": "Each component consists of solid, contiguous pixel blocks with zero orphan pixels or stray noise."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The sprite uses only single unshaded hues per material with no value ramps or hue-shifting, and the muddy olive guard clashes somewhat with the bright yellow pommel."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/sword.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
           "subject": "sword",
           "scores": {
-            "silhouette": { "score": 5, "why": "Sword shape is immediately recognizable at 1x from silhouette alone due to distinct blade, crossguard, grip, and pommel proportions." },
-            "value_separation": { "score": 3, "why": "Light blue blade and yellow guard separate well, but the dark brown grip and black gem blend into each other." },
-            "lighting": { "score": 1, "why": "No consistent light source direction; shading is flat or contradictory across different parts like the pommel and blade." },
-            "edge_language": { "score": 3, "why": "Clean silhouette edges, but internal textures and material boundaries lack clear distinction." },
-            "cluster_discipline": { "score": 5, "why": "Consistent pixel grouping with no single-pixel noise or confetti." },
-            "palette_craft": { "score": 3, "why": "Colors are appropriate for a fantasy sword, but ramps lack smooth tonal progression and values are occasionally flat." }
+            "silhouette": {
+              "score": 5,
+              "why": "The 1x black silhouette in panel C unmistakably reads as a sword with clear blade, crossguard, grip, and pommel proportions."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "All adjacent parts separate cleanly in value, though each part consists of a single flat tone with no internal value separation."
+            },
+            "lighting": {
+              "score": 1,
+              "why": "There is no directional lighting or shading on any part, leaving the entire sword completely flat with no lit or shadowed form."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Edges are clean and free of noise, but the sprite uses uniform hard borders with no distinct treatment for silhouette, material, or detail edges."
+            },
+            "cluster_discipline": {
+              "score": 5,
+              "why": "Every part is built from solid, contiguous, easily readable pixel clusters with no stray single-pixel confetti."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The base hues loosely suit steel, leather, and brass, but there are no color ramps at all and the olive guard clashes with the bright yellow pommel."
+            }
           }
         }
       ]
@@ -121,48 +333,70 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/humanoid.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "a pixel art warrior holding a sword",
+          "subject": "humanoid",
           "scores": {
-            "silhouette": { "score": 3, "why": "Recognisable shape of a character with a helmet and sword." },
-            "value_separation": { "score": 3, "why": "Main body and limbs are separated by color contrast but values are close in places." },
-            "lighting": { "score": 1, "why": "Shading is inconsistent or flat with no clear light source." },
-            "edge_language": { "score": 3, "why": "Thick black outlines enclose the entire character uniformly." },
-            "cluster_discipline": { "score": 3, "why": "Some single-pixel width lines and details present without strict cluster sizing." },
-            "palette_craft": { "score": 3, "why": "Palette is functional but color ramps are uneven and lack sophisticated hue shifting." }
+            "silhouette": {
+              "score": 4,
+              "why": "The plumed helmet, broad shoulders, hanging arms, and vertical sword make the figure clearly readable as an armed humanoid at 1x, though the merged blocky legs reduce lower-body clarity."
+            },
+            "value_separation": {
+              "score": 3,
+              "why": "Major regions like the light armor and dark tunic separate well, but the dark teal limbs and deep navy torso shadows sit very close in value to the black outline."
+            },
+            "lighting": {
+              "score": 4,
+              "why": "Top-left illumination is consistently established across the torso, arms, plume, and crossguard, though the helmet face and sword blade remain mostly flat."
+            },
+            "edge_language": {
+              "score": 3,
+              "why": "A heavy black outline consistently frames the outer silhouette and separates limbs, though internal material edges are minimal and the right tip of the crossguard ends in a solid black block."
+            },
+            "cluster_discipline": {
+              "score": 5,
+              "why": "All shading and colour regions are built from clean, deliberate multi-pixel blocks and bands with no stray single-pixel noise."
+            },
+            "palette_craft": {
+              "score": 4,
+              "why": "Cool steel greys, deep indigo-blues, dark teal, and muted gold pair harmoniously with cool shadows, though some ramps like the tunic highlight jump sharply in saturation while the blade is unshaded."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/humanoid.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "a pixel art warrior character with a sword",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "humanoid",
           "scores": {
-            "silhouette": { "score": 5, "why": "The 1x silhouette in panel C is instantly recognisable as a humanoid figure with a weapon and helmet." },
-            "value_separation": { "score": 3, "why": "Torso and arms have good separation, but parts of the dark helmet blend into the dark outline and background in silhouette." },
-            "lighting": { "score": 3, "why": "Lighting comes from above with consistent highlight/shadow placement on armor and blade, but the flat helmet reads mostly uniform." },
-            "edge_language": { "score": 3, "why": "Outlines are mostly consistent black borders, though some internal details merge directly into the silhouette boundary." },
-            "cluster_discipline": { "score": 3, "why": "Fairly clean pixel grouping with minimal confetti, though some small highlight accents break clean clustering on the hilt." },
-            "palette_craft": { "score": 3, "why": "Coherent fantasy color palette with distinct ramps for steel, gold, and cloth, though some shadow ramps are a bit muddy." }
+            "silhouette": {
+              "score": 4,
+              "why": "The armed humanoid and vertical sword are clearly recognizable at 1x without color, though the legs merge into a single boxy base."
+            },
+            "value_separation": {
+              "score": 3,
+              "why": "Major armor and tunic regions separate, but the dark navy torso shadow, dark teal limbs, and dark red plume sit within one value step of the black outline."
+            },
+            "lighting": {
+              "score": 3,
+              "why": "Top-left lighting shapes the torso and crossguard, yet the bright band at the bottom of the helmet and flatly shaded limbs contradict that direction."
+            },
+            "edge_language": {
+              "score": 3,
+              "why": "A consistent black outline defines the figure cleanly, but internal part boundaries use the exact same heavy line treatment as the outer silhouette."
+            },
+            "cluster_discipline": {
+              "score": 4,
+              "why": "Clusters are clean and free of stray single-pixel noise, with only the 1px-wide sword blade, hilt, and forearms forced thin by the small scale."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "Cool slate and blue tones keep the palette mostly coherent, but several ramps are flat or step unevenly alongside pure black outlines and muddy olive gold."
+            }
           }
-        }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "silhouette",
-          "score": 4,
-          "reason": "The two passes disagree by two points. The helmet, torso, legs and separate sword read as an armed figure in the silhouette panel but the limbs are blocky and partly merge with the body."
-        },
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 3,
-          "reason": "The helmet gradient and blade highlight share an upper-left direction; the torso is flat, so one mass is shaded against it."
         }
       ]
     },
@@ -173,42 +407,70 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/chest.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "treasure chest",
+          "subject": "chest",
           "scores": {
-            "silhouette": { "score": 5, "why": "The rounded lid and rectangular body are clearly readable as a chest shape without color." },
-            "value_separation": { "score": 2, "why": "The dark grey lid and dark brown body are very close in value and blend together without strong contrast." },
-            "lighting": { "score": 1, "why": "There is no directional lighting or shading applied to any of the masses; it is completely flat color blocking." },
-            "edge_language": { "score": 3, "why": "The pixel edges are consistent blocky shapes but lack varied treatments for different materials." },
-            "cluster_discipline": { "score": 4, "why": "Clean pixel clusters make up the shapes with no random single-pixel confetti." },
-            "palette_craft": { "score": 2, "why": "Flat colors lack ramps or gradients, and the hue choices are somewhat arbitrary with limited contrast between main areas." }
+            "silhouette": {
+              "score": 3,
+              "why": "The rounded-top rectangular outline reads as a generic box or arch without colour and relies on the internal straps and lock to suggest a chest."
+            },
+            "value_separation": {
+              "score": 3,
+              "why": "The metal straps and lock separate clearly from the body, but the dark lid and dark brown base sit very close in value."
+            },
+            "lighting": {
+              "score": 1,
+              "why": "Every surface uses a completely flat fill with no highlights or shadows to establish a light direction or three-dimensional form."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Borders are clean and free of noise, yet there is no silhouette outline or variation between material transitions and exterior edges."
+            },
+            "cluster_discipline": {
+              "score": 4,
+              "why": "Pixels are grouped into large, clean colour blocks with no stray confetti, though this simplicity comes from the absence of shading."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The four flat colours are cohesive for wood, metal, and brass, but the palette lacks any shadow or highlight ramps."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/chest.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "treasure chest",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "chest",
           "scores": {
-            "silhouette": { "score": 5, "why": "The shape of the chest with its rounded lid reads clearly at 1x in silhouette form." },
-            "value_separation": { "score": 3, "why": "The brown body and dark grey lid have decent separation, though some metal bands blend into the underlying values." },
-            "lighting": { "score": 3, "why": "Flat shaded style with no clear directional light source implemented." },
-            "edge_language": { "score": 3, "why": "Clean overall form but limited internal edge hierarchy beyond basic color blocking." },
-            "cluster_discipline": { "score": 5, "why": "Solid pixel clustering with no stray single-pixel noise or confetti." },
-            "palette_craft": { "score": 3, "why": "Basic functional colors for wood, metal, and straps, but flat ramps without temperature shifts." }
+            "silhouette": {
+              "score": 3,
+              "why": "The dome-topped rectangular silhouette reads as a generic block or tombstone at 1x without colour, only becoming identifiable as a chest when the bands and lock colours are visible."
+            },
+            "value_separation": {
+              "score": 3,
+              "why": "The light bands and yellow lock separate clearly from the darker regions, but the dark grey lid and dark brown body sit very close in value and lack any internal shading contrast."
+            },
+            "lighting": {
+              "score": 1,
+              "why": "Every part is filled with a completely flat, unshaded colour, giving no light direction and leaving the rounded lid and front face devoid of three-dimensional form."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Edges are clean and grid-aligned without row-to-row noise, yet there is no consistent outline or distinction between silhouette, material boundaries, and detail edges."
+            },
+            "cluster_discipline": {
+              "score": 4,
+              "why": "Colour regions form large, clean clusters free of single-pixel confetti, aside from the thin 1px-tall dark grey segments beneath the upper horizontal band."
+            },
+            "palette_craft": {
+              "score": 2,
+              "why": "The four flat hues are broadly plausible for wood, iron, and brass, but there are no value ramps or temperature shifts and the olive-yellow lock feels slightly muddy against the dark brown body."
+            }
           }
-        }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 2,
-          "reason": "The two passes disagree by two points. Straps and bands are flat blocks with no consistent directional cue, but nothing contradicts itself, so it sits between the 1 and 3 anchors."
         }
       ]
     },
@@ -219,33 +481,69 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/character.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "knight with sword and shield",
+          "subject": "character",
           "scores": {
-            "silhouette": { "score": 5, "why": "The knight form, helmet, shield, and sword are immediately recognizable by shape alone at 1x scale." },
-            "value_separation": { "score": 3, "why": "Most areas separate well, but the dark blue-green torso merges somewhat with the dark brown shield edge and boots in value terms." },
-            "lighting": { "score": 3, "why": "Consistent top/left light source on some elements, but shading is very flat and blocky without clear 3D form modeling." },
-            "edge_language": { "score": 3, "why": "Outlines and edges are clean and consistent, though forms rely heavily on simple vertical stripes without varied edge treatment." },
-            "cluster_discipline": { "score": 3, "why": "Mostly solid pixel clusters with minimal noise, though some details like the cross on the shield use fine single-pixel lines." },
-            "palette_craft": { "score": 3, "why": "Colors are mostly clean and fit a retro aesthetic, but ramps are extremely sparse and flat rather than nuanced or rich." }
+            "silhouette": {
+              "score": 4,
+              "why": "The knight is recognizable at 1x without color thanks to the helmet crest, shield, and sword, though the torso and limbs form a stiff, boxy silhouette."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "Major elements like the dark shield, green tunic, and red plume separate cleanly, though the helmet, armored limbs, and sword blade share very similar light-grey values."
+            },
+            "lighting": {
+              "score": 3,
+              "why": "The tunic, shield, and sword follow a consistent top-left light source, but the helmet, legs, boots, and plume are shaded flatly with uniform borders instead of directional form."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Edge treatment shifts inconsistently between uniform bright rectangular borders on the armor and boots, an unoutlined tunic, and noisy single-pixel artifacts along the shield rim."
+            },
+            "cluster_discipline": {
+              "score": 3,
+              "why": "Most masses use clean, readable rectangular clusters, though stray single-pixel spikes on the shield edge and sword tip disrupt the perimeter."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "The colors suit a knightly subject, but several ramps step unevenly from flat midtones to harsh near-black shadows without cohesive warm-to-cool hue shifting."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/character.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "knight with shield and sword",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "character",
           "scores": {
-            "silhouette": { "score": 5, "why": "The knight form, shield, and sword read clearly at 1x in silhouette form." },
-            "value_separation": { "score": 3, "why": "Helmet and torso values are quite close, but shield and limbs provide adequate contrast." },
-            "lighting": { "score": 3, "why": "Consistent lighting direction, though some flat surfaces lack clear gradients." },
-            "edge_language": { "score": 3, "why": "Some uneven outline treatments and noise around detailed features like the shield." },
-            "cluster_discipline": { "score": 3, "why": "Mostly clean clusters with minor noise in the shield and sword details." },
-            "palette_craft": { "score": 3, "why": "Coherent color selection with logical ramps, though some value jumps feel abrupt." }
+            "silhouette": {
+              "score": 4,
+              "why": "The sprite is identifiable at 1x without colour as an armoured knight holding a sword and shield, though its stiff, boxy geometry slightly limits dynamic readability."
+            },
+            "value_separation": {
+              "score": 3,
+              "why": "Most major parts separate at 1x, but the helmet, arms, legs, and sword blade share closely clustered blue-grey values that reduce contrast where they meet."
+            },
+            "lighting": {
+              "score": 3,
+              "why": "Light generally comes from the top-left on the torso, arms, and shield, but the sword blade is highlighted along its opposite right edge while the plume and boots are shaded symmetrically."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Border treatments shift inconsistently across parts—combining bright outlines on the plume and boots, a bright bottom strip under the shadowed torso, unoutlined legs, and stray dark edge pixels—without a unified hierarchy."
+            },
+            "cluster_discipline": {
+              "score": 3,
+              "why": "Core body masses are built from solid, readable pixel blocks, but minor single-pixel protrusions and orphan dark pixels appear around the shield rim and upper arm."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "The subject-appropriate colours are coherent overall, yet the ramps step unevenly with an abrupt value jump across the torso, flat two-tone boots, and a washed-out salmon outline on the plume."
+            }
           }
         }
       ]
@@ -257,33 +555,69 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/prop.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "lantern",
+          "subject": "prop",
           "scores": {
-            "silhouette": { "score": 5, "why": "The classic lantern shape of top ring, domed cap, vertical glass housing, and base is immediately readable in monochrome." },
-            "value_separation": { "score": 4, "why": "Parts are well separated by distinct outlines and value shifts, though the flame merges slightly with the dark background interior." },
-            "lighting": { "score": 3, "why": "The flame has a clear gradient suggesting light emission, but the exterior structure lacks directional shading from that light source." },
-            "edge_language": { "score": 3, "why": "Outlines are mostly consistent, but some jaggies and alternating pixel steps on curves and the hanging ring create slightly noisy edges." },
-            "cluster_discipline": { "score": 4, "why": "Most pixel groups form solid readable clusters, with only minor single-pixel stepping on diagonals." },
-            "palette_craft": { "score": 4, "why": "Pleasant coordinated palette with warm cream tones for the metal and a nice flame gradient, though the dark interior has limited steps." }
+            "silhouette": {
+              "score": 5,
+              "why": "The ring, domed cap, rectangular body, and flared base form a classic lantern silhouette that reads immediately at 1x without color."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "Every major component—the dark glass, mid-tone frame, dark outlines, and bright flame and caps—separates cleanly in value, though the cap and base remain unshaded flat shapes."
+            },
+            "lighting": {
+              "score": 2,
+              "why": "The metal frame is highlighted along its right inner edge while the cap and base are completely unshaded and the flame has contradictory diagonal shading."
+            },
+            "edge_language": {
+              "score": 4,
+              "why": "The silhouette uses material-tinted dark outlines while internal details like the flame and glass edges remain lineless, though the top ring has uneven 2-pixel side thickness."
+            },
+            "cluster_discipline": {
+              "score": 4,
+              "why": "Most forms are built from clean, readable pixel clusters, with only a few stray single-pixel accents on the flame and inner glass corners."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "The cool slate and teal tones contrast pleasantly with the warm yellow and orange, but the pale yellow cap and base lack value ramps entirely."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/prop.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "lantern",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "prop",
           "scores": {
-            "silhouette": { "score": 5, "why": "The lantern shape including the top ring and base profile is clearly recognisable as a silhouette in panel C without colour." },
-            "value_separation": { "score": 4, "why": "Most parts are distinct, though the light yellow cap and base blend closely against similar brightness values nearby." },
-            "lighting": { "score": 3, "why": "The flame has a distinct light source and shading, but the lantern structure itself is flatly colored without directional shading." },
-            "edge_language": { "score": 3, "why": "Clean pixel outlines are used consistently, but some internal details lack distinct edge hierarchy compared to the outer silhouette." },
-            "cluster_discipline": { "score": 4, "why": "Forms are built with solid pixel groups and minimal unnecessary single-pixel noise." },
-            "palette_craft": { "score": 4, "why": "Cohesive color palette with appropriate warm tones for the flame and cool tones for the metal parts." }
+            "silhouette": {
+              "score": 5,
+              "why": "The lantern's hanging ring, domed cap, framed body, and flared base form an immediately recognizable silhouette at 1x without any color information."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "All structural parts separate clearly in value at 1x, though the brass cap and base are mostly flat single-value fills with minimal internal tonal range."
+            },
+            "lighting": {
+              "score": 2,
+              "why": "The brass cap and base lack directional form shading, while the diagonal banding on the flame and inconsistent pillar shading fail to establish a unified light source."
+            },
+            "edge_language": {
+              "score": 4,
+              "why": "The sprite uses a consistent outer silhouette outline and distinct internal edges around the glass frame and lineless flame."
+            },
+            "cluster_discipline": {
+              "score": 4,
+              "why": "Most regions are built from clean, readable clusters at 1x, with only a few single-pixel accents along the edges of the flame and cap."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "The warm brass and flame hues contrast well against the cool blue-grey frame and dark glass, but the brass ramp is overly flat and shares its brightest yellow directly with the flame."
+            }
           }
         }
       ]
@@ -295,33 +629,69 @@
         {
           "pass": "A",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/scene.8x.png",
           "view": "plain 8x nearest-neighbour on #808080",
-          "subject": "water well",
+          "subject": "scene",
           "scores": {
-            "silhouette": { "score": 5, "why": "The roof, pillars, and well structure make it immediately identifiable as a well even without color." },
-            "value_separation": { "score": 3, "why": "Most elements separate well, but the dark brown roof sections and shadow underneath have very close tonal values." },
-            "lighting": { "score": 2, "why": "The shading on the roof is vertically symmetrical rather than following a single directional light source." },
-            "edge_language": { "score": 3, "why": "Outlines are fairly consistent, but some pixel stair-stepping feels slightly jagged rather than deliberate." },
-            "cluster_discipline": { "score": 3, "why": "Some isolated pixels and small clusters exist around the ground and highlights." },
-            "palette_craft": { "score": 3, "why": "Colors are mostly coherent for stone and wood, but some ramps lack smooth transitions." }
+            "silhouette": {
+              "score": 5,
+              "why": "The covered well, support posts, cylindrical stone base, hanging bucket, and oval ground platform read immediately at 1x without colour."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "Major structural masses separate clearly by value, though the dark post bases sit very close in value to the dark ground shadow and the brick mortar lines are subtle."
+            },
+            "lighting": {
+              "score": 3,
+              "why": "Most elements suggest top-left illumination with a rightward ground shadow, but the water gradient brightens toward the back interior and the bucket lacks directional shading."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Edge treatment shifts inconsistently between the lineless roof with light fringe pixels, the dark-outlined posts and bucket, and the jagged ground edges with stray bottom pixels."
+            },
+            "cluster_discipline": {
+              "score": 3,
+              "why": "Large colour blocks on the roof, stone wall, and shadow hold together cleanly, but small noisy pebbles, stray base pixels, and thin horizontal ground lines break cluster discipline."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "Hues suit a wooden and stone well, though the greenish-yellow rope clashes slightly with the warm roof and the shading ramps step unevenly in saturation and value."
+            }
           }
         },
         {
           "pass": "B",
           "scorer": "vision-model",
-          "model": "agent-vision",
+          "model": "gemini-4-hydrogen",
           "artifact_path": ".conductor/evidence/art-v2/scene.debug.png",
-          "view": "debug sheet: profile zoom, 1x panel, silhouette, part crops",
-          "subject": "a water well",
+          "view": "debug sheet (8x panel, 1x panel, silhouette, part crops)",
+          "subject": "scene",
           "scores": {
-            "silhouette": { "score": 5, "why": "The well, roof, and base platform are immediately recognizable at 1x from silhouette alone." },
-            "value_separation": { "score": 4, "why": "Parts separate cleanly, though some mid-tone roof and ground elements sit close in value." },
-            "lighting": { "score": 3, "why": "Consistent top-down/angled light, but some cylinder and roof planes mix highlights and shadows inconsistently." },
-            "edge_language": { "score": 3, "why": "Edges are generally clean, but some detail outlines and borders merge with the silhouette." },
-            "cluster_discipline": { "score": 4, "why": "Mostly solid pixel clusters with minimal noise or small isolated pixels." },
-            "palette_craft": { "score": 4, "why": "Coherent ramps for wood, stone, water, and earth, though some transitions are a bit abrupt." }
+            "silhouette": {
+              "score": 5,
+              "why": "The triangular roof, twin posts, central cylinder, and circular base read clearly as a covered well at 1x without colour."
+            },
+            "value_separation": {
+              "score": 4,
+              "why": "Major components separate cleanly across the sprite, though the left and right roof halves and the inner beam sit very close in value."
+            },
+            "lighting": {
+              "score": 2,
+              "why": "The large ground shadow implies strong light from the upper-left, yet the roof is shaded symmetrically top-to-bottom and the well wall and posts lack a consistent lit side."
+            },
+            "edge_language": {
+              "score": 2,
+              "why": "Edge treatments conflict across parts, mixing a bright halo outline on the bucket, jagged high-contrast pixels on the well rim, and unoutlined raw edges on the roof and base."
+            },
+            "cluster_discipline": {
+              "score": 3,
+              "why": "Primary masses use clean broad clusters, while scattered small pixel pebbles along the base edge and stray rim highlights fall below typical minimum cluster sizes."
+            },
+            "palette_craft": {
+              "score": 3,
+              "why": "Subject hues are plausible and coherent overall, but the roof and stone ramps step somewhat evenly without strong temperature shifts and the ground shadow is overly flat."
+            }
           }
         }
       ]
