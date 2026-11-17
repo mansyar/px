@@ -143,3 +143,18 @@
   - [x] **P6.T2.2:** coverage gate on the enlarged include list with no threshold or exclude change, no new runtime dependency
 - [x] **P6.T3: Evidence** — covers: FR-20
   - [x] **P6.T3.1:** per-asset before/after table with pass means, criterion means and the honest verdict, plus the unchanged-original digest proof
+
+## Phase R1: Review Fixes
+
+- **Goal:** Close the one High and one Low finding from review round 1, making the coverage evidence true rather than restating it.
+- **Depends on:** Phase 6
+- **Covers:** F1, F2, NFR-3, AC-9, AC-17
+- **Touches:** `vitest.config.ts`, `src/critique/**`, `test/**`, `docs/**`, `conductor/tracks/20261117-authoritative-design-intent/verification/**`
+- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Status:** in_progress
+
+- [ ] **R1.T1: Enlarge the coverage scope** — covers: F1, NFR-3, AC-17
+  - [ ] **R1.T1.1:** add `src/brief/**`, `src/critique/**` and `src/render/views.ts` to the v8 coverage include list; add real tests until statements AND branches are at least 80% on every new module; leave thresholds, excludes and ignore comments unchanged
+  - [ ] **R1.T1.2:** correct the P6.T2.2 claim and the phase-4 evidence line so they describe the actual include list
+- [ ] **R1.T2: Make the fix rationale name its op** — covers: F2, AC-9
+  - [ ] **R1.T2.1:** rewrite the `edge_language` finding's `why` to describe the emitted `auto_outline` edge pass and pin it with a test
