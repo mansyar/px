@@ -113,12 +113,15 @@
 - **Covers:** FR-18, AC-12
 - **Touches:** `test/art/**`, `px.style.json`, `docs/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — seven fresh v2 recipes carry real hero-first design blocks and inherit the root project style; every original asset, digest, score and rubric file is untouched
+- **Checkpoint:** bc25828
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-5.md
 
-- [ ] **P5.T1: The four weak assets** — covers: FR-18, AC-12
-  - [ ] **P5.T1.1:** humanoid, scene, sword and character re-authored with declared light, hierarchy, values and edges
-- [ ] **P5.T2: The three passing assets** — covers: FR-18, AC-12
-  - [ ] **P5.T2.1:** potion, chest and prop re-authored defensively, without trading a passing asset for a regression
+- [x] **P5.T1: The four weak assets** — covers: FR-18, AC-12
+  - [x] **P5.T1.1:** humanoid, scene, sword and character re-authored with declared light, hierarchy, values and edges
+- [x] **P5.T2: The three passing assets** — covers: FR-18, AC-12
+  - [x] **P5.T2.1:** potion, chest and prop re-authored defensively, without trading a passing asset for a regression
 
 ## Phase 6: Re-scoring, Budget and Evidence
 

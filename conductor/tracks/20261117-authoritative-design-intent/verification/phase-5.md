@@ -83,3 +83,18 @@ Only `design.hierarchy` changed in the recipes; `values`, `materials`, `edges`, 
 Re-verification after the follow-up edits: `pnpm verify` exit 0 (116 files / 1011 tests) and `pnpm vitest run --coverage` exit 0 (Statements 94.88%, Branches 85.59%, Functions 98.34%, Lines 94.66%). The contract test re-rendered all seven v2 recipes twice and matched their committed `.sha256` files, proving the metadata reorder did not move rendered bytes. `git status --short` lists no modified `.sha256` anywhere: all twelve committed original digests (7 art + 4 benchmarks + 1 golden) are unchanged, and the seven v2 digests are unchanged.
 
 **Blocker:** `git mv test/art/v2-generate.probe.test.ts test/art/style-contract.test.ts` returned `permission.rejected: shell`. The rename was not worked around. All follow-up changes are left uncommitted so the primary can run the rename and make the single intended commit.
+
+## Primary verification
+
+The executor reported `blocked` on `git mv` alone, which was correct: a denied command is a blocker, not something to work around. The primary ran the rename, then re-ran both gates on the final tree:
+
+| Check | Result |
+| --- | --- |
+| Rename | `git mv test/art/v2-generate.probe.test.ts test/art/style-contract.test.ts` succeeded; content unchanged |
+| `pnpm verify` | Exit 0, 116 files / 1011 tests, build clean |
+| `pnpm vitest run --coverage` | Exit 0, statements 94.88%, branches 85.59%, functions 98.34%, lines 94.66% (gate 80%) |
+| Originals and instrument | `git diff df1f4b6..HEAD` over the seven original art dirs, `scores.json`, `scripts/`, `docs/rubric.md`, `test/goldens` and `test/benchmarks` is empty |
+| Hierarchies | All seven are hero-first visual-dominance orders, each named by its own design note, and asserted non-alphabetical in `assets-v2.test.ts` |
+| Digests | No `.sha256` file modified anywhere; the metadata reorder moved no rendered bytes |
+
+The two authoring commits and the hierarchy follow-up were squashed to `bc25828` (`test(art): re-author seven assets with authoritative design intent`).
