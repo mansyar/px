@@ -94,17 +94,17 @@ The primary appends after acceptance:
 **Checkpoint:** d5b2da7
 **Evidence:** conductor/tracks/20261117-craft-application/verification/gate-decision.md
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
 
-- **Goal:** Resolve review findings ...
-- **Depends on:** Phase 2
-- **Covers:** review findings
-- **Touches:** ...
-- **Verification:** ...
+- **Goal:** Resolve review findings F1 (stale test title) and F2 (stale generator header comment) from round 1; both are objective, local documentation-staleness nits.
+- **Depends on:** Phase 3
+- **Covers:** F1, F2
+- **Touches:** `test/art/rubric.test.ts`, `test/art/diagnostic/chest/make-candidates.mjs`, `conductor/tracks/20261117-craft-application/verification/phase-R1.md`
+- **Verification:** `pnpm verify` (1028 tests, build green); inspect both changed lines; no assertion or logic change.
 - **Status:** pending
 
-- [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
--->
+- [ ] **R1.T1: Rename the stale rubric.test.ts instrument test title (F1)** — covers: F1
+  - [ ] **R1.T1.1:** Rename `records the frozen instrument and every required field` → `records the instrument of record and every required field`; change no assertion.
+- [ ] **R1.T2: Correct the make-candidates.mjs header comment (F2)** — covers: F2
+  - [ ] **R1.T2.1:** State the script reads hue-ramp candidate `chest-H` and derives L/E/C; remove the false "baseline" claim.
+

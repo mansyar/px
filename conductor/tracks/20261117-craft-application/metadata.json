@@ -19,7 +19,7 @@
     "tasks_done": 10
   },
   "last_checkpoint": "d5b2da7",
-  "review_verdict": "PASS WITH FINDINGS",
+  "review_verdict": "BLOCK",
   "review_rounds": 1,
   "doc_sync": "done — tech-stack.md dated note 2026-11-18 records user-authorized instrument-of-record switch; product.md/guidelines unchanged (no scoring content); spec frozen",
   "pr_url": null,
