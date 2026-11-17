@@ -57,11 +57,14 @@
 - **Covers:** FR-8, FR-12, NFR-1, NFR-2, NFR-3, NFR-4, NFR-6, AC-8, AC-9, AC-10, AC-12
 - **Touches:** `test/**`, `scripts/**`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`
 - **Verification:** `pnpm verify` and `pnpm coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — 19 digests, the manifest and lockfile are unchanged, no networked import reached the engine or tests, and both gates pass with the publishable gate honestly failed at 3.25.
+- **Checkpoint:** 61690df
+- **Evidence:** conductor/tracks/20261117-gate-instrument-reconciliation/verification/integrated.md
 
-- [ ] **P3.T1: Audit digests, dependency and network boundaries** — covers: FR-8, FR-12, NFR-1, NFR-2, NFR-6, AC-8, AC-9, AC-10
-  - [ ] **P3.T1.1:** Verify the hero, four v1 benchmark, seven v1 art, and seven v2 art digests are unchanged.
-  - [ ] **P3.T1.2:** Verify `package.json` and `pnpm-lock.yaml` are unchanged with exactly one production dependency, and that only `scripts/rubric.mjs` has network access.
-- [ ] **P3.T2: Run integrated verification and record the result** — covers: NFR-3, NFR-4, AC-12
-  - [ ] **P3.T2.1:** Run both required gates and confirm no coverage threshold, exclude list, or ignore comment changed.
-  - [ ] **P3.T2.2:** Write `verification/integrated.md` with the final gate results, checkpoint table, and the honest pass/fail statement.
+- [x] **P3.T1: Audit digests, dependency and network boundaries** — covers: FR-8, FR-12, NFR-1, NFR-2, NFR-6, AC-8, AC-9, AC-10
+  - [x] **P3.T1.1:** Verify the hero, four v1 benchmark, seven v1 art, and seven v2 art digests are unchanged.
+  - [x] **P3.T1.2:** Verify `package.json` and `pnpm-lock.yaml` are unchanged with exactly one production dependency, and that only `scripts/rubric.mjs` has network access.
+- [x] **P3.T2: Run integrated verification and record the result** — covers: NFR-3, NFR-4, AC-12
+  - [x] **P3.T2.1:** Run both required gates and confirm no coverage threshold, exclude list, or ignore comment changed.
+  - [x] **P3.T2.2:** Write `verification/integrated.md` with the final gate results, checkpoint table, and the honest pass/fail statement.

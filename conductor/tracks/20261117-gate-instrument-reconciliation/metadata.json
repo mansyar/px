@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-17T06:46:50Z",
-  "updated_at": "2026-11-17T08:38:54Z",
+  "updated_at": "2026-11-17T08:47:25Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "chore/20261117-gate-instrument-reconciliation",
@@ -14,14 +14,14 @@
   "base_sha": "0fd23f7fda645b0c24f696af988f7901507b49ea",
   "progress": {
     "phases_total": 3,
-    "phases_verified": 2,
+    "phases_verified": 3,
     "tasks_total": 8,
-    "tasks_done": 6
+    "tasks_done": 8
   },
-  "last_checkpoint": "6f64349",
+  "last_checkpoint": "61690df",
   "review_verdict": null,
   "review_rounds": 0,
-  "doc_sync": "pending",
+  "doc_sync": "synced",
   "pr_url": null,
   "pr_state": null,
   "reverted_at": null,
