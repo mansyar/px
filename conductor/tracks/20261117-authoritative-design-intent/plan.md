@@ -111,9 +111,9 @@
 - **Goal:** All seven benchmark assets exist again as new files carrying `design` blocks and project style, with the originals and their digests untouched.
 - **Depends on:** Phase 4
 - **Covers:** FR-18, AC-12
-- **Touches:** `test/art/**`, `docs/**`
+- **Touches:** `test/art/**`, `px.style.json`, `docs/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P5.T1: The four weak assets** — covers: FR-18, AC-12
   - [ ] **P5.T1.1:** humanoid, scene, sword and character re-authored with declared light, hierarchy, values and edges
