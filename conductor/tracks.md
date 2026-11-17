@@ -26,5 +26,5 @@
 
 - [x] **Track: Gate and Instrument Reconciliation** - [20261117-gate-instrument-reconciliation](./archive/20261117-gate-instrument-reconciliation/index.md) - chore - high - *open PR #12, publishable gate failed at 3.25 vs 3.5*
 
-- [ ] **Track: Craft Application** — [20261117-craft-application](./tracks/20261117-craft-application/index.md) — feature — high
+- [~] **Track: Craft Application** — [20261117-craft-application](./tracks/20261117-craft-application/index.md) — feature — high
 
