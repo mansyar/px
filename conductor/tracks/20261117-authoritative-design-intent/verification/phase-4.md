@@ -69,3 +69,19 @@ Two files are outside this phase's `Touches` and were changed by the minimum amo
 - The six criteria keep their exact names `silhouette, value_separation, lighting, edge_language, cluster_discipline, palette_craft`. Ranking is descending absolute shortfall, then criterion name, then op name. A met criterion produces an observation with no finding; an empty/transparent canvas produces only `W_CRITIQUE_EMPTY` and an empty fix list.
 - `px fix` re-resolves the current report before applying, so a finding index generated against an older picture is rejected with `E_FIX_STALE` (naming the finding and current digest). Fixes append to a layer; existing ops, committed digests and `test/art/scores.json` are never rewritten.
 - `src/critique/**` is intentionally not in the v8 coverage include list, matching the established Phase 3 pattern for new feature modules; the `edgeClassCounts` diagnostic wrapper added to `src/core/ops/intent-edges.ts` is inside the include list and covered.
+
+## Primary verification
+
+Independent check at the accepted checkpoint `b90cd20`, not taken from the executor's report:
+
+| Check | Result |
+| --- | --- |
+| Tree before acceptance | Only the untracked evidence file; five task commits in `d4c457a..HEAD`, zero merges |
+| Scope | No changed path outside `src/`, `test/`, `conductor/`, `vitest.config.ts`; exactly the two declared deviations (`src/core/errors.ts`, `test/smoke/mcp-stdio.test.ts`) |
+| Digest diff | `git diff d4c457a..HEAD -- test/goldens test/benchmarks test/art` empty; `test/art/scores.json` untouched |
+| `pnpm verify` | Exit 0, 114 files / 980 tests, build clean |
+| `pnpm vitest run --coverage` | Exit 0, statements 94.86%, branches 85.42%, functions 98.34%, lines 94.63% (gate 80%) |
+
+Source checks made by the primary rather than inferred from test names: `src/critique/index.ts` builds each `fix.op` as a complete raw op with `expected_delta` strings for all six criteria and exposes `fixes_total`/`truncated` on the bounded response; `stagnationFor(fingerprint, streak, previous)` is documented as "caller-supplied streak and previous fingerprint, nothing retained"; `test/mcp/reachability.test.ts` maps `finding`, `sha256`, `streak` and `previous` for the two new tools and asserts the exact published property sets in both directions.
+
+The five reporting commits were squashed to `b90cd20` (`feat(critique): rank whole-image gaps and apply bounded, stale-checked fixes`).

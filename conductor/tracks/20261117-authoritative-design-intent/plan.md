@@ -89,19 +89,22 @@
 - **Covers:** FR-11, FR-12, FR-13, FR-14, NFR-4, NFR-5, AC-9, AC-10, AC-11, AC-15
 - **Touches:** `src/critique/**`, `src/core/**`, `src/cli/**`, `src/mcp/**`, `test/critique/**`, `test/mcp/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — ranked symbolic critique, stale-checked fixes, caller-supplied stagnation and a bounded 20-fix response are all reachable from CLI and MCP; no digest moved
+- **Checkpoint:** b90cd20
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-4.md
 
-- [ ] **P4.T1: Gap report** — covers: FR-11, AC-9
-  - [ ] **P4.T1.1:** intended vs observed per criterion, ranked, each fix with `{op, why, expected_delta}` and an index
-  - [ ] **P4.T1.2:** empty canvas reports `W_CRITIQUE_EMPTY`, never a fabricated fix
-- [ ] **P4.T2: Fix verb and stale detection** — covers: FR-12, AC-9
-  - [ ] **P4.T2.1:** `px fix --finding N` applies the op and re-renders; `E_FIX_STALE` and `W_FIX_NOOP` pinned
-- [ ] **P4.T3: Stagnation signal** — covers: FR-13, AC-10
-  - [ ] **P4.T3.1:** appears after the configured number of unchanged calls, clears when the picture changes
-- [ ] **P4.T4: Bounded response** — covers: NFR-4, AC-15
-  - [ ] **P4.T4.1:** fixes capped at 20 at 256×256 with a true total and truncated marker
-- [ ] **P4.T5: Tool parity** — covers: FR-14, NFR-5, AC-11
-  - [ ] **P4.T5.1:** every new CLI flag published as an MCP parameter and every MCP parameter emitted as argv, asserted in both directions against `inputSchema.properties`
+- [x] **P4.T1: Gap report** - covers: FR-11, AC-9
+  - [x] **P4.T1.1:** intended vs observed per criterion, ranked, each fix with `{op, why, expected_delta}` and an index
+  - [x] **P4.T1.2:** empty canvas reports `W_CRITIQUE_EMPTY`, never a fabricated fix
+- [x] **P4.T2: Fix verb and stale detection** — covers: FR-12, AC-9
+  - [x] **P4.T2.1:** `px fix --finding N` applies the op and re-renders; `E_FIX_STALE` and `W_FIX_NOOP` pinned
+- [x] **P4.T3: Stagnation signal** — covers: FR-13, AC-10
+  - [x] **P4.T3.1:** appears after the configured number of unchanged calls, clears when the picture changes
+- [x] **P4.T4: Bounded response** — covers: NFR-4, AC-15
+  - [x] **P4.T4.1:** fixes capped at 20 at 256×256 with a true total and truncated marker
+- [x] **P4.T5: Tool parity** — covers: FR-14, NFR-5, AC-11
+  - [x] **P4.T5.1:** every new CLI flag published as an MCP parameter and every MCP parameter emitted as argv, asserted in both directions against `inputSchema.properties`
 
 ## Phase 5: Re-authoring the Seven Assets
 
