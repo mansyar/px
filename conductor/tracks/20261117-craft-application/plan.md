@@ -101,10 +101,14 @@ The primary appends after acceptance:
 - **Covers:** F1, F2
 - **Touches:** `test/art/rubric.test.ts`, `test/art/diagnostic/chest/make-candidates.mjs`, `conductor/tracks/20261117-craft-application/verification/phase-R1.md`
 - **Verification:** `pnpm verify` (1028 tests, build green); inspect both changed lines; no assertion or logic change.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Rename the stale rubric.test.ts instrument test title (F1)** — covers: F1
-  - [ ] **R1.T1.1:** Rename `records the frozen instrument and every required field` → `records the instrument of record and every required field`; change no assertion.
-- [ ] **R1.T2: Correct the make-candidates.mjs header comment (F2)** — covers: F2
-  - [ ] **R1.T2.1:** State the script reads hue-ramp candidate `chest-H` and derives L/E/C; remove the false "baseline" claim.
+- [x] **R1.T1: Rename the stale rubric.test.ts instrument test title (F1)** — covers: F1
+  - [x] **R1.T1.1:** Rename `records the frozen instrument and every required field` → `records the instrument of record and every required field`; change no assertion.
+- [x] **R1.T2: Correct the make-candidates.mjs header comment (F2)** — covers: F2
+  - [x] **R1.T2.1:** State the script reads hue-ramp candidate `chest-H` and derives L/E/C; remove the false "baseline" claim.
+
+**Result:** verified
+**Checkpoint:** 35057b2
+**Evidence:** conductor/tracks/20261117-craft-application/verification/phase-R1.md
 

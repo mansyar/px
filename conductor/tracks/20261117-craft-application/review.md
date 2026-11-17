@@ -5,7 +5,7 @@
 - **Branch:** `feat/20261117-craft-application`
 - **Range:** `b0ea365ba1862fe387e172e420b2672400e65d0b..3209890`
 - **Date:** `2026-11-18`
-- **Verdict:** `PASS WITH FINDINGS`
+- **Verdict:** `PASS` (after review-fix round 1 resolved the two Low findings)
 
 ## Summary
 
@@ -115,11 +115,17 @@ unmet but recorded through the FR-6/AC-4 accept path; no pass was forced.
 
 ## Doc sync
 
-`pending` — tech-stack dated note already records the instrument switch; post-review
-sync will update this line and `metadata.doc_sync`.
+`updated` — tech-stack dated note records the instrument switch; `metadata.doc_sync`
+and this review line updated after review-fix round 1. No product/guideline changes.
 
 ## History
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 2 | pending (R1 appended) |
+| 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 2 | 2 (F1, F2 in Phase R1) |
+| 2 | PASS (re-review) | 0 | 0 | 0 | 0 | — |
+
+Round 1 findings F1 (stale title at `rubric.test.ts:201`) and F2 (stale header at
+`make-candidates.mjs:4-5`) were resolved by comment/title-only changes in Phase R1
+(checkpoint `35057b2`), verified with `pnpm verify` exit 0. Re-review confirms both
+resolved; no new findings; final verdict PASS.
