@@ -86,5 +86,5 @@ unreachable-tier test at `:151-155` still requires dated evidence. The executor'
 `pnpm verify` attempt hit a cold-start smoke timeout and it re-ran cleanly; the primary's
 independent rerun above confirms the final tree.
 
-Squash guard: 3 commits, 0 merges, all reported. Squashed to checkpoint `<checkpoint>` with
+Squash guard: 3 commits, 0 merges, all reported. Squashed to checkpoint `e3ab807` with
 `git reset --soft 312bcfd` and one conventional acceptance commit.
