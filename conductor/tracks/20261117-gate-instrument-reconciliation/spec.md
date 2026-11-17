@@ -2,6 +2,8 @@
 
 > **Requirements are stable. Once an `FR`, `NFR`, or `AC` ID is approved, do not renumber it. If a requirement is removed, mark it `Withdrawn` instead of deleting it.**
 
+> **Amended 2026-11-17, no IDs changed.** NFR-3 and AC-12 name `pnpm vitest run --coverage`. During Phase 2 that command was replaced by `pnpm coverage`, which runs the same v8 coverage provider and the same 80% thresholds over the same included files but omits the benchmarks project because v8 instrumentation inflates the wall-clock NFR-7 measurement. NFR-7 remains enforced uninstrumented by `pnpm verify`. The coverage gate is unchanged in scope and strength; only its command name moved.
+
 ## Overview
 
 This track does not add drawing capability. It settles the quality contract and establishes one reproducible measurement of the current engine.

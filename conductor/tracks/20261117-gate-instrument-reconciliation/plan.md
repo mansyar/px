@@ -57,7 +57,7 @@
 - **Covers:** FR-8, FR-12, NFR-1, NFR-2, NFR-3, NFR-4, NFR-6, AC-8, AC-9, AC-10, AC-12
 - **Touches:** `test/**`, `scripts/**`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`
 - **Verification:** `pnpm verify` and `pnpm coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Audit digests, dependency and network boundaries** — covers: FR-8, FR-12, NFR-1, NFR-2, NFR-6, AC-8, AC-9, AC-10
   - [ ] **P3.T1.1:** Verify the hero, four v1 benchmark, seven v1 art, and seven v2 art digests are unchanged.
