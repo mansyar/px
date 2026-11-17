@@ -1,0 +1,35 @@
+{
+  "asset": "character",
+  "v": 1,
+  "calls": [
+    {
+      "verb": "inspect",
+      "argv": [
+        "inspect",
+        "--file",
+        "test/art/v2/character/character.px.json",
+        "--summary"
+      ]
+    },
+    {
+      "verb": "validate",
+      "argv": [
+        "validate",
+        "--file",
+        "test/art/v2/character/character.px.json"
+      ]
+    },
+    {
+      "verb": "render",
+      "argv": [
+        "render",
+        "--file",
+        "test/art/v2/character/character.px.json",
+        "--out",
+        ".conductor/evidence/art-v2/character.png",
+        "--debug",
+        "--strict"
+      ]
+    }
+  ]
+}
