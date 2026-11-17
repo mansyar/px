@@ -6,7 +6,8 @@
 - Branch: `feat/20261117-craft-application`
 - Phase base: `cd43a51f2a6f716f844847616839c046f9dcf713`
 - Instrument: `gemini-4-hydrogen` (frozen; NFR-1). No other instrument was used or substituted.
-- Status: **A/B artifacts complete; credentialed scoring PENDING PRIMARY** (NFR-5).
+- Status: **verified** — A/B artifacts complete and frozen-instrument scores supplied by the
+  primary on 2026-11-17 (NFR-5; dry-run, nothing written to `test/art/scores.json`).
 
 ## 1. Baseline and the application gap
 
@@ -17,7 +18,7 @@ exactly the canonical `chest.sha256` in `test/art/scores.json` — golden hash u
 
 Canonical verdict (do not modify): fail, mean 3.25, floor 3.0, 22 below-floor criterion
 scores. Chest is the worst asset at 2.50: `lighting 1/1`, `edge_language 2/2`,
-`palette_craft 2/2`, with `silhouette 3/3`, `value_separation 4/4`, `cluster_discipline 4/4`.
+`palette_craft 2/2`, with `silhouette 3/3`, `value_separation 3/3`, `cluster_discipline 4/4`.
 
 Root cause established during this phase: the baseline's `harmonize` op re-quantizes every
 part to a **single tone** (`bands.t2` 314 px, `body.t3` 440 px, `lid.t1` 282 px, `lock.t3`
@@ -138,50 +139,71 @@ Upgrades were made with `pnpm exec tsx scripts/upscale.mjs <png> --out <...>.8x.
 (factor 8, 384x384 output). The baseline 1x digest is the canonical golden hash; no
 golden file or `scores.json` was touched.
 
-## 4. Scoring table (FR-3) — PENDING PRIMARY
+## 4. Scoring table (FR-3) — frozen instrument, primary-run
 
-Credentialed scoring is primary-only (NFR-5). The subagent did **not** run
-`node scripts/rubric.mjs` (shell denies `node`, no credential; a permission denial is not
-retryable). All ten exact commands are listed in section 6. When the primary appends the
-stdout, replace each `PENDING PRIMARY SCORING` cell with six integer scores in criterion
-order `silhouette / value_separation / lighting / edge_language / cluster_discipline /
-palette_craft`, compute deltas against baseline, and fill the lever verdict.
+Credentialed scoring was run by the primary with `gemini-4-hydrogen`, all calls
+`--dry-run --replace`, nothing written to `test/art/scores.json` (NFR-5). The subagent
+never invoked `node scripts/rubric.mjs`. Scores are six integers in criterion order
+`silhouette / value_separation / lighting / edge_language / cluster_discipline /
+palette_craft`; deltas are against the fresh baseline A, which exactly reproduces the
+canonical baseline B. Every score below is a single fresh read — no rerolls were
+cherry-picked.
 
-| Candidate | Lever | Scores A / B | Δ vs baseline (A / B) | Clears >=3 on both passes? |
+| Candidate | Lever | Scores A / B | Δ vs baseline (A / B) | Clears all three weak criteria >=3 on both passes? |
 |---|---|---|---|---|
-| baseline | control | PENDING PRIMARY SCORING | — | — |
-| H | hue-ramp palette | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING |
-| L | warm-cool directional light | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING |
-| E | edge hierarchy | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING |
-| C | combined | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING | PENDING PRIMARY SCORING |
+| baseline | control | `3/3/1/2/4/2` / `3/3/1/2/4/2` (B = canonical recorded) | — | — (lighting 1, edge 2, palette 2) |
+| H | hue-ramp palette | `3/3/4/2/4/4` / `3/4/4/4/4/4` | A `0/0/+3/0/0/+2`; B `0/+1/+3/+2/0/+2` | No — edge_language 2 on A |
+| L | warm-cool directional light | `3/4/5/4/4/5` / `3/4/4/3/4/4` | A `0/+1/+4/+2/0/+3`; B `0/+1/+3/+1/0/+2` | **Yes** — lighting 5/4, edge 4/3, palette 5/4 |
+| E | edge hierarchy | `2/4/3/2/3/4` / `3/4/4/2/4/4` | A `-1/+1/+2/0/-1/+2`; B `0/+1/+2/0/0/+2` | No — edge_language 2/2, silhouette regresses 3→2 on A |
+| C | combined | `3/4/3/2/3/3` / not available | A `0/+1/+2/0/-1/+1`; B n/a | No (not decisive) — edge_language 2 on A; B unavailable |
 
-Baseline reference (already recorded, unchanged): `3/4/1/2/4/2` on both passes.
+Baseline reference (fresh A and canonical recorded B, unchanged): `3/3/1/2/4/2` on both
+passes (mean 2.50). The earlier `3/4/...` reference was a transcription error and is
+corrected here: `value_separation` is 3, not 4.
 
-## 5. Lever verdict (FR-6) — PENDING PRIMARY
+Availability failures (recorded, not suppressed findings): baseline pass B returned
+`EXHAUSTED` (`fetch failed` / 503 across 12 retries); the canonical recorded B from
+`test/art/scores.json` was used unchanged. Candidate C pass B returned `EXHAUSTED`
+(endpoint unavailable across 12 retries); C is therefore non-decisive and is reported
+with pass A only. Means: baseline 2.50; H 3.33/3.83; L 4.17/3.67; E 3.00/3.50; C 3.00 (A only).
 
-Hypotheses only, carried over from the ceiling probe on a **different** instrument
-(`gemini-3.5-flash-lite`): hue-ramp reached `palette_craft 4/4`; warm-cool lighting
-reached `lighting 4/3` (not validated); edge treatments capped at `3/3` (not validated).
-They are deliberately recorded as hypotheses and must not be reported as results here.
+## 5. Lever verdict (FR-6) — frozen-instrument finding
 
-Fill after scoring:
+Prior hypotheses from the ceiling probe used a **different** instrument
+(`gemini-3.5-flash-lite`): hue-ramp reached `palette_craft 4/4`; warm-cool reached
+`lighting 4/3` (one pass short); edge treatments capped at `3/3` (not validated). They
+were recorded as hypotheses only. The frozen-instrument results are:
 
-- H moved `palette_craft`: __ ; lighting: __ ; edge_language: __
-- L moved `lighting`: __ ; palette_craft: __ ; edge_language: __
-- E moved `edge_language`: __ ; lighting: __ ; palette_craft: __
-- C moved each weak criterion: __
-- Validated levers (all three weak criteria >=3 on **both** passes, floor applies per
-  asset/pass): __
-- Not validated / reasons: __
-- Honest verdict for the publishable gate (mean >=3.5 and no criterion <3): __
+- **H (hue-ramp) — partially validated.** `palette_craft` 2→4/4 and `lighting` 1→4/4,
+  reproducing the hue-ramp hypothesis on this instrument; `edge_language` stays 2 on A
+  (4 on B). Strong palette/lighting support, not an edge fix; a pass-1-only clear is not
+  validation.
+- **L (warm-cool directional light) — VALIDATED primary lever.** The only candidate
+  clearing all three weak criteria on **both** passes: `lighting` 5/4, `edge_language`
+  4/3, `palette_craft` 5/4, with no regression elsewhere (silhouette 3/3, cluster 4/4,
+  value 4/4). This goes beyond the other instrument's 4/3 lighting hypothesis.
+- **E (explicit edge hierarchy) — NOT validated; hypothesis refuted.** `edge_language`
+  is 2/2 (unchanged) and `silhouette` regresses 3→2 on A. Literal silhouette/seam/detail
+  outline treatments do not fix edge_language on the frozen instrument.
+- **C (combination) — NOT validated as an edge fix.** On A, `lighting` 3 and
+  `palette_craft` 3 clear, but `edge_language` stays 2 and `value_separation`/
+  `cluster_discipline` regress by 1. B is unavailable, so no per-pass validation claim.
+- **Corrected insight.** On `gemini-4-hydrogen`, `edge_language` responds to the
+  tonal/material richness produced by warm/cool ramps plus directional light (L), not to
+  literal outline-hierarchy treatments (E). This is a frozen-instrument finding, not a
+  carry-over from the other instrument.
+- **Honest gate verdict.** The diagnostic does not change `test/art/scores.json`: the
+  publishable gate (mean >=3.5 and no criterion <3 on **every** asset/pass) remains
+  **fail**. L is a validated lever on chest only; FR-4/FR-5 still require applying it to
+  the other below-floor v2 assets and re-scoring all 14 passes before any gate claim.
+  Two availability failures are disclosed above; no pass was forced and no score was
+  revised or cherry-picked.
 
-A lever that clears 3 on one pass only is **not** validated. An `edge_language` result of
-exactly 3 is acceptable. No pass may be forced.
+## 6. Exact credentialed-scoring commands (NFR-5)
 
-## 6. Exact credentialed-scoring commands for the primary (NFR-5)
-
-Each `--dry-run` writes nothing. Run with the frozen instrument credential (never print
-the credential).
+These are the ten commands the primary ran with the frozen instrument credential; two
+calls returned `EXHAUSTED` as recorded in §4. Each `--dry-run` writes nothing and the
+credential was never printed.
 
 ```sh
 node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-baseline.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic baseline A"

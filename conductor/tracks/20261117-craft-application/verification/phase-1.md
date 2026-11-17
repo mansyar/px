@@ -5,11 +5,13 @@
 - Date: 2026-11-17
 - Branch: `feat/20261117-craft-application`
 - Base commit: `cd43a51f2a6f716f844847616839c046f9dcf713`
-- Head commit (implementation): `02824ec` — phase work was in the working tree when
-  verification ran on base `cd43a51f2a6f716f844847616839c046f9dcf713`; this evidence file
-  is finalized in a follow-up documentation commit.
-- Result: **blocked** — credentialed scoring is reserved for the primary (NFR-5); all
-  non-credentialed work (FR-1, FR-2, NFR-1, NFR-3, NFR-6, AC-1 artifacts) is complete.
+- Head commit (implementation): `02824ec650f327afe59a081c6761feedb831fe8f` (phase work);
+  `99b2d090356bd07ff1a2d2662f25f2dc64be4f52` recorded the head before scoring completion.
+  Both were cut from base `cd43a51f2a6f716f844847616839c046f9dcf713`; this evidence file is
+  finalized in a follow-up documentation commit after the primary-run scores were appended.
+- Result: **verified** — all T1-T4 work complete; frozen-instrument scores and the lever
+  verdict are recorded in `verification/diagnostic.md` §4-§5 (NFR-5; primary-run dry-run,
+  `test/art/scores.json` untouched).
 
 ## Commands run
 
@@ -29,9 +31,28 @@
 | T3 upscale | `pnpm exec tsx scripts/upscale.mjs .conductor/evidence/craft-application/chest-C.png --out .conductor/evidence/craft-application/chest-C.8x.png --factor 8` | 0 | 384x384 |
 | regression | `pnpm verify` | 0 | typecheck, lint, 119 files / 1028 tests, build all pass; one **pre-existing** `noNonNullAssertion` warning in `test/recipe/version-1-2.test.ts:50` (untouched by this phase) |
 
-Not run (by design): `node scripts/rubric.mjs` — credentialed and primary-only (NFR-5);
-the shell denies `node` and a permission denial is not retryable. Ten exact commands are
-in `verification/diagnostic.md` §6.
+### Primary-run credentialed scoring (NFR-5, reported by the primary)
+
+The subagent did not run `node scripts/rubric.mjs`. The primary ran the ten exact commands
+from `verification/diagnostic.md` §6 with the frozen instrument credential and `--dry-run`;
+stdout was appended to the phase brief. Criterion order: `silhouette / value_separation /
+lighting / edge_language / cluster_discipline / palette_craft`.
+
+| Layer | Command | Exit | Summary |
+|---|---|---:|---|
+| scoring | `node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-baseline.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic baseline A"` | 0 | `3/3/1/2/4/2` — reproduces canonical baseline A exactly |
+| scoring | `node scripts/rubric.mjs --asset chest --pass B --artifact .conductor/evidence/craft-application/chest-baseline.debug.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic baseline B"` | n/a | `EXHAUSTED` (endpoint `fetch failed`/503 across 12 retries); canonical recorded B `3/3/1/2/4/2` used unchanged |
+| scoring | `node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-H.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic hue-ramp A"` | 0 | `3/3/4/2/4/4` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass B --artifact .conductor/evidence/craft-application/chest-H.debug.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic hue-ramp B"` | 0 | `3/4/4/4/4/4` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-L.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic warm-cool A"` | 0 | `3/4/5/4/4/5` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass B --artifact .conductor/evidence/craft-application/chest-L.debug.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic warm-cool B"` | 0 | `3/4/4/3/4/4` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-E.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic edge-hierarchy A"` | 0 | `2/4/3/2/3/4` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass B --artifact .conductor/evidence/craft-application/chest-E.debug.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic edge-hierarchy B"` | 0 | `3/4/4/2/4/4` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass A --artifact .conductor/evidence/craft-application/chest-C.8x.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic combination A"` | 0 | `3/4/3/2/3/3` |
+| scoring | `node scripts/rubric.mjs --asset chest --pass B --artifact .conductor/evidence/craft-application/chest-C.debug.png --model gemini-4-hydrogen --replace --dry-run --note "diagnostic combination B"` | n/a | `EXHAUSTED` (endpoint unavailable across 12 retries); C reported A-only, non-decisive |
+
+Two `EXHAUSTED` calls are availability failures disclosed rather than suppressed findings;
+no rerolls were cherry-picked and no score was revised.
 
 ## Acceptance criteria
 
@@ -39,13 +60,13 @@ in `verification/diagnostic.md` §6.
 |---|---|---|---|
 | FR-1 | 2-3 chest diagnostic candidates using existing ops | `test/art/diagnostic/chest/chest-{H,L,E,C}.px.json`; recipes use only `ascii_blit`, `light`, `auto_outline` | done |
 | FR-2 | Faithful A/B views | `chest-*.8x.png` (pass A) + `chest-*.debug.png` (pass B) for baseline and all 4 candidates; NN factor 8, identical source recipes | done |
-| FR-3 | Frozen-instrument scores with per-criterion deltas | `verification/diagnostic.md` §4 table is `PENDING PRIMARY SCORING`; 10 blocker commands in §6 | blocked |
-| FR-6 | Honest verdict | Hypotheses explicitly separated from results in `verification/diagnostic.md` §5 | blocked (depends on FR-3) |
-| NFR-1 | Frozen instrument only | No rubric invocation; commands specify `--model gemini-4-hydrogen` | done |
+| FR-3 | Frozen-instrument scores with per-criterion deltas | `verification/diagnostic.md` §4: real A/B scores and Δ vs baseline for all candidates; two availability failures disclosed | done |
+| FR-6 | Honest verdict | `verification/diagnostic.md` §5: L validated, H partial, E/C not validated; gate remains fail | done |
+| NFR-1 | Frozen instrument only | Primary-run commands all specify `--model gemini-4-hydrogen`; no other instrument used | done |
 | NFR-3 | No new deps, recipes <~2000 ops | No manifest change; 5-7 ops per recipe | done |
-| NFR-5 | Credentialed scoring human-run, never printed | No credential used or printed; primary-only commands listed | done |
+| NFR-5 | Credentialed scoring primary-run, never printed | Subagent never invoked rubric; primary ran ten `--dry-run` commands with credential never printed | done |
 | NFR-6 | Reproducible evidence | Artifacts + digests in `verification/diagnostic.md` §3; generator script checked in | done |
-| AC-1 | diagnostic.md records >=2 candidates with A/B artifacts and frozen scores vs baseline | 4 candidates with A/B and digests recorded; frozen-score cells pending primary | partial |
+| AC-1 | diagnostic.md records >=2 candidates with A/B artifacts and frozen scores vs baseline | 4 candidates with A/B artifacts, digests and frozen scores vs baseline in `verification/diagnostic.md` | done |
 
 ## Golden hash results
 
@@ -80,6 +101,10 @@ in `verification/diagnostic.md` §6.
 ## Notes
 
 - Ceiling-probe results came from a **different** instrument and are hypotheses only;
-  they were not transferred into any verdict.
-- On re-invocation with the primary's rubric stdout: fill §4/§5 of `diagnostic.md`, set
-  this file's result to `verified`, commit, and report `verified`.
+  they were not transferred into any verdict. The frozen-instrument verdict in
+  `diagnostic.md` §5 is independent and refutes the literal-edge-hierarchy hypothesis.
+- Baseline B and C B were unavailable across 12 retries each; the canonical recorded
+  baseline B was reused unchanged and C is reported A-only as non-decisive.
+- `test/art/scores.json` is unchanged: the publishable gate remains fail. Applying the
+  validated L lever to other v2 assets and re-scoring all 14 passes belong to FR-4/FR-5,
+  outside this phase.
