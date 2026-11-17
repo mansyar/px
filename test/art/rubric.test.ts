@@ -46,6 +46,7 @@ interface AssetRecord {
   asset: string;
   artifact: string;
   passes: Pass[];
+  tiebreak?: Tiebreak[];
 }
 
 interface Failure {
@@ -53,6 +54,13 @@ interface Failure {
   pass: string;
   criterion: string;
   score: number;
+}
+
+interface Tiebreak {
+  party: string;
+  criterion: string;
+  score: number;
+  reason: string;
 }
 
 interface Instrument {
@@ -237,5 +245,25 @@ describe('rubric record', () => {
       .map((failure) => `${failure.asset}/${failure.pass}/${failure.criterion}=${failure.score}`)
       .sort();
     expect(recorded).toEqual(belowFloor);
+  });
+
+  it('only records a tiebreak where the two passes disagree by more than one point', () => {
+    for (const asset of RECORD.assets) {
+      for (const tiebreak of asset.tiebreak ?? []) {
+        const passA = asset.passes.find((pass) => pass.pass === 'A');
+        const passB = asset.passes.find((pass) => pass.pass === 'B');
+        expect(passA, `${asset.asset} needs pass A to adjudicate a tiebreak`).toBeDefined();
+        expect(passB, `${asset.asset} needs pass B to adjudicate a tiebreak`).toBeDefined();
+        const scoreA = passA?.scores[tiebreak.criterion]?.score;
+        const scoreB = passB?.scores[tiebreak.criterion]?.score;
+        expect(scoreA, `${asset.asset}/A/${tiebreak.criterion}`).toBeTypeOf('number');
+        expect(scoreB, `${asset.asset}/B/${tiebreak.criterion}`).toBeTypeOf('number');
+        const delta = Math.abs((scoreA ?? Number.NaN) - (scoreB ?? Number.NaN));
+        expect(
+          delta,
+          `${asset.asset}/${tiebreak.criterion} tiebreak requires a >1-point A/B disagreement`,
+        ).toBeGreaterThan(1);
+      }
+    }
   });
 });

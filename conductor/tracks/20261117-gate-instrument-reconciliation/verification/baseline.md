@@ -17,9 +17,7 @@
 | Asset set | the seven current `test/art/v2/` assets: potion, sword, humanoid, chest, character, prop, scene |
 | Credentials | read in place from the configured vision MCP entry; never printed or written to the repository |
 
-All 14 passes carry `model: "gemini-4-hydrogen"` and `scorer: "vision-model"`. The provider
-returned transient 503 and 429 responses on six calls; retrying those calls with the same
-model succeeded, so the baseline is a single-instrument record. No fallback was invoked.
+All 14 passes carry `model: "gemini-4-hydrogen"` and `scorer: "vision-model"`. Three passes required a retry after transient 503/429 and fetch failures. Retrying those calls with the same model succeeded, so the baseline is a single-instrument record. No fallback was invoked.
 
 ## Verdict
 

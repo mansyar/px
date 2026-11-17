@@ -250,14 +250,6 @@
             }
           }
         }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 2,
-          "reason": "The two passes disagree by two points. The image is flat local colour with no directional cue, which is better than contradictory light (anchor 1) but short of one consistent direction (anchor 3)."
-        }
       ]
     },
     {
@@ -406,20 +398,6 @@
             }
           }
         }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "silhouette",
-          "score": 4,
-          "reason": "The two passes disagree by two points. The helmet, torso, legs and separate sword read as an armed figure in the silhouette panel but the limbs are blocky and partly merge with the body."
-        },
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 3,
-          "reason": "The helmet gradient and blade highlight share an upper-left direction; the torso is flat, so one mass is shaded against it."
-        }
       ]
     },
     {
@@ -493,14 +471,6 @@
               "why": "The four flat hues are broadly plausible for wood, iron, and brass, but there are no value ramps or temperature shifts and the olive-yellow lock feels slightly muddy against the dark brown body."
             }
           }
-        }
-      ],
-      "tiebreak": [
-        {
-          "party": "human",
-          "criterion": "lighting",
-          "score": 2,
-          "reason": "The two passes disagree by two points. Straps and bands are flat blocks with no consistent directional cue, but nothing contradicts itself, so it sits between the 1 and 3 anchors."
         }
       ]
     },

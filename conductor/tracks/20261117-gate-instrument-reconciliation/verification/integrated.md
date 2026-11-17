@@ -30,7 +30,7 @@
 ## Cross-phase invariants
 
 - **Gate contract:** publishable mean >= 3.5 and no criterion below 3 is the binding shipping gate; exceptional 4.0 remains documented unreachable and no future criterion fails solely because of it.
-- **Instrument:** all 14 passes use `scripts/rubric.mjs` with `gemini-4-hydrogen`; `gemini-3.5-flash-lite` is recorded as fallback but was not used. Three transient 503/429 failures were retried with the same model, not papered over with a mixed instrument.
+- **Instrument:** all 14 passes use `scripts/rubric.mjs` with `gemini-4-hydrogen`; `gemini-3.5-flash-lite` is recorded as fallback but was not used. Three passes required a retry after transient 503/429 and fetch failures. The retries used the same model and were not papered over with a mixed instrument.
 - **Provenance:** `scores-before-intent.json` (3.69) and `scores-agent-vision.json` (3.39) are byte-identical to their originals; `scores.json` is the new baseline.
 - **No engine change:** no render, lint, palette, CLI or MCP code changed; no recipe, PNG or digest changed; no dependency added.
 - **Coverage vs performance:** wall-clock NFR-7 is measured uninstrumented by `pnpm verify`; coverage excludes only the benchmarks project, with unchanged thresholds and no new ignore comment.
