@@ -2,7 +2,7 @@
 
 > **Requirements are stable. Once an `FR`, `NFR`, or `AC` ID is approved, do not renumber it. If a requirement is removed, mark it `Withdrawn` instead of deleting it.**
 
-> **Amended 2026-11-17, no IDs changed.** NFR-3 and AC-12 name `pnpm vitest run --coverage`. During Phase 2 that command was replaced by `pnpm coverage`, which runs the same v8 coverage provider and the same 80% thresholds over the same included files but omits the benchmarks project because v8 instrumentation inflates the wall-clock NFR-7 measurement. NFR-7 remains enforced uninstrumented by `pnpm verify`. The coverage gate is unchanged in scope and strength; only its command name moved.
+> **Amended 2026-11-17, no IDs changed.** NFR-3 and AC-12 name `pnpm vitest run --coverage`. During Phase 2 that command was replaced by an equivalent explicit invocation, `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`, which uses the same v8 provider and the same 80% thresholds over the same included files but omits the benchmarks project because v8 instrumentation inflates the wall-clock NFR-7 measurement. NFR-7 remains enforced uninstrumented by `pnpm verify`. The coverage gate is unchanged in scope and strength; only its command moved, and no package manifest or lockfile changed.
 
 ## Overview
 

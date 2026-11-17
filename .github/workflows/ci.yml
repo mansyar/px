@@ -31,7 +31,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - name: Coverage gate
-        run: pnpm coverage
+        run: pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens
       - run: pnpm build
       - name: Determinism (golden hashes)
         run: pnpm vitest run --project goldens

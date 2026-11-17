@@ -21,7 +21,7 @@ commands:
   setup: "pnpm install"
   dev: "pnpm exec tsx src/cli.ts"
   test: "pnpm vitest run"
-  coverage: "pnpm coverage"
+  coverage: "pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens"
   lint: "pnpm biome check ."
   format: "pnpm biome check --write ."
   typecheck: "pnpm exec tsc --noEmit"
@@ -33,7 +33,7 @@ coverage:
   # A separate step, deliberately NOT part of `pnpm verify`.
   # verify stays fast and safe during task-level iteration; coverage is a
   # gate at phase acceptance and in CI.
-  # Dated note 2026-11-17: `pnpm coverage` scopes to the unit, integration,
+  # Dated note 2026-11-17: this command scopes to the unit, integration,
   # smoke and goldens projects. The benchmarks project is excluded because v8
   # instrumentation adds ~400 ms to the wall-clock NFR-7 measurement, which
   # made a passing 121 ms uninstrumented render read as >500 ms under coverage.
