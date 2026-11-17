@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, FR-3, NFR-1, NFR-5, NFR-6, AC-1
 - **Touches:** `test/art/diagnostic/**`, `conductor/tracks/20261117-craft-application/verification/diagnostic.md`
 - **Verification:** `node scripts/rubric-report.mjs --asset chest --below 3` plus inspection of `conductor/tracks/20261117-craft-application/verification/diagnostic.md` for A/B artifact paths and the score table
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Capture chest baseline evidence** — covers: FR-2, FR-3
   - [ ] **P1.T1.1:** Render pass A (8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) for baseline chest into `test/art/diagnostic/chest/baseline/`
@@ -44,7 +44,7 @@ The primary appends after acceptance:
 - **Covers:** FR-4, FR-5, FR-7, NFR-2, NFR-3, NFR-4, AC-2, AC-3, AC-5, AC-6
 - **Touches:** `test/art/v2/**/*.px.json`, `test/art/scores.json`, `conductor/tracks/20261117-craft-application/verification/asset-digests.md`
 - **Verification:** `pnpm verify` && `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` && `node scripts/rubric-report.mjs`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Select levers with evidence** — covers: FR-4, AC-2
   - [ ] **P2.T1.1:** Map each below-floor asset/pass to the validated lever addressing its failing criteria; record in `verification/lever-selection.md`
@@ -73,7 +73,7 @@ The primary appends after acceptance:
 - **Covers:** FR-6, AC-4
 - **Touches:** `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` plus inspection of `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Read recomputed verdict** — covers: FR-6
   - [ ] **P3.T1.1:** Record mean, threshold, and floor failures from the `scores.json` verdict
@@ -91,7 +91,7 @@ Review fixes are appended by `conductor-review` as:
 - **Covers:** review findings
 - **Touches:** ...
 - **Verification:** ...
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
 -->
