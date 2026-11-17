@@ -38,9 +38,12 @@
   },
   "palette": {
     "brass": {
-      "derive": {
-        "base": "#dbae42",
-        "stops": 5
+      "ramp": {
+        "t0": "#fff6d0",
+        "t1": "#f7e79a",
+        "t2": "#e2d636",
+        "t3": "#b3b618",
+        "t4": "#6b750f"
       }
     },
     "ink": {
@@ -49,21 +52,30 @@
       }
     },
     "leather": {
-      "derive": {
-        "base": "#744e33",
-        "stops": 5
+      "ramp": {
+        "t0": "#c6ad70",
+        "t1": "#ad7c43",
+        "t2": "#7c4b2e",
+        "t3": "#4a231a",
+        "t4": "#170808"
       }
     },
     "ruby": {
-      "derive": {
-        "base": "#000000",
-        "stops": 5
+      "ramp": {
+        "t0": "#ff9e90",
+        "t1": "#d85448",
+        "t2": "#5a1018",
+        "t3": "#3a0a12",
+        "t4": "#1e0509"
       }
     },
     "steel": {
-      "derive": {
-        "base": "#c7d3e0",
-        "stops": 5
+      "ramp": {
+        "t0": "#d6e6ea",
+        "t1": "#b8d0dc",
+        "t2": "#99b7cf",
+        "t3": "#7999c2",
+        "t4": "#5978b5"
       }
     }
   },
@@ -345,13 +357,19 @@
           }
         },
         {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
+        },
+        {
           "op": "auto_outline",
           "mode": "4-way",
           "where": "outer",
           "color": "ink.outline"
-        },
-        {
-          "op": "harmonize"
         }
       ]
     }

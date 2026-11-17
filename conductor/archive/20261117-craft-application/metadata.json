@@ -1,0 +1,31 @@
+{
+  "id": "20261117-craft-application",
+  "title": "Craft Application",
+  "type": "feature",
+  "status": "complete",
+  "priority": "high",
+  "depends_on": [],
+  "created_at": "2026-11-17T09:51:12Z",
+  "updated_at": "2026-11-18T01:20:00Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261117-craft-application",
+  "base_branch": "main",
+  "base_sha": "b0ea365ba1862fe387e172e420b2672400e65d0b",
+  "progress": {
+    "phases_total": 3,
+    "phases_verified": 3,
+    "tasks_total": 10,
+    "tasks_done": 10
+  },
+  "last_checkpoint": "35057b2",
+  "review_verdict": "PASS",
+  "review_rounds": 1,
+  "doc_sync": "updated — tech-stack.md dated note 2026-11-18 records user-authorized instrument-of-record switch; review.md post-review sync done; product.md/guidelines unchanged; spec frozen",
+  "pr_url": "https://github.com/mansyar/px/pull/13",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": "2026-11-18T01:20:00Z",
+  "archive_path": "conductor/archive/20261117-craft-application"
+}

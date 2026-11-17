@@ -207,13 +207,19 @@
           }
         },
         {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
+        },
+        {
           "op": "auto_outline",
           "mode": "4-way",
           "where": "outer",
           "color": "ink.outline"
-        },
-        {
-          "op": "harmonize"
         }
       ]
     }

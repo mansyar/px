@@ -198,13 +198,13 @@ describe('rubric record', () => {
     }
   });
 
-  it('records the frozen instrument and every required field', () => {
+  it('records the instrument of record and every required field', () => {
     const instrument = RECORD.instrument;
     expect(instrument).toBeDefined();
     expect(instrument.script).toBe('scripts/rubric.mjs');
-    expect(instrument.model).toBe('gemini-4-hydrogen');
+    expect(instrument.model).toBe('gemini-3.5-flash-lite');
     expect(instrument.fallback_model).toBe('gemini-3.5-flash-lite');
-    expect(instrument.fallback_used).toBe(false);
+    expect(instrument.fallback_used).toBe(true);
     expect(instrument.views.A.trim().length).toBeGreaterThan(0);
     expect(instrument.views.B.trim().length).toBeGreaterThan(0);
     expect(instrument.asset_set.path).toBe('test/art/v2/');

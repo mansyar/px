@@ -63,51 +63,75 @@
   },
   "palette": {
     "arm": {
-      "derive": {
-        "base": "#b1bbc6",
-        "stops": 5
+      "ramp": {
+        "t0": "#dae4e6",
+        "t1": "#b8c8d0",
+        "t2": "#94aabb",
+        "t3": "#7088a7",
+        "t4": "#53668b"
       }
     },
     "blade": {
-      "derive": {
-        "base": "#c7d4e2",
-        "stops": 5
+      "ramp": {
+        "t0": "#d5e7eb",
+        "t1": "#b7d1de",
+        "t2": "#97b8d1",
+        "t3": "#779ac5",
+        "t4": "#5677ba"
       }
     },
     "boss": {
-      "derive": {
-        "base": "#dcae49",
-        "stops": 5
+      "ramp": {
+        "t0": "#f5e7bf",
+        "t1": "#ebd97f",
+        "t2": "#e3d53d",
+        "t3": "#bcbd19",
+        "t4": "#737c10"
       }
     },
     "boot": {
-      "derive": {
-        "base": "#543d26",
-        "stops": 5
+      "ramp": {
+        "t0": "#b89e51",
+        "t1": "#946f3b",
+        "t2": "#6b4529",
+        "t3": "#412318",
+        "t4": "#170908"
       }
     },
     "gorget": {
-      "derive": {
-        "base": "#b3bbc4",
-        "stops": 5
+      "ramp": {
+        "t0": "#dbe3e5",
+        "t1": "#b9c7cf",
+        "t2": "#97a9b9",
+        "t3": "#7389a4",
+        "t4": "#566788"
       }
     },
     "grip": {
-      "derive": {
-        "base": "#5b3d28",
-        "stops": 5
+      "ramp": {
+        "t0": "#bc9e56",
+        "t1": "#9a6e3b",
+        "t2": "#6f4229",
+        "t3": "#432018",
+        "t4": "#170808"
       }
     },
     "helm": {
-      "derive": {
-        "base": "#cbd3db",
-        "stops": 5
+      "ramp": {
+        "t0": "#dae4e7",
+        "t1": "#bdcfd6",
+        "t2": "#a0b6c6",
+        "t3": "#839ab7",
+        "t4": "#657ba8"
       }
     },
     "hilt": {
-      "derive": {
-        "base": "#e1ca98",
-        "stops": 5
+      "ramp": {
+        "t0": "#f2e9ce",
+        "t1": "#e8dca1",
+        "t2": "#ded572",
+        "t3": "#d5d543",
+        "t4": "#acb927"
       }
     },
     "ink": {
@@ -116,33 +140,48 @@
       }
     },
     "leg": {
-      "derive": {
-        "base": "#b1bbc6",
-        "stops": 5
+      "ramp": {
+        "t0": "#dae4e6",
+        "t1": "#b8c8d0",
+        "t2": "#94aabb",
+        "t3": "#7088a7",
+        "t4": "#53668b"
       }
     },
     "pauldron": {
-      "derive": {
-        "base": "#eff1f4",
-        "stops": 5
+      "ramp": {
+        "t0": "#dae3e7",
+        "t1": "#c7d4dc",
+        "t2": "#b3c3d2",
+        "t3": "#a0b1c8",
+        "t4": "#8b9cbf"
       }
     },
     "plume": {
-      "derive": {
-        "base": "#91272d",
-        "stops": 5
+      "ramp": {
+        "t0": "#dc866b",
+        "t1": "#ce3a2f",
+        "t2": "#93202c",
+        "t3": "#571225",
+        "t4": "#1a050f"
       }
     },
     "shield": {
-      "derive": {
-        "base": "#030101",
-        "stops": 5
+      "ramp": {
+        "t0": "#713a22",
+        "t1": "#5c221a",
+        "t2": "#461316",
+        "t3": "#2f0c14",
+        "t4": "#18060d"
       }
     },
     "torso": {
-      "derive": {
-        "base": "#002121",
-        "stops": 5
+      "ramp": {
+        "t0": "#00b07b",
+        "t1": "#008c7a",
+        "t2": "#006267",
+        "t3": "#003443",
+        "t4": "#00121f"
       }
     }
   },
@@ -2104,6 +2143,15 @@
             "h": "boss.t0",
             "b": "boss.t2"
           }
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
         },
         {
           "op": "auto_outline",

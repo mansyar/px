@@ -60,27 +60,39 @@
   },
   "palette": {
     "beam": {
-      "derive": {
-        "base": "#f3e6dc",
-        "stops": 5
+      "ramp": {
+        "t0": "#f1e8d0",
+        "t1": "#e9d2b5",
+        "t2": "#e2b599",
+        "t3": "#dc917d",
+        "t4": "#d66460"
       }
     },
     "bucket": {
-      "derive": {
-        "base": "#563b22",
-        "stops": 5
+      "ramp": {
+        "t0": "#bea149",
+        "t1": "#986f34",
+        "t2": "#6e4324",
+        "t3": "#432115",
+        "t4": "#170807"
       }
     },
     "grass": {
-      "derive": {
-        "base": "#000000",
-        "stops": 5
+      "ramp": {
+        "t0": "#4a4645",
+        "t1": "#3d3736",
+        "t2": "#2e2829",
+        "t3": "#201b1c",
+        "t4": "#110e0f"
       }
     },
     "ground": {
-      "derive": {
-        "base": "#784926",
-        "stops": 5
+      "ramp": {
+        "t0": "#d1b15c",
+        "t1": "#b87c32",
+        "t2": "#844722",
+        "t3": "#4f1f13",
+        "t4": "#190606"
       }
     },
     "ink": {
@@ -89,51 +101,75 @@
       }
     },
     "post": {
-      "derive": {
-        "base": "#000000",
-        "stops": 5
+      "ramp": {
+        "t0": "#4a4645",
+        "t1": "#3d3736",
+        "t2": "#2e2829",
+        "t3": "#201b1c",
+        "t4": "#110e0f"
       }
     },
     "rim": {
-      "derive": {
-        "base": "#d3d9de",
-        "stops": 5
+      "ramp": {
+        "t0": "#dbe4e6",
+        "t1": "#c1d0d6",
+        "t2": "#a7b9c6",
+        "t3": "#8c9fb6",
+        "t4": "#7083a8"
       }
     },
     "roof_left": {
-      "derive": {
-        "base": "#d0905d",
-        "stops": 5
+      "ramp": {
+        "t0": "#f1e7ca",
+        "t1": "#e3bf8f",
+        "t2": "#d68652",
+        "t3": "#b54728",
+        "t4": "#7a1e1a"
       }
     },
     "roof_right": {
-      "derive": {
-        "base": "#dcb18e",
-        "stops": 5
+      "ramp": {
+        "t0": "#f2e9cf",
+        "t1": "#e6c89f",
+        "t2": "#db996e",
+        "t3": "#d05e3d",
+        "t4": "#aa2d27"
       }
     },
     "rope": {
-      "derive": {
-        "base": "#decfaf",
-        "stops": 5
+      "ramp": {
+        "t0": "#eee7d2",
+        "t1": "#e1d8ac",
+        "t2": "#d5ce85",
+        "t3": "#c9c95e",
+        "t4": "#afb93b"
       }
     },
     "stone": {
-      "derive": {
-        "base": "#b1bac1",
-        "stops": 5
+      "ramp": {
+        "t0": "#dce4e5",
+        "t1": "#b9c8ce",
+        "t2": "#96aab7",
+        "t3": "#7288a1",
+        "t4": "#556584"
       }
     },
     "wall": {
-      "derive": {
-        "base": "#b3bbc3",
-        "stops": 5
+      "ramp": {
+        "t0": "#dce3e5",
+        "t1": "#bac8ce",
+        "t2": "#97aab8",
+        "t3": "#7389a2",
+        "t4": "#566687"
       }
     },
     "water": {
-      "derive": {
-        "base": "#1c4054",
-        "stops": 5
+      "ramp": {
+        "t0": "#3bbcc4",
+        "t1": "#2c839b",
+        "t2": "#1f5370",
+        "t3": "#122b45",
+        "t4": "#060c18"
       }
     }
   },
@@ -3500,6 +3536,15 @@
             "h": "rope.t0",
             "b": "rope.t2"
           }
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
         },
         {
           "op": "auto_outline",
