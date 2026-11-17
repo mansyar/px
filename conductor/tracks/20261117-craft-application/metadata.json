@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-17T09:51:12Z",
-  "updated_at": "2026-11-17T11:56:04Z",
+  "updated_at": "2026-11-18T00:30:00Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261117-craft-application",
@@ -14,11 +14,11 @@
   "base_sha": "b0ea365ba1862fe387e172e420b2672400e65d0b",
   "progress": {
     "phases_total": 3,
-    "phases_verified": 1,
+    "phases_verified": 2,
     "tasks_total": 10,
-    "tasks_done": 4
+    "tasks_done": 8
   },
-  "last_checkpoint": "fa0e530",
+  "last_checkpoint": "2b6a7d8",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",

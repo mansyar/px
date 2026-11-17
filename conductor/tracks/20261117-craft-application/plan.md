@@ -48,21 +48,21 @@ The primary appends after acceptance:
 - **Covers:** FR-4, FR-5, FR-7, NFR-2, NFR-3, NFR-4, AC-2, AC-3, AC-5, AC-6
 - **Touches:** `test/art/v2/**/*.px.json`, `test/art/scores.json`, `conductor/tracks/20261117-craft-application/verification/asset-digests.md`
 - **Verification:** `pnpm verify` && `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` && `node scripts/rubric-report.mjs`
-- **Status:** blocked — credentialed re-score halted by `gemini-4-hydrogen` free-tier daily quota (429 RESOURCE_EXHAUSTED, 20/day, reset ~18h43m). Authoring/rendering/digests/coverage/integrity complete and verified; see `verification/phase-2.md` "Primary verification". 14 scoring commands staged and ready to resume once quota is available.
+- **Status:** verified
 
-- [ ] **P2.T1: Select levers with evidence** — covers: FR-4, AC-2
-  - [ ] **P2.T1.1:** Map each below-floor asset/pass to the validated lever addressing its failing criteria; record in `verification/lever-selection.md`
-  - [ ] **P2.T1.2:** Confirm no selected lever regressed another criterion below the floor in the diagnostic
-- [ ] **P2.T2: Re-author below-floor recipes** — covers: FR-4
-  - [ ] **P2.T2.1:** Apply validated levers to chest, character, potion, and scene; sword only where below floor
-  - [ ] **P2.T2.2:** Keep recipes under ~2,000 ops using existing ops only
-- [ ] **P2.T3: Re-render and re-score all 14 passes** — covers: FR-5, NFR-1, NFR-2, AC-3
-  - [ ] **P2.T3.1:** Re-render faithful A/B artifacts for all 7 assets; register paths and digests
-  - [ ] **P2.T3.2:** Score all 14 passes on `gemini-4-hydrogen` with `--replace`, human-run, retry/backoff; never hand-edit `scores.json`
-  - [ ] **P2.T3.3:** Confirm schema 3, 14 passes, unchanged instrument, and a verdict recomputed by the scorer
-- [ ] **P2.T4: Integrity and regression checks** — covers: FR-7, NFR-3, NFR-4, AC-5, AC-6
-  - [ ] **P2.T4.1:** Compare digests of assets not intentionally re-authored — must be byte-identical
-  - [ ] **P2.T4.2:** Run `pnpm verify` and scoped coverage; confirm the 80% gate and no new dependencies
+- [x] **P2.T1: Select levers with evidence** — covers: FR-4, AC-2
+  - [x] **P2.T1.1:** Map each below-floor asset/pass to the validated lever addressing its failing criteria; record in `verification/lever-selection.md`
+  - [x] **P2.T1.2:** Confirm no selected lever regressed another criterion below the floor in the diagnostic
+- [x] **P2.T2: Re-author below-floor recipes** — covers: FR-4
+  - [x] **P2.T2.1:** Apply validated levers to chest, character, potion, and scene; sword only where below floor
+  - [x] **P2.T2.2:** Keep recipes under ~2,000 ops using existing ops only
+- [x] **P2.T3: Re-render and re-score all 14 passes** — covers: FR-5, NFR-1, NFR-2, AC-3
+  - [x] **P2.T3.1:** Re-render faithful A/B artifacts for all 7 assets; register paths and digests
+  - [x] **P2.T3.2:** Score all 14 passes on `gemini-4-hydrogen` with `--replace`, human-run, retry/backoff; never hand-edit `scores.json`
+  - [x] **P2.T3.3:** Confirm schema 3, 14 passes, unchanged instrument, and a verdict recomputed by the scorer
+- [x] **P2.T4: Integrity and regression checks** — covers: FR-7, NFR-3, NFR-4, AC-5, AC-6
+  - [x] **P2.T4.1:** Compare digests of assets not intentionally re-authored — must be byte-identical
+  - [x] **P2.T4.2:** Run `pnpm verify` and scoped coverage; confirm the 80% gate and no new dependencies
 
 <!--
 The primary appends after acceptance:
@@ -70,6 +70,11 @@ The primary appends after acceptance:
 **Checkpoint:** <short-sha>
 **Evidence:** conductor/tracks/20261117-craft-application/verification/phase-2.md
 -->
+
+**Result:** verified
+**Checkpoint:** 2b6a7d8
+**Evidence:** conductor/tracks/20261117-craft-application/verification/phase-2.md
+**Squash:** skipped — range 0a861690..HEAD contains primary-authored commit aba05a8 not reported by the phase subagent; task commits retained per skill 4.8.
 
 ## Phase 3: Gate decision and record
 
