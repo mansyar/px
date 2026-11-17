@@ -55,8 +55,20 @@ interface Failure {
   score: number;
 }
 
+interface Instrument {
+  script: string;
+  model: string;
+  fallback_model: string;
+  fallback_used: boolean;
+  views: { A: string; B: string };
+  asset_set: { path: string; assets: string[] };
+  date: string;
+  gate: string;
+}
+
 interface ScoreRecord {
   schema: number;
+  instrument: Instrument;
   criteria: string[];
   verdict: {
     result: 'pass' | 'fail';
@@ -176,6 +188,27 @@ describe('rubric record', () => {
         expect(pass.model?.trim().length ?? 0, `${asset.asset} ${pass.pass}`).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('records the frozen instrument and every required field', () => {
+    const instrument = RECORD.instrument;
+    expect(instrument).toBeDefined();
+    expect(instrument.script).toBe('scripts/rubric.mjs');
+    expect(instrument.model).toBe('gemini-4-hydrogen');
+    expect(instrument.fallback_model).toBe('gemini-3.5-flash-lite');
+    expect(instrument.fallback_used).toBe(false);
+    expect(instrument.views.A.trim().length).toBeGreaterThan(0);
+    expect(instrument.views.B.trim().length).toBeGreaterThan(0);
+    expect(instrument.asset_set.path).toBe('test/art/v2/');
+    expect([...instrument.asset_set.assets].sort()).toEqual([...ASSETS].sort());
+    expect(instrument.date).toBe('2026-11-17');
+    expect(instrument.gate).toBe('publishable 3.5/3.0');
+  });
+
+  it('writes no credential-shaped value into the repository record', () => {
+    const serialized = JSON.stringify(RECORD);
+    const credential = /(?:AIza[0-9A-Za-z_-]{20,}|sk-[A-Za-z0-9_-]{20,}|[A-Za-z0-9+/]{40,}={0,2})/;
+    expect(credential.test(serialized)).toBe(false);
   });
 
   it('marks agent passes as self-review and declares the verdict basis it implies', () => {

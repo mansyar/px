@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Heavy tests (scoring-artifact generation, timed benchmarks) must not
+    // contend for CPU across projects; run test files one at a time globally.
+    fileParallelism: false,
     projects: [
       {
         test: {
