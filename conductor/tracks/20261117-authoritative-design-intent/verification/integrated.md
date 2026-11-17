@@ -2,14 +2,14 @@
 
 Branch: `feat/20261117-authoritative-design-intent`
 Base: `main @ 77de1e56d5c88c976a13f43d9677b22addaa09d6` (ancestor of HEAD: yes)
-Head at verification: `cfe6677`
+Head at verification: `d469249` (after Phase R1 and post-review doc sync)
 
 ## Gates at HEAD
 
 | Check | Result |
 |---|---|
-| `pnpm verify` | exit 0 — typecheck, Biome, 117 files / 1012 tests, build |
-| `pnpm vitest run --coverage` | exit 0 — statements 94.88%, branches 85.70%, functions 98.34%, lines 94.66% (80% gate) |
+| `pnpm verify` | exit 0 — typecheck, Biome, 119 files / 1024 tests, build |
+| `pnpm vitest run --coverage` | exit 0 — statements 95.09%, branches 85.89%, functions 98.51%, lines 94.87% (80% gate, enlarged include list) |
 | `pnpm vitest run --project goldens --project smoke` | exit 0 — 3 files / 11 tests |
 | Production dependencies | exactly one: `@modelcontextprotocol/sdk@1.32.2` |
 | Performance | 2,000 ops at 256x256 with `light` and `harmonize`: 121.4 ms median of five, budget 500 ms |
@@ -25,8 +25,9 @@ Head at verification: `cfe6677`
 | 4 Critique and Fix | `b90cd20` | verified |
 | 5 Re-authoring the Seven Assets | `bc25828` | verified |
 | 6 Re-scoring, Budget and Evidence | `c888977` | delivered; **AC-14 failed** |
+| R1 Review Fixes | `7bc868d` | verified — coverage scope and rationale fixed |
 
-All six checkpoint objects exist and are ancestors of HEAD.
+All seven checkpoint objects exist and are ancestors of HEAD.
 
 ## Cross-phase invariants
 
@@ -37,7 +38,9 @@ All six checkpoint objects exist and are ancestors of HEAD.
   `performance.test.ts`, which adds the heavier budget case.
 - No new runtime dependency; OKLCH, intent parsing, critique and upscaling are
   hand-written or local.
-- No coverage threshold lowered, no exclude widened, no `v8 ignore` added.
+- No coverage threshold lowered, no exclude widened, no `v8 ignore` added. The
+  R1 fix added `src/brief/**`, `src/critique/**` and `src/render/views.ts` to
+  the include list; each is above 80% statements and branches.
 - All new tools (`px_brief`, `px_critique`, `px_fix`) are registered in the same
   commit as their CLI verbs, with bidirectional reachability in
   `test/mcp/reachability.test.ts`; the smoke test pins eleven MCP tools.
@@ -71,5 +74,14 @@ no anchor or bar was changed, and no reroll was attempted.
 - `serialize.ts` remains the weakest file by branch coverage; no coverage was
   excluded to hide it.
 
-Verdict: implementation and budgets are ready for review; the quality criterion
+## Review outcome
+
+Round 1 returned BLOCK with one High (coverage scope) and one Low (critique
+rationale). Both were fixed in `7bc868d` and round 2 returned **PASS** with no
+findings. The reviewer confirmed the new modules are measured by an unlowered
+gate with behavioural tests, no digest or score moved, and all 44 FR/NFR/AC IDs
+are covered except AC-14, which remains an honestly recorded failure accepted
+by directive rather than a review block.
+
+Verdict: implementation, budgets and review are complete; the quality criterion
 AC-14 is recorded as failed and must not be reported as passing.
