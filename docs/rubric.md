@@ -173,6 +173,20 @@ tier to be arithmetically reachable and each target to clear its floor, and
 requires an unreachable exceptional tier to be declared with dated evidence — so
 either tier can only drift if someone edits this table knowingly.
 
+### Shipping gate decision (2026-11-17)
+
+Owner decision dated **2026-11-17**: the **publishable** tier — a mean ≥ 3.5 with a
+per-criterion floor of 3.0 — is the binding shipping gate for this project. A track
+meets the quality bar only when the recorded mean clears 3.5 and no criterion on any
+asset or pass falls below 3. The **exceptional** 4.0 tier remains documented as
+**unreachable** on the 2026-11-13 calibration evidence (see *Calibration* and
+*Ceiling probes*); it is an aspiration, never by itself a track-failing criterion,
+and no future acceptance criterion may fail solely because a record does not reach
+4.0. All future track acceptance criteria must use the publishable gate (mean ≥
+3.5, floor ≥ 3.0). Archived tracks keep the numbers and criteria they were reviewed
+with and are not edited; this decision governs criteria written from 2026-11-17
+onward.
+
 ## Calibration
 
 Calibrated 2026-11-13 on `gemini-3.5-flash-lite`, over the chest

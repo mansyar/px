@@ -14,8 +14,8 @@
   "verdict": {
     "result": "fail",
     "mean": 3.39,
-    "threshold_mean": 4,
-    "min_allowed": 3,
+    "threshold_mean": 3.5,
+    "min_allowed": 3.0,
     "failures": [
       { "asset": "chest", "pass": "A", "criterion": "value_separation", "score": 2 },
       { "asset": "chest", "pass": "A", "criterion": "lighting", "score": 1 },
