@@ -14,22 +14,22 @@
 - **Covers:** FR-1, FR-2, FR-3, NFR-1, NFR-5, NFR-6, AC-1
 - **Touches:** `test/art/diagnostic/**`, `conductor/tracks/20261117-craft-application/verification/diagnostic.md`
 - **Verification:** `node scripts/rubric-report.mjs --asset chest --below 3` plus inspection of `conductor/tracks/20261117-craft-application/verification/diagnostic.md` for A/B artifact paths and the score table
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Capture chest baseline evidence** — covers: FR-2, FR-3
-  - [ ] **P1.T1.1:** Render pass A (8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) for baseline chest into `test/art/diagnostic/chest/baseline/`
-  - [ ] **P1.T1.2:** Record baseline digests and the 12 frozen criterion scores in `verification/diagnostic.md`
-- [ ] **P1.T2: Build 2–3 chest diagnostic candidates** — covers: FR-1
-  - [ ] **P1.T2.1:** Candidate H — hue-ramp palette (`derive-ramps` / `harmonize`)
-  - [ ] **P1.T2.2:** Candidate L — warm-cool directional light (`light` + `ramp_fill` / `auto_shade`)
-  - [ ] **P1.T2.3:** Candidate E — deliberate edge hierarchy (`intent-edges`)
-  - [ ] **P1.T2.4:** Candidate C — combination of the promising treatments
-- [ ] **P1.T3: Render and score all candidates on the frozen instrument** — covers: FR-2, FR-3
-  - [ ] **P1.T3.1:** Render faithful A/B artifacts for each candidate and verify digests
-  - [ ] **P1.T3.2:** Human-run `PX_RUBRIC_CREDENTIALS=~/.config/opencode/opencode.json node scripts/rubric.mjs --asset chest --pass <A|B> --artifact <path> --model gemini-4-hydrogen --replace --note "diagnostic <candidate>"` (retry 503/429; never switch instrument or print the key)
-  - [ ] **P1.T3.3:** Tabulate per-criterion deltas against the baseline; flag levers reaching ≥3 on both passes and any regressions
-- [ ] **P1.T4: Record diagnostic conclusion** — covers: FR-3, AC-1
-  - [ ] **P1.T4.1:** Write `verification/diagnostic.md` with candidates, A/B artifact paths, score table, and lever verdict
+- [x] **P1.T1: Capture chest baseline evidence** — covers: FR-2, FR-3
+  - [x] **P1.T1.1:** Render pass A (8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) for baseline chest into `test/art/diagnostic/chest/baseline/`
+  - [x] **P1.T1.2:** Record baseline digests and the 12 frozen criterion scores in `verification/diagnostic.md`
+- [x] **P1.T2: Build 2–3 chest diagnostic candidates** — covers: FR-1
+  - [x] **P1.T2.1:** Candidate H — hue-ramp palette (`derive-ramps` / `harmonize`)
+  - [x] **P1.T2.2:** Candidate L — warm-cool directional light (`light` + `ramp_fill` / `auto_shade`)
+  - [x] **P1.T2.3:** Candidate E — deliberate edge hierarchy (`intent-edges`)
+  - [x] **P1.T2.4:** Candidate C — combination of the promising treatments
+- [x] **P1.T3: Render and score all candidates on the frozen instrument** — covers: FR-2, FR-3
+  - [x] **P1.T3.1:** Render faithful A/B artifacts for each candidate and verify digests
+  - [x] **P1.T3.2:** Human-run `PX_RUBRIC_CREDENTIALS=~/.config/opencode/opencode.json node scripts/rubric.mjs --asset chest --pass <A|B> --artifact <path> --model gemini-4-hydrogen --replace --note "diagnostic <candidate>"` (retry 503/429; never switch instrument or print the key)
+  - [x] **P1.T3.3:** Tabulate per-criterion deltas against the baseline; flag levers reaching ≥3 on both passes and any regressions
+- [x] **P1.T4: Record diagnostic conclusion** — covers: FR-3, AC-1
+  - [x] **P1.T4.1:** Write `verification/diagnostic.md` with candidates, A/B artifact paths, score table, and lever verdict
 
 <!--
 The primary appends after acceptance:
@@ -38,13 +38,17 @@ The primary appends after acceptance:
 **Evidence:** conductor/tracks/20261117-craft-application/verification/phase-1.md
 -->
 
+**Result:** verified
+**Checkpoint:** fa0e530
+**Evidence:** conductor/tracks/20261117-craft-application/verification/phase-1.md
+
 ## Phase 2: Apply validated levers and re-score the gate
 
 - **Depends on:** Phase 1
 - **Covers:** FR-4, FR-5, FR-7, NFR-2, NFR-3, NFR-4, AC-2, AC-3, AC-5, AC-6
 - **Touches:** `test/art/v2/**/*.px.json`, `test/art/scores.json`, `conductor/tracks/20261117-craft-application/verification/asset-digests.md`
 - **Verification:** `pnpm verify` && `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` && `node scripts/rubric-report.mjs`
-- **Status:** in_progress
+- **Status:** pending
 
 - [ ] **P2.T1: Select levers with evidence** — covers: FR-4, AC-2
   - [ ] **P2.T1.1:** Map each below-floor asset/pass to the validated lever addressing its failing criteria; record in `verification/lever-selection.md`
@@ -73,7 +77,7 @@ The primary appends after acceptance:
 - **Covers:** FR-6, AC-4
 - **Touches:** `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` plus inspection of `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
-- **Status:** in_progress
+- **Status:** pending
 
 - [ ] **P3.T1: Read recomputed verdict** — covers: FR-6
   - [ ] **P3.T1.1:** Record mean, threshold, and floor failures from the `scores.json` verdict
@@ -91,7 +95,7 @@ Review fixes are appended by `conductor-review` as:
 - **Covers:** review findings
 - **Touches:** ...
 - **Verification:** ...
-- **Status:** in_progress
+- **Status:** pending
 
 - [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
 -->
