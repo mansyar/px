@@ -18,7 +18,7 @@
   - [ ] **P1.T1.1:** Add a dated decision to `docs/rubric.md` making mean ≥ 3.5 / floor ≥ 3.0 the shipping gate and stating that the 4.0 exceptional tier is unreachable and not a track-failing criterion.
   - [ ] **P1.T1.2:** State that future track acceptance criteria must use the publishable gate; do not edit archived specs.
 - [ ] **P1.T2: Enforce the gate contract in tests** — covers: FR-2, NFR-5, AC-2
-  - [ ] **P1.T2.1:** Extend `test/unit/calibration/gate.test.ts` to assert that `scores.json`'s `threshold_mean` and `min_allowed` match the documented publishable tier.
+  - [ ] **P1.T2.1:** After the P1.T3 provenance copy, set `scores.json`'s `threshold_mean` and `min_allowed` to 3.5 and 3.0 without changing any recorded score, then extend `test/unit/calibration/gate.test.ts` to assert the record matches the documented publishable tier.
   - [ ] **P1.T2.2:** Keep the existing check that the exceptional tier is explicitly unreachable with dated evidence; fail loudly if the target table cannot be parsed.
 - [ ] **P1.T3: Freeze prior score records as provenance** — covers: FR-3, AC-3
   - [ ] **P1.T3.1:** Copy the pre-track `test/art/scores.json` byte-for-byte to `test/art/scores-agent-vision.json`.
