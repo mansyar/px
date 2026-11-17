@@ -1,8 +1,8 @@
 /**
  * Deterministic generator for Phase 1 diagnostic candidates.
  *
- * Reads the authored baseline and hue-ramp candidate and derives the
- * warm-cool light (L), edge hierarchy (E) and combined (C) recipes. Run with
+ * Reads the hue-ramp candidate `chest-H` and derives the warm-cool light (L),
+ * edge hierarchy (E) and combined (C) recipes. Run with
  * `pnpm exec tsx test/art/diagnostic/chest/make-candidates.mjs` from the repo root.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
