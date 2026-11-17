@@ -65,6 +65,75 @@ function edgeClass(
   return undefined;
 }
 
+/**
+ * A read-only snapshot of the canvas the edge classifier looks at. Kept separate
+ * from a mutable `SlotCanvas` so critique can classify a compiled sprite without
+ * drawing anything.
+ */
+export interface EdgeSnapshot {
+  source: Int16Array;
+  owners: Int16Array;
+  width: number;
+  height: number;
+  ownerNames: ReadonlyMap<number, string>;
+  parts: Parts;
+}
+
+/** How many painted pixels fall into each edge class (one class per pixel). */
+export interface EdgeClassCounts {
+  painted: number;
+  silhouette: number;
+  material: number;
+  detail: number;
+}
+
+/**
+ * Classify a snapshot with exactly the rules `applyIntentEdges` uses, but write
+ * nothing. This is the deterministic "intent-edges snapshot classifier" the
+ * critique report reads for its `edge_language` signal; sharing `edgeClass`
+ * keeps the diagnostic and the pass in lockstep. A pixel counts once, under the
+ * first class in priority order that any of its four neighbours produces.
+ */
+export function edgeClassCounts(snapshot: EdgeSnapshot): EdgeClassCounts {
+  const { source, owners, width, height, ownerNames, parts } = snapshot;
+  const materialOfOwner: string[] = [];
+  for (const [owner, name] of ownerNames) {
+    materialOfOwner[owner] = parts[name]?.material ?? '';
+  }
+  const counts: EdgeClassCounts = { painted: 0, silhouette: 0, material: 0, detail: 0 };
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = y * width + x;
+      const here = source[index] ?? TRANSPARENT_SLOT;
+      if (here === TRANSPARENT_SLOT) {
+        continue;
+      }
+      counts.painted += 1;
+      const hereOwner = owners[index] ?? -1;
+      const found = new Set<DesignEdgeClass>();
+      for (const [dx, dy] of NEIGHBOURS_4) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const inside = nx >= 0 && ny >= 0 && nx < width && ny < height;
+        const neighbourIndex = inside ? ny * width + nx : -1;
+        const neighbour = inside ? (source[neighbourIndex] ?? TRANSPARENT_SLOT) : TRANSPARENT_SLOT;
+        const neighbourOwner = inside ? (owners[neighbourIndex] ?? -1) : -1;
+        const foundClass = edgeClass(here, hereOwner, neighbour, neighbourOwner, materialOfOwner);
+        if (foundClass !== undefined) {
+          found.add(foundClass);
+        }
+      }
+      for (const edgeKind of CLASS_PRIORITY) {
+        if (found.has(edgeKind)) {
+          counts[edgeKind] += 1;
+          break;
+        }
+      }
+    }
+  }
+  return counts;
+}
+
 function roleForTreatment(
   treatment: EdgeTreatment,
 ): 'outline' | 'shadow' | 'highlight' | undefined {

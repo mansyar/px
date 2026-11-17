@@ -11,9 +11,11 @@ import { COMMANDS, type ParsedArgs, parseArgs } from './args.js';
 import {
   runAnchor,
   runBrief,
+  runCritique,
   runDiff,
   runDraw,
   runEdit,
+  runFix,
   runInit,
   runInspect,
   runRender,
@@ -49,6 +51,8 @@ function helpPayload(): Record<string, unknown> {
       'px synthesize --file <path> --family <name> --from <hex> --steps n [--force]',
       'px validate --file <path>',
       'px brief <subject> --size n  # subject: character, prop or scene; writes nothing',
+      'px critique --file <path> [--streak n --previous <64-hex>]  # read-only ranked gap report',
+      'px fix --file <path> --finding n [--sha256 <digest>]  # apply finding n (zero-based) and re-render',
     ],
     commands: COMMANDS,
     flags: [
@@ -75,6 +79,10 @@ function helpPayload(): Record<string, unknown> {
       '--steps',
       '--synthesize',
       '--swap',
+      '--finding',
+      '--sha256',
+      '--streak',
+      '--previous',
     ],
     exit_codes: {
       '0': 'success',
@@ -87,10 +95,14 @@ function helpPayload(): Record<string, unknown> {
 }
 
 /**
- * Findings the strict gate reads. `render` and `validate` are the only writers
- * of this key, and they always write a LintFinding array.
+ * Findings the strict gate reads. `render` and `validate` write LintFinding
+ * arrays under this key; `critique` and `fix` write ranked gap findings, which
+ * are feedback, not lint, and must not trip the lint gate.
  */
-function payloadFindings(payload: Record<string, unknown>): LintFinding[] {
+function payloadFindings(payload: Record<string, unknown>, command: string): LintFinding[] {
+  if (command === 'critique' || command === 'fix') {
+    return [];
+  }
   const value = payload.findings;
   return Array.isArray(value) ? (value as LintFinding[]) : [];
 }
@@ -117,6 +129,10 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runValidate(args, cwd);
     case 'brief':
       return runBrief(args, cwd);
+    case 'critique':
+      return runCritique(args, cwd);
+    case 'fix':
+      return runFix(args, cwd);
     default:
       throw new PxError(
         'E_USAGE',
@@ -135,7 +151,7 @@ export function runCli(argv: readonly string[], io: CliIo): number {
       return EXIT_OK;
     }
     const payload = dispatch(parsed.command, parsed, io.cwd);
-    const findings = payloadFindings(payload);
+    const findings = payloadFindings(payload, parsed.command);
     if (parsed.strict && lintBlocks(findings, true)) {
       const blocking = findings.filter((finding) => finding.severity !== 'info').length;
       const error = new PxError(

@@ -25,6 +25,7 @@ export default defineConfig({
             'test/feedback/**/*.test.ts',
             'test/profiles/**/*.test.ts',
             'test/intent-passes/**/*.test.ts',
+            'test/critique/**/*.test.ts',
           ],
         },
       },

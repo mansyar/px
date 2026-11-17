@@ -39,12 +39,14 @@ export const MCP_TOOLS: readonly string[] = [
   'px_init',
   'px_draw',
   'px_edit',
+  'px_fix',
   'px_anchor',
   'px_inspect',
   'px_validate',
   'px_render',
   'px_diff',
   'px_brief',
+  'px_critique',
 ];
 
 const STRICT = {
@@ -81,6 +83,48 @@ export const TOOL_DEFINITIONS: Tool[] = [
         strict: STRICT,
       },
       ['subject'],
+    ),
+  },
+  {
+    name: 'px_critique',
+    description:
+      'Rank the gaps between the declared design intent and the compiled sprite. Returns intended vs observed for each criterion with a concrete, applyable fix per finding. Diagnostic proxies only; no vision and no network. Writes nothing and remembers no streak.',
+    inputSchema: schema(
+      {
+        file: FILE,
+        streak: {
+          type: 'integer',
+          minimum: 0,
+          description: 'Caller-supplied count of unchanged calls; signal at 4 or more.',
+        },
+        previous: {
+          type: 'string',
+          description: 'Fingerprint from the previous critique; must match the current one.',
+        },
+        strict: STRICT,
+      },
+      ['file'],
+    ),
+  },
+  {
+    name: 'px_fix',
+    description:
+      'Apply one ranked critique fix by its zero-based finding index, append the complete op to its layer and re-render. Pass the digest from the critique to reject stale findings (E_FIX_STALE); an applied op with no visible change reports W_FIX_NOOP.',
+    inputSchema: schema(
+      {
+        file: FILE,
+        finding: {
+          type: 'integer',
+          minimum: 0,
+          description: 'Zero-based index of the finding to apply from px critique.',
+        },
+        sha256: {
+          type: 'string',
+          description: 'Digest from the critique envelope; a mismatch reports E_FIX_STALE.',
+        },
+        strict: STRICT,
+      },
+      ['file', 'finding'],
     ),
   },
   {
@@ -351,6 +395,20 @@ export function argvFor(tool: string, params: Params): string[] {
       argv.push('brief');
       flag(argv, 'subject', str(params.subject));
       flag(argv, 'size', str(params.size));
+      break;
+    }
+    case 'px_critique': {
+      argv.push('critique');
+      flag(argv, 'file', file);
+      flag(argv, 'streak', str(params.streak));
+      flag(argv, 'previous', str(params.previous));
+      break;
+    }
+    case 'px_fix': {
+      argv.push('fix');
+      flag(argv, 'file', file);
+      flag(argv, 'finding', str(params.finding));
+      flag(argv, 'sha256', str(params.sha256));
       break;
     }
     case 'px_init': {

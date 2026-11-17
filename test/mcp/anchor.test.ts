@@ -165,6 +165,8 @@ describe('px anchor', () => {
       'synthesize',
       'validate',
       'brief',
+      'critique',
+      'fix',
     ]);
   });
 });

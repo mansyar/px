@@ -55,6 +55,7 @@ export type ErrorCode =
   | 'E_INTENT_VALUE'
   | 'E_INTENT_RAMP'
   | 'E_SUBJECT_UNKNOWN'
+  | 'E_FIX_STALE'
   | 'E_INTERNAL';
 
 export type WarningCode =
@@ -65,7 +66,9 @@ export type WarningCode =
   | 'W_CLEANUP_NOOP'
   | 'W_HARMONIZE_NOOP'
   | 'W_DIFF_HASH_ONLY'
-  | 'W_PROFILE_MISMATCH';
+  | 'W_PROFILE_MISMATCH'
+  | 'W_CRITIQUE_EMPTY'
+  | 'W_FIX_NOOP';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -172,6 +175,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_INTENT_VALUE: 'Use a whole target value from 1 to 5 for each part.',
   E_INTENT_RAMP: 'Use a ramp declared in px.style.json allowed_ramps.',
   E_SUBJECT_UNKNOWN: 'Name a built-in brief subject; the error message lists every known one.',
+  E_FIX_STALE:
+    'The picture or the report changed; re-run px critique and use a fresh --finding index and --sha256.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 

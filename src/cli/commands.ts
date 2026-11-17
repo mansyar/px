@@ -35,6 +35,7 @@ import {
   type Recipe,
   recipeParts,
 } from '../core/recipe/types.js';
+import { buildCritique, emptyCritiqueFingerprint } from '../critique/index.js';
 import { lintCompiled } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
 import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
@@ -884,6 +885,175 @@ export function runBrief(args: ParsedArgs, _cwd: string): Record<string, unknown
     parts: scaffold.parts,
     hero: scaffold.hero,
   };
+}
+
+/**
+ * `critique` is a read-only whole-image report. It never writes a file and it
+ * never remembers a streak: the caller supplies `--streak` and `--previous`
+ * explicitly when it wants the stagnation finding.
+ */
+export function runCritique(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const { recipe, warnings } = readSource(resolve(cwd, file), file);
+  let result: ReturnType<typeof renderRecipe>;
+  try {
+    result = renderRecipe(recipe);
+  } catch (cause) {
+    // A declared part with no pixels is still an empty canvas to critique: the
+    // compiler refuses to build it, but the report is W_CRITIQUE_EMPTY, not an
+    // error the caller has to fix before asking for feedback.
+    if (cause instanceof PxError && cause.code === 'E_EMPTY_PART') {
+      return {
+        file,
+        width: recipe.meta.width,
+        height: recipe.meta.height,
+        fingerprint: emptyCritiqueFingerprint(),
+        criteria: [],
+        findings: [],
+        fixes_total: 0,
+        truncated: false,
+        warnings: mergeWarnings(warnings, [
+          {
+            code: 'W_CRITIQUE_EMPTY',
+            message: 'The canvas is empty; there is nothing to critique.',
+            hint: 'Draw something on the canvas before asking for a critique.',
+          },
+        ]),
+      };
+    }
+    throw cause;
+  }
+  const report = buildCritique({
+    recipe,
+    compiled: result.compiled,
+    png: result.png,
+    lint: lintCompiled(result.compiled),
+    streak: args.streak === undefined ? undefined : intFlag(args.streak, 0, 'streak'),
+    previous: args.previous,
+  });
+  const payload: Record<string, unknown> = {
+    file,
+    width: result.width,
+    height: result.height,
+    fingerprint: report.fingerprint,
+    render_sha256: report.render_sha256,
+    criteria: report.criteria,
+    findings: report.findings,
+    fixes_total: report.fixes_total,
+    truncated: report.truncated,
+  };
+  if (report.stagnation !== undefined) {
+    payload.stagnation = report.stagnation;
+  }
+  const allWarnings = mergeWarnings(warnings, result.warnings, report.warnings);
+  if (allWarnings.length > 0) {
+    payload.warnings = allWarnings;
+  }
+  return payload;
+}
+
+/**
+ * Applies exactly one finding's op to the current recipe. The report is
+ * recomputed from the file on disk before anything is written, so a finding
+ * from a stale critique is rejected instead of being applied to a different
+ * picture. Existing ops are appended to, never rewritten, and no digest is
+ * edited: the digest is always the render of whatever the recipe now says.
+ */
+export function runFix(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const target = resolve(cwd, file);
+  const { recipe, warnings } = readSource(target, file);
+  if (args.finding === undefined || args.finding === '') {
+    throw usageError(
+      'Missing --finding',
+      'Choose a zero-based index from px critique, e.g. --finding 2.',
+    );
+  }
+  const index = intFlag(args.finding, 0, 'finding');
+  if (index < 0) {
+    throw usageError('--finding must be a non-negative index', 'Critique indices start at 0.');
+  }
+
+  const current = renderRecipe(recipe);
+  const report = buildCritique({
+    recipe,
+    compiled: current.compiled,
+    png: current.png,
+    lint: lintCompiled(current.compiled),
+  });
+  const currentDigest = report.render_sha256;
+  const finding = report.findings.find((entry) => entry.index === index);
+  if (finding === undefined) {
+    throw new PxError(
+      'E_FIX_STALE',
+      `Finding ${index} is not in the current report (digest ${currentDigest}). Re-run px critique.`,
+    );
+  }
+  if (
+    args.sha256 !== undefined &&
+    args.sha256 !== currentDigest &&
+    args.sha256 !== report.fingerprint
+  ) {
+    throw new PxError(
+      'E_FIX_STALE',
+      `Finding ${index} is stale: expected digest ${args.sha256}, current digest ${currentDigest}. Re-run px critique.`,
+    );
+  }
+
+  const rawOp = finding.fix.op;
+  const wantedLayer =
+    typeof rawOp.target_layer === 'string' ? rawOp.target_layer : DEFAULT_LAYER_ID;
+  const foundLayer = recipe.layers.findIndex((layer) => layer.id === wantedLayer);
+  const applyAt = foundLayer === -1 ? 0 : foundLayer;
+  const layer = recipe.layers[applyAt];
+  const normalized = normalizeOp(rawOp, layer.ops.length, layer.id);
+  const nextLayers = recipe.layers.map((entry, position) =>
+    position === applyAt ? { ...entry, ops: [...entry.ops, normalized] } : entry,
+  );
+  const nextRecipe: Recipe = { ...recipe, layers: nextLayers };
+  const output = args.out === undefined || args.out === '' ? target : resolve(cwd, args.out);
+  writeOut(output, serializeRecipe(nextRecipe));
+
+  const after = renderRecipe(nextRecipe);
+  const afterSha = sha256Hex(after.png);
+  const nextReport = buildCritique({
+    recipe: nextRecipe,
+    compiled: after.compiled,
+    png: after.png,
+    lint: lintCompiled(after.compiled),
+  });
+  const payload: Record<string, unknown> = {
+    file,
+    width: after.width,
+    height: after.height,
+    fingerprint: nextReport.fingerprint,
+    render_sha256: afterSha,
+    criteria: nextReport.criteria,
+    findings: nextReport.findings,
+    fixes_total: nextReport.fixes_total,
+    truncated: nextReport.truncated,
+    fix: {
+      index,
+      op: rawOp,
+      before_sha256: currentDigest,
+      after_sha256: afterSha,
+    },
+  };
+  if (nextReport.stagnation !== undefined) {
+    payload.stagnation = nextReport.stagnation;
+  }
+  const allWarnings = mergeWarnings(warnings, after.warnings, nextReport.warnings);
+  if (afterSha === currentDigest) {
+    allWarnings.push({
+      code: 'W_FIX_NOOP',
+      message: `Fix ${index} was applied but the render is unchanged.`,
+      hint: 'The op was applied but the render did not change; the fix had no visible effect on this picture.',
+    });
+  }
+  if (allWarnings.length > 0) {
+    payload.warnings = allWarnings;
+  }
+  return payload;
 }
 
 export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown> {

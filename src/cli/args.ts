@@ -19,6 +19,14 @@ export interface ParsedArgs {
   regions: string[];
   summary: boolean;
   out?: string;
+  /** Zero-based index of the critique finding `px fix` should apply. */
+  finding?: string;
+  /** Digest from the critique envelope; mismatches report E_FIX_STALE. */
+  sha256?: string;
+  /** Caller-supplied unchanged-call count; critique retains no streak state. */
+  streak?: string;
+  /** Caller-supplied fingerprint from the previous critique in the sequence. */
+  previous?: string;
   name?: string;
   width?: string;
   height?: string;
@@ -57,6 +65,8 @@ export const COMMANDS: readonly string[] = [
   'synthesize',
   'validate',
   'brief',
+  'critique',
+  'fix',
 ];
 
 function usageError(message: string, hint: string): PxError {
@@ -73,6 +83,10 @@ export const VALUE_FLAGS: readonly string[] = [
   'ops',
   'region',
   'out',
+  'finding',
+  'sha256',
+  'streak',
+  'previous',
   'name',
   'width',
   'height',
@@ -133,6 +147,18 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'out':
       parsed.out = value;
       return;
+    case 'finding':
+      parsed.finding = value;
+      return;
+    case 'sha256':
+      parsed.sha256 = value;
+      return;
+    case 'streak':
+      parsed.streak = value;
+      return;
+    case 'previous':
+      parsed.previous = value;
+      return;
     case 'name':
       parsed.name = value;
       return;
@@ -190,7 +216,7 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --subject, --size, --values, --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
+        'Flags that take a value are --subject, --size, --values, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }

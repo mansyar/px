@@ -61,15 +61,20 @@ afterAll(async () => {
 });
 
 describe('px-mcp over stdio', () => {
-  it('completes the initialize handshake and lists nine tools', async () => {
+  it('completes the initialize handshake and lists eleven tools', async () => {
     expect(client.getServerVersion()?.name).toBe('px');
     const listed = await client.listTools();
-    expect(listed.tools.map((tool) => tool.name).sort()).toEqual([
+    const names = listed.tools.map((tool) => tool.name).sort();
+    expect(names).toContain('px_critique');
+    expect(names).toContain('px_fix');
+    expect(names).toEqual([
       'px_anchor',
       'px_brief',
+      'px_critique',
       'px_diff',
       'px_draw',
       'px_edit',
+      'px_fix',
       'px_init',
       'px_inspect',
       'px_render',
