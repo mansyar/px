@@ -28,3 +28,5 @@
 
 - [x] **Track: Craft Application** - [20261117-craft-application](./archive/20261117-craft-application/index.md) - feature - high - *PR #13, gate fail at 3.67 (mean clears 3.5, 3 below-floor); user-accepted*
 
+- [ ] **Track: Publishable Gate Close** - [20261118-gate-close-flash-lite](./tracks/20261118-gate-close-flash-lite/index.md) - feature - high
+
