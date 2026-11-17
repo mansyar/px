@@ -36,15 +36,21 @@
   },
   "palette": {
     "bands": {
-      "derive": {
-        "base": "#abbac6",
-        "stops": 5
+      "ramp": {
+        "t0": "#e6f0f2",
+        "t1": "#c4d9e0",
+        "t2": "#b5ccd8",
+        "t3": "#6f8faf",
+        "t4": "#48658c"
       }
     },
     "body": {
-      "derive": {
-        "base": "#824927",
-        "stops": 5
+      "ramp": {
+        "t0": "#e0b25e",
+        "t1": "#b8762c",
+        "t2": "#8a4a1c",
+        "t3": "#5a2a12",
+        "t4": "#2a1208"
       }
     },
     "gorget": {
@@ -59,15 +65,21 @@
       }
     },
     "lid": {
-      "derive": {
-        "base": "#000000",
-        "stops": 5
+      "ramp": {
+        "t0": "#fff2c8",
+        "t1": "#f0cf7d",
+        "t2": "#d9a94e",
+        "t3": "#a87028",
+        "t4": "#6d4014"
       }
     },
     "lock": {
-      "derive": {
-        "base": "#dcae49",
-        "stops": 5
+      "ramp": {
+        "t0": "#f7e39a",
+        "t1": "#ecca55",
+        "t2": "#ce9d26",
+        "t3": "#6b420c",
+        "t4": "#1c1418"
       }
     }
   },
@@ -381,13 +393,19 @@
           }
         },
         {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
+        },
+        {
           "op": "auto_outline",
           "mode": "4-way",
           "where": "outer",
           "color": "ink.outline"
-        },
-        {
-          "op": "harmonize"
         }
       ]
     }
