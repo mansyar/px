@@ -5,8 +5,9 @@
 - Date: 2026-11-17
 - Branch: `feat/20261117-craft-application`
 - Base commit: `cd43a51f2a6f716f844847616839c046f9dcf713`
-- Head commit: `cd43a51f2a6f716f844847616839c046f9dcf713` at verification time (phase work
-  was in the working tree; implementation commit recorded by the primary after acceptance)
+- Head commit (implementation): `02824ec` — phase work was in the working tree when
+  verification ran on base `cd43a51f2a6f716f844847616839c046f9dcf713`; this evidence file
+  is finalized in a follow-up documentation commit.
 - Result: **blocked** — credentialed scoring is reserved for the primary (NFR-5); all
   non-credentialed work (FR-1, FR-2, NFR-1, NFR-3, NFR-6, AC-1 artifacts) is complete.
 
