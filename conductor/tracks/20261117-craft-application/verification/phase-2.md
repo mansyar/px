@@ -89,3 +89,36 @@ node scripts/rubric.mjs --asset scene --pass B --artifact .conductor/evidence/ar
 After scoring, run `node scripts/rubric-report.mjs`, confirm schema 3 / 14 passes /
 instrument unchanged / verdict recomputed, and re-invoke this phase with the results
 appended under "APPENDED: primary 14-pass scoring results" to finalize AC-3/AC-4.
+
+## Primary verification (conductor-implement)
+
+- **Date:** 2026-11-18
+- **Tree:** clean at start of primary checks; 15 tracked files changed vs phase base
+  `0a861690`, all within Touches (six `test/art/v2/**/*.px.json` + six sidecars,
+  three `verification/*.md`).
+- **Artifact faithfulness (independent re-render):** all seven recipes were
+  re-rendered in isolated temp workspaces (recipe + root `px.style.json`). Every
+  fresh 1x digest matched its committed `.sha256` sidecar and every `.8x.png`
+  matched the digest recorded in `asset-digests.md` — 7/7 `OK`. The artifacts to be
+  scored are faithful to the re-authored recipes, not stale.
+- **AC-6 / NFR-4:** scoped coverage gate
+  `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`
+  exit 0 — statements 94.97%, branches 85.69%, functions 98.33%, lines 94.77%
+  (all > 80%); scoped run 116 files / 996 tests passed. `pnpm verify` exit 0
+  (1028 tests) confirmed by subagent. **PASS.**
+- **AC-3 / AC-4 — NOT ACHIEVABLE (external block):** the 14 credentialed scoring
+  calls were run on the frozen instrument `gemini-4-hydrogen` with retry/backoff.
+  The endpoint returned `429 RESOURCE_EXHAUSTED` — `generate_content_free_tier_requests`
+  limit 20/day for `gemini-4-hydrogen`, `retryDelay: 67427s` (~18h43m). Only 1 of
+  14 passes (humanoid A) scored before quota exhaustion; the other 13 exhausted
+  12 retries each. Spec NFR-1 forbids switching instruments (and reconciliation
+  forbids cross-instrument comparison); NFR-2 forbids hand-editing scores. The
+  quota can only be lifted by the user (plan upgrade / key with quota) or by
+  waiting for the daily reset. The single partial write (humanoid A) was reverted
+  with `git checkout HEAD -- test/art/scores.json`; `test/art/scores.json` is
+  restored byte-for-byte to the canonical baseline
+  `5C872AA466252D622760E506FC96E4D309941BAE62F424297274F0639BBAE399` and the
+  tree is clean. No score was hand-edited, no instrument switched.
+- **Result:** `blocked` — all authoring, rendering, digest, coverage and integrity
+  work is complete and verified; only the 14-pass credentialed re-score remains,
+  blocked by the frozen instrument's daily quota.
