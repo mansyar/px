@@ -27,10 +27,9 @@ describe('light light-vector convention', () => {
 });
 
 describe('light op shape', () => {
-  it('defaults to a top-left bevel with occlusion, no cast and an edge rim', () => {
+  it('leaves the angle open for the design, with bevel occlusion and an edge rim', () => {
     expect(lightOf({})).toEqual({
       op: 'light',
-      angle: 'top-left',
       form: 'bevel',
       ao: true,
       cast: null,

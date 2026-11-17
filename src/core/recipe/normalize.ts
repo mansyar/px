@@ -5,6 +5,7 @@
  * everything downstream sees one shape.
  */
 
+import { normalizeDesign } from '../design.js';
 import { PxError, type PxWarning } from '../errors.js';
 import { FACING_UNIT_EPSILON } from '../facing.js';
 import { normalizeFamily } from '../palette.js';
@@ -20,6 +21,7 @@ import {
   type Coord,
   type CoordRef,
   type DebandOp,
+  type Design,
   DITHER_PATTERNS,
   type DitherFillOp,
   type DitherPattern,
@@ -29,6 +31,7 @@ import {
   type FloodFillOp,
   GLOSS_PROFILES,
   type GlossProfile,
+  type HarmonizeOp,
   isCoordRef,
   type Layer,
   LIGHT_DIRS,
@@ -72,7 +75,7 @@ import {
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
 const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
-const RECIPE_KEYS = ['version', 'meta', 'palette', 'parts', 'anchors', 'layers'];
+const RECIPE_KEYS = ['version', 'meta', 'design', 'palette', 'parts', 'anchors', 'layers'];
 const PART_KEYS = ['material', 'gloss', 'z', 'facing'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1238,6 +1241,31 @@ function normalizeAutoOutline(
   return op;
 }
 
+function normalizeHarmonize(
+  source: Record<string, unknown>,
+  opIndex: number,
+  layer: string,
+): HarmonizeOp {
+  const where = enumParam<OutlineWhere>(
+    source,
+    'where',
+    'harmonize',
+    opIndex,
+    layer,
+    OUTLINE_WHERES,
+    false,
+  );
+  const op: HarmonizeOp = { op: 'harmonize' };
+  if (where !== undefined) {
+    op.where = where;
+  }
+  const targetLayer = optionalStringParam(source, 'target_layer', 'harmonize', opIndex, layer);
+  if (targetLayer !== undefined) {
+    op.targetLayer = targetLayer;
+  }
+  return op;
+}
+
 function normalizeAutoShade(
   source: Record<string, unknown>,
   opIndex: number,
@@ -1340,13 +1368,17 @@ function normalizeLight(source: Record<string, unknown>, opIndex: number, layer:
   const castOffset = castOffsetParam(source, opIndex, layer);
   const op: LightOp = {
     op: 'light',
-    angle: angle ?? 'top-left',
     form: form ?? 'bevel',
     ao: ao ?? true,
     cast: castParam(source, opIndex, layer),
     castOffset: castOffset ?? 1,
     rim: rim ?? 'edge',
   };
+  // Keep an omitted angle omitted: the compiler resolves it from the design,
+  // and a recipe that restates the design default must not look like an override.
+  if (angle !== undefined) {
+    op.angle = angle;
+  }
   const bands = source.bands;
   if (bands !== undefined) {
     if (typeof bands !== 'number' || !Number.isInteger(bands) || bands < 2 || bands > 4) {
@@ -1616,6 +1648,8 @@ function normalizeOpBody(
       return normalizeRampFill(raw, opIndex, layer);
     case 'light':
       return normalizeLight(raw, opIndex, layer);
+    case 'harmonize':
+      return normalizeHarmonize(raw, opIndex, layer);
     case 'replace_slot':
       return normalizeReplaceSlot(raw, opIndex, layer);
     case 'seal':
@@ -1713,6 +1747,15 @@ export interface NormalizeResult {
   warnings: PxWarning[];
 }
 
+export interface NormalizeOptions {
+  /**
+   * Resolves raw design intent (including style inheritance) into a canonical
+   * design block. Parse supplies it because only the caller knows the base
+   * directory; shape-only callers fall back to normalizeDesign.
+   */
+  resolveDesign?: (raw: unknown) => Design;
+}
+
 /** Ordering for gates: a 1.0 document predates every option a later version adds. */
 function versionRank(version: RecipeVersion): number {
   switch (version) {
@@ -1728,7 +1771,7 @@ function versionRank(version: RecipeVersion): number {
   }
 }
 
-export function normalizeRecipe(raw: unknown): NormalizeResult {
+export function normalizeRecipe(raw: unknown, options: NormalizeOptions = {}): NormalizeResult {
   if (!isRecord(raw)) {
     throw new PxError(
       'E_PARSE',
@@ -1823,6 +1866,16 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   // otherwise compile to different pixels on either side of the upgrade, so it
   // is rejected here with a message that names the version to set.
   if (versionRank(version) < 2) {
+    // A design block is a 1.2 feature. Reject it rather than promoting the
+    // version: once a pass keys on the version, promotion silently changes the
+    // rendered bytes of a document the caller meant to keep at 1.0/1.1 (FR-17).
+    if (raw.design !== undefined) {
+      throw new PxError(
+        'E_BAD_VERSION',
+        `Recipe declares design with version ${JSON.stringify(version)}, but design requires schema 1.2`,
+        'Set "version": "1.2" to declare a design block.',
+      );
+    }
     const palette = (raw.palette ?? {}) as Record<string, unknown>;
     for (const [name, family] of Object.entries(palette)) {
       if (typeof family === 'object' && family !== null && 'derive' in family) {
@@ -1891,6 +1944,8 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
   unknownKeys(raw, RECIPE_KEYS, 'E_BAD_META', 'Recipe');
 
   const meta = normalizeMeta(raw.meta);
+  const design =
+    raw.design === undefined ? undefined : (options.resolveDesign ?? normalizeDesign)(raw.design);
   const palette = normalizePalette(raw.palette);
   const parts = normalizeParts(raw.parts);
   const { anchors, warnings: anchorWarnings } = normalizeAnchors(
@@ -1907,7 +1962,15 @@ export function normalizeRecipe(raw: unknown): NormalizeResult {
       : [...profileWarnings(meta.profile, meta.width, meta.height), ...anchorWarnings];
 
   return {
-    recipe: { version, meta, palette, parts, anchors, layers },
+    recipe: {
+      version,
+      meta,
+      ...(design === undefined ? {} : { design }),
+      palette,
+      parts,
+      anchors,
+      layers,
+    },
     warnings,
   };
 }

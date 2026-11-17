@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BOOLEAN_FLAGS, VALUE_FLAGS } from '../../src/cli/args.js';
+import { BOOLEAN_FLAGS, COMMANDS, VALUE_FLAGS } from '../../src/cli/args.js';
 import { argvFor, MCP_TOOLS, type Params, TOOL_DEFINITIONS } from '../../src/mcp/tools.js';
 
 /**
@@ -28,6 +28,18 @@ interface Mapping {
  * that a declared schema property is never actually sent.
  */
 const MAPPINGS: Mapping[] = [
+  {
+    flag: 'subject',
+    tool: 'px_brief',
+    params: { subject: 'character', size: 32 },
+    value: 'character',
+  },
+  {
+    flag: 'size',
+    tool: 'px_brief',
+    params: { subject: 'character', size: 32 },
+    value: '32',
+  },
   { flag: 'file', tool: 'px_inspect', params: { file: 'hero.px.json' }, value: 'hero.px.json' },
   {
     flag: 'layer',
@@ -112,6 +124,24 @@ const MAPPINGS: Mapping[] = [
     value: '{"blade":{"material":"steel"}}',
   },
   {
+    flag: 'design',
+    tool: 'px_init',
+    params: {
+      file: 'hero.px.json',
+      design: {
+        subject: 'hero',
+        light: 'top-left',
+        hierarchy: ['body'],
+        values: { body: 3 },
+        edges: { silhouette: 'hard', material: 'soft', detail: 'soft' },
+        materials: ['ink'],
+        style: '@project',
+      },
+    },
+    value:
+      '{"subject":"hero","light":"top-left","hierarchy":["body"],"values":{"body":3},"edges":{"silhouette":"hard","material":"soft","detail":"soft"},"materials":["ink"],"style":"@project"}',
+  },
+  {
     flag: 'profile',
     tool: 'px_init',
     params: { file: 'hero.px.json', profile: 'small' },
@@ -154,9 +184,21 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', out: 'hero.png', swap: ['steel=gold'] },
     value: 'steel=gold',
   },
+  {
+    flag: 'blockout',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', blockout: true },
+  },
+  {
+    flag: 'values',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', values: 5 },
+    value: '5',
+  },
   { flag: 'strict', tool: 'px_validate', params: { file: 'hero.px.json', strict: true } },
   // Every tool declares `strict`, so every tool needs a row that proves it
-  // forwards it; px_validate alone would leave the other six unproven.
+  // forwards it; px_validate alone would leave the other tools unproven.
+  { flag: 'strict', tool: 'px_brief', params: { subject: 'character', strict: true } },
   { flag: 'strict', tool: 'px_init', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_draw', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_edit', params: { file: 'hero.px.json', strict: true } },
@@ -164,6 +206,32 @@ const MAPPINGS: Mapping[] = [
   { flag: 'strict', tool: 'px_inspect', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_render', params: { file: 'hero.px.json', strict: true } },
   { flag: 'strict', tool: 'px_diff', params: { file: 'hero.px.json', strict: true } },
+  { flag: 'strict', tool: 'px_critique', params: { file: 'hero.px.json', strict: true } },
+  {
+    flag: 'streak',
+    tool: 'px_critique',
+    params: { file: 'hero.px.json', streak: 5 },
+    value: '5',
+  },
+  {
+    flag: 'previous',
+    tool: 'px_critique',
+    params: { file: 'hero.px.json', previous: 'c'.repeat(64) },
+    value: 'c'.repeat(64),
+  },
+  { flag: 'strict', tool: 'px_fix', params: { file: 'hero.px.json', finding: 1, strict: true } },
+  {
+    flag: 'finding',
+    tool: 'px_fix',
+    params: { file: 'hero.px.json', finding: 2 },
+    value: '2',
+  },
+  {
+    flag: 'sha256',
+    tool: 'px_fix',
+    params: { file: 'hero.px.json', finding: 1, sha256: 'a'.repeat(64) },
+    value: 'a'.repeat(64),
+  },
   {
     flag: 'against',
     tool: 'px_diff',
@@ -190,10 +258,75 @@ const NOT_AGENT_FLAGS = new Set([
 ]);
 
 describe('MCP flag reachability', () => {
-  it('publishes eight tools, each with a definition', () => {
+  it('publishes eleven tools, each with a definition', () => {
     expect([...MCP_TOOLS].sort()).toEqual(TOOL_DEFINITIONS.map((tool) => tool.name).sort());
+    expect(MCP_TOOLS).toHaveLength(11);
+    expect(MCP_TOOLS).toContain('px_brief');
     expect(MCP_TOOLS).toContain('px_validate');
     expect(MCP_TOOLS).toContain('px_diff');
+    expect(MCP_TOOLS).toContain('px_critique');
+    expect(MCP_TOOLS).toContain('px_fix');
+  });
+
+  it('publishes the feedback verbs with every parameter their CLI flags need', () => {
+    const schemas = new Map(
+      TOOL_DEFINITIONS.map((tool) => [
+        tool.name,
+        Object.keys(tool.inputSchema.properties ?? {}).sort(),
+      ]),
+    );
+    expect(COMMANDS).toContain('critique');
+    expect(COMMANDS).toContain('fix');
+    expect(schemas.get('px_critique')).toEqual(['file', 'previous', 'streak', 'strict']);
+    expect(schemas.get('px_fix')).toEqual(['file', 'finding', 'sha256', 'strict']);
+    for (const tool of ['px_critique', 'px_fix']) {
+      const params = schemas.get(tool) ?? [];
+      for (const param of params) {
+        expect(
+          MAPPINGS.some((mapping) => mapping.tool === tool && Object.hasOwn(mapping.params, param)),
+          `${tool}.${param} is not exercised by the bidirectional reachability table`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('maps px_critique to the read-only critique verb', () => {
+    expect(argvFor('px_critique', { file: 'hero.px.json' })).toEqual([
+      'critique',
+      '--file',
+      'hero.px.json',
+    ]);
+    expect(
+      argvFor('px_critique', {
+        file: 'hero.px.json',
+        streak: 5,
+        previous: 'd'.repeat(64),
+      }),
+    ).toEqual([
+      'critique',
+      '--file',
+      'hero.px.json',
+      '--streak',
+      '5',
+      '--previous',
+      'd'.repeat(64),
+    ]);
+  });
+
+  it('maps px_fix to the fix verb with a finding and a digest', () => {
+    expect(argvFor('px_fix', { file: 'hero.px.json', finding: 3, sha256: 'b'.repeat(64) })).toEqual(
+      ['fix', '--file', 'hero.px.json', '--finding', '3', '--sha256', 'b'.repeat(64)],
+    );
+  });
+
+  it('maps px_brief to the brief verb without a recipe file', () => {
+    expect(argvFor('px_brief', { subject: 'prop', size: 48 })).toEqual([
+      'brief',
+      '--subject',
+      'prop',
+      '--size',
+      '48',
+    ]);
   });
 
   it('maps px_diff to the diff verb with both comparison sources', () => {

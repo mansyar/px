@@ -7,17 +7,32 @@ import { PxError } from '../core/errors.js';
 
 export interface ParsedArgs {
   command: string;
+  /** Brief subject, from the second positional or from --subject. */
+  subject?: string;
+  size?: string;
+  /** Render-view selectors. These are not verbs: they only change the PNG. */
+  blockout: boolean;
+  values?: string;
   file?: string;
   layer?: string;
   ops?: string;
   regions: string[];
   summary: boolean;
   out?: string;
+  /** Zero-based index of the critique finding `px fix` should apply. */
+  finding?: string;
+  /** Digest from the critique envelope; mismatches report E_FIX_STALE. */
+  sha256?: string;
+  /** Caller-supplied unchanged-call count; critique retains no streak state. */
+  streak?: string;
+  /** Caller-supplied fingerprint from the previous critique in the sequence. */
+  previous?: string;
   name?: string;
   width?: string;
   height?: string;
   palette?: string;
   parts?: string;
+  design?: string;
   profile?: string;
   id?: string;
   opIndex?: string;
@@ -49,6 +64,9 @@ export const COMMANDS: readonly string[] = [
   'diff',
   'synthesize',
   'validate',
+  'brief',
+  'critique',
+  'fix',
 ];
 
 function usageError(message: string, hint: string): PxError {
@@ -57,16 +75,24 @@ function usageError(message: string, hint: string): PxError {
 
 /** Every flag that consumes the following argv token. */
 export const VALUE_FLAGS: readonly string[] = [
+  'subject',
+  'size',
+  'values',
   'file',
   'layer',
   'ops',
   'region',
   'out',
+  'finding',
+  'sha256',
+  'streak',
+  'previous',
   'name',
   'width',
   'height',
   'palette',
   'parts',
+  'design',
   'profile',
   'id',
   'op-index',
@@ -83,6 +109,7 @@ export const VALUE_FLAGS: readonly string[] = [
 
 /** Every flag that is a bare switch. */
 export const BOOLEAN_FLAGS: readonly string[] = [
+  'blockout',
   'pretty',
   'force',
   'help',
@@ -96,6 +123,15 @@ export const BOOLEAN_FLAGS: readonly string[] = [
 
 function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
   switch (name) {
+    case 'subject':
+      parsed.subject = value;
+      return;
+    case 'size':
+      parsed.size = value;
+      return;
+    case 'values':
+      parsed.values = value;
+      return;
     case 'file':
       parsed.file = value;
       return;
@@ -111,6 +147,18 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     case 'out':
       parsed.out = value;
       return;
+    case 'finding':
+      parsed.finding = value;
+      return;
+    case 'sha256':
+      parsed.sha256 = value;
+      return;
+    case 'streak':
+      parsed.streak = value;
+      return;
+    case 'previous':
+      parsed.previous = value;
+      return;
     case 'name':
       parsed.name = value;
       return;
@@ -125,6 +173,9 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
       return;
     case 'parts':
       parsed.parts = value;
+      return;
+    case 'design':
+      parsed.design = value;
       return;
     case 'profile':
       parsed.profile = value;
@@ -165,13 +216,16 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --file, --layer, --ops, --region, --out, --name, --width, --height, --palette, --parts, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
+        'Flags that take a value are --subject, --size, --values, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }
 
 function setBooleanFlag(parsed: ParsedArgs, name: string): void {
   switch (name) {
+    case 'blockout':
+      parsed.blockout = true;
+      return;
     case 'pretty':
       parsed.pretty = true;
       return;
@@ -212,6 +266,7 @@ function isBooleanFlag(name: string): boolean {
 export function parseArgs(argv: readonly string[]): ParsedArgs {
   const parsed: ParsedArgs = {
     command: '',
+    blockout: false,
     regions: [],
     summary: false,
     synthesize: [],
@@ -262,12 +317,18 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     index += 1;
   }
 
-  if (positionals.length > 1) {
+  const command = positionals[0] ?? '';
+  // `brief` is the only verb with a subject argument: `px brief character --size 32`.
+  // Every other verb keeps the one-positional shape its callers rely on.
+  if (positionals.length > 2 || (positionals.length > 1 && command !== 'brief')) {
     throw usageError(
-      `Unexpected argument "${positionals[1]}"`,
+      `Unexpected argument "${positionals[positionals.length - 1] ?? ''}"`,
       `px takes one command: ${COMMANDS.join(', ')}.`,
     );
   }
-  parsed.command = positionals[0] ?? '';
+  parsed.command = command;
+  if (command === 'brief' && positionals[1] !== undefined) {
+    parsed.subject = positionals[1];
+  }
   return parsed;
 }

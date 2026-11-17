@@ -9,6 +9,9 @@
 import {
   type Anchors,
   type Coord,
+  DESIGN_EDGE_CLASSES,
+  DESIGN_FIELDS,
+  type Design,
   type Palette,
   type Parts,
   RAMP_ROLES,
@@ -31,6 +34,36 @@ function canonicalMeta(recipe: Recipe): Record<string, unknown> {
     meta.profile = recipe.meta.profile;
   }
   return meta;
+}
+
+/**
+ * FR-16: design is written in the fixed DESIGN_FIELDS order immediately after
+ * meta, with sorted value keys and sorted edge classes, so a read-write cycle
+ * cannot move any byte.
+ */
+function canonicalDesign(design: Design): Record<string, unknown> {
+  const values: Record<string, number> = {};
+  for (const name of Object.keys(design.values).sort()) {
+    values[name] = design.values[name];
+  }
+  const edges: Record<string, string> = {};
+  for (const edgeClass of DESIGN_EDGE_CLASSES) {
+    edges[edgeClass] = design.edges[edgeClass];
+  }
+  const fields: Record<keyof Design, unknown> = {
+    subject: design.subject,
+    light: design.light,
+    hierarchy: [...design.hierarchy],
+    values,
+    edges,
+    materials: [...design.materials],
+    style: design.style,
+  };
+  const out: Record<string, unknown> = {};
+  for (const field of DESIGN_FIELDS) {
+    out[field] = fields[field];
+  }
+  return out;
 }
 
 function canonicalPalette(palette: Palette): Record<string, unknown> {
@@ -226,6 +259,8 @@ function opParams(op: RawOp): Record<string, unknown> {
         rim: op.rim,
         target_layer: op.targetLayer,
       });
+    case 'harmonize':
+      return defined({ where: op.where, target_layer: op.targetLayer });
     case 'replace_slot':
       return { from: op.from, to: op.to };
     case 'seal':
@@ -252,8 +287,11 @@ export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
   const out: Record<string, unknown> = {
     version: recipe.version,
     meta: canonicalMeta(recipe),
-    palette: canonicalPalette(recipe.palette),
   };
+  if (recipe.design !== undefined) {
+    out.design = canonicalDesign(recipe.design);
+  }
+  out.palette = canonicalPalette(recipe.palette);
   if (hasParts) {
     out.parts = canonicalParts(parts);
   }

@@ -5,7 +5,9 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
-import { type CompiledRecipe, compileRecipe } from '../core/compile.js';
+import { briefScaffold } from '../brief/index.js';
+import { type CompiledRecipe, compileRecipe, type Deviation } from '../core/compile.js';
+import { resolveDesign } from '../core/design.js';
 import { diffRgba } from '../core/diff.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
 import type { CleanupReport } from '../core/ops/index.js';
@@ -22,6 +24,7 @@ import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
 import {
+  type Design,
   isCleanupOp,
   LATEST_RECIPE_VERSION,
   type Palette,
@@ -32,6 +35,7 @@ import {
   type Recipe,
   recipeParts,
 } from '../core/recipe/types.js';
+import { buildCritique, emptyCritiqueFingerprint } from '../critique/index.js';
 import { lintCompiled } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
 import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
@@ -41,6 +45,15 @@ import { parseStepCount, synthesizeFamily } from '../palettes/synthesize.js';
 import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
 import { decodePng } from '../render/png.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
+import {
+  BLOCKOUT_BANDS,
+  BLOCKOUT_ROLES,
+  parseSteps,
+  renderView,
+  VALUES_MAPPING,
+  type ViewSpec,
+  viewPath,
+} from '../render/views.js';
 import type { ParsedArgs } from './args.js';
 import { inspectCodes, type Region, renderRegion, usedSlots } from './inspect.js';
 
@@ -77,7 +90,7 @@ function readSource(
       'Check the path passed to --file; it is resolved against the working directory.',
     );
   }
-  return parseRecipe(readFileSync(target, 'utf8'));
+  return parseRecipe(readFileSync(target, 'utf8'), { baseDir: dirname(resolve(target)) });
 }
 
 /**
@@ -263,6 +276,47 @@ function partsFromFlag(value: string | undefined, cwd: string): Parts | undefine
   return raw as Parts;
 }
 
+/**
+ * `--design` takes an inline JSON object or a path to one, resolved against the
+ * caller cwd. Resolution happens here, at authoring time, so the style file is
+ * read from the same directory the CLI was invoked from.
+ */
+function designFromFlag(value: string | undefined, cwd: string): Design | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    throw usageError(
+      '--design is empty',
+      'Pass an inline object, e.g. --design \'{"subject":"hero","light":"top-left","hierarchy":["body"],"values":{"body":3},"edges":{"silhouette":"hard","material":"soft","detail":"soft"},"materials":["ink"],"style":"@project"}\', or a JSON file.',
+    );
+  }
+  let text = trimmed;
+  if (!trimmed.startsWith('{')) {
+    try {
+      text = readFileSync(resolve(cwd, trimmed), 'utf8');
+    } catch (cause) {
+      throw new PxError(
+        'E_FILE_NOT_FOUND',
+        `Cannot read design file ${trimmed}: ${causeMessage(cause)}`,
+        'Pass a readable JSON file, or an inline object.',
+      );
+    }
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch (cause) {
+    throw new PxError(
+      'E_PARSE',
+      `Design is not valid JSON: ${causeMessage(cause)}`,
+      'Check for a trailing comma, a missing quote, or an unquoted key.',
+    );
+  }
+  return resolveDesign(raw, cwd).design;
+}
+
 function defaultName(file: string): string {
   const base = basename(file);
   if (base.endsWith('.px.json')) {
@@ -286,6 +340,7 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
   const width = intFlag(args.width, 16, 'width');
   const height = intFlag(args.height, 16, 'height');
   const parts = partsFromFlag(args.parts, cwd);
+  const design = designFromFlag(args.design, cwd);
   let palette = paletteFromFlag(args.palette, args.deriveRamps);
   for (const entry of args.synthesize) {
     palette = synthesizeFamily(palette, entry, false);
@@ -300,20 +355,24 @@ export function runInit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     meta.profile = parseScaleProfile(args.profile);
   }
   const recipe: Recipe = {
-    // Parts are a 1.1 feature, so a recipe created with them is 1.1 from the
-    // start; a part-less init keeps the legacy numeric literal (FR-1).
-    version: parts === undefined ? RECIPE_VERSION : LATEST_RECIPE_VERSION,
+    // Parts are a 1.1 feature and design is 1.2; a recipe with neither keeps
+    // the legacy numeric literal (FR-1, FR-17).
+    version:
+      design !== undefined ? '1.2' : parts === undefined ? RECIPE_VERSION : LATEST_RECIPE_VERSION,
     meta,
     palette,
     anchors: { pivot: [Math.floor(width / 2), Math.floor(height / 2)] },
     layers: [{ id: DEFAULT_LAYER_ID, ops: [] }],
   };
+  if (design !== undefined) {
+    recipe.design = design;
+  }
   if (parts !== undefined) {
     recipe.parts = parts;
   }
 
   const text = serializeRecipe(recipe);
-  const parsed = parseRecipe(text, { derivedRamps: args.deriveRamps });
+  const parsed = parseRecipe(text, { derivedRamps: args.deriveRamps, baseDir: cwd });
   writeOut(target, text);
 
   const payload: Record<string, unknown> = {
@@ -372,7 +431,7 @@ export function runSynthesize(args: ParsedArgs, cwd: string): Record<string, unk
   );
   const next: Recipe = { ...recipe, palette };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
   writeOut(target, text);
 
   const family = parsed.recipe.palette[args.family];
@@ -433,6 +492,11 @@ function cleanupOf(recipe: Recipe): {
   };
 }
 
+/** Overrides recorded by the compiler, exposed only when the recipe declares intent. */
+function deviationsOf(recipe: Recipe): Deviation[] {
+  return compileRecipe(recipe).deviations ?? [];
+}
+
 export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   const target = resolve(cwd, file);
@@ -472,7 +536,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     ),
   };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
@@ -480,6 +544,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
 
   const pass = cleanupOf(parsed.recipe);
   const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings, pass.warnings);
+  const deviations = deviationsOf(parsed.recipe);
 
   return {
     file: outFile,
@@ -489,6 +554,7 @@ export function runDraw(args: ParsedArgs, cwd: string): Record<string, unknown> 
     op_index: opIndexMap(parsed.recipe),
     layers: parsed.recipe.layers.map((entry) => ({ id: entry.id, ops: entry.ops.length })),
     ...(pass.cleanup === undefined ? {} : { cleanup: pass.cleanup }),
+    ...(deviations.length > 0 ? { deviations } : {}),
     ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }
@@ -603,7 +669,7 @@ export function runEdit(args: ParsedArgs, cwd: string): Record<string, unknown> 
     ),
   };
   const text = serializeRecipe(next);
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
 
   const outFile = args.out ?? file;
   const outTarget = resolve(cwd, outFile);
@@ -644,7 +710,7 @@ export function runAnchor(args: ParsedArgs, cwd: string): Record<string, unknown
   const text = serializeRecipe(next);
   // Re-parsing is the validation: a non-integer pair would already have been
   // rejected, and an out-of-canvas pair is reported, never dropped.
-  const parsed = parseRecipe(text);
+  const parsed = parseRecipe(text, { baseDir: dirname(resolve(cwd, file)) });
   const outFile = args.out ?? file;
   const target = resolve(cwd, outFile);
   writeOut(target, text);
@@ -734,6 +800,9 @@ export function runInspect(args: ParsedArgs, cwd: string): Record<string, unknow
     id: layer.id,
     painted: layer.canvas.paintedCount(),
   }));
+  if (compiled.deviations !== undefined && compiled.deviations.length > 0) {
+    payload.deviations = compiled.deviations;
+  }
   // Only a recipe that declares parts grows this key, so a part-less envelope
   // stays exactly what it was before parts existed. FR-24 appends the tone
   // table and the value histogram to each entry rather than replacing it.
@@ -780,6 +849,213 @@ function backdropFlag(value: string | undefined): string | null | undefined {
   return value;
 }
 
+/** Views are selectors on `render`, never verbs that write a recipe. */
+function renderViewSpec(args: ParsedArgs): ViewSpec | undefined {
+  if (args.blockout && args.values !== undefined) {
+    throw usageError(
+      '--blockout and --values are separate views',
+      'Ask for one view at a time, e.g. --blockout or --values 5.',
+    );
+  }
+  if (args.blockout) {
+    return { kind: 'blockout' };
+  }
+  if (args.values !== undefined) {
+    return { kind: 'values', steps: parseSteps(args.values) };
+  }
+  return undefined;
+}
+
+/**
+ * `px brief <subject> --size n` returns a design plan and writes nothing. The
+ * `design` member is a structurally valid 1.2 block; `parts`, `pixels` and
+ * `hero` are the planning detail that does not belong in a recipe.
+ */
+export function runBrief(args: ParsedArgs, _cwd: string): Record<string, unknown> {
+  const subject = args.subject;
+  if (subject === undefined || subject === '') {
+    throw usageError('Missing subject', 'Name a subject, e.g. px brief character --size 32.');
+  }
+  const scaffold = briefScaffold(subject, intFlag(args.size, 32, 'size'));
+  return {
+    subject: scaffold.subject,
+    size: scaffold.size,
+    canvas: scaffold.canvas,
+    design: scaffold.design,
+    parts: scaffold.parts,
+    hero: scaffold.hero,
+  };
+}
+
+/**
+ * `critique` is a read-only whole-image report. It never writes a file and it
+ * never remembers a streak: the caller supplies `--streak` and `--previous`
+ * explicitly when it wants the stagnation finding.
+ */
+export function runCritique(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const { recipe, warnings } = readSource(resolve(cwd, file), file);
+  let result: ReturnType<typeof renderRecipe>;
+  try {
+    result = renderRecipe(recipe);
+  } catch (cause) {
+    // A declared part with no pixels is still an empty canvas to critique: the
+    // compiler refuses to build it, but the report is W_CRITIQUE_EMPTY, not an
+    // error the caller has to fix before asking for feedback.
+    if (cause instanceof PxError && cause.code === 'E_EMPTY_PART') {
+      return {
+        file,
+        width: recipe.meta.width,
+        height: recipe.meta.height,
+        fingerprint: emptyCritiqueFingerprint(),
+        criteria: [],
+        findings: [],
+        fixes_total: 0,
+        truncated: false,
+        warnings: mergeWarnings(warnings, [
+          {
+            code: 'W_CRITIQUE_EMPTY',
+            message: 'The canvas is empty; there is nothing to critique.',
+            hint: 'Draw something on the canvas before asking for a critique.',
+          },
+        ]),
+      };
+    }
+    throw cause;
+  }
+  const report = buildCritique({
+    recipe,
+    compiled: result.compiled,
+    png: result.png,
+    lint: lintCompiled(result.compiled),
+    streak: args.streak === undefined ? undefined : intFlag(args.streak, 0, 'streak'),
+    previous: args.previous,
+  });
+  const payload: Record<string, unknown> = {
+    file,
+    width: result.width,
+    height: result.height,
+    fingerprint: report.fingerprint,
+    render_sha256: report.render_sha256,
+    criteria: report.criteria,
+    findings: report.findings,
+    fixes_total: report.fixes_total,
+    truncated: report.truncated,
+  };
+  if (report.stagnation !== undefined) {
+    payload.stagnation = report.stagnation;
+  }
+  const allWarnings = mergeWarnings(warnings, result.warnings, report.warnings);
+  if (allWarnings.length > 0) {
+    payload.warnings = allWarnings;
+  }
+  return payload;
+}
+
+/**
+ * Applies exactly one finding's op to the current recipe. The report is
+ * recomputed from the file on disk before anything is written, so a finding
+ * from a stale critique is rejected instead of being applied to a different
+ * picture. Existing ops are appended to, never rewritten, and no digest is
+ * edited: the digest is always the render of whatever the recipe now says.
+ */
+export function runFix(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const file = requireFile(args);
+  const target = resolve(cwd, file);
+  const { recipe, warnings } = readSource(target, file);
+  if (args.finding === undefined || args.finding === '') {
+    throw usageError(
+      'Missing --finding',
+      'Choose a zero-based index from px critique, e.g. --finding 2.',
+    );
+  }
+  const index = intFlag(args.finding, 0, 'finding');
+  if (index < 0) {
+    throw usageError('--finding must be a non-negative index', 'Critique indices start at 0.');
+  }
+
+  const current = renderRecipe(recipe);
+  const report = buildCritique({
+    recipe,
+    compiled: current.compiled,
+    png: current.png,
+    lint: lintCompiled(current.compiled),
+  });
+  const currentDigest = report.render_sha256;
+  const finding = report.findings.find((entry) => entry.index === index);
+  if (finding === undefined) {
+    throw new PxError(
+      'E_FIX_STALE',
+      `Finding ${index} is not in the current report (digest ${currentDigest}). Re-run px critique.`,
+    );
+  }
+  if (
+    args.sha256 !== undefined &&
+    args.sha256 !== currentDigest &&
+    args.sha256 !== report.fingerprint
+  ) {
+    throw new PxError(
+      'E_FIX_STALE',
+      `Finding ${index} is stale: expected digest ${args.sha256}, current digest ${currentDigest}. Re-run px critique.`,
+    );
+  }
+
+  const rawOp = finding.fix.op;
+  const wantedLayer =
+    typeof rawOp.target_layer === 'string' ? rawOp.target_layer : DEFAULT_LAYER_ID;
+  const foundLayer = recipe.layers.findIndex((layer) => layer.id === wantedLayer);
+  const applyAt = foundLayer === -1 ? 0 : foundLayer;
+  const layer = recipe.layers[applyAt];
+  const normalized = normalizeOp(rawOp, layer.ops.length, layer.id);
+  const nextLayers = recipe.layers.map((entry, position) =>
+    position === applyAt ? { ...entry, ops: [...entry.ops, normalized] } : entry,
+  );
+  const nextRecipe: Recipe = { ...recipe, layers: nextLayers };
+  const output = args.out === undefined || args.out === '' ? target : resolve(cwd, args.out);
+  writeOut(output, serializeRecipe(nextRecipe));
+
+  const after = renderRecipe(nextRecipe);
+  const afterSha = sha256Hex(after.png);
+  const nextReport = buildCritique({
+    recipe: nextRecipe,
+    compiled: after.compiled,
+    png: after.png,
+    lint: lintCompiled(after.compiled),
+  });
+  const payload: Record<string, unknown> = {
+    file,
+    width: after.width,
+    height: after.height,
+    fingerprint: nextReport.fingerprint,
+    render_sha256: afterSha,
+    criteria: nextReport.criteria,
+    findings: nextReport.findings,
+    fixes_total: nextReport.fixes_total,
+    truncated: nextReport.truncated,
+    fix: {
+      index,
+      op: rawOp,
+      before_sha256: currentDigest,
+      after_sha256: afterSha,
+    },
+  };
+  if (nextReport.stagnation !== undefined) {
+    payload.stagnation = nextReport.stagnation;
+  }
+  const allWarnings = mergeWarnings(warnings, after.warnings, nextReport.warnings);
+  if (afterSha === currentDigest) {
+    allWarnings.push({
+      code: 'W_FIX_NOOP',
+      message: `Fix ${index} was applied but the render is unchanged.`,
+      hint: 'The op was applied but the render did not change; the fix had no visible effect on this picture.',
+    });
+  }
+  if (allWarnings.length > 0) {
+    payload.warnings = allWarnings;
+  }
+  return payload;
+}
+
 export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown> {
   const file = requireFile(args);
   if (args.out === undefined || args.out === '') {
@@ -792,6 +1068,13 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
       'Pass --debug as well, or drop --backdrop.',
     );
   }
+  const view = renderViewSpec(args);
+  if (view !== undefined && (args.debug || args.metaExport)) {
+    throw usageError(
+      'Render views cannot be combined with --debug or --export',
+      'Ask for a view on its own, e.g. px render --file hero.px.json --out hero.png --blockout.',
+    );
+  }
   const { recipe, warnings } = readSource(resolve(cwd, file), file);
   let effective = recipe;
   if (args.swap.length > 0) {
@@ -800,8 +1083,14 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   const result = renderRecipe(effective);
 
-  const outTarget = resolve(cwd, args.out);
-  writeOut(outTarget, result.png);
+  // The view is drawn from this same compiled sprite. `result.png` is never
+  // touched, so a committed digest and the caller's --out file stay untouched.
+  const outFile = view === undefined ? args.out : viewPath(args.out, view);
+  const outPng =
+    view === undefined
+      ? result.png
+      : renderView(view, result.compiled, result.rgba, effective.design?.light ?? 'top-left').png;
+  writeOut(resolve(cwd, outFile), outPng);
 
   // Lint against the backdrop the caller asked to check, so a part that melts
   // into the panel is reported for that panel. Absent means the default grey.
@@ -809,15 +1098,31 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
 
   const payload: Record<string, unknown> = {
     file,
-    out: args.out,
+    out: outFile,
     width: result.width,
     height: result.height,
-    bytes: result.png.length,
-    sha256: sha256Hex(result.png),
+    bytes: outPng.length,
+    sha256: sha256Hex(outPng),
     findings: lintCompiled(result.compiled, lintBackdrop),
   };
+  if (view !== undefined) {
+    payload.view =
+      view.kind === 'blockout'
+        ? {
+            kind: 'blockout',
+            bands: BLOCKOUT_BANDS,
+            roles: BLOCKOUT_ROLES,
+            outline: false,
+            ao: false,
+            texture: false,
+          }
+        : { kind: 'values', steps: view.steps, mapping: VALUES_MAPPING };
+  }
   if (result.compiled.parts.length > 0) {
     payload.parts = result.compiled.parts;
+  }
+  if (result.compiled.deviations !== undefined && result.compiled.deviations.length > 0) {
+    payload.deviations = result.compiled.deviations;
   }
   const allWarnings = [...warnings, ...result.warnings];
   if (allWarnings.length > 0) {
@@ -1016,6 +1321,9 @@ export function runValidate(args: ParsedArgs, cwd: string): Record<string, unkno
     })),
     findings: lintCompiled(compiled),
     ...(compiled.cleanup === undefined ? {} : { cleanup: compiled.cleanup }),
+    ...(compiled.deviations === undefined || compiled.deviations.length === 0
+      ? {}
+      : { deviations: compiled.deviations }),
     warnings: [...warnings, ...compiled.warnings],
   };
 }

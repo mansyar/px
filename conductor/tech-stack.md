@@ -56,12 +56,20 @@ src/
   mcp/       MCP tool definitions, transport, response shaping
   meta/      Godot 4 + generic metadata emitters
   palettes/  curated flat palettes and ramp derivation
+  design/    declared intent, project style inheritance and validation
+  brief/     local subject templates (no network)
+  critique/  whole-image gap report and applyable fixes
 test/
   unit/      per-op and per-rule tests
   lint/      one file per rule plus the debug sheet
   ops/       one file per op family
   mcp/       tool surface, parity, no-network guard
   palettes/  curated values and derivation
+  design/    intent schema, inheritance, canonicalisation, authoring
+  intent-passes/ declared design driving light, edges, values, harmonize
+  brief/     local templates and no-write render views
+  critique/  gap report, fix verb, stagnation, bounded responses
+  art/       seven v1 assets plus seven v2 re-authored assets and score records
   goldens/   recipe → PNG SHA-256 fixtures
   benchmarks/ the four calibration assets and their transcripts
 docs/        lint threshold rationale
@@ -102,7 +110,9 @@ Windows host, no containers. Node 24 already installed. No env files and no seed
 
 Every op has a golden fixture: a recipe plus the expected PNG SHA-256, committed as text. A determinism test re-renders and compares hashes, and CI asserts identical hashes on Windows and Linux. This is the one suite that can rot into a false pass, so it is treated as a first-class gate rather than an ordinary test.
 
-**Dated note (2026-11-13).** The reactivity of a profile default to rendered bytes is now a determinism concern in its own right: `auto_outline`'s depth keys on the recipe version (`1`/`"1.0"` keep the historical 1 px, `"1.1"` takes `profile.outlineWidth`), so a change in what a version *means* is a byte-level change. Two networked scripts exist and neither is part of the build: `scripts/rubric.mjs` scores art through a vision model and `scripts/upscale.mjs` produces faithful nearest-neighbour views for that scoring. Both are human-run, imported by nothing, and must stay outside `pnpm verify` — the engine and its tests never take a network dependency.
+**Dated note (2026-11-13).** The reactivity of a profile default to rendered bytes is now a determinism concern in its own right: `auto_outline`'s depth keys on the recipe version (`1`/`"1.0"` keep the historical 1 px, `"1.1"` takes `profile.outlineWidth`), so a change in what a version *means* is a byte-level change. Two networked scripts exist and neither is part of the build: `scripts/rubric.mjs` scores art through a vision model and `scripts/upscale.mjs` produces faithful nearest-neighbour views for that scoring. Both are human-run, imported by nothing, and must stay outside `pnpm verify` - the engine and its tests never take a network dependency.
+
+**Dated note (2026-11-17).** The intent layer adds three local source modules (`src/design`, `src/brief`, `src/critique`) and three tool verbs (`px_brief`, `px_critique`, `px_fix`) with no runtime dependency. Schema 1.2 makes a declared `design` a byte-level input: it changes pass defaults, reported deviations and rendered output, so it is version-gated exactly like a profile default - older recipes are rejected rather than promoted. The project style file `px.style.json` is resolved relative to the recipe's directory, so a recipe moved into a scratch workspace needs its style copied with it; that is a path rule, not hidden state. Scoring of the v2 assets uses the same two faithful views and the same six anchors as before; the 4.0 gate remains hard and the measured result is recorded as failed in `test/art/scores.json`.
 
 ## Constraints
 

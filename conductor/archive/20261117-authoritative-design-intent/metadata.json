@@ -1,0 +1,32 @@
+{
+  "id": "20261117-authoritative-design-intent",
+  "title": "Authoritative Design Intent",
+  "type": "feature",
+  "status": "complete",
+  "priority": "high",
+  "depends_on": [],
+  "created_at": "2026-11-16T22:18:11Z",
+  "updated_at": "2026-11-17T01:31:49Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261117-authoritative-design-intent",
+  "base_branch": "main",
+  "base_sha": "77de1e56d5c88c976a13f43d9677b22addaa09d6",
+  "progress": {
+    "phases_total": 6,
+    "phases_verified": 6,
+    "tasks_total": 22,
+    "tasks_done": 22
+  },
+  "last_checkpoint": "7bc868d",
+  "review_verdict": "pass",
+  "review_rounds": 2,
+  "doc_sync": "synced",
+  "pr_url": "https://github.com/mansyar/px/pull/11",
+  "pr_state": "open",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": "2026-11-17T01:31:49Z",
+  "archive_path": "conductor/archive/20261117-authoritative-design-intent"
+}

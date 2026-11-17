@@ -8,10 +8,12 @@
  */
 
 import { type SlotCanvas, UNOWNED } from '../canvas.js';
+import type { Deviation } from '../compile.js';
 import { PxError } from '../errors.js';
 import { type SlotRoles, type SlotTable, slotHint, TRANSPARENT_SLOT } from '../palette.js';
 import type { ProfileNumbers } from '../profile.js';
 import {
+  type Design,
   type Op,
   type Parts,
   RAMP_ROLES,
@@ -22,6 +24,8 @@ import { drawAsciiBlit } from './ascii-blit.js';
 import { type CleanupReport, deband, seal, strays } from './cleanup.js';
 import { drawEllipse } from './ellipse.js';
 import { drawDitherFill, floodFill } from './fills.js';
+import { harmonize } from './harmonize.js';
+import { applyIntentEdges } from './intent-edges.js';
 import { applyLight } from './light.js';
 import { drawLine } from './line.js';
 import { drawMirror } from './mirror.js';
@@ -35,6 +39,7 @@ import { drawSetPixels } from './set-pixels.js';
 import { autoShade } from './shade.js';
 import { drawStroke } from './stroke.js';
 import { applyTexture } from './texture.js';
+import type { IntentValues } from './values.js';
 
 export interface OpContext {
   /** The active layer. Every write lands here, through the clipped writer. */
@@ -61,6 +66,10 @@ export interface OpContext {
   version: RecipeVersion;
   /** The numbers the active profile gives every pass, resolved once per compile. */
   profile: ProfileNumbers;
+  /** Declared intent, when the recipe carries one. Passes read it as defaults. */
+  design?: Design;
+  /** Collects every explicit flag that overrode a design default. */
+  deviations: Deviation[];
 }
 
 export interface OpResult {
@@ -81,6 +90,35 @@ const WRITTEN: OpResult = { clipped: false, noop: false };
 
 function result(clipped: boolean): OpResult {
   return { clipped, noop: false };
+}
+
+/** Ownership for value lookups, read from the same entry snapshot as the pass. */
+function intentValues(context: OpContext, owners: Int16Array): IntentValues | undefined {
+  if (context.design === undefined) {
+    return undefined;
+  }
+  const ownerNames = new Map<number, string>();
+  for (const [name, owner] of context.partIndexes) {
+    ownerNames.set(owner, name);
+  }
+  return { values: context.design.values, ownerNames, owners };
+}
+
+/**
+ * An explicit flag overrides a design default and is reported once, with both
+ * values. Restating the design default is not an override: only a real difference
+ * is recorded, so a recipe that echoes its design stays clean.
+ */
+function recordDeviation(
+  context: OpContext,
+  field: string,
+  declared: string | number,
+  actual: string | number,
+): void {
+  if (declared === actual) {
+    return;
+  }
+  context.deviations.push({ op_index: context.opIndex, field, declared, actual });
 }
 
 function unknownSlot(context: OpContext, name: string): PxError {
@@ -331,6 +369,21 @@ export function applyOp(context: OpContext, op: Op): OpResult {
     case 'mirror':
       return result(drawMirror(context.canvas, op.axis, op.pivot));
     case 'auto_outline': {
+      if (context.design !== undefined) {
+        const ownerNames = new Map<number, string>();
+        for (const [name, owner] of context.partIndexes) {
+          ownerNames.set(owner, name);
+        }
+        const painted = applyIntentEdges(context.canvas, {
+          source: snapshot(context, op.targetLayer),
+          owners: snapshotOwners(context, op.targetLayer),
+          roles: context.roles,
+          parts: context.parts,
+          ownerNames,
+          design: context.design,
+        });
+        return { clipped: false, noop: painted === 0 };
+      }
       const painted = autoOutline(
         context.canvas,
         snapshot(context, op.targetLayer),
@@ -356,6 +409,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         context.slots,
         op.lightDir,
         site,
+        intentValues(context, snapshotOwners(context, op.targetLayer)),
       );
       return { clipped: false, noop: painted === 0 };
     }
@@ -368,10 +422,19 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         op.bands,
         op.lightDir,
         site,
+        intentValues(context, snapshotOwners(context, op.targetLayer)),
       );
       return { clipped: false, noop: painted === 0 };
     }
     case 'light': {
+      // An omitted angle takes the declared light; an explicit one wins and is
+      // reported when it differs. Without a design the historical top-left
+      // default applies, so legacy recipes render byte-identically.
+      const designLight = context.design?.light;
+      const angle = op.angle ?? designLight ?? 'top-left';
+      if (op.angle !== undefined && designLight !== undefined) {
+        recordDeviation(context, 'angle', designLight, op.angle);
+      }
       const outcome = applyLight(
         context.canvas,
         snapshot(context, op.targetLayer),
@@ -380,7 +443,7 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         context.slots,
         context.parts,
         {
-          angle: op.angle,
+          angle,
           form: op.form,
           ao: op.ao,
           cast: op.cast === null ? null : (context.partIndexes.get(op.cast) ?? UNOWNED),
@@ -411,6 +474,29 @@ export function applyOp(context: OpContext, op: Op): OpResult {
         };
       }
       return { clipped: false, noop: outcome.painted === 0 };
+    }
+    case 'harmonize': {
+      if (context.design === undefined) {
+        // Without intent there is nothing to re-apply; the caller warns.
+        return { clipped: false, noop: true };
+      }
+      const ownerNames = new Map<number, string>();
+      for (const [name, owner] of context.partIndexes) {
+        ownerNames.set(owner, name);
+      }
+      const painted = harmonize({
+        canvas: context.canvas,
+        source: snapshot(context, op.targetLayer),
+        owners: snapshotOwners(context, op.targetLayer),
+        roles: context.roles,
+        slots: context.slots,
+        parts: context.parts,
+        ownerNames,
+        design: context.design,
+        site,
+        where: op.where ?? 'inner',
+      });
+      return { clipped: false, noop: painted === 0 };
     }
     case 'replace_slot':
       replaceSlot(

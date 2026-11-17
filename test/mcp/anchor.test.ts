@@ -164,6 +164,9 @@ describe('px anchor', () => {
       'diff',
       'synthesize',
       'validate',
+      'brief',
+      'critique',
+      'fix',
     ]);
   });
 });

@@ -2,15 +2,17 @@
  * Performance proof (NFR-3, NFR-7).
  *
  * A 256x256 canvas with 2,000 ops, compiled and encoded to PNG in-process, in
- * under 250 ms. Five runs after one warm-up, asserted on the median: a single
- * sample on a shared CI runner measures the runner, not the engine.
+ * under 250 ms. A second scene adds parts, materials, a full `light` pass and a
+ * `harmonize` pass and must stay under 500 ms. Five runs after one warm-up,
+ * asserted on the median: a single sample on a shared CI runner measures the
+ * runner, not the engine.
  *
  * No fake clocks, no sleeps, no mocked timing. `performance.now()` is the
  * monotonic clock the runtime gives us.
  */
 
 import { describe, expect, it } from 'vitest';
-import type { Op, Recipe, SlotRef } from '../../src/core/recipe/types.js';
+import type { Design, Op, Recipe, SlotRef } from '../../src/core/recipe/types.js';
 import { renderRecipe } from '../../src/render/render.js';
 
 const SIZE = 256;
@@ -137,12 +139,26 @@ function buildPartOps(): Op[] {
     castOffset: 2,
     rim: 'edge',
   });
+  // The full NFR-7 shape: harmonize re-applies the declared light, edges and
+  // value targets across every part, not just the single light pass above.
+  ops.push({ op: 'harmonize' });
   return ops;
 }
 
+const LIT_DESIGN: Design = {
+  subject: 'four-part lit scene',
+  light: 'top-left',
+  hierarchy: ['rock', 'water', 'moss', 'ember'],
+  values: { rock: 3, moss: 4, water: 2, ember: 5 },
+  edges: { silhouette: 'outline', material: 'shadow', detail: 'highlight' },
+  materials: ['rock', 'moss', 'water', 'ember'],
+  style: '@project',
+};
+
 const litRecipe: Recipe = {
-  version: '1.1',
+  version: '1.3',
   meta: { name: 'perf-lit', width: SIZE, height: SIZE, alphaMode: 'binary' },
+  design: LIT_DESIGN,
   palette: PART_PALETTE,
   parts: PART_STYLES,
   anchors: { origin: [0, 0] },
@@ -179,13 +195,17 @@ describe('2000 ops on a 256x256 canvas', () => {
   });
 });
 
-describe('2000 ops with parts and a full light pass on a 256x256 canvas', () => {
+describe('2000 ops with parts, a full light pass and harmonize on a 256x256 canvas', () => {
   it('renders to PNG in under 500 ms, measured on the median of five runs', () => {
     const warm = renderRecipe(litRecipe);
     expect(warm.png.length, 'the warm-up render must produce a PNG').toBeGreaterThan(0);
     expect(warm.compiled.parts.length, 'the lit scene must declare its parts').toBe(
       PART_NAMES.length,
     );
+    expect(
+      warm.warnings.some((warning) => warning.code === 'W_HARMONIZE_NOOP'),
+      'harmonize must apply real declared intent, not no-op',
+    ).toBe(false);
 
     const samples: number[] = [];
     for (let run = 0; run < RUNS; run += 1) {
@@ -201,7 +221,7 @@ describe('2000 ops with parts and a full light pass on a 256x256 canvas', () => 
     const median = sorted[Math.floor(RUNS / 2)];
     expect(median).toBeDefined();
     console.log(
-      `perf: ${OP_COUNT} ops + light on ${SIZE}x${SIZE} median ${median?.toFixed(1)} ms ` +
+      `perf: ${OP_COUNT} ops + light + harmonize on ${SIZE}x${SIZE} median ${median?.toFixed(1)} ms ` +
         `(runs ${sorted.map((entry) => entry.toFixed(1)).join(', ')})`,
     );
     expect(median ?? Number.POSITIVE_INFINITY).toBeLessThan(PART_BUDGET_MS);

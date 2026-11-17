@@ -48,6 +48,14 @@ export type ErrorCode =
   | 'E_SWAP_INCOMPATIBLE'
   | 'E_LINT_GATE'
   | 'E_DIFF_SIZE'
+  | 'E_STYLE_MISSING'
+  | 'E_INTENT_LIGHT'
+  | 'E_INTENT_EDGE'
+  | 'E_INTENT_HIERARCHY'
+  | 'E_INTENT_VALUE'
+  | 'E_INTENT_RAMP'
+  | 'E_SUBJECT_UNKNOWN'
+  | 'E_FIX_STALE'
   | 'E_INTERNAL';
 
 export type WarningCode =
@@ -56,8 +64,11 @@ export type WarningCode =
   | 'W_PASS_NOOP'
   | 'W_PART_OVERWRITE'
   | 'W_CLEANUP_NOOP'
+  | 'W_HARMONIZE_NOOP'
   | 'W_DIFF_HASH_ONLY'
-  | 'W_PROFILE_MISMATCH';
+  | 'W_PROFILE_MISMATCH'
+  | 'W_CRITIQUE_EMPTY'
+  | 'W_FIX_NOOP';
 
 export interface PxErrorLocation {
   op_index?: number;
@@ -96,7 +107,8 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
   E_WRITE_FAILED:
     'Pass --out as a path the process can write to, such as one under the working directory.',
   E_PARSE: 'The recipe must be valid JSON; check for a trailing comma or an unquoted key.',
-  E_BAD_VERSION: 'Recipe version is 1, "1.0" or "1.1"; parts require "1.1".',
+  E_BAD_VERSION:
+    'Recipe version is 1, "1.0", "1.1", "1.2" or "1.3"; parts require "1.1", a design block and the later op options require "1.2".',
   E_BAD_META:
     'meta requires a non-empty name, an integer width and height, and alpha_mode "binary".',
   E_BAD_CANVAS: 'Canvas width and height are integers between 8 and 256 inclusive.',
@@ -110,7 +122,7 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Alpha is binary: #rrggbb or #rrggbbaa with aa equal to 00 or ff. Dither for partial coverage.',
   E_UNKNOWN_SLOT: 'Declare the slot in the palette as <family>.<role> or <family>.<index>.',
   E_UNKNOWN_OP:
-    'Ops are set_pixels, rect, line, stroke, ellipse, polygon, flood_fill, dither_fill, texture, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, replace_slot, seal, strays, and deband.',
+    'Ops are set_pixels, rect, line, stroke, ellipse, polygon, flood_fill, dither_fill, texture, ascii_blit, mirror, auto_outline, auto_shade, ramp_fill, light, harmonize, replace_slot, seal, strays, and deband.',
   E_MISSING_PARAM:
     'Every op parameter listed in the recipe format is required unless marked optional.',
   E_MISSING_COLOR:
@@ -154,6 +166,17 @@ export const ERROR_HINTS: Record<ErrorCode, string> = {
     'Fix the warnings above, or drop --strict to report them without failing the command.',
   E_DIFF_SIZE:
     'Diff compares renders pixel for pixel, so both images must share a canvas size; compare against a render of a recipe with the same width and height.',
+  E_STYLE_MISSING:
+    'Create px.style.json in the recipe directory (or the caller cwd) with allowed_ramps, edge_vocabulary, default_light, min_contrast and value_rules.',
+  E_INTENT_LIGHT:
+    'Use one of the supported light directions: top-left, top-right, bottom-left, bottom-right.',
+  E_INTENT_EDGE: 'Use one of the closed edge treatments: none, outline, shadow, highlight.',
+  E_INTENT_HIERARCHY: 'Name only parts declared in the recipe parts block, in back-to-front order.',
+  E_INTENT_VALUE: 'Use a whole target value from 1 to 5 for each part.',
+  E_INTENT_RAMP: 'Use a ramp declared in px.style.json allowed_ramps.',
+  E_SUBJECT_UNKNOWN: 'Name a built-in brief subject; the error message lists every known one.',
+  E_FIX_STALE:
+    'The picture or the report changed; re-run px critique and use a fresh --finding index and --sha256.',
   E_INTERNAL: 'This is an engine defect; re-run with --pretty and report the envelope.',
 };
 
