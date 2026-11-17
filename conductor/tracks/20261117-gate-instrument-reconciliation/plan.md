@@ -68,3 +68,18 @@
 - [x] **P3.T2: Run integrated verification and record the result** — covers: NFR-3, NFR-4, AC-12
   - [x] **P3.T2.1:** Run both required gates and confirm no coverage threshold, exclude list, or ignore comment changed.
   - [x] **P3.T2.2:** Write `verification/integrated.md` with the final gate results, checkpoint table, and the honest pass/fail statement.
+
+## Phase R1: Review Fixes
+
+- **Goal:** Make the baseline record self-consistent so the measurement this track establishes can be trusted by a future reader.
+- **Depends on:** Phase 3
+- **Covers:** F1, F2, FR-7, FR-10
+- **Touches:** `test/art/**`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`
+- **Verification:** `pnpm verify` and the scoped coverage command
+- **Status:** in_progress
+
+- [ ] **R1.T1: Remove stale tiebreaks and guard them** — covers: F1, FR-7
+  - [ ] **R1.T1.1:** Delete the three stale `tiebreak` arrays from `test/art/scores.json`; no A/B pair in this single-instrument baseline differs by more than one point.
+  - [ ] **R1.T1.2:** Add a test in `test/art/rubric.test.ts` that every remaining tiebreak corresponds to an actual pass pair with an absolute score difference greater than one.
+- [ ] **R1.T2: Align the retry provenance prose** — covers: F2, FR-10
+  - [ ] **R1.T2.1:** State one precise count in `verification/baseline.md` and `verification/integrated.md` — three passes required a retry after transient 503/429 and fetch failures.
