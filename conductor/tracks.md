@@ -24,5 +24,5 @@
 
 - [x] **Track: Authoritative Design Intent** — [20261117-authoritative-design-intent](./archive/20261117-authoritative-design-intent/index.md) — feature — high — *merged PR #11, AC-14 failed (3.39 vs 4.0)*
 
-- [ ] **Track: Gate and Instrument Reconciliation** — [20261117-gate-instrument-reconciliation](./tracks/20261117-gate-instrument-reconciliation/index.md) — chore — high
+- [~] **Track: Gate and Instrument Reconciliation** — [20261117-gate-instrument-reconciliation](./tracks/20261117-gate-instrument-reconciliation/index.md) — chore — high
 
