@@ -130,7 +130,7 @@
 - **Covers:** FR-19, FR-20, NFR-3, NFR-6, NFR-7, AC-13, AC-14, AC-16, AC-17
 - **Touches:** `test/art/**`, `test/benchmarks/**`, `scripts/**`, `docs/rubric.md`, `verification/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P6.T1: Re-score with the same instrument** — covers: FR-19, FR-20, AC-13, AC-14
   - [ ] **P6.T1.1:** two passes per asset, schema 3 record, criteria anchors and views unchanged from before this track
