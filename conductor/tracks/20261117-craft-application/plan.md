@@ -82,13 +82,17 @@ The primary appends after acceptance:
 - **Covers:** FR-6, AC-4
 - **Touches:** `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` plus inspection of `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Read recomputed verdict** — covers: FR-6
-  - [ ] **P3.T1.1:** Record mean, threshold, and floor failures from the `scores.json` verdict
-- [ ] **P3.T2: Decide and document** — covers: FR-6, AC-4
-  - [ ] **P3.T2.1:** If `pass`, record the quality win and close
-  - [ ] **P3.T2.2:** If `fail`, present the invest-vs-accept choice to the user and record the explicit decision with evidence — never force a pass
+- [x] **P3.T1: Read recomputed verdict** — covers: FR-6
+  - [x] **P3.T1.1:** Record mean, threshold, and floor failures from the `scores.json` verdict
+- [x] **P3.T2: Decide and document** — covers: FR-6, AC-4
+  - [x] **P3.T2.1:** If `pass`, record the quality win and close
+  - [x] **P3.T2.2:** If `fail`, present the invest-vs-accept choice to the user and record the explicit decision with evidence — never force a pass
+
+**Result:** verified
+**Checkpoint:** d5b2da7
+**Evidence:** conductor/tracks/20261117-craft-application/verification/gate-decision.md
 
 <!--
 Review fixes are appended by `conductor-review` as:
