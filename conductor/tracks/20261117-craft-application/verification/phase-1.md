@@ -108,3 +108,27 @@ no rerolls were cherry-picked and no score was revised.
 - `test/art/scores.json` is unchanged: the publishable gate remains fail. Applying the
   validated L lever to other v2 assets and re-scoring all 14 passes belong to FR-4/FR-5,
   outside this phase.
+
+## Primary verification (conductor-implement)
+
+- Date: 2026-11-17
+- Tree clean before and after: yes (`git status --porcelain` empty).
+- Files changed (base `cd43a51`..`4ccfbf5`): 9 files, all inside Phase 1 Touches
+  (`test/art/diagnostic/**` and `verification/**`). No conductor-state or engine
+  files touched.
+- `test/art/scores.json` SHA-256 `5C872AA466252D622760E506FC96E4D309941BAE62F424297274F0639BBAE399`
+  before and after: byte-identical, canonical gate unchanged (NFR-2, FR-7).
+- `pnpm verify` re-run by primary: **exit 0** - typecheck clean, Biome 216 files /
+  1 pre-existing warning at `test/recipe/version-1-2.test.ts:50` (untouched by this
+  track), 119 test files / 1028 tests pass, build clean.
+- AC check: AC-1 satisfied - `verification/diagnostic.md` section 4 records >=2
+  candidates (H/L/E/C) with faithful A/B artifact paths, render digests and
+  frozen-instrument scores vs baseline; section 5 records the lever verdict.
+  L is the validated lever.
+- Subagent status: verified, no blockers. Permission-denied scoring was run by
+  primary per skill 4.6 and handed back; the subagent finalized the evidence.
+
+Result: **verified** - Phase 1 accepted.
+
+Checkpoint: `4ccfbf580e59527540862fdf42fcf9b0e3d59a8a`
+
