@@ -52,8 +52,8 @@ FR-1 .. FR-12, NFR-1 .. NFR-6 and AC-1 .. AC-12 are covered. The two review find
 
 Debug sheets for two of the seven scored assets, attached to this PR:
 
-- `.conductor/media/20261117-gate-instrument-reconciliation/prop-debug.png`
-- `.conductor/media/20261117-gate-instrument-reconciliation/character-debug.png`
+- prop: https://github.com/user-attachments/assets/9b4757a2-fb22-4ab9-b257-28cb3df3ca69
+- character: https://github.com/user-attachments/assets/a840315b-7157-4d7d-a654-480d4dfa78d2
 
 They are inputs to the baseline, not new art produced by this track.
 
