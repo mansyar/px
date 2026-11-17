@@ -130,13 +130,16 @@
 - **Covers:** FR-19, FR-20, NFR-3, NFR-6, NFR-7, AC-13, AC-14, AC-16, AC-17
 - **Touches:** `test/art/**`, `test/benchmarks/**`, `scripts/**`, `docs/rubric.md`, `verification/**`, `vitest.config.ts`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified for delivery — all six phases and budgets complete; **AC-14 failed** (mean 3.39 against 4.0, eight scores below the floor), recorded honestly in `test/art/scores.json` and `verification/phase-6-scoring.md` with no bar lowered or pass selected
+- **Checkpoint:** c888977
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-6.md
 
-- [ ] **P6.T1: Re-score with the same instrument** — covers: FR-19, FR-20, AC-13, AC-14
-  - [ ] **P6.T1.1:** two passes per asset, schema 3 record, criteria anchors and views unchanged from before this track
-  - [ ] **P6.T1.2:** recompute the verdict from the record; record failure honestly if mean < 4.0 or any criterion < 3 — never lower the bar or select a pass
-- [ ] **P6.T2: Performance and coverage** — covers: NFR-3, NFR-6, NFR-7, AC-16, AC-17
-  - [ ] **P6.T2.1:** 256×256 with 2,000 ops, `light` and `harmonize` under 500 ms median of five runs
-  - [ ] **P6.T2.2:** coverage gate on the enlarged include list with no threshold or exclude change, no new runtime dependency
-- [ ] **P6.T3: Evidence** — covers: FR-20
-  - [ ] **P6.T3.1:** per-asset before/after table with pass means, criterion means and the honest verdict, plus the unchanged-original digest proof
+- [x] **P6.T1: Re-score with the same instrument** — covers: FR-19, FR-20, AC-13, AC-14
+  - [x] **P6.T1.1:** two passes per asset, schema 3 record, criteria anchors and views unchanged from before this track
+  - [x] **P6.T1.2:** recompute the verdict from the record; record failure honestly if mean < 4.0 or any criterion < 3 — never lower the bar or select a pass
+- [x] **P6.T2: Performance and coverage** — covers: NFR-3, NFR-6, NFR-7, AC-16, AC-17
+  - [x] **P6.T2.1:** 256×256 with 2,000 ops, `light` and `harmonize` under 500 ms median of five runs
+  - [x] **P6.T2.2:** coverage gate on the enlarged include list with no threshold or exclude change, no new runtime dependency
+- [x] **P6.T3: Evidence** — covers: FR-20
+  - [x] **P6.T3.1:** per-asset before/after table with pass means, criterion means and the honest verdict, plus the unchanged-original digest proof
