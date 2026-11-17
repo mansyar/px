@@ -5,15 +5,15 @@
 - Date: 2026-11-17
 - Branch: `chore/20261117-gate-instrument-reconciliation`
 - Base: `640e72e` (docs(conductor): record review round 1 and open Phase R1)
-- Head: `ec4a43c` (docs(conductor): align the baseline retry provenance)
+- Head: `e736ac2` (fix(record): align baseline tiebreaks and retry provenance) — phase checkpoint after squashing the two task commits
 - Result: **verified** — both tasks are complete and committed; the primary ran both gates at the phase head with exit 0.
 
 ## Task and commit table
 
 | Task | Finding / FR | Change | Commit |
 | --- | --- | --- | --- |
-| R1.T1 | F1 (Medium), FR-7 | Deleted the three stale `tiebreak` arrays from `test/art/scores.json` (potion/lighting, humanoid/silhouette + humanoid/lighting, chest/lighting) and added a guard in `test/art/rubric.test.ts` that resolves every remaining tiebreak's asset, both passes and named criterion, and asserts an absolute A/B score difference greater than one. | `22e6063` — `test(art): remove stale tiebreaks and pin their validity` |
-| R1.T2 | F2 (Low), FR-10 | Replaced the disagreeing retry prose in `verification/baseline.md` and `verification/integrated.md` with one statement in both: "Three passes required a retry after transient 503/429 and fetch failures." | `ec4a43c` — `docs(conductor): align the baseline retry provenance` |
+| R1.T1 | F1 (Medium), FR-7 | Deleted the three stale `tiebreak` arrays from `test/art/scores.json` (potion/lighting, humanoid/silhouette + humanoid/lighting, chest/lighting) and added a guard in `test/art/rubric.test.ts` that resolves every remaining tiebreak's asset, both passes and named criterion, and asserts an absolute A/B score difference greater than one. | `e736ac2` — `fix(record): align baseline tiebreaks and retry provenance` (squashed task commit) |
+| R1.T2 | F2 (Low), FR-10 | Replaced the disagreeing retry prose in `verification/baseline.md` and `verification/integrated.md` with one statement in both: "Three passes required a retry after transient 503/429 and fetch failures." | `e736ac2` — `fix(record): align baseline tiebreaks and retry provenance` (squashed task commit) |
 
 ## Recomputed verdict (unchanged)
 

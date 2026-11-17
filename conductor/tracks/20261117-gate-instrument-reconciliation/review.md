@@ -19,3 +19,17 @@ NFR-3/AC-12 were marked partial only because the reviewer's shell was denied the
 ### What this review caught
 
 Both findings are record-accuracy problems, not engine defects. They matter because the whole point of this chore is a trustworthy measurement: a tiebreak that adjudicates a disagreement which never existed makes the baseline look less stable than it is, and two different retry counts make the provenance look hand-maintained. Strict mode requires both to be fixed rather than tracked.
+
+## Round 2
+
+- Range: `0fd23f7fda645b0c24f696af988f7901507b49ea..HEAD`, emphasis on `e736ac2`
+- Date: 2026-11-17
+- Verdict: **PASS WITH FINDINGS — shippable** (one Low)
+
+F1 closed at the cause: `scores.json` has zero tiebreak keys and the diff contains only their deletion; `rubric.test.ts:250-268` now pins any future tiebreak to a real >1-point pass disagreement. F2 closed: both evidence documents use the same precise retry sentence. No score, rationale, verdict, digest, manifest, lockfile, threshold or budget changed; the verdict still recomputes to fail / 3.25 / 22 failures. `pnpm verify` and the rubric test pass; the primary ran the scoped coverage command at the R1 head with exit 0.
+
+| Finding | Severity | Resolution |
+| --- | --- | --- |
+| L1 — `verification/phase-R1.md` cited pre-squash task commits `22e6063`/`ec4a43c` instead of the real checkpoint `e736ac2`. | Low | Fixed by the primary in the evidence file: Head and both task rows now name `e736ac2` as the squashed checkpoint. |
+
+No further fix round is warranted: the remaining finding was an evidence typo in primary-owned Conductor state, corrected in place. NFR-3/AC-12 were marked partial by the reviewer only because its shell denied the scoped coverage command; the primary's exit-0 run at the R1 head is recorded in `verification/phase-R1.md`.

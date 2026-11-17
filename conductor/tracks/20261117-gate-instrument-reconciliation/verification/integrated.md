@@ -10,9 +10,9 @@
 
 | Check | Result |
 | --- | --- |
-| `pnpm verify` | exit 0, 119 files / 1027 tests, typecheck + Biome + build clean (one pre-existing warning at `test/recipe/version-1-2.test.ts:50`) |
-| `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | exit 0, 116 files / 995 tests, 94.97% statements / 85.69% branches / 98.33% functions / 94.77% lines |
-| `pnpm vitest run test/art/rubric.test.ts` | exit 0, 12 tests |
+| `pnpm verify` | exit 0, 119 files / 1028 tests, typecheck + Biome + build clean (one pre-existing warning at `test/recipe/version-1-2.test.ts:50`) |
+| `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | exit 0, 116 files / 996 tests, 94.97% statements / 85.69% branches / 98.33% functions / 94.77% lines |
+| `pnpm vitest run test/art/rubric.test.ts` | exit 0, 13 tests |
 | `git diff 0fd23f7..HEAD -- test/goldens test/benchmarks test/art` filtered to `.sha256` | empty — 19 digests unchanged (1 hero, 4 v1 benchmarks, 7 v1 art, 7 v2 art) |
 | `git diff 0fd23f7..HEAD -- package.json pnpm-lock.yaml` | empty — manifest and lockfile byte-identical, one production dependency |
 | Network-capable imports in `src/`, `test/`, CI | none; only `scripts/rubric.mjs` is networked and is imported by nothing |
@@ -25,7 +25,8 @@
 | --- | --- | --- |
 | Gate Contract and Provenance | `e3ab807` | verified — publishable 3.5/3.0 binding; two prior records frozen |
 | Frozen Instrument and Baseline | `6f64349` | verified — one instrument, 14 faithful passes, honest gate failure |
-| Verification and No-Regression | pending | verified by this document |
+| Verification and No-Regression | `61690df` | verified — 19 digests, manifest and lockfile unchanged; both gates green |
+| Phase R1 review fixes | `e736ac2` | verified — stale tiebreaks removed with a guard; retry prose aligned; scores unchanged |
 
 ## Cross-phase invariants
 
@@ -42,6 +43,10 @@ AC-1 through AC-12 are satisfied: the binding gate and both provenance records e
 ## Result of the quality gate itself
 
 **FAIL at the publishable tier** — mean **3.25** against 3.5, with 22 criterion scores below 3. This is the finding the track was created to establish, not a failure of the track's own criteria. The prior 3.69 and 3.39 records used different instruments, so the difference is not treated as a measured regression; 3.25 is the new baseline. No score was raised, no failing criterion was removed, and no reroll was performed.
+
+## Review outcome
+
+Round 1 returned PASS WITH FINDINGS (one Medium, one Low); both were closed in `e736ac2`. Round 2 returned PASS WITH FINDINGS with one Low evidence typo, corrected in place by the primary. No design question was reopened and no criterion was weakened. NFR-3/AC-12 were marked partial by the reviewer only because its shell denied the scoped coverage command; the primary's exit-0 runs are recorded above and in `verification/phase-R1.md`.
 
 ## Known limitations
 
