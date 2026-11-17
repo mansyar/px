@@ -48,7 +48,7 @@ The primary appends after acceptance:
 - **Covers:** FR-4, FR-5, FR-7, NFR-2, NFR-3, NFR-4, AC-2, AC-3, AC-5, AC-6
 - **Touches:** `test/art/v2/**/*.px.json`, `test/art/scores.json`, `conductor/tracks/20261117-craft-application/verification/asset-digests.md`
 - **Verification:** `pnpm verify` && `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` && `node scripts/rubric-report.mjs`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Select levers with evidence** — covers: FR-4, AC-2
   - [ ] **P2.T1.1:** Map each below-floor asset/pass to the validated lever addressing its failing criteria; record in `verification/lever-selection.md`
