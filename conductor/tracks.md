@@ -22,5 +22,5 @@
 
 - [x] **Track: Rubric View Comparison** — [20261113-rubric-view-comparison](./archive/20261113-rubric-view-comparison/index.md) — feature — high — *merged PR #10, 1x refused at every size (mean |Δ| 0.42 / 0.58 vs 0.25)*
 
-- [~] **Track: Authoritative Design Intent** — [20261117-authoritative-design-intent](./tracks/20261117-authoritative-design-intent/index.md) — feature — high
+- [x] **Track: Authoritative Design Intent** — [20261117-authoritative-design-intent](./archive/20261117-authoritative-design-intent/index.md) — feature — high — *open PR #11, AC-14 failed (3.39 vs 4.0)*
 
