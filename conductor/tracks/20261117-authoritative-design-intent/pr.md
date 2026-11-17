@@ -51,9 +51,9 @@ The quality gate is **not met** and this PR says so plainly. The seven re-author
 
 Captured at `48bd269`, the final branch head before the PR. These are the engine's own debug sheets for the v2 assets: panel A at profile zoom, panel B at game size, panel C silhouette, with part crops below.
 
-![v2 prop debug sheet](.conductor/media/20261117-authoritative-design-intent/prop-debug.png)
+![v2 prop debug sheet](https://github.com/user-attachments/assets/d318ff40-8814-4003-8a7d-03b79e105e04)
 
-![v2 character debug sheet](.conductor/media/20261117-authoritative-design-intent/character-debug.png)
+![v2 character debug sheet](https://github.com/user-attachments/assets/cc86c372-074e-42d2-83f4-2c014ce4f14c)
 
 ## Review
 
