@@ -82,7 +82,7 @@ The primary appends after acceptance:
 - **Covers:** FR-6, AC-4
 - **Touches:** `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` plus inspection of `conductor/tracks/20261117-craft-application/verification/gate-decision.md`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Read recomputed verdict** — covers: FR-6
   - [ ] **P3.T1.1:** Record mean, threshold, and floor failures from the `scores.json` verdict
