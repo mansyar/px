@@ -101,7 +101,7 @@ The primary appends after acceptance:
 - **Covers:** F1, F2
 - **Touches:** `test/art/rubric.test.ts`, `test/art/diagnostic/chest/make-candidates.mjs`, `conductor/tracks/20261117-craft-application/verification/phase-R1.md`
 - **Verification:** `pnpm verify` (1028 tests, build green); inspect both changed lines; no assertion or logic change.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Rename the stale rubric.test.ts instrument test title (F1)** — covers: F1
   - [ ] **R1.T1.1:** Rename `records the frozen instrument and every required field` → `records the instrument of record and every required field`; change no assertion.
