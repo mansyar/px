@@ -34,7 +34,7 @@
 - **Covers:** FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-2, NFR-5, NFR-6, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11
 - **Touches:** `scripts/rubric.mjs`, `test/art/scores.json`, `test/art/rubric.test.ts`, `test/art/assets-v2.test.ts`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`, `.conductor/evidence/art/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Record the instrument in the schema-3 score record** — covers: FR-4, NFR-5, AC-4
   - [ ] **P2.T1.1:** Extend `scripts/rubric.mjs` and `test/art/rubric.test.ts` with an explicit `instrument` object: script, model, optional fallback model, views, asset set, date, and gate decision.
