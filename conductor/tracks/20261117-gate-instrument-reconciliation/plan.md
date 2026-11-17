@@ -33,19 +33,22 @@
 - **Depends on:** Phase 1
 - **Covers:** FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, NFR-2, NFR-5, NFR-6, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11
 - **Touches:** `scripts/rubric.mjs`, `test/art/scores.json`, `test/art/rubric.test.ts`, `test/art/assets-v2.test.ts`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`, `.conductor/evidence/art/**`
-- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Verification:** `pnpm verify` and `pnpm coverage`
+- **Status:** verified
+- **Result:** verified — one frozen instrument scored all 14 faithful passes; the publishable gate failed honestly at mean 3.25 and was not weakened.
+- **Checkpoint:** 6f64349
+- **Evidence:** conductor/tracks/20261117-gate-instrument-reconciliation/verification/phase-2.md, conductor/tracks/20261117-gate-instrument-reconciliation/verification/baseline.md
 
-- [ ] **P2.T1: Record the instrument in the schema-3 score record** — covers: FR-4, NFR-5, AC-4
-  - [ ] **P2.T1.1:** Extend `scripts/rubric.mjs` and `test/art/rubric.test.ts` with an explicit `instrument` object: script, model, optional fallback model, views, asset set, date, and gate decision.
-  - [ ] **P2.T1.2:** Assert every vision pass names the model actually used and that no credential value is written into the repository.
-- [ ] **P2.T2: Score the seven v2 assets with two faithful views** — covers: FR-5, FR-6, FR-7, FR-9, AC-5, AC-6, AC-7
-  - [ ] **P2.T2.1:** Render/verify `.8x.png` pass-A and `.debug.png` pass-B artifacts for potion, sword, humanoid, chest, character, prop and scene; raw 1× PNGs remain refused.
-  - [ ] **P2.T2.2:** Run `scripts/rubric.mjs` first with `gemini-4-hydrogen`; on one malformed or failed attempt, fall back once to `gemini-3.5-flash-lite` and record why.
-  - [ ] **P2.T2.3:** Let the existing record logic recompute the verdict and failure list; do not hand-edit a score or remove a below-floor finding.
-- [ ] **P2.T3: Publish the baseline evidence** — covers: FR-8, FR-10, AC-8, AC-11
-  - [ ] **P2.T3.1:** Write `verification/baseline.md` with the gate decision, instrument, model used or fallback, per-asset means, per-criterion means, instrument-spread caveat, provenance paths and honest verdict.
-  - [ ] **P2.T3.2:** State explicitly whether the publishable gate was met; if not, name the failing criteria and assets without changing the bar.
+- [x] **P2.T1: Record the instrument in the schema-3 score record** — covers: FR-4, NFR-5, AC-4
+  - [x] **P2.T1.1:** Extend `scripts/rubric.mjs` and `test/art/rubric.test.ts` with an explicit `instrument` object: script, model, optional fallback model, views, asset set, date, and gate decision.
+  - [x] **P2.T1.2:** Assert every vision pass names the model actually used and that no credential value is written into the repository.
+- [x] **P2.T2: Score the seven v2 assets with two faithful views** — covers: FR-5, FR-6, FR-7, FR-9, AC-5, AC-6, AC-7
+  - [x] **P2.T2.1:** Render/verify `.8x.png` pass-A and `.debug.png` pass-B artifacts for potion, sword, humanoid, chest, character, prop and scene; raw 1× PNGs remain refused.
+  - [x] **P2.T2.2:** Run `scripts/rubric.mjs` first with `gemini-4-hydrogen`; on one malformed or failed attempt, fall back once to `gemini-3.5-flash-lite` and record why.
+  - [x] **P2.T2.3:** Let the existing record logic recompute the verdict and failure list; do not hand-edit a score or remove a below-floor finding.
+- [x] **P2.T3: Publish the baseline evidence** — covers: FR-8, FR-10, AC-8, AC-11
+  - [x] **P2.T3.1:** Write `verification/baseline.md` with the gate decision, instrument, model used or fallback, per-asset means, per-criterion means, instrument-spread caveat, provenance paths and honest verdict.
+  - [x] **P2.T3.2:** State explicitly whether the publishable gate was met; if not, name the failing criteria and assets without changing the bar.
 
 ## Phase 3: Verification and No-Regression
 
@@ -53,7 +56,7 @@
 - **Depends on:** Phase 2
 - **Covers:** FR-8, FR-12, NFR-1, NFR-2, NFR-3, NFR-4, NFR-6, AC-8, AC-9, AC-10, AC-12
 - **Touches:** `test/**`, `scripts/**`, `conductor/tracks/20261117-gate-instrument-reconciliation/verification/**`
-- **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
+- **Verification:** `pnpm verify` and `pnpm coverage`
 - **Status:** pending
 
 - [ ] **P3.T1: Audit digests, dependency and network boundaries** — covers: FR-8, FR-12, NFR-1, NFR-2, NFR-6, AC-8, AC-9, AC-10
