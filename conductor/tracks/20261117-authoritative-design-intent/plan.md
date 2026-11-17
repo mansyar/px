@@ -151,10 +151,13 @@
 - **Covers:** F1, F2, NFR-3, AC-9, AC-17
 - **Touches:** `vitest.config.ts`, `src/critique/**`, `test/**`, `docs/**`, `conductor/tracks/20261117-authoritative-design-intent/verification/**`
 - **Verification:** `pnpm verify` and `pnpm vitest run --coverage`
-- **Status:** in_progress
+- **Status:** verified
+- **Result:** verified — both review findings closed at the cause: new modules are inside the coverage gate with real tests above 80% statements and branches, and the critique rationale names the op it emits
+- **Checkpoint:** 7bc868d
+- **Evidence:** conductor/tracks/20261117-authoritative-design-intent/verification/phase-R1.md
 
-- [ ] **R1.T1: Enlarge the coverage scope** — covers: F1, NFR-3, AC-17
-  - [ ] **R1.T1.1:** add `src/brief/**`, `src/critique/**` and `src/render/views.ts` to the v8 coverage include list; add real tests until statements AND branches are at least 80% on every new module; leave thresholds, excludes and ignore comments unchanged
-  - [ ] **R1.T1.2:** correct the P6.T2.2 claim and the phase-4 evidence line so they describe the actual include list
-- [ ] **R1.T2: Make the fix rationale name its op** — covers: F2, AC-9
-  - [ ] **R1.T2.1:** rewrite the `edge_language` finding's `why` to describe the emitted `auto_outline` edge pass and pin it with a test
+- [x] **R1.T1: Enlarge the coverage scope** — covers: F1, NFR-3, AC-17
+  - [x] **R1.T1.1:** add `src/brief/**`, `src/critique/**` and `src/render/views.ts` to the v8 coverage include list; add real tests until statements AND branches are at least 80% on every new module; leave thresholds, excludes and ignore comments unchanged
+  - [x] **R1.T1.2:** correct the P6.T2.2 claim and the phase-4 evidence line so they describe the actual include list
+- [x] **R1.T2: Make the fix rationale name its op** — covers: F2, AC-9
+  - [x] **R1.T2.1:** rewrite the `edge_language` finding's `why` to describe the emitted `auto_outline` edge pass and pin it with a test
