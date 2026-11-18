@@ -34,5 +34,5 @@
 
 - [x] **Track: Phase 1 Closeout Audit** - [20261118-phase1-closeout-audit](./archive/20261118-phase1-closeout-audit/index.md) - chore - medium - *PR #16, Phase 1 declared feature-complete; gate pass mean 3.82, zero below-floor, empty code delta*
 
-- [ ] **Track: Agent Legibility Verification** - [20261118-agent-legibility-verification](./tracks/20261118-agent-legibility-verification/index.md) - chore - high
+- [~] **Track: Agent Legibility Verification** - [20261118-agent-legibility-verification](./tracks/20261118-agent-legibility-verification/index.md) - chore - high
 
