@@ -14,19 +14,23 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-6, NFR-3, NFR-4, AC-1, AC-2, AC-3, AC-6, AC-7
 - **Touches:** `test/art/v2/humanoid/**`, `test/art/v2/scene/**`, `conductor/tracks/20261118-gate-close-flash-lite/verification/recipe-changes.md`, `.conductor/evidence/**` (gitignored)
 - **Verification:** `pnpm verify` (typecheck + lint + test + build); faithful render SHA-256 comparison (render twice, compare to committed sidecar)
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Re-author `humanoid` with the validated lever** — covers: FR-1
-  - [ ] **P1.T1.1:** Apply warm/cool hue-stepped 5-stop ramps and one top-left `light` op before `auto_outline` (no `harmonize`), using only existing registered ops.
-  - [ ] **P1.T1.2:** Preserve the declared design-block invariants (`light = top-left`, hero `torso`, value plan, materials, edges, hierarchy) checked by `assets-v2.test.ts`.
-  - [ ] **P1.T1.3:** Render `--strict` clean, update `.sha256` sidecar and transcript, confirm a stable digest across two renders.
-- [ ] **P1.T2: Re-author `scene` gable for one consistent light direction** — covers: FR-2
-  - [ ] **P1.T2.1:** Unify the two roof planes so they read as a single top-left light source (remove the conflicting-shadow split) without relying on a second light.
-  - [ ] **P1.T2.2:** Preserve declared design-block invariants and keep all twelve parts in the hierarchy.
-  - [ ] **P1.T2.3:** Render `--strict` clean, update `.sha256` sidecar and transcript, confirm a stable digest across two renders.
-- [ ] **P1.T3: Verify byte-identity of the five unchanged assets** — covers: FR-6
-  - [ ] **P1.T3.1:** Digest-compare `potion`, `sword`, `chest`, `character`, `prop` v2 recipes, sidecars, and score records against the pre-track state.
-  - [ ] **P1.T3.2:** Record the comparison and the explicit humanoid byte-identity waiver in `verification/recipe-changes.md`.
+- [x] **P1.T1: Re-author `humanoid` with the validated lever** — covers: FR-1
+  - [x] **P1.T1.1:** Apply warm/cool hue-stepped 5-stop ramps and one top-left `light` op before `auto_outline` (no `harmonize`), using only existing registered ops.
+  - [x] **P1.T1.2:** Preserve the declared design-block invariants (`light = top-left`, hero `torso`, value plan, materials, edges, hierarchy) checked by `assets-v2.test.ts`.
+  - [x] **P1.T1.3:** Render `--strict` clean, update `.sha256` sidecar and transcript, confirm a stable digest across two renders.
+- [x] **P1.T2: Re-author `scene` gable for one consistent light direction** — covers: FR-2
+  - [x] **P1.T2.1:** Unify the two roof planes so they read as a single top-left light source (remove the conflicting-shadow split) without relying on a second light.
+  - [x] **P1.T2.2:** Preserve declared design-block invariants and keep all twelve parts in the hierarchy.
+  - [x] **P1.T2.3:** Render `--strict` clean, update `.sha256` sidecar and transcript, confirm a stable digest across two renders.
+- [x] **P1.T3: Verify byte-identity of the five unchanged assets** — covers: FR-6
+  - [x] **P1.T3.1:** Digest-compare `potion`, `sword`, `chest`, `character`, `prop` v2 recipes, sidecars, and score records against the pre-track state.
+  - [x] **P1.T3.2:** Record the comparison and the explicit humanoid byte-identity waiver in `verification/recipe-changes.md`.
+
+**Result:** verified
+**Checkpoint:** 051ada7
+**Evidence:** conductor/tracks/20261118-gate-close-flash-lite/verification/phase-1.md
 
 <!--
 The primary appends after acceptance:

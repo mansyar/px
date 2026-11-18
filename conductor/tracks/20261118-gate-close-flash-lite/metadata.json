@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-17T23:10:19Z",
-  "updated_at": "2026-11-18T03:26:22Z",
+  "updated_at": "2026-11-18T03:46:52Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261118-gate-close-flash-lite",
@@ -14,11 +14,11 @@
   "base_sha": "8de763543d60fa2b92e5799dd5cbd6f288932342",
   "progress": {
     "phases_total": 3,
-    "phases_verified": 0,
+    "phases_verified": 1,
     "tasks_total": 8,
-    "tasks_done": 0
+    "tasks_done": 3
   },
-  "last_checkpoint": null,
+  "last_checkpoint": "051ada7",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",

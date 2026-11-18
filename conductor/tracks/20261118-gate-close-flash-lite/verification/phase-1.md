@@ -93,3 +93,40 @@ and was not touched.
 - Phase 2 credentialed scoring and Phase 3 gate decision remain with the
   primary agent; `scripts/rubric.mjs` and `test/art/scores.json` were not run
   or edited here.
+
+## Primary verification (conductor-implement)
+
+- **Date / branch:** 2026-11-18; `feat/20261118-gate-close-flash-lite`
+  (phase base `5e16250d81fdb0b84e10ec40e83bbebf781773af`).
+- **Tree:** clean after the subagent's three commits (`b47f7d5`, `06c408b`,
+  `c5c2194`).
+- **Files changed:** 8 files, all within Touches — the two target recipes,
+  their design docs and sidecars, plus `recipe-changes.md` and `phase-1.md`.
+  No `plan.md`, `spec.md`, `metadata.json`, `tracks.md`, product doc, `review.md`
+  or `pr.md` was touched; both `.calls.json` transcripts were correctly left
+  byte-identical (already satisfy the ≤20-call / one-`--strict`-render rule).
+- **Byte identity (P1.T3):** SHA-256 comparison against the pre-track baseline
+  confirms all five unchanged v2 recipes + sidecars, all seven pinned v1
+  originals, and `test/art/scores.json`
+  (`E930EC6D0CBEC27144CA9E020C9B1603BC183E7CFFF7BF9FAE87C54A5F50AC07`)
+  are unchanged. Only humanoid's protection is waived, as authorized.
+- **Faithful artifacts:** `.conductor/evidence/art-v2/generation-summary.json`
+  records `recipe_sha256 == committed_sha256` and zero blocking findings for
+  both targets (humanoid `27fd32e6…`, scene `f48e72d7…`); pass-A `.8x.png` and
+  pass-B `.debug.png` paths are present for each. Both recipes declare
+  `"style": "@project"` — the temporary render-time pointer was restored.
+- **Checks re-run by primary:**
+  - `pnpm verify` → exit 0 (typecheck, Biome 216 files with one pre-existing
+    non-failing `noNonNullAssertion` warning at `test/recipe/version-1-2.test.ts:50`,
+    119 test files / 1028 tests, build clean).
+  - `pnpm exec vitest run --coverage --project unit --project integration
+    --project smoke --project goldens` → exit 0; statements 95.02%, branches
+    85.72%, functions 98.33%, lines 94.82% (all above the 80% gate).
+- **Acceptance:** AC-3 (strict-clean re-render + new digests + A/B artifacts),
+  AC-6 (five unchanged assets byte-identical) and AC-7 (verify + coverage) are
+  satisfied by the evidence above. AC-1/AC-2 (lighting ≥3 on the two targets)
+  require Phase 2 scoring and are explicitly deferred, not assumed.
+- **Squash guard:** the range `5e16250..HEAD` contains exactly the three
+  subagent-reported commits, no merge commit and no unreported/user commit —
+  eligible for the §4.8 squash.
+- **Result: verified.** Checkpoint to be recorded by primary at acceptance.
