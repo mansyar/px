@@ -2,11 +2,11 @@
   "id": "20261118-gate-close-flash-lite",
   "title": "Publishable Gate Close",
   "type": "feature",
-  "status": "in_progress",
+  "status": "complete",
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-17T23:10:19Z",
-  "updated_at": "2026-11-18T04:16:44Z",
+  "updated_at": "2026-11-18T04:19:18Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261118-gate-close-flash-lite",
@@ -22,10 +22,10 @@
   "review_verdict": "PASS",
   "review_rounds": 1,
   "doc_sync": "updated — post-review: F1 resolution recorded in review.md History; tech-stack.md dated note 2026-11-18 (gate close) records the 3.73 honest fail and no structural change; product.md / product-guidelines.md unchanged (no product or guideline change); spec frozen",
-  "pr_url": null,
+  "pr_url": "https://github.com/mansyar/px/pull/14",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
-  "archived_at": null,
-  "archive_path": null
+  "archived_at": "2026-11-18T04:19:18Z",
+  "archive_path": "conductor/archive/20261118-gate-close-flash-lite"
 }
