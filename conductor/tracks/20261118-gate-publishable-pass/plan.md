@@ -7,7 +7,7 @@
 - **Covers:** FR-3, NFR-3, NFR-7, AC-3, AC-7, AC-9
 - **Touches:** `test/art/v2/humanoid/**`, `verification/recipe-changes.md`, `verification/phase-1.md`, gitignored `.conductor/evidence/**`
 - **Verification:** `pnpm verify`; two-render digest equality against the new sidecar; generation-summary shows zero blocking findings; primary visual review recorded.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Re-author the humanoid palette** — covers: FR-3, NFR-3, AC-3
   - [ ] **P1.T1.1:** Rebuild part ramps as warm/cool hue-stepped 5-stop ramps; keep the single top-left `light` before `auto_outline`, all nine parts, hero `torso`, value plan, `design.style=@project`, and design-block invariants.
@@ -26,7 +26,7 @@
 
 - **Goal:** two machine-written flash-lite passes for humanoid A/B and a scorer-recomputed honest verdict, with the ten unaffected passes untouched.
 - **Depends on:** Phase 1
-- **Covers:** FR-1, FR-2, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-5, AC-1, AC-2, AC-4, AC-5, AC-6, AC-8
+- **Covers:** FR-1, FR-2, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-4, NFR-5, NFR-6, AC-1, AC-2, AC-4, AC-5, AC-6, AC-8
 - **Touches:** `test/art/scores.json`, `verification/rescore.md`, `verification/phase-2.md`, gitignored `.conductor/evidence/**`
 - **Verification:** `pnpm verify`; field-by-field diff shows `unaffected_checked=10 diffs=0`; `node scripts/rubric-report.mjs` confirms the recomputed verdict.
 - **Status:** pending
