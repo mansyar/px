@@ -78,13 +78,17 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-4, AC-5, AC-7
 - **Touches:** `verification/closeout-decision.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; scoped coverage; determinism layer; `node scripts/rubric-report.mjs` (primary-run)
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Record the closeout decision** — covers: FR-5
-  - [ ] **P3.T1.1:** Declare Phase 1 feature-complete with passing-gate evidence and remaining accepted debt
-  - [ ] **P3.T1.2:** Restate the Phase 2 boundary and record any follow-ups without filing issues
-- [ ] **P3.T2: Final verification snapshot** — covers: AC-7
-  - [ ] **P3.T2.1:** Re-run all configured checks at final HEAD and record exit codes and metrics
+- [x] **P3.T1: Record the closeout decision** — covers: FR-5
+  - [x] **P3.T1.1:** Declare Phase 1 feature-complete with passing-gate evidence and remaining accepted debt
+  - [x] **P3.T1.2:** Restate the Phase 2 boundary and record any follow-ups without filing issues
+- [x] **P3.T2: Final verification snapshot** — covers: AC-7
+  - [x] **P3.T2.1:** Re-run all configured checks at final HEAD and record exit codes and metrics
+
+**Result:** verified — ACCEPT CLOSEOUT recorded; Phase 1 feature-complete; all five configured checks re-run green at final HEAD; code delta empty; no open threads.
+**Checkpoint:** d7c56727166d830c6a9907f0154eaa2340acc318
+**Evidence:** conductor/tracks/20261118-phase1-closeout-audit/verification/phase-3.md
 
 <!--
 The primary appends after acceptance:
