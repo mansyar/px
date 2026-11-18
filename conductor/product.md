@@ -93,4 +93,6 @@ Solo developer, no external deadline, quality-first. Scope may be cut but not ru
 - Binary alpha is sufficient for Phase 1; dithering is the documented idiom for partial transparency, and Phase 2 can add per-layer alpha without redesign.
 - `inspect` accepts multiple regions per call and offers a full-canvas summary mode, so the call budget is not dominated by inspection.
 
-**Open:** none blocking. Calibration records the authoring/inspection call split as a metric.
+**Open:** none blocking. Calibration records judge-call counts (28 attempted, 6 rejected) and per-criterion low/high separation; it does not measure an authoring/inspection call split.
+
+**Dated note (2026-11-18, Phase 1 closeout).** Phase 1 is declared feature-complete. The publishable quality gate passes at mean 3.82 on `gemini-3.5-flash-lite` with zero below-floor criterion failures across seven assets / 14 passes, verified by the primary-run `node scripts/rubric-report.mjs` and recorded in `test/art/scores.json`. This declaration is a status note only: it makes no engine, op, linter, rubric, art, or dependency change. Phase 2 features remain deferred non-goals — animation, onion-skinning, sprite-sheet packing, tilemaps, GUI surfaces, translucent alpha, RNG, and npm publishing — and no Phase 2 work is started by this closeout.
