@@ -5,7 +5,7 @@
 - **Branch:** `feat/20261118-gate-close-flash-lite`
 - **Range:** `8de763543d60fa2b92e5799dd5cbd6f288932342..0773af1957741cfac8ad467bc035a2cae1acb42f`
 - **Date:** 2026-11-18
-- **Verdict:** `PASS WITH FINDINGS`
+- **Verdict:** `PASS` (after review-fix round 1 resolved the single Low finding F1)
 
 ## Summary
 
@@ -17,8 +17,9 @@ authorized ACCEPT of that honest fail. All 14 passes carry
 `model=gemini-3.5-flash-lite`; the four affected passes were machine-written by
 `scripts/rubric.mjs`, the ten unaffected passes are JSON-identical to the
 pre-track snapshot, the updated design docs match the recipes, and the five
-other v2 assets plus seven v1 originals are absent from the diff. One Low
-metadata-staleness finding (F1) remains; no Critical, High or Medium findings.
+other v2 assets plus seven v1 originals are absent from the diff. The single Low
+metadata-staleness finding (F1) was resolved in Review Fixes round 1 under strict
+mode; no Critical, High or Medium findings were raised.
 
 ## Verification
 
@@ -82,6 +83,9 @@ metadata-staleness finding (F1) remains; no Critical, High or Medium findings.
     SHA-256 in `verification/phase-R1.md`.
   - **Requirement:** NFR-2
   - **Test gap:** none
+  - **Status:** RESOLVED in Review Fixes round 1 — the clarification was appended
+    to `instrument.note` via the NFR-2 metadata-only allowance; guarded dates and
+    all scores/rationales untouched. `verification/phase-R1.md` checkpoint `261aca9`.
 
 ## Overrides
 
@@ -106,15 +110,18 @@ and the Phase 2 squash skip (primary commit in range).
 
 ## Debt
 
-- <none — F1 is fixed in the Review Fixes phase under strict mode>
+- <none — F1 was fixed in Review Fixes round 1 under strict mode>
 
 ## Doc sync
 
-`pending` — to be set to `updated` after the Review Fixes phase and post-review
-sync.
+`updated` — post-review sync records the F1 resolution in `metadata.json`
+(`doc_sync: updated`, `review_verdict: PASS`) and in this review's History table.
+No product or guideline change was needed; `tech-stack.md` already carries the
+2026-11-18 gate-close dated note from the pre-review doc-sync step.
 
 ## History
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 1 | 0 |
+| 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 1 (F1) |
