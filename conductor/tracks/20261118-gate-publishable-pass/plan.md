@@ -30,18 +30,20 @@
 - **Depends on:** Phase 1
 - **Covers:** FR-1, FR-2, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-4, NFR-5, NFR-6, AC-1, AC-2, AC-4, AC-5, AC-6, AC-8
 - **Touches:** `test/art/scores.json`, `verification/rescore.md`, `verification/phase-2.md`, gitignored `.conductor/evidence/**`
-- **Verification:** `pnpm verify`; field-by-field diff shows `unaffected_checked=10 diffs=0`; `node scripts/rubric-report.mjs` confirms the recomputed verdict.
-- **Status:** in_progress
+- **Verification:** `pnpm verify`; field-by-field diff shows `unaffected_checked=12 diffs=0` (two of 14 passes are affected); `node scripts/rubric-report.mjs` confirms the recomputed verdict.
+- **Status:** verified
 
-- [ ] **P2.T1: Record artifact hashes and prepare PENDING evidence** — covers: FR-4, NFR-6
-  - [ ] **P2.T1.1:** Record the two artifact SHA-256 values and exact render/scorer commands in `verification/rescore.md`; leave scorer result cells PENDING for the primary.
-- [ ] **P2.T2: Primary-run two-pass credentialed scoring** — covers: FR-1, FR-2, FR-4, FR-6, NFR-1, NFR-2, NFR-5, AC-1, AC-2, AC-4, AC-6
-  - [ ] **P2.T2.1:** Run `node scripts/rubric.mjs --asset humanoid --pass A --artifact .conductor/evidence/art-v2/humanoid.8x.png --model gemini-3.5-flash-lite --replace --note "gate-publishable-pass humanoid A"` and the matching pass B command against `humanoid.debug.png`, with backoff retry for 503/429/non-JSON, no instrument switch, and no re-rolls.
-  - [ ] **P2.T2.2:** Confirm all 14 passes carry `model=gemini-3.5-flash-lite` and that only the two humanoid passes changed.
-- [ ] **P2.T3: Finalize honest verdict evidence** — covers: FR-5, AC-5, AC-8
-  - [ ] **P2.T3.1:** Fill the machine-written scores and scorer-recomputed verdict into `rescore.md` / `phase-2.md`; verify the ten unaffected passes are JSON-identical; record `pnpm verify` exit 0.
+- [x] **P2.T1: Record artifact hashes and prepare PENDING evidence** — covers: FR-4, NFR-6
+  - [x] **P2.T1.1:** Record the two artifact SHA-256 values and exact render/scorer commands in `verification/rescore.md`; leave scorer result cells PENDING for the primary.
+- [x] **P2.T2: Primary-run two-pass credentialed scoring** — covers: FR-1, FR-2, FR-4, FR-6, NFR-1, NFR-2, NFR-5, AC-1, AC-2, AC-4, AC-6
+  - [x] **P2.T2.1:** Run `node scripts/rubric.mjs --asset humanoid --pass A --artifact .conductor/evidence/art-v2/humanoid.8x.png --model gemini-3.5-flash-lite --replace --note "gate-publishable-pass humanoid A"` and the matching pass B command against `humanoid.debug.png`, with backoff retry for 503/429/non-JSON, no instrument switch, and no re-rolls.
+  - [x] **P2.T2.2:** Confirm all 14 passes carry `model=gemini-3.5-flash-lite` and that only the two humanoid passes changed.
+- [x] **P2.T3: Finalize honest verdict evidence** — covers: FR-5, AC-5, AC-8
+  - [x] **P2.T3.1:** Fill the machine-written scores and scorer-recomputed verdict into `rescore.md` / `phase-2.md`; verify the twelve unaffected passes are JSON-identical; record `pnpm verify` exit 0.
 
-<!-- primary appends Result / Checkpoint / Evidence below after acceptance -->
+**Result:** verified — gate PASSED honestly: `result=pass`, mean 3.82, `failures=[]`, both former humanoid A floor findings cleared (edge_language 2→3, palette_craft 2→4), `unaffected_checked=12 diffs=0`, no re-roll. Squash skipped (primary commit `9c1c6ac` in range unreported by subagent).
+**Checkpoint:** `8f3d92d` (squash skipped; task commits retained)
+**Evidence:** `conductor/tracks/20261118-gate-publishable-pass/verification/phase-2.md`
 
 ## Phase 3: Gate decision and bounded-stop record
 
