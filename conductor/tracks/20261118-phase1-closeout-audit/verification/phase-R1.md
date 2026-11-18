@@ -38,3 +38,13 @@ Post-fix grep gates across the five verification files: `473a1f6|d0d8580|a329aa0
 - The removed SHAs (`473a1f6`, `d0d8580`, `a329aa0`) were pre-squash task commits that exist only as dangling git objects; the false `git log` assertions attributed to them are corrected to the real branch-history checkpoints: Phase 1 `ee74e9e` (+ `721869d`), Phase 2 `7b43fc3` (+ `d28cda2`), Phase 3 `d7c5672` (+ `725db2d`, `6061fa0`, `157bf6e`).
 - The unresolved self-instruction "(record its SHA as the phase checkpoint at acceptance)" has been replaced with concrete checkpoint SHAs in all three files.
 - No score, rationale, verdict, recipe, golden, `scores.json`, plan checkpoint, `review.md`, or other Conductor state file was modified. No score/network/credentialed command was run. No new dependency was added.
+
+## Primary verification (conductor-implement)
+
+- **Date:** 2026-11-18T10:01:54Z
+- **Branch / phase base:** `chore/20261118-phase1-closeout-audit` / `ec1eba2630f647b7828723c9f6284026f4f6a905`
+- **Independent verification:** clean tree; range `ec1eba26..HEAD` contains only the reported commit `5fda225` and exactly the six R1 evidence files, all within Touches. Post-fix grep across the five corrected verification files (excluding this R1 report's own quoted audit trail) returns **0 matches** for `473a1f6|d0d8580|a329aa0|record its SHA as the phase checkpoint`; replacement checkpoints `ee74e9e`, `7b43fc3`, `d7c5672` plus final HEAD `157bf6e` are present. `git log` cross-checks confirm the corrected assertions match real branch history.
+- **Checks re-run by primary:** `pnpm verify` exit 0 — typecheck clean, Biome 216 files with one pre-existing non-failing `lint/style/noNonNullAssertion` warning at `test/recipe/version-1-2.test.ts:50`, 119 test files / 1028 tests passed, build clean.
+- **Findings:** F1 (Medium, wrong pre-squash SHAs) and F2 (Low, unresolved checkpoint placeholders) are RESOLVED by the fixer using exact branch-history SHAs; no score, rationale, verdict, plan checkpoint, or code was changed. NFR-5 evidence-integrity satisfied; AC-7 satisfied.
+- **Result:** verified. Squash guard: skipped (this primary verification commit is in the range and was not reported by the subagent).
+
