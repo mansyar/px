@@ -52,7 +52,7 @@
 - **Covers:** FR-5, FR-6, AC-5, AC-6
 - **Touches:** `verification/gate-decision.md`
 - **Verification:** `pnpm verify`; `node scripts/rubric-report.mjs` agrees with `scores.json`.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Record the final verdict** — covers: FR-5, AC-5
   - [ ] **P3.T1.1:** Write the verdict, mean, threshold, failures, two target criterion outcomes, commands, artifact digests, and scores.json before/after hashes into `verification/gate-decision.md`.
