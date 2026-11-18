@@ -19,7 +19,7 @@
     "tasks_done": 8
   },
   "last_checkpoint": "9a8635c",
-  "review_verdict": "PASS WITH FINDINGS",
+  "review_verdict": "BLOCK",
   "review_rounds": 1,
   "doc_sync": "done — tech-stack.md dated note 2026-11-18 (gate close) records the 3.73 honest fail and no structural change; product.md / product-guidelines.md unchanged (no product or guideline change); spec frozen",
   "pr_url": null,

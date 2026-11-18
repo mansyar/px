@@ -97,17 +97,18 @@ The primary appends after acceptance:
 **Evidence:** conductor/tracks/20261118-gate-close-flash-lite/verification/phase-3.md
 -->
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
 
-- **Goal:** Resolve review findings ...
+- **Goal:** Resolve review finding F1 (stale scoring-date metadata) without
+  breaking the guarded asset-set date fields.
 - **Depends on:** Phase 3
-- **Covers:** review findings
-- **Touches:** ...
-- **Verification:** ...
+- **Covers:** F1 (NFR-2)
+- **Touches:** `test/art/scores.json`,
+  `conductor/tracks/20261118-gate-close-flash-lite/verification/phase-R1.md`
+- **Verification:** `pnpm verify`; confirm `scores.json` parses, all 14 passes
+  remain machine-written, and the guarded `instrument.date === '2026-11-17'` is unchanged.
 - **Status:** pending
 
-- [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
--->
+- [ ] **R1.T1: Resolve F1** — covers: F1
+  - [ ] **R1.T1.1:** Append a clarification to the existing `instrument.note` recording that `scored_at` / `instrument.date` intentionally preserve the 2026-11-17 asset-set scoring date and that the four gate-close passes were machine-re-scored on 2026-11-18.
+  - [ ] **R1.T1.2:** Do not modify `instrument.date` (guarded at 2026-11-17 by `test/art/rubric.test.ts:212`) or any criterion score/rationale; record the resulting `scores.json` SHA-256 in `verification/phase-R1.md`.
