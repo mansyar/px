@@ -48,7 +48,7 @@ The primary appends after acceptance:
 - **Covers:** FR-3, FR-4, FR-6, NFR-1, NFR-2, AC-3, AC-4, AC-6
 - **Touches:** `conductor/product.md`, `conductor/tech-stack.md`, `verification/doc-reconciliation.md`, `verification/phase-2.md` (doc edits are primary-owned: subagent reports denial, primary executes, subagent finalizes)
 - **Verification:** `pnpm verify`; targeted content assertions via read/grep
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Clarify superseded tech-stack statements** — covers: FR-3
   - [ ] **P2.T1.1:** Mark the 2026-11-17 "4.0 gate remains hard" note as superseded by the publishable-tier decision without changing its text
