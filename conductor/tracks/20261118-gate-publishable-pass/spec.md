@@ -35,7 +35,7 @@ hue-ramp pass" and added a visual self-review requirement before scoring.
 - **Metric:** `test/art/scores.json` has `verdict.result === "pass"`,
   `verdict.failures === []`, `verdict.mean >= 3.5`, all 14 passes present, and
   every per-pass `model === "gemini-3.5-flash-lite"`.
-- **Secondary metric:** the ten unaffected passes remain JSON-identical to the
+- **Secondary metric:** the twelve unaffected passes remain JSON-identical to the
   pre-track snapshot (verified by a field-by-field diff), and the five other v2
   recipes plus seven v1 originals remain byte-identical.
 - **Quality intent:** the primary visually inspects the rendered A/B views and
@@ -62,7 +62,7 @@ hue-ramp pass" and added a visual self-review requirement before scoring.
 - Any change to the engine, CLI, MCP surface, ops, linter, rubric instrument,
   or scoring methodology.
 - Re-scoring on frozen `gemini-4-hydrogen`; cross-instrument comparison;
-  re-scoring the ten unaffected passes; score re-rolls or hand-edited scores.
+  re-scoring the twelve unaffected passes; score re-rolls or hand-edited scores.
 - The 4.0 exceptional tier (documented unreachable in `docs/rubric.md`).
 - New dependencies, recipes over ~2000 ops, or unregistered ops.
 - Changes to the five other v2 recipes or the seven pinned v1 originals.
@@ -122,7 +122,7 @@ hue-ramp pass" and added a visual self-review requirement before scoring.
 - **AC-6 (FR-6):** Evidence shows one candidate scored and no re-roll; a fail
   is not chased with a second authored candidate.
 - **AC-7 (FR-3):** The other five v2 recipes/sidecars and seven v1 originals are
-  byte-identical; the ten unaffected passes are JSON-identical.
+  byte-identical; the twelve unaffected passes are JSON-identical.
 - **AC-8 (NFR-4):** `pnpm verify` exit 0 and coverage >= 80% on all four metrics.
 - **AC-9 (NFR-7):** `verification/phase-1.md` records the primary's visual
   assessment of the humanoid A/B views against the baseline and either "no
