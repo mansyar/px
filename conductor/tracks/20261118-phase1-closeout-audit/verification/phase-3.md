@@ -5,7 +5,7 @@
 - **Date:** 2026-11-18
 - **Branch:** `chore/20261118-phase1-closeout-audit`
 - **Base:** `d5c8637ab43ed41779caeef043895afbd469527e`
-- **Head:** finalization evidence commit on top of base (record its SHA as the phase checkpoint at acceptance)
+- **Head:** phase checkpoint `d7c5672` (final branch HEAD `157bf6e`)
 - **Result:** `verified`
 - **Covers:** FR-5, NFR-4, AC-5, AC-7
 
@@ -60,10 +60,10 @@ None. All writes stayed within `Touches` (`verification/closeout-decision.md`, `
 
 ## Primary verification (conductor-implement)
 
-- Date: 2026-11-18. Branch: `chore/20261118-phase1-closeout-audit`. Phase base: `d5c8637ab43ed41779caeef043895afbd469527e`; final HEAD `a329aa04d4ded8ab33bcd320913b46d68f147806`.
-- Working tree clean. `git diff --name-only d5c8637..HEAD` lists exactly the two Phase 3 evidence files, both within Touches; `git log --oneline d5c8637..HEAD` lists exactly the one reported commit (`a329aa0`), no merges or unreported commits.
+- Date: 2026-11-18. Branch: `chore/20261118-phase1-closeout-audit`. Phase base: `d5c8637ab43ed41779caeef043895afbd469527e`; phase checkpoint `d7c56727166d830c6a9907f0154eaa2340acc318`; final branch HEAD `157bf6e`.
+- Working tree clean. `git diff --name-only d5c8637..HEAD` lists exactly the two Phase 3 evidence files, both within Touches; the phase's task commit was squashed into checkpoint `d7c5672` (`docs(verify): record phase 1 closeout decision`), followed by `725db2d` (plan acceptance), `6061fa0` (integrated verification) and `157bf6e` (doc sync); no merges or unreported commits.
 - `closeout-decision.md` records `DECISION: ACCEPT CLOSEOUT`, Phase 1 feature-complete, mean 3.82 pass, zero below-floor failures, the ledger snapshot, residual accepted debt, and the bounded stop. `phase-3.md` reports Result verified. The only `PENDING` string occurrences are the prose "no PENDING cells" — there are no unfilled cells or blockers.
-- Primary re-ran every configured check at final HEAD `a329aa0`:
+- Primary re-ran every configured check at phase checkpoint `d7c5672` and again at final HEAD `157bf6e`:
   - `pnpm verify` exit 0 — 119 files / 1028 tests; one pre-existing non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`; build clean.
   - `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` exit 0 — 116 files / 996 tests; statements 95.02%, branches 85.72%, functions 98.33%, lines 94.82%; all above the 80% gate.
   - `pnpm vitest run --project goldens` exit 0 — 1 file / 2 tests, digests match.

@@ -62,9 +62,9 @@ No blockers remain open.
 ## Primary verification (conductor-implement)
 
 - Date: 2026-11-18. Branch: `chore/20261118-phase1-closeout-audit`. Phase base: `92dec65f2ff0c136ea30f06c1ced9f7d1e9602bb`.
-- Working tree clean before verification. `git diff --name-only 92dec65f..HEAD` lists exactly the two evidence files, both within Touches; `git log --oneline 92dec65f..HEAD` lists exactly the two reported commits (`473a1f6`, `d0d8580`), no merges, no unreported/user commits.
+- Working tree clean before verification. `git diff --name-only 92dec65f..HEAD` lists exactly the two evidence files, both within Touches; The phase's task commits were squashed into checkpoint `ee74e9e` (`docs(verify): record phase 1 closeout audit`); the subsequent plan-acceptance commit is `721869d`. No merges or unreported/user commits.
 - No `PENDING` or `BLOCKED` cells remain in `closeout-audit.md` or `phase-1.md`; both report Result verified/VERIFIED. The three commands denied to the phase shell were run verbatim by the primary and their real results recorded.
-- Primary re-ran every configured check at HEAD `d0d8580`:
+- Primary re-ran every configured check at phase checkpoint `ee74e9e` and again at final HEAD `157bf6e`:
   - `pnpm verify` exit 0 — typecheck clean, Biome 216 files / 1 pre-existing non-failing `noNonNullAssertion` warning at `test/recipe/version-1-2.test.ts:50`, 119 test files / 1028 tests passed, build clean.
   - `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` exit 0 — 116 files / 996 tests; statements 95.02%, branches 85.72%, functions 98.33%, lines 94.82%; all above the 80% gate; benchmarks excluded.
   - `pnpm vitest run --project goldens` exit 0 — 1 file / 2 tests, digests match.

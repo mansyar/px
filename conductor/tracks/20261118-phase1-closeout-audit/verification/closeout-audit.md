@@ -130,7 +130,7 @@ Historical vs current: `mean 3.25` (`gemini-4-hydrogen` baseline), `3.67` (craft
 
 Note on "zero active tracks": at track start the registry held 14 `[x]` lines and no in-progress line. The single `[~]` now present is this track itself, which is necessarily active while Phase 1 is audited; there are zero active tracks besides it. No PR was merged or closed during this audit, and no run file was closed by this phase (closure belongs to the primary's phase-acceptance step).
 
-Primary read-only cross-check: `git status --porcelain` empty; `git diff --name-only 92dec65f2ff0c136ea30f06c1ced9f7d1e9602bb..HEAD` lists exactly the two evidence files; at cross-check time the single reported commit was `473a1f6` (no merges or unreported commits); determinism layer `pnpm vitest run --project goldens` exited 0 (1 file / 2 tests, hashes match). Finalization adds one more commit to the same two evidence files.
+Primary read-only cross-check: `git status --porcelain` empty; `git diff --name-only 92dec65f2ff0c136ea30f06c1ced9f7d1e9602bb..HEAD` lists exactly the two evidence files; at cross-check time the two task commits were later squashed into phase checkpoint `ee74e9e` (no merges or unreported commits); determinism layer `pnpm vitest run --project goldens` exited 0 (1 file / 2 tests, hashes match). Phase acceptance added `721869d`.
 
 ---
 
