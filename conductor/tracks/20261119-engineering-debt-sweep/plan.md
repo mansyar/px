@@ -69,7 +69,7 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-2, NFR-3, NFR-4, AC-2, AC-4, AC-5, AC-6
 - **Touches:** `verification/debt-sweep.md`, `verification/phase-3.md`
 - **Verification:** final `pnpm verify`; scoped coverage; `node scripts/rubric-report.mjs`; `scores.json` hash; `git diff --name-only` scope check
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Re-run final checks at the final HEAD** — covers: NFR-2, AC-2, AC-5
   - [ ] **P3.T1.1:** Run `pnpm verify`, scoped coverage (`pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`) and `node scripts/rubric-report.mjs`.
