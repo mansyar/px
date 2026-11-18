@@ -21,7 +21,7 @@
   "last_checkpoint": "d67c950cbfc49b40074ae9d228d7f4299d7fd2e8",
   "review_verdict": null,
   "review_rounds": 0,
-  "doc_sync": "pending",
+  "doc_sync": "done — tech-stack.md dated note 2026-11-18 (agent legibility verification) records the honest PASS with two disclosed strict-gate gaps, the skipped doc fix, and the empty code delta; product.md success metric and product-guidelines.md unchanged (no product or guideline change, no user approval requested this track); spec frozen",
   "pr_url": null,
   "reverted_at": null,
   "revert_commit": null,
