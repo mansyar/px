@@ -42,27 +42,27 @@ The primary appends after acceptance:
 - **Covers:** FR-3, FR-4, FR-5, NFR-2, NFR-3, NFR-4, NFR-5, NFR-7, AC-3, AC-4, AC-5, AC-7, AC-8
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/measurement.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-2.md`, `docs/agent-tool-guide.md` (conditional, primary-owned), `.conductor/evidence/agent-legibility/**`
 - **Verification:** `pnpm verify`; strict render per fresh recipe; `node scripts/rubric.mjs --dry-run --model gemini-3.5-flash-lite --asset <name> --pass A --artifact <fresh-png>` per asset; `scores.json` hash unchanged; no engine/code delta.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Strict-render each fresh artifact** - covers: FR-3, AC-3
-  - [ ] **P2.T1.1: Render all four fresh recipes with `--strict`** and record exit codes and lint findings
-  - [ ] **P2.T1.2: Confirm no fixture, sidecar, golden or scores file was modified**
-- [ ] **P2.T2: Run primary silhouette diagnostics** - covers: FR-4, NFR-2, NFR-5, AC-4, AC-8
-  - [ ] **P2.T2.1: Score each fresh render with flash-lite `--dry-run`** and record silhouette plus rationale in evidence only
-  - [ ] **P2.T2.2: Check `scores.json` hash before and after** and confirm it is unchanged
-- [ ] **P2.T3: Apply bounded documentation remediation when justified** - covers: FR-5, NFR-3, NFR-7, AC-5
-  - [ ] **P2.T3.1: Add one concise `docs/agent-tool-guide.md` from existing help only if failures are documentation-caused**
-  - [ ] **P2.T3.2: Re-test once after any doc fix, or record why the step was skipped**
-- [ ] **P2.T4: Write Phase 2 evidence** - covers: FR-3, FR-4, FR-5, NFR-6
-  - [ ] **P2.T4.1: Write `verification/measurement.md`** with exact commands, hashes, lint and silhouette results
-  - [ ] **P2.T4.2: Write `verification/phase-2.md`** with commands, deviations and Result
+- [x] **P2.T1: Strict-render each fresh artifact** - covers: FR-3, AC-3
+  - [x] **P2.T1.1: Render all four fresh recipes with `--strict`** and record exit codes and lint findings
+  - [x] **P2.T1.2: Confirm no fixture, sidecar, golden or scores file was modified**
+- [x] **P2.T2: Run primary silhouette diagnostics** - covers: FR-4, NFR-2, NFR-5, AC-4, AC-8
+  - [x] **P2.T2.1: Score each fresh render with flash-lite `--dry-run`** and record silhouette plus rationale in evidence only
+  - [x] **P2.T2.2: Check `scores.json` hash before and after** and confirm it is unchanged
+- [x] **P2.T3: Apply bounded documentation remediation when justified** - covers: FR-5, NFR-3, NFR-7, AC-5
+  - [x] **P2.T3.1: Add one concise `docs/agent-tool-guide.md` from existing help only if failures are documentation-caused**
+  - [x] **P2.T3.2: Re-test once after any doc fix, or record why the step was skipped**
+- [x] **P2.T4: Write Phase 2 evidence** - covers: FR-3, FR-4, FR-5, NFR-6
+  - [x] **P2.T4.1: Write `verification/measurement.md`** with exact commands, hashes, lint and silhouette results
+  - [x] **P2.T4.2: Write `verification/phase-2.md`** with commands, deviations and Result
 
 <!--
 The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
-**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-2.md
 -->
+**Result:** verified — four strict renders recorded honestly (potion/sword exit 0; humanoid/chest exit 3 E_LINT_GATE with craft findings disclosed, zero OOB/ORPHAN on all four); silhouette 5/4/5/5 via flash-lite dry-run; doc fix skipped with reason; scores.json hash unchanged; `pnpm verify` exit 0. Squash applied (single reported commit).
+**Checkpoint:** e507ac8546be6db2cd11dc359b49b1af1ddfcc3f
+**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-2.md
 
 ## Phase 3: Record the final decision and bounded stop
 
