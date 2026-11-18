@@ -30,5 +30,5 @@
 
 - [x] **Track: Publishable Gate Close** - [20261118-gate-close-flash-lite](./archive/20261118-gate-close-flash-lite/index.md) - feature - high - *PR #14, honest fail at 3.73 (mean clears 3.5, 2 below-floor on humanoid A); user-accepted*
 
-- [ ] **Track: Gate Publishable Pass** - [20261118-gate-publishable-pass](./tracks/20261118-gate-publishable-pass/index.md) - feature - high
+- [~] **Track: Gate Publishable Pass** - [20261118-gate-publishable-pass](./tracks/20261118-gate-publishable-pass/index.md) - feature - high
 
