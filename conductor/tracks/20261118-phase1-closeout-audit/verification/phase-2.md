@@ -78,3 +78,15 @@ Exact applied text is recorded in `doc-reconciliation.md` §6.
 - An early convenience re-check `Get-FileHash -Algorithm SHA256 test/art/scores.json` was denied to the phase shell (`permission.rejected: shell`). The primary later computed the hash as unchanged at `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D`, and git confirms the file was not touched; the denial is retained only as history and is not a blocker.
 - Primary checks all green: clarifications at `tech-stack.md:115` / `:121`, corrected claim at `product.md:96`, Phase 1 note at `product.md:98`, forbidden old claim count 0, `pnpm verify` exit 0 (119 files / 1028 tests, one pre-existing non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`, build clean), `scores.json` hash unchanged, and wide changed-path check limited to Conductor state/docs plus verification files.
 - Result is `verified`. The primary now records the phase checkpoint and evidence link in `plan.md` and proceeds with phase acceptance; no further subagent work remains in this phase.
+
+## Primary verification (conductor-implement)
+
+- Date: 2026-11-18. Branch: `chore/20261118-phase1-closeout-audit`. Phase base: `9496e74d40d34be855b21a72658e9d8ef0e8af1b`.
+- Working tree clean. `git diff --name-only 9496e74..HEAD` lists exactly four files, all expected: `conductor/product.md`, `conductor/tech-stack.md`, and the two Phase 2 evidence files. No `src/**`, `test/**`, `scripts/**`, manifest, lockfile, golden, `scores.json`, or recipe changed — code delta empty (FR-6/AC-6).
+- `git log --oneline 9496e74..HEAD` lists `20c9e27` (subagent prep), `9acca9b` (primary docs), `d28cda2` (subagent finalization). Because the range contains a primary commit not reported by the final subagent report, phase squash is **skipped** and task commits are retained.
+- No `PENDING` or `BLOCKED` cells remain in `doc-reconciliation.md` or `phase-2.md`; both report Result verified. The four primary-owned edits are recorded with exact applied text and retained as RESOLVED BY PRIMARY history.
+- Primary content assertions re-run: `tech-stack.md:115` and `:121` carry the dated clarifications; `product.md:96` carries the corrected call-split statement (forbidden old claim count 0); `product.md:98` carries the dated Phase 1 feature-complete note.
+- `test/art/scores.json` SHA-256 remains `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` (primary-computed).
+- Primary re-ran `pnpm verify` at HEAD `d28cda2`: exit 0, typecheck clean, Biome 216 files / 1 pre-existing non-failing warning at `test/recipe/version-1-2.test.ts:50`, 119 test files / 1028 tests passed, build clean.
+- AC-3, AC-4 and AC-6 satisfied by the doc reconciliation and empty-code-delta proof; AC-1/AC-2/AC-5/AC-7 were satisfied in Phase 1. Subagent status verified with blockers `[]`.
+
