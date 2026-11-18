@@ -40,7 +40,7 @@
 - **Covers:** FR-2, FR-3, FR-4, NFR-3, NFR-4, NFR-5, AC-3, AC-4
 - **Touches:** `.conductor/runs/**` (gitignored), `conductor/tech-stack.md` (primary-owned), `verification/state-hygiene.md`, `verification/phase-2.md`
 - **Verification:** run-file inventory vs registry; archive hash comparison; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Inventory run-state files** — covers: FR-2
   - [ ] **P2.T1.1:** List every `.conductor/runs/*.json` file with phase and status.
