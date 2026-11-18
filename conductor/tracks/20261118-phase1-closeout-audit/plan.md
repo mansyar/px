@@ -14,21 +14,25 @@
 - **Covers:** FR-1, FR-2, FR-5, NFR-3, NFR-5, AC-1, AC-2, AC-5, AC-7
 - **Touches:** `conductor/tracks/20261118-phase1-closeout-audit/verification/closeout-audit.md`, `verification/phase-1.md`, `.conductor/evidence/**`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs` (primary-run)
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Map CI and Workflow Config** — covers: FR-1
-  - [ ] **P1.T1.1:** Record CI OS matrix, triggers, and exact steps from `.github/workflows/ci.yml`
-  - [ ] **P1.T1.2:** Map each Workflow Config verification layer to its configured command and confirm CI invokes the equivalents
-  - [ ] **P1.T1.3:** Confirm Node/pnpm pins match `package.json` `engines` and that coverage uses the scoped command excluding benchmarks
-- [ ] **P1.T2: Run and record final checks** — covers: FR-2
-  - [ ] **P1.T2.1:** Run `pnpm verify`, record exit code and test/build counts
-  - [ ] **P1.T2.2:** Run scoped coverage, record all four metrics against the 80% gate
-  - [ ] **P1.T2.3:** Run determinism layer (`pnpm vitest run --project goldens`) and read-only `node scripts/rubric-report.mjs`; record metrics
-- [ ] **P1.T3: Record gate and ledger snapshot** — covers: FR-5
-  - [ ] **P1.T3.1:** Record `scores.json` verdict (pass, mean 3.82, zero failures) and criterion means
-  - [ ] **P1.T3.2:** Record registry `[x]` count, archive count, zero active tracks, zero open PRs, and run-file closure
-- [ ] **P1.T4: Write audit evidence** — covers: NFR-5
-  - [ ] **P1.T4.1:** Write `verification/closeout-audit.md` with the command/result tables and `verification/phase-1.md`
+- [x] **P1.T1: Map CI and Workflow Config** — covers: FR-1
+  - [x] **P1.T1.1:** Record CI OS matrix, triggers, and exact steps from `.github/workflows/ci.yml`
+  - [x] **P1.T1.2:** Map each Workflow Config verification layer to its configured command and confirm CI invokes the equivalents
+  - [x] **P1.T1.3:** Confirm Node/pnpm pins match `package.json` `engines` and that coverage uses the scoped command excluding benchmarks
+- [x] **P1.T2: Run and record final checks** — covers: FR-2
+  - [x] **P1.T2.1:** Run `pnpm verify`, record exit code and test/build counts
+  - [x] **P1.T2.2:** Run scoped coverage, record all four metrics against the 80% gate
+  - [x] **P1.T2.3:** Run determinism layer (`pnpm vitest run --project goldens`) and read-only `node scripts/rubric-report.mjs`; record metrics
+- [x] **P1.T3: Record gate and ledger snapshot** — covers: FR-5
+  - [x] **P1.T3.1:** Record `scores.json` verdict (pass, mean 3.82, zero failures) and criterion means
+  - [x] **P1.T3.2:** Record registry `[x]` count, archive count, zero active tracks, zero open PRs, and run-file closure
+- [x] **P1.T4: Write audit evidence** — covers: NFR-5
+  - [x] **P1.T4.1:** Write `verification/closeout-audit.md` with the command/result tables and `verification/phase-1.md`
+
+**Result:** verified — all configured checks and primary-only inputs green; CI/layer mapping, gate snapshot and ledger snapshot recorded; AC-1/AC-2/AC-5/AC-7 satisfied.
+**Checkpoint:** ee74e9e0ca0089088cadcbec03805a5211c4e38a
+**Evidence:** conductor/tracks/20261118-phase1-closeout-audit/verification/phase-1.md
 
 <!--
 The primary appends after acceptance:
