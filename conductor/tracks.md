@@ -36,5 +36,5 @@
 
 - [x] **Track: Agent Legibility Verification** - [20261118-agent-legibility-verification](./archive/20261118-agent-legibility-verification/index.md) - chore - high - *PR #17, product metric verified: 9/11/12/11 calls, zero OOB/ORPHAN, silhouettes 5/4/5/5; PASS with two disclosed strict-gate gaps*
 
-- [ ] **Track: Engineering Debt Sweep** - [20261119-engineering-debt-sweep](./tracks/20261119-engineering-debt-sweep/index.md) - chore - medium
+- [~] **Track: Engineering Debt Sweep** - [20261119-engineering-debt-sweep](./tracks/20261119-engineering-debt-sweep/index.md) - chore - medium
 
