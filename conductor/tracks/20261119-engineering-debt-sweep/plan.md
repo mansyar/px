@@ -14,27 +14,24 @@
 - **Covers:** FR-1, NFR-1, NFR-2, NFR-3, AC-1, AC-2
 - **Touches:** `biome.json`, `scripts/**/*.mjs`, `verification/scripts-coverage.md`, `verification/phase-1.md`
 - **Verification:** `pnpm exec biome check scripts/`; `pnpm lint`; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Record the tooling baseline** — covers: FR-1
-  - [ ] **P1.T1.1:** Inventory the four `scripts/*.mjs` helpers and capture the current Biome include list.
-  - [ ] **P1.T1.2:** Record the excluded-path behaviour and the out-of-scope `checkJs` error count (158) as baseline evidence.
-- [ ] **P1.T2: Extend Biome coverage and fix findings** — covers: FR-1, NFR-1
-  - [ ] **P1.T2.1:** Add `scripts/**/*.mjs` to `biome.json` includes without changing linter rules or dependencies.
-  - [ ] **P1.T2.2:** Fix every resulting lint/format finding in the scripts; no suppressions, no escaped findings.
-- [ ] **P1.T3: Verify tooling and script smoke checks** — covers: NFR-2, AC-1, AC-2
-  - [ ] **P1.T3.1:** Confirm `pnpm exec biome check scripts/` processes four files with zero errors and `pnpm verify` exits 0.
-  - [ ] **P1.T3.2:** Smoke-check `pnpm rubric:report`, `pnpm rubric:calibrate`, `scripts/upscale.mjs` and `scripts/rubric.mjs --help` for unchanged exit status.
-- [ ] **P1.T4: Record phase evidence** — covers: FR-5
-  - [ ] **P1.T4.1:** Write `verification/scripts-coverage.md` with commands, finding counts, before/after diffs and smoke outputs.
-  - [ ] **P1.T4.2:** Write `verification/phase-1.md` with Result, commands and AC table.
+- [x] **P1.T1: Record the tooling baseline** — covers: FR-1
+  - [x] **P1.T1.1:** Inventory the four `scripts/*.mjs` helpers and capture the current Biome include list.
+  - [x] **P1.T1.2:** Record the excluded-path behaviour and the out-of-scope `checkJs` error count (158) as baseline evidence.
+- [x] **P1.T2: Extend Biome coverage and fix findings** — covers: FR-1, NFR-1
+  - [x] **P1.T2.1:** Add `scripts/**/*.mjs` to `biome.json` includes without changing linter rules or dependencies.
+  - [x] **P1.T2.2:** Fix every resulting lint/format finding in the scripts; no suppressions, no escaped findings.
+- [x] **P1.T3: Verify tooling and script smoke checks** — covers: NFR-2, AC-1, AC-2
+  - [x] **P1.T3.1:** Confirm `pnpm exec biome check scripts/` processes four files with zero errors and `pnpm verify` exits 0.
+  - [x] **P1.T3.2:** Smoke-check `pnpm rubric:report`, `pnpm rubric:calibrate`, `scripts/upscale.mjs` and `scripts/rubric.mjs --help` for unchanged exit status.
+- [x] **P1.T4: Record phase evidence** — covers: FR-5
+  - [x] **P1.T4.1:** Write `verification/scripts-coverage.md` with commands, finding counts, before/after diffs and smoke outputs.
+  - [x] **P1.T4.2:** Write `verification/phase-1.md` with Result, commands and AC table.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — all four P1 tasks complete; seven `scripts/**/*.mjs` files covered by Biome with zero findings; scoped lint, `pnpm verify` and scoped coverage green; smoke checks unchanged; `scores.json` unchanged. AC-1 and AC-2 satisfied. Squash applied (all three commits in range reported by the subagent).
+**Checkpoint:** a49c3276b634e4dc190df8f6cd29d47bc1dcc37c
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-1.md
--->
 
 ## Phase 2: Runtime-state and live-doc hygiene
 
