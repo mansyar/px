@@ -3,7 +3,7 @@
 - **Track:** `20261118-agent-legibility-verification`
 - **Date:** 2026-11-18
 - **Branch:** `chore/20261118-agent-legibility-verification`
-- **Head commit:** `8af7082` (final check run)
+- **Head commit:** `883518d` (final check run; checks also re-run at `8af7082`)
 - **Result:** `verified`
 
 ## Commands
@@ -63,4 +63,4 @@
 
 ## Notes
 
-Track is evidence-only: no engine, CLI, MCP, op, linter, rubric, CI, score, recipe, or dependency change. Terminal checks were re-run at final HEAD `8af7082` and all passed.
+Track is evidence-only: no engine, CLI, MCP, op, linter, rubric, CI, score, recipe, or dependency change. Terminal checks were re-run at `8af7082` and again at final HEAD `883518d` after the integrated-verification and doc-sync commits, and all passed.
