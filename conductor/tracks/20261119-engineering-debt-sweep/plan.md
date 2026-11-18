@@ -40,25 +40,25 @@
 - **Covers:** FR-2, FR-3, FR-4, NFR-3, NFR-4, NFR-5, AC-3, AC-4
 - **Touches:** `.conductor/runs/**` (gitignored), `conductor/tech-stack.md` (primary-owned), `verification/state-hygiene.md`, `verification/phase-2.md`
 - **Verification:** run-file inventory vs registry; archive hash comparison; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Inventory run-state files** — covers: FR-2
-  - [ ] **P2.T1.1:** List every `.conductor/runs/*.json` file with phase and status.
-  - [ ] **P2.T1.2:** Classify 4 `running` and 1 `failed` files as stale against `[x]` registry entries; identify the live track's file to retain.
-- [ ] **P2.T2: Remove only stale run state** — covers: FR-2, NFR-5
-  - [ ] **P2.T2.1:** Delete stale files; keep the current track's run file and all other evidence.
-  - [ ] **P2.T2.2:** Record before/after inventories and assert no file under `conductor/` was removed.
-- [ ] **P2.T3: Add the live dated clarification** — covers: FR-3
-  - [ ] **P2.T3.1:** Primary appends one dated note to `conductor/tech-stack.md` marking archive prose as point-in-time, naming the current mean 3.82 pass, twelve untouched passes, disclosed humanoid/chest strict-gate residuals, and the humanoid byte-identity waiver.
-  - [ ] **P2.T3.2:** Confirm no archived file and no product/guideline/spec file changed.
-- [ ] **P2.T4: Prove archive integrity and record phase evidence** — covers: FR-4, FR-5, NFR-4
-  - [ ] **P2.T4.1:** Hash every file under `conductor/archive/` before and after the phase; assert byte-identical.
-  - [ ] **P2.T4.2:** Write `verification/state-hygiene.md` and `verification/phase-2.md`.
+- [x] **P2.T1: Inventory run-state files** — covers: FR-2
+  - [x] **P2.T1.1:** List every `.conductor/runs/*.json` file with phase and status.
+  - [x] **P2.T1.2:** Classify 4 `running` and 1 `failed` files as stale against `[x]` registry entries; identify the live track's file to retain.
+- [x] **P2.T2: Remove only stale run state** — covers: FR-2, NFR-5
+  - [x] **P2.T2.1:** Delete stale files; keep the current track's run file and all other evidence.
+  - [x] **P2.T2.2:** Record before/after inventories and assert no file under `conductor/` was removed.
+- [x] **P2.T3: Add the live dated clarification** — covers: FR-3
+  - [x] **P2.T3.1:** Primary appends one dated note to `conductor/tech-stack.md` marking archive prose as point-in-time, naming the current mean 3.82 pass, twelve untouched passes, disclosed humanoid/chest strict-gate residuals, and the humanoid byte-identity waiver.
+  - [x] **P2.T3.2:** Confirm no archived file and no product/guideline/spec file changed.
+- [x] **P2.T4: Prove archive integrity and record phase evidence** — covers: FR-4, FR-5, NFR-4
+  - [x] **P2.T4.1:** Hash every file under `conductor/archive/` before and after the phase; assert byte-identical.
+  - [x] **P2.T4.2:** Write `verification/state-hygiene.md` and `verification/phase-2.md`.
 
 <!--
 The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — 12 stale run-state files removed with zero tracked deletions; one dated live clarification added to `conductor/tech-stack.md`; archives byte-identical (215/215 checked, 0 mismatches); `scores.json` unchanged; `pnpm verify` exit 0. AC-3 and AC-4 satisfied. Squash skipped (primary-owned docs commit in range).
+**Checkpoint:** af2c362c4bf40554276a5c726bd0404db04cec50
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-2.md
 -->
 
