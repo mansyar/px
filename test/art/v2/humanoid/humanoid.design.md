@@ -3,9 +3,10 @@
 **Subject:** an armoured knight at 32×32; the silhouette reads as helm, pauldrons and a
 torso plate before any single accessory does.
 
-**Light:** one direction only, `top-left`, declared in `design.light`. The derived ramps put
-their lightest tone at `t0` and their darkest at `t4`, so every part is lit from the same
-corner. The `curl` pass adds no second light.
+**Light:** one direction only, `top-left`, declared in `design.light`. The explicit five-stop
+ramps put their lightest tone at `t0` and their darkest at `t4`, and a single `light` pass
+(top-left, bevel, AO, rim) shapes every mass from that one corner before `auto_outline`.
+There is no `harmonize` pass and no second light.
 
 **Hero part:** `torso`. It occupies the largest painted cluster and sits between the helm,
 pauldrons, arms and legs, so it is the part the eye resolves first. It therefore carries the
@@ -22,8 +23,9 @@ five-tone ramps with a shared dark `outline` role. That restores a readable silh
 design-driven edges; internal material/detail edges are deliberately left alone so the
 small plate boundaries do not turn into noise at 1x.
 
-**Facing:** `helm` and `torso` front-on; the held `blade` is turned to `right` so its plane
-differs from the plate it crosses.
+**Facing:** no part declares a plane facing. The light pass skips plane shading for unfaced
+parts, so the authored tone slots survive and the bevel/AO/rim stages shape the helm, torso
+and sword from the same top-left direction instead of flattening each mass to one role.
 
 **Self-assessment:** the weakest visible aspect is the plume — at 32×32 it is only a few
 pixels and its two-tone plan makes it read as a crest-shaped smudge rather than a feather.

@@ -158,14 +158,12 @@
     },
     "blade": {
       "material": "blade",
-      "gloss": "metal",
-      "facing": "right"
+      "gloss": "metal"
     },
     "helm": {
       "material": "helm",
       "gloss": "metal",
-      "z": 2,
-      "facing": "front"
+      "z": 2
     },
     "hilt": {
       "material": "hilt",
@@ -188,8 +186,7 @@
     },
     "torso": {
       "material": "torso",
-      "gloss": "metal",
-      "facing": "front"
+      "gloss": "metal"
     }
   },
   "anchors": {
@@ -621,6 +618,15 @@
             "h": "gorget.t0",
             "b": "gorget.t2"
           }
+        },
+        {
+          "op": "light",
+          "angle": "top-left",
+          "form": "bevel",
+          "ao": true,
+          "cast": null,
+          "cast_offset": 2,
+          "rim": "edge"
         },
         {
           "op": "auto_outline",
