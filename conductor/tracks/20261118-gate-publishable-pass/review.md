@@ -5,11 +5,11 @@
 - **Branch:** `feat/20261118-gate-publishable-pass`
 - **Range:** `4377f3468bf840a7057e6ebc8bb02183ed076d1a..08e03e9f9bc045d4724a47ce0aa35e51dd2de01a`
 - **Date:** 2026-11-18
-- **Verdict:** `PASS WITH FINDINGS`
+- **Verdict:** `PASS` (after review-fix round 1 resolved both Low findings)
 
 ## Summary
 
-The track's substance is sound: the publishable gate is honestly `pass` (mean 3.82, 321/84 recomputed, zero below-floor criterion scores, `failures=[]`), with exactly two humanoid passes machine-re-scored on the single instrument of record `gemini-3.5-flash-lite` and the other twelve passes byte-identical. Recipe/design invariants and digests hold, the primary visual self-review (NFR-7/AC-9) is honestly recorded before scoring, and the bounded stop is documented. Two Low-severity documentation inconsistencies remain, both objective and local: a stale "ten unaffected passes" count in `spec.md` and shifted requirement-ID labels in `verification/integrated.md`. Strict mode requires both to be fixed before the PR.
+The track's substance is sound: the publishable gate is honestly `pass` (mean 3.82, 321/84 recomputed, zero below-floor criterion scores, `failures=[]`), with exactly two humanoid passes machine-re-scored on the single instrument of record `gemini-3.5-flash-lite` and the other twelve passes byte-identical. Recipe/design invariants and digests hold, the primary visual self-review (NFR-7/AC-9) is honestly recorded before scoring, and the bounded stop is documented. Two Low-severity documentation inconsistencies were found, both objective and local: a stale "ten unaffected passes" count in `spec.md` and shifted requirement-ID labels in `verification/integrated.md`. Both were resolved in review-fix round 1 (Phase R1) in strict mode, with `pnpm verify` green; no score, rationale, verdict, recipe or code file changed.
 
 ## Verification
 
@@ -64,7 +64,7 @@ The track's substance is sound: the publishable gate is honestly `pass` (mean 3.
 
 ### Low
 
-- **F1 — stale "ten unaffected passes" count in spec**
+- **F1 — stale "ten unaffected passes" count in spec — RESOLVED in R1**
   - **File:** `conductor/tracks/20261118-gate-publishable-pass/spec.md:38,65` (also `:125`)
   - **What:** The secondary metric, out-of-scope item, and AC-7 still say "ten unaffected passes"; the correct count is twelve (14 total − 2 re-scored), as recorded in the plan, evidence, and `scores.json`.
   - **Why:** Factual contradiction inside a file introduced by this diff.
@@ -72,11 +72,11 @@ The track's substance is sound: the publishable gate is honestly `pass` (mean 3.
   - **Requirement:** AC-7
   - **Test gap:** none
 
-- **F2 — shifted requirement-ID labels in integrated verification**
+- **F2 — shifted requirement-ID labels in integrated verification — RESOLVED in R1**
   - **File:** `conductor/tracks/20261118-gate-publishable-pass/verification/integrated.md:23-24,28,36-43`
   - **What:** Several table rows use non-canonical labels (e.g. FR-2 labelled as the honest verdict, FR-6 as unchanged-asset integrity, AC-2 as gate pass), shifted from the spec's FR-1..FR-6 and AC-1..AC-9 definitions.
   - **Why:** The cross-walk could point a reader at the wrong requirement even though evidence covers all of them.
-  - **Fix:** Relabel rows to the canonical spec definitions, preserving evidence cells.
+  - **Fix:** Relabel rows to the canonical spec definitions and realign evidence cells to their matching IDs; all `pass` statuses preserved. Applied in R1.
   - **Requirement:** none (documentation integrity)
   - **Test gap:** none
 
@@ -94,14 +94,15 @@ No engine, CLI, MCP, lint, rubric, or dependency change. No re-scoring on the ol
 
 ## Debt
 
-- none in code; the two Low documentation findings are fixed in Review Fixes R1 per strict mode.
+- none in code or documentation at PR readiness; both Low findings resolved in R1.
 
 ## Doc sync
 
-`pending` — updated after the review-fix round.
+`updated` — `spec.md` and `verification/integrated.md` corrected in R1; Phase R1 evidence records both fixes; tech-stack dated note and product docs needed no further change.
 
 ## History
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 2 | 0 |
+| 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 2 (F1, F2) |
