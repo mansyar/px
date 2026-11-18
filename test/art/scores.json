@@ -8,7 +8,7 @@
     "model": "gemini-3.5-flash-lite",
     "fallback_model": "gemini-3.5-flash-lite",
     "fallback_used": true,
-    "note": "Instrument of record promoted from gemini-4-hydrogen to gemini-3.5-flash-lite for the craft-application re-score (2026-11-18). The frozen gemini-4-hydrogen exhausted its free-tier daily quota (429 RESOURCE_EXHAUSTED, generate_content_free_tier_requests limit 20/day, retryDelay 67427s ~18h43m); with explicit user authorization the fallback model was used for all 14 passes. All per-pass model fields are machine-written as gemini-3.5-flash-lite. Scores are NOT comparable to the gemini-4-hydrogen baseline recorded in scores-before-intent.json.",
+    "note": "Instrument of record promoted from gemini-4-hydrogen to gemini-3.5-flash-lite for the craft-application re-score (2026-11-18). The frozen gemini-4-hydrogen exhausted its free-tier daily quota (429 RESOURCE_EXHAUSTED, generate_content_free_tier_requests limit 20/day, retryDelay 67427s ~18h43m); with explicit user authorization the fallback model was used for all 14 passes. All per-pass model fields are machine-written as gemini-3.5-flash-lite. Scores are NOT comparable to the gemini-4-hydrogen baseline recorded in scores-before-intent.json. The scored_at and instrument.date fields intentionally preserve the original 2026-11-17 asset-set scoring date; the four gate-close passes (humanoid A/B, scene A/B) were machine-re-scored on 2026-11-18.",
     "views": {
       "A": "exact factor-8 nearest-neighbour on #808080",
       "B": "engine debug sheet"
