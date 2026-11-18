@@ -14,7 +14,7 @@
 - **Covers:** FR-1, NFR-1, NFR-2, NFR-3, AC-1, AC-2
 - **Touches:** `biome.json`, `scripts/**/*.mjs`, `verification/scripts-coverage.md`, `verification/phase-1.md`
 - **Verification:** `pnpm exec biome check scripts/`; `pnpm lint`; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Record the tooling baseline** — covers: FR-1
   - [ ] **P1.T1.1:** Inventory the four `scripts/*.mjs` helpers and capture the current Biome include list.
