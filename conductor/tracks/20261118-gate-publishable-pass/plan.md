@@ -31,7 +31,7 @@
 - **Covers:** FR-1, FR-2, FR-4, FR-5, FR-6, NFR-1, NFR-2, NFR-4, NFR-5, NFR-6, AC-1, AC-2, AC-4, AC-5, AC-6, AC-8
 - **Touches:** `test/art/scores.json`, `verification/rescore.md`, `verification/phase-2.md`, gitignored `.conductor/evidence/**`
 - **Verification:** `pnpm verify`; field-by-field diff shows `unaffected_checked=10 diffs=0`; `node scripts/rubric-report.mjs` confirms the recomputed verdict.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Record artifact hashes and prepare PENDING evidence** — covers: FR-4, NFR-6
   - [ ] **P2.T1.1:** Record the two artifact SHA-256 values and exact render/scorer commands in `verification/rescore.md`; leave scorer result cells PENDING for the primary.
