@@ -69,19 +69,19 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-2, NFR-3, NFR-4, AC-2, AC-4, AC-5, AC-6
 - **Touches:** `verification/debt-sweep.md`, `verification/phase-3.md`
 - **Verification:** final `pnpm verify`; scoped coverage; `node scripts/rubric-report.mjs`; `scores.json` hash; `git diff --name-only` scope check
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Re-run final checks at the final HEAD** — covers: NFR-2, AC-2, AC-5
-  - [ ] **P3.T1.1:** Run `pnpm verify`, scoped coverage (`pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`) and `node scripts/rubric-report.mjs`.
-  - [ ] **P3.T1.2:** Confirm `scores.json` SHA-256 `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` and that changed paths stay within NFR-3.
-- [ ] **P3.T2: Record the closeout decision** — covers: FR-5, AC-6
-  - [ ] **P3.T2.1:** Write `verification/debt-sweep.md` with `DEBT SWEEP CLOSED`, residual accepted debt explicitly listed, exact commands and counts.
-  - [ ] **P3.T2.2:** Write `verification/phase-3.md` with Result, commands and the final evidence inventory.
+- [x] **P3.T1: Re-run final checks at the final HEAD** — covers: NFR-2, AC-2, AC-5
+  - [x] **P3.T1.1:** Run `pnpm verify`, scoped coverage (`pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`) and `node scripts/rubric-report.mjs`.
+  - [x] **P3.T1.2:** Confirm `scores.json` SHA-256 `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` and that changed paths stay within NFR-3.
+- [x] **P3.T2: Record the closeout decision** — covers: FR-5, AC-6
+  - [x] **P3.T2.1:** Write `verification/debt-sweep.md` with `DEBT SWEEP CLOSED`, residual accepted debt explicitly listed, exact commands and counts.
+  - [x] **P3.T2.2:** Write `verification/phase-3.md` with Result, commands and the final evidence inventory.
 
 <!--
 The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — closeout decision DEBT SWEEP CLOSED recorded; all final checks green; archives byte-identical (215/215); `scores.json` unchanged; zero open PRs; 17 in-scope changed paths. AC-2, AC-4, AC-5 and AC-6 satisfied. Squash applied.
+**Checkpoint:** ec1968ea1acdb5a3bb952d479955d992495e757f
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-3.md
 -->
 
