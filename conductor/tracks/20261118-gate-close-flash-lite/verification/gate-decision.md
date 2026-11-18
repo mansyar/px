@@ -226,3 +226,23 @@ The ten unaffected passes were confirmed byte-identical to the pre-track record
 - `Result: verified` records that Phase 3's evidence work is complete and
   honestly documented; it does not assert the publishable gate passed. The gate
   is `fail` and the fail is accepted, as recorded in §4.
+
+## Primary verification (conductor-implement)
+
+- **Date / branch:** 2026-11-18; `feat/20261118-gate-close-flash-lite`
+  (phase base `d331c00834aaa577cc3c8c12d07c0e5ce9d928d5`).
+- **Tree:** clean; the single subagent commit `ea25585` changes only
+  `verification/gate-decision.md`, exactly within Touches. No recipe, score,
+  spec, plan, metadata or product doc was touched.
+- **Command re-run by primary:** `node scripts/rubric-report.mjs` → exit 0;
+  output "7 assets, 14 passes / mean 3.73 · fail / instrument gemini-3.5-flash-lite"
+  — matches §1–§3 and `scores.json`.
+- **`pnpm verify` re-run by primary:** exit 0 (119 files / 1028 tests, one
+  pre-existing non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`).
+- **Acceptance:** P3.T1/P3.T2 satisfied — the honest fail (mean 3.73 ≥ 3.5 but
+  two below-floor scores on humanoid A) and the explicit ACCEPT decision are
+  recorded with rationales, deviations, exact commands and digests; no forced
+  pass, no re-roll, no hand-edited score/rationale.
+- **Squash guard:** range `d331c00..HEAD` contains exactly the one reported
+  commit, no merge or unreported/user commit — eligible for §4.8 squash.
+- **Result: verified** (evidence complete; gate honestly not passed).

@@ -77,14 +77,18 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-6, AC-5
 - **Touches:** `conductor/tracks/20261118-gate-close-flash-lite/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` (primary-run) confirms the recorded verdict matches `scores.json`; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Record the recomputed verdict and decision** — covers: FR-5
-  - [ ] **P3.T1.1:** Document mean, threshold, floor, failures, and final `pass`/`fail` status from the scorer output.
-  - [ ] **P3.T1.2:** State the decision: publishable pass, or an explicit invest/accept decision on an honest fail with remaining floor failures listed. No pass is forced.
-- [ ] **P3.T2: Record deviations and non-comparability** — covers: NFR-6
-  - [ ] **P3.T2.1:** Note the humanoid byte-identity waiver, the flash-lite instrument of record, and that scores are not comparable to the 3.25 frozen baseline.
-  - [ ] **P3.T2.2:** Record exact scoring commands, artifact digests, and evidence paths for reproducibility.
+- [x] **P3.T1: Record the recomputed verdict and decision** — covers: FR-5
+  - [x] **P3.T1.1:** Document mean, threshold, floor, failures, and final `pass`/`fail` status from the scorer output.
+  - [x] **P3.T1.2:** State the decision: publishable pass, or an explicit invest/accept decision on an honest fail with remaining floor failures listed. No pass is forced.
+- [x] **P3.T2: Record deviations and non-comparability** — covers: NFR-6
+  - [x] **P3.T2.1:** Note the humanoid byte-identity waiver, the flash-lite instrument of record, and that scores are not comparable to the 3.25 frozen baseline.
+  - [x] **P3.T2.2:** Record exact scoring commands, artifact digests, and evidence paths for reproducibility.
+
+**Result:** verified (gate honestly not passed — ACCEPT decision recorded)
+**Checkpoint:** 9a8635c
+**Evidence:** conductor/tracks/20261118-gate-close-flash-lite/verification/gate-decision.md
 
 <!--
 The primary appends after acceptance:
