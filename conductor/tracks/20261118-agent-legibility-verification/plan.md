@@ -14,26 +14,26 @@
 - **Covers:** FR-1, FR-2, FR-7, NFR-1, NFR-6, AC-1, AC-2
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/docs-brief.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/agent-runs.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-1.md`, `.conductor/evidence/agent-legibility/**`
 - **Verification:** `pnpm verify`; brief inventory contains only allowed docs; four transcripts exist with call counts ≤12 or honest failures (MCP-first, CLI parity).
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Assemble the docs-only brief** - covers: FR-1, NFR-1
-  - [ ] **P1.T1.1: Inventory allowed sources** — CLI `--help` JSON, MCP tool descriptions, `docs/art-profiles.md`, `docs/lint-thresholds.md`, rubric silhouette anchors
-  - [ ] **P1.T1.2: Record explicit exclusions** — source, tests, benchmark transcripts, v2 recipes, scores, archive; write `verification/docs-brief.md`
-- [ ] **P1.T2: Run the fresh agent on four assets** - covers: FR-2, NFR-1, AC-2
-  - [ ] **P1.T2.1: Launch a fresh subagent with only the approved brief** and author potion, sword, humanoid and chest via px tools, MCP-first
-  - [ ] **P1.T2.2: Record ordered transcripts** with tool surface, arguments and call count per asset; store artifacts under `.conductor/evidence/agent-legibility/`
-- [ ] **P1.T3: Record a bounded CLI parity check** - covers: FR-7, AC-2
-  - [ ] **P1.T3.1: Reproduce one representative asset via CLI** using only the same brief and record the parity result beside the MCP results
-- [ ] **P1.T4: Write Phase 1 evidence** - covers: FR-1, FR-2, NFR-6
-  - [ ] **P1.T4.1: Write `verification/agent-runs.md`** with the per-asset call/lint/silhouette-facing table and brief inventory cross-reference
-  - [ ] **P1.T4.2: Write `verification/phase-1.md`** with commands, deviations and Result
+- [x] **P1.T1: Assemble the docs-only brief** - covers: FR-1, NFR-1
+  - [x] **P1.T1.1: Inventory allowed sources** — CLI `--help` JSON, MCP tool descriptions, `docs/art-profiles.md`, `docs/lint-thresholds.md`, rubric silhouette anchors
+  - [x] **P1.T1.2: Record explicit exclusions** — source, tests, benchmark transcripts, v2 recipes, scores, archive; write `verification/docs-brief.md`
+- [x] **P1.T2: Run the fresh agent on four assets** - covers: FR-2, NFR-1, AC-2
+  - [x] **P1.T2.1: Launch a fresh subagent with only the approved brief** and author potion, sword, humanoid and chest via px tools, MCP-first
+  - [x] **P1.T2.2: Record ordered transcripts** with tool surface, arguments and call count per asset; store artifacts under `.conductor/evidence/agent-legibility/`
+- [x] **P1.T3: Record a bounded CLI parity check** - covers: FR-7, AC-2
+  - [x] **P1.T3.1: Reproduce one representative asset via CLI** using only the same brief and record the parity result beside the MCP results
+- [x] **P1.T4: Write Phase 1 evidence** - covers: FR-1, FR-2, NFR-6
+  - [x] **P1.T4.1: Write `verification/agent-runs.md`** with the per-asset call/lint/silhouette-facing table and brief inventory cross-reference
+  - [x] **P1.T4.2: Write `verification/phase-1.md`** with commands, deviations and Result
 
 <!--
 The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
-**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-1.md
 -->
+**Result:** verified — docs-only brief assembled verbatim; four MCP-first fresh-agent runs plus CLI parity completed within budget with honest transcripts; `pnpm verify` exit 0; AC-1 and AC-2 satisfied. Silhouette/strict-render pass/fail deferred to Phase 2. Squash applied (three reported commits only).
+**Checkpoint:** e0893de22c9e4a85833d34df5a4a616ff7158e85
+**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-1.md
 
 ## Phase 2: Measure fresh artifacts and remediate documentation gaps
 
