@@ -32,5 +32,5 @@
 
 - [x] **Track: Gate Publishable Pass** - [20261118-gate-publishable-pass](./archive/20261118-gate-publishable-pass/index.md) - feature - high - *PR #15, publishable gate PASS at mean 3.82 with zero below-floor criteria; one bounded candidate and primary visual self-review*
 
-- [~] **Track: Phase 1 Closeout Audit** - [20261118-phase1-closeout-audit](./tracks/20261118-phase1-closeout-audit/index.md) - chore - medium
+- [x] **Track: Phase 1 Closeout Audit** - [20261118-phase1-closeout-audit](./archive/20261118-phase1-closeout-audit/index.md) - chore - medium - *PR #16, Phase 1 declared feature-complete; gate pass mean 3.82, zero below-floor, empty code delta*
 
