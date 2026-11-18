@@ -1,14 +1,14 @@
 {
   "schema": 3,
   "rubric": "docs/rubric.md",
-  "scored_by": "scripts/rubric.mjs with gemini-3.5-flash-lite, run by the primary; two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet); gate-close-flash-lite re-score of four affected passes with the ten unaffected passes left byte-identical",
+  "scored_by": "scripts/rubric.mjs with gemini-3.5-flash-lite, run by the primary; two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet); gate-publishable-pass re-score of two affected passes (humanoid A/B) with the twelve unaffected passes left byte-identical",
   "scored_at": "2026-11-17",
   "instrument": {
     "script": "scripts/rubric.mjs",
     "model": "gemini-3.5-flash-lite",
     "fallback_model": "gemini-3.5-flash-lite",
     "fallback_used": true,
-    "note": "Instrument of record promoted from gemini-4-hydrogen to gemini-3.5-flash-lite for the craft-application re-score (2026-11-18). The frozen gemini-4-hydrogen exhausted its free-tier daily quota (429 RESOURCE_EXHAUSTED, generate_content_free_tier_requests limit 20/day, retryDelay 67427s ~18h43m); with explicit user authorization the fallback model was used for all 14 passes. All per-pass model fields are machine-written as gemini-3.5-flash-lite. Scores are NOT comparable to the gemini-4-hydrogen baseline recorded in scores-before-intent.json. The scored_at and instrument.date fields intentionally preserve the original 2026-11-17 asset-set scoring date; the four gate-close passes (humanoid A/B, scene A/B) were machine-re-scored on 2026-11-18.",
+    "note": "Instrument of record promoted from gemini-4-hydrogen to gemini-3.5-flash-lite for the craft-application re-score (2026-11-18). The frozen gemini-4-hydrogen exhausted its free-tier daily quota (429 RESOURCE_EXHAUSTED, generate_content_free_tier_requests limit 20/day, retryDelay 67427s ~18h43m); with explicit user authorization the fallback model was used for all 14 passes. All per-pass model fields are machine-written as gemini-3.5-flash-lite. Scores are NOT comparable to the gemini-4-hydrogen baseline recorded in scores-before-intent.json. The scored_at and instrument.date fields intentionally preserve the original 2026-11-17 asset-set scoring date; the four gate-close passes (humanoid A/B, scene A/B) were machine-re-scored on 2026-11-18. The gate-publishable-pass track then machine-re-scored exactly two passes (humanoid A/B) on 2026-11-18 with this same instrument after the humanoid ramps were re-authored; the other twelve passes remain byte-identical.",
     "views": {
       "A": "exact factor-8 nearest-neighbour on #808080",
       "B": "engine debug sheet"
@@ -37,25 +37,12 @@
     "palette_craft"
   ],
   "verdict": {
-    "result": "fail",
-    "mean": 3.73,
+    "result": "pass",
+    "mean": 3.82,
     "threshold_mean": 3.5,
     "min_allowed": 3,
-    "failures": [
-      {
-        "asset": "humanoid",
-        "pass": "A",
-        "criterion": "edge_language",
-        "score": 2
-      },
-      {
-        "asset": "humanoid",
-        "pass": "A",
-        "criterion": "palette_craft",
-        "score": 2
-      }
-    ],
-    "note": "Gate-close re-score of the binding publishable gate (mean >= 3.5, no criterion below 3). Four affected passes (humanoid A/B, scene A/B) re-scored on the instrument of record gemini-3.5-flash-lite via scripts/rubric.mjs --replace, run by the primary; the other ten passes were confirmed byte-identical to the prior record. All three original below-floor lighting=2 findings (humanoid A/B, scene A) are cleared and now score lighting=3; humanoid A regressed to edge_language=2 and palette_craft=2. Mean 3.73 clears the 3.5 threshold, but 2 below-floor criterion scores remain, so the gate is still fail - the floor clause binds, not the mean. Scores are NOT comparable to the gemini-4-hydrogen baseline (mean 3.25); instrument-of-record history is in instrument.note. No criterion score or rationale was revised by hand; all per-pass fields were machine-written by the scorer. This verdict.note was updated by the primary only to record the honest recomputed state (metadata-only edit permitted by NFR-2). Prior records remain byte-for-byte in test/art/scores-before-intent.json and test/art/scores-agent-vision.json. The 4.0 exceptional tier remains documented as unreachable in docs/rubric.md and is not the gate here.",
+    "failures": [],
+    "note": "Gate-publishable-pass re-score of the binding publishable gate (mean >= 3.5, no criterion below 3) on the instrument of record gemini-3.5-flash-lite. Exactly two affected passes (humanoid A/B) were machine-re-scored via scripts/rubric.mjs --replace, run by the primary, after the humanoid ramps were re-authored; the other twelve passes were confirmed byte-identical to the prior record (unaffected_checked=12 diffs=0). Both former humanoid A floor findings cleared: edge_language 2->3 and palette_craft 2->4 on pass A; pass B edge_language 3 and palette_craft 3. Mean 3.82 clears the 3.5 threshold and there are zero below-floor criterion scores, so the scorer recomputed result=pass. Scores are NOT comparable to the gemini-4-hydrogen baseline (mean 3.25); instrument-of-record history is in instrument.note. No criterion score or rationale was revised by hand; all per-pass fields and the structured verdict were machine-written by the scorer. This verdict.note was updated by the primary only to record the honest recomputed state (metadata-only edit permitted by NFR-2). Prior records remain byte-for-byte in test/art/scores-before-intent.json and test/art/scores-agent-vision.json. The 4.0 exceptional tier remains documented as unreachable in docs/rubric.md and is not the gate here.",
     "basis": "independent"
   },
   "assets": [
@@ -224,31 +211,31 @@
           "subject": "humanoid",
           "scores": {
             "silhouette": {
-              "score": 4,
-              "why": "The humanoid shape with a helmet and sword is clearly legible at 1x, though the blocky proportions are slightly stiff."
+              "score": 5,
+              "why": "The knight's helmet, upright stance, and large sword create an instantly recognisable humanoid figure even without colour."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Body parts are separated by outlines, but some adjacent values in the armor and tunic merge too closely together."
+              "score": 4,
+              "why": "Most armor pieces are clearly distinguished by value differences, though some adjacent tones are quite close."
             },
             "lighting": {
               "score": 3,
-              "why": "There is a general sense of overhead or flat lighting, but shading across the various masses is inconsistent and arbitrary."
+              "why": "Shading generally implies a top-down or ambient light source, but lacks a cohesive directional shadow strategy across all components."
             },
             "edge_language": {
-              "score": 2,
-              "why": "The heavy black outlines are mostly consistent, but internal details lack deliberate and distinct edge treatments."
+              "score": 3,
+              "why": "Outlines are consistently bold, but interior detail edges and material boundaries blend together without distinct treatment."
             },
             "cluster_discipline": {
-              "score": 4,
-              "why": "The pixel clusters are clean and generally well-proportioned without random single-pixel noise."
+              "score": 5,
+              "why": "The sprite maintains clean pixel clusters with virtually no distracting single-pixel confetti or irregular noise."
             },
             "palette_craft": {
-              "score": 2,
-              "why": "The colors feel somewhat arbitrary with harsh ramps and hues that do not harmonize effectively for the subject."
+              "score": 4,
+              "why": "The steel blues and warm gold accents create a coherent metallic look, though gradients step a bit abruptly."
             }
           },
-          "note": "gate-close-flash-lite humanoid A"
+          "note": "gate-publishable-pass humanoid A"
         },
         {
           "pass": "B",
@@ -259,31 +246,31 @@
           "subject": "humanoid",
           "scores": {
             "silhouette": {
-              "score": 4,
-              "why": "The character and sword are distinct and readable at 1x, though the blocky limbs blend slightly with the torso shape."
+              "score": 5,
+              "why": "The character and sword are immediately legible as a humanoid warrior even without color."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Parts generally separate well, but the dark outline and deep blue torso merge into a single heavy mass on the sides."
+              "score": 4,
+              "why": "Most body parts and equipment are clearly distinguished by value contrast, though some adjacent tones are quite close."
             },
             "lighting": {
               "score": 3,
-              "why": "Shading is somewhat inconsistent across the helmet and torso, lacking a unified and clear directional light source."
+              "why": "Lighting lacks a single unified directional source, appearing somewhat flat and ambiguous across different masses."
             },
             "edge_language": {
               "score": 3,
-              "why": "The heavy black outline is consistent, but inner details lack a distinct treatment to separate them cleanly from the silhouette."
+              "why": "The outline is generally consistent, but internal details and material edges lack distinct varied treatment."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Forms are built from solid pixel clusters with minimal noise, though some small internal details border on single-pixel elements."
+              "why": "Pixel clusters are well-sized and structured, avoiding noisy single-pixel artifacts."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent with logical blue and metal ramps, but the values and hues lack deliberate emotional or lighting contrast."
+              "why": "The palette is coherent and themed for armor and steel, but the ramps could be smoother and more intentional."
             }
           },
-          "note": "gate-close-flash-lite humanoid B"
+          "note": "gate-publishable-pass humanoid B"
         }
       ]
     },
