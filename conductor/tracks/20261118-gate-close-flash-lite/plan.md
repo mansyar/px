@@ -77,7 +77,7 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-6, AC-5
 - **Touches:** `conductor/tracks/20261118-gate-close-flash-lite/verification/gate-decision.md`
 - **Verification:** `node scripts/rubric-report.mjs` (primary-run) confirms the recorded verdict matches `scores.json`; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Record the recomputed verdict and decision** — covers: FR-5
   - [ ] **P3.T1.1:** Document mean, threshold, floor, failures, and final `pass`/`fail` status from the scorer output.
