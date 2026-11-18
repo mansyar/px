@@ -198,7 +198,9 @@ function recomputeVerdict(record) {
     CRITERIA.map((criterion) => pass.scores?.[criterion]?.score),
   );
   const scored = scores.filter((score) => Number.isInteger(score));
-  const mean = Number((scored.reduce((total, score) => total + score, 0) / scored.length).toFixed(2));
+  const mean = Number(
+    (scored.reduce((total, score) => total + score, 0) / scored.length).toFixed(2),
+  );
   const failures = [];
   for (const asset of record.assets) {
     for (const pass of asset.passes) {
@@ -241,7 +243,14 @@ function readRecord(asset, pass, replace) {
       scored_by: 'scripts/rubric.mjs',
       scored_at: new Date().toISOString().slice(0, 10),
       criteria: CRITERIA,
-      verdict: { result: 'fail', mean: 0, threshold_mean: 4, min_allowed: 3, basis: 'independent', failures: [] },
+      verdict: {
+        result: 'fail',
+        mean: 0,
+        threshold_mean: 4,
+        min_allowed: 3,
+        basis: 'independent',
+        failures: [],
+      },
       assets: [],
     };
   }
@@ -288,9 +297,7 @@ async function main() {
   }
 
   const baseUrl = process.env.PX_RUBRIC_ENDPOINT ?? credentials.baseUrl;
-  const endpoint = baseUrl
-    ? endpointFor(baseUrl)
-    : 'https://api.openai.com/v1/chat/completions';
+  const endpoint = baseUrl ? endpointFor(baseUrl) : 'https://api.openai.com/v1/chat/completions';
   const model = options.model ?? process.env.PX_RUBRIC_MODEL ?? credentials.model ?? 'gpt-4o';
   const artifact = resolve(ROOT, options.artifact ?? join(EVIDENCE, `${options.asset}.png`));
   const png = readFileSync(artifact);
@@ -320,7 +327,9 @@ async function main() {
     }),
   });
   if (!response.ok) {
-    process.stderr.write(`rubric: model call failed: ${response.status} ${await response.text()}\n`);
+    process.stderr.write(
+      `rubric: model call failed: ${response.status} ${await response.text()}\n`,
+    );
     process.exit(1);
   }
   const payload = await response.json();
@@ -347,7 +356,9 @@ async function main() {
       continue;
     }
     if (!Number.isInteger(scored.score) || scored.score < 1 || scored.score > 5) {
-      problems.push(`${criterion}: score must be an integer 1-5, got ${JSON.stringify(scored.score)}`);
+      problems.push(
+        `${criterion}: score must be an integer 1-5, got ${JSON.stringify(scored.score)}`,
+      );
     }
     if (typeof scored.rationale !== 'string' || scored.rationale.trim().length < 10) {
       problems.push(`${criterion}: rationale must be a sentence`);

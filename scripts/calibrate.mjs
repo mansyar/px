@@ -28,9 +28,15 @@ const SCORES = join(ROOT, 'test/art/scores.json');
 const OUT = join(ROOT, '.conductor/evidence/calibration');
 const BACKUP = join(OUT, 'scores-backup.json');
 const VARIANTS = join(OUT, 'variants');
-const PROBE_TRACK = join(ROOT, 'conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling');
+const PROBE_TRACK = join(
+  ROOT,
+  'conductor/tracks/20261113-rubric-ceiling-probe/verification/ceiling',
+);
 const PROBE_REGISTRY = join(PROBE_TRACK, 'candidates.json');
-const VIEWS_TRACK = join(ROOT, 'conductor/tracks/20261113-rubric-view-comparison/verification/views');
+const VIEWS_TRACK = join(
+  ROOT,
+  'conductor/tracks/20261113-rubric-view-comparison/verification/views',
+);
 const VIEWS_REGISTRY = join(VIEWS_TRACK, 'artifacts.json');
 const VIEWS_OUT = join(ROOT, '.conductor/evidence/views');
 
@@ -291,7 +297,12 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
   lines.push('', '## Rationales', '');
   for (const entry of summary) {
     for (const candidate of entry.candidates) {
-      lines.push(`### ${entry.criterion} / ${candidate.name}`, '', `Intent: ${candidate.intent}`, '');
+      lines.push(
+        `### ${entry.criterion} / ${candidate.name}`,
+        '',
+        `Intent: ${candidate.intent}`,
+        '',
+      );
       if (candidate.passes.A) lines.push(`- **pass A:** ${candidate.passes.A.why}`);
       if (candidate.passes.B) lines.push(`- **pass B:** ${candidate.passes.B.why}`);
       lines.push('');
@@ -305,7 +316,9 @@ function writeProbe({ registry, calls: freshCalls, results: fresh }, options) {
   process.stdout.write(`probe written to ${join(PROBE_TRACK, 'probe.md')}\n`);
 
   for (const entry of summary) {
-    process.stdout.write(`${entry.criterion}: ${entry.verdict}${entry.reached_by.length ? ` (${entry.reached_by.join(', ')})` : ''}\n`);
+    process.stdout.write(
+      `${entry.criterion}: ${entry.verdict}${entry.reached_by.length ? ` (${entry.reached_by.join(', ')})` : ''}\n`,
+    );
   }
   const unscored = results.filter((entry) => !entry.passes.A || !entry.passes.B);
   if (unscored.length > 0) {
@@ -350,14 +363,18 @@ function runViews(options) {
         );
         if (outcome.attempts.length > 0) calls.rejected += 1;
         repeats.push(outcome.ok ? outcome.scores : null);
-        if (!outcome.ok) process.stderr.write(`unscored: ${entry.asset} ${view} repeat ${repeat}\n`);
+        if (!outcome.ok)
+          process.stderr.write(`unscored: ${entry.asset} ${view} repeat ${repeat}\n`);
       }
       asset.views[view] = { path: artifact.path, sha256: artifact.sha256, repeats };
     }
     results.push(asset);
     process.stdout.write(
       `${entry.asset}: ${registry.plan.views
-        .map((view) => `${view} ${asset.views[view] ? asset.views[view].repeats.map((r) => (r ? 'ok' : '—')).join('/') : 'skipped'}`)
+        .map(
+          (view) =>
+            `${view} ${asset.views[view] ? asset.views[view].repeats.map((r) => (r ? 'ok' : '—')).join('/') : 'skipped'}`,
+        )
         .join(' · ')}\n`,
     );
   }
@@ -386,19 +403,25 @@ function analyseViews(registry, results) {
           reason = 'unscored repeat';
         }
         const values = repeats.filter(Boolean).map((repeat) => repeat[criterion]);
-        means[view] = values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+        means[view] =
+          values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
         if (values.length === 2 && Math.abs(values[0] - values[1]) > rule.repeat_agreement) {
           excluded = true;
           reason = `repeats disagree by more than ${rule.repeat_agreement}`;
         }
       }
       const scored = Object.values(means).filter((value) => value !== null);
-      const delta = scored.length === registry.plan.views.length ? Math.max(...scored) - Math.min(...scored) : null;
+      const delta =
+        scored.length === registry.plan.views.length
+          ? Math.max(...scored) - Math.min(...scored)
+          : null;
       return { criterion, means, delta, excluded, reason };
     });
     const included = criteria.filter((row) => !row.excluded && row.delta !== null);
     const meanAbs =
-      included.length > 0 ? included.reduce((sum, row) => sum + row.delta, 0) / included.length : null;
+      included.length > 0
+        ? included.reduce((sum, row) => sum + row.delta, 0) / included.length
+        : null;
     return {
       asset: entry.asset,
       width: entry.width,
@@ -516,7 +539,10 @@ function writeViews(raw, analysis) {
   if (!analysis.meanOk) {
     lines.push(
       `Mean |Δ| exceeded 0.25 for at least one asset: ${analysis.perAsset
-        .map((asset) => `${asset.asset} ${asset.mean_abs_delta === null ? '—' : asset.mean_abs_delta.toFixed(2)}`)
+        .map(
+          (asset) =>
+            `${asset.asset} ${asset.mean_abs_delta === null ? '—' : asset.mean_abs_delta.toFixed(2)}`,
+        )
         .join(', ')}.`,
     );
     lines.push('');
@@ -583,8 +609,7 @@ function finalizeEntry(entry) {
       ? 'separates'
       : 'ambiguous';
   entry.saturated = Math.max(entry.high.A, entry.high.B) <= THRESHOLDS.saturated_max;
-  entry.anchor4 =
-    entry.high.A >= THRESHOLDS.anchor4_min && entry.high.B >= THRESHOLDS.anchor4_min;
+  entry.anchor4 = entry.high.A >= THRESHOLDS.anchor4_min && entry.high.B >= THRESHOLDS.anchor4_min;
   return entry;
 }
 
@@ -657,7 +682,9 @@ function main() {
   const original = readFileSync(SCORES);
   writeFileSync(BACKUP, original);
 
-  const selected = options.only ? CRITERIA.filter((criterion) => criterion === options.only) : CRITERIA;
+  const selected = options.only
+    ? CRITERIA.filter((criterion) => criterion === options.only)
+    : CRITERIA;
   const calls = { attempted: 0, rejected: 0 };
   const results = [];
 
@@ -668,7 +695,9 @@ function main() {
     }
     if (options.views) {
       if ((options.view || options.repeat) && !options.mergeViews) {
-        throw new Error('--view and --repeat select single slots; add --merge-views so the other scores are kept');
+        throw new Error(
+          '--view and --repeat select single slots; add --merge-views so the other scores are kept',
+        );
       }
       let raw = runViews(options);
       if (options.mergeViews) {
@@ -683,7 +712,13 @@ function main() {
       return;
     }
     for (const criterion of selected) {
-      const entry = { criterion, low: {}, high: {}, rationale: { low: {}, high: {} }, attempts: [] };
+      const entry = {
+        criterion,
+        low: {},
+        high: {},
+        rationale: { low: {}, high: {} },
+        attempts: [],
+      };
       for (const level of ['low', 'high']) {
         const recipe = join(VARIANTS, criterion, `${level}.px.json`);
         const assets = {
