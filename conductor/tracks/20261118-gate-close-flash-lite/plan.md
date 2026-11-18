@@ -46,7 +46,7 @@ The primary appends after acceptance:
 - **Covers:** FR-4, NFR-1, NFR-2, NFR-5, AC-4
 - **Touches:** `test/art/scores.json`, `conductor/tracks/20261118-gate-close-flash-lite/verification/rescore.md`, `.conductor/evidence/**` (gitignored)
 - **Verification:** `node scripts/rubric-report.mjs` (read-only report, primary-run); `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Generate faithful A/B artifacts for the two changed assets** — covers: FR-4
   - [ ] **P2.T1.1:** Render pass A (exact 8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) from the updated recipes into `.conductor/evidence/`.
