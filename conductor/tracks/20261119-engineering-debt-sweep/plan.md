@@ -85,17 +85,22 @@ The primary appends after acceptance:
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-3.md
 -->
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
 
-- **Goal:** Resolve review findings ...
+- **Goal:** Resolve the single Low plan-presentation finding F1 from review round 1.
 - **Depends on:** Phase 3
-- **Covers:** review findings
-- **Touches:** ...
-- **Verification:** ...
-- **Status:** pending
+- **Covers:** F1
+- **Touches:** `plan.md`, `verification/phase-R1.md`
+- **Verification:** `pnpm verify`; live-text content assertion on Phase 2/3 result blocks
+- **Status:** in_progress
 
-- [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
+- [ ] **R1.T1: Uncomment the Phase 2 and Phase 3 acceptance blocks** — covers: F1
+  - [ ] **R1.T1.1:** Remove the `<!--`, "The primary appends after acceptance:" and `-->` wrappers around both blocks, leaving Result/Checkpoint/Evidence as live text matching Phase 1.
+  - [ ] **R1.T1.2:** Write `verification/phase-R1.md` with the fix, content assertion and `pnpm verify` result.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-R1.md
 -->
