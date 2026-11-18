@@ -72,12 +72,14 @@
 - **Covers:** F1, F2
 - **Touches:** `spec.md`, `verification/integrated.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Resolve F1** — covers: F1
-  - [ ] **R1.T1.1:** Replace "ten" with "twelve" at `spec.md:38`, `:65`, and `:125`.
-- [ ] **R1.T2: Resolve F2** — covers: F2
-  - [ ] **R1.T2.1:** Relabel the `verification/integrated.md` requirements table to canonical spec FR-1..FR-6 / NFR-1..NFR-7 / AC-1..AC-9 definitions, preserving all evidence cells.
-  - [ ] **R1.T2.2:** Run `pnpm verify` and write `verification/phase-R1.md`; commit `fix(conductor): Resolve review findings F1 and F2`.
+- [x] **R1.T1: Resolve F1** — covers: F1
+  - [x] **R1.T1.1:** Replace "ten" with "twelve" at `spec.md:38`, `:65`, and `:125`.
+- [x] **R1.T2: Resolve F2** — covers: F2
+  - [x] **R1.T2.1:** Relabel the `verification/integrated.md` requirements table to canonical spec FR-1..FR-6 / NFR-1..NFR-7 / AC-1..AC-9 definitions, preserving all evidence cells.
+  - [x] **R1.T2.2:** Run `pnpm verify` and write `verification/phase-R1.md`; commit `fix(conductor): Resolve review findings F1 and F2`.
 
-<!-- primary appends Result / Checkpoint / Evidence below after acceptance -->
+**Result:** verified — both Low review findings resolved in strict mode: F1 count corrected to twelve in all three spec locations (primary-applied after subagent permission denial), F2 requirement IDs relabeled to canonical spec definitions with evidence cells realigned. `pnpm verify` exit 0 (119 files / 1028 tests, one pre-existing non-failing warning). No score, rationale, verdict, recipe or code file changed. Squash applied: range contained one reported commit and no merge/user commit.
+**Checkpoint:** `9c8d0daebb8301bb29822f85b0a11b43a4fd9349`
+**Evidence:** `conductor/tracks/20261118-gate-publishable-pass/verification/phase-R1.md`
