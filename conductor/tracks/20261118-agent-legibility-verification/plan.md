@@ -42,7 +42,7 @@ The primary appends after acceptance:
 - **Covers:** FR-3, FR-4, FR-5, NFR-2, NFR-3, NFR-4, NFR-5, NFR-7, AC-3, AC-4, AC-5, AC-7, AC-8
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/measurement.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-2.md`, `docs/agent-tool-guide.md` (conditional, primary-owned), `.conductor/evidence/agent-legibility/**`
 - **Verification:** `pnpm verify`; strict render per fresh recipe; `node scripts/rubric.mjs --dry-run --model gemini-3.5-flash-lite --asset <name> --pass A --artifact <fresh-png>` per asset; `scores.json` hash unchanged; no engine/code delta.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Strict-render each fresh artifact** - covers: FR-3, AC-3
   - [ ] **P2.T1.1: Render all four fresh recipes with `--strict`** and record exit codes and lint findings
