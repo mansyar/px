@@ -52,12 +52,16 @@
 - **Covers:** FR-5, FR-6, AC-5, AC-6
 - **Touches:** `verification/gate-decision.md`
 - **Verification:** `pnpm verify`; `node scripts/rubric-report.mjs` agrees with `scores.json`.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Record the final verdict** — covers: FR-5, AC-5
-  - [ ] **P3.T1.1:** Write the verdict, mean, threshold, failures, two target criterion outcomes, commands, artifact digests, and scores.json before/after hashes into `verification/gate-decision.md`.
-- [ ] **P3.T2: Record the bounded decision** — covers: FR-6, AC-6
-  - [ ] **P3.T2.1:** On `pass`, record the quality win; on `fail`, record an explicit final ACCEPT with the bounded-stop rationale (one candidate, no re-rolls, no cross-instrument transfer). Do not force a pass or edit any score.
+- [x] **P3.T1: Record the final verdict** — covers: FR-5, AC-5
+  - [x] **P3.T1.1:** Write the verdict, mean, threshold, failures, two target criterion outcomes, commands, artifact digests, and scores.json before/after hashes into `verification/gate-decision.md`.
+- [x] **P3.T2: Record the bounded decision** — covers: FR-6, AC-6
+  - [x] **P3.T2.1:** On `pass`, record the quality win; on `fail`, record an explicit final ACCEPT with the bounded-stop rationale (one candidate, no re-rolls, no cross-instrument transfer). Do not force a pass or edit any score.
+
+**Result:** verified — publishable gate honestly PASSED (`result=pass`, mean 3.82, `failures=[]`); quality win recorded with a bounded stop (one candidate, one scoring round, no re-roll, no instrument switch). Primary `node scripts/rubric-report.mjs` exit 0 and `pnpm verify` exit 0; single reported commit squashed.
+**Checkpoint:** `11cb1975db155732cd248bf1c85b07e938cbc7ad`
+**Evidence:** `conductor/tracks/20261118-gate-publishable-pass/verification/gate-decision.md`
 
 <!-- primary appends Result / Checkpoint / Evidence below after acceptance -->
 

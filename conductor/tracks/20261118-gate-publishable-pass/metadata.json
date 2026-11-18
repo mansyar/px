@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-18T05:32:16Z",
-  "updated_at": "2026-11-18T06:50:35Z",
+  "updated_at": "2026-11-18T06:56:11Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261118-gate-publishable-pass",
@@ -14,11 +14,11 @@
   "base_sha": "4377f3468bf840a7057e6ebc8bb02183ed076d1a",
   "progress": {
     "phases_total": 3,
-    "phases_verified": 2,
+    "phases_verified": 3,
     "tasks_total": 9,
-    "tasks_done": 7
+    "tasks_done": 9
   },
-  "last_checkpoint": "8f3d92d833635aedd4b76e367d70a3201fcba927",
+  "last_checkpoint": "11cb1975db155732cd248bf1c85b07e938cbc7ad",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",
