@@ -6,7 +6,7 @@
 **Branch:** `feat/20261118-gate-close-flash-lite`
 **Phase base:** `1190aca9ca7811e780bb621a7f9872afe1d7812c`
 **Instrument of record:** `gemini-3.5-flash-lite` only (no instrument switching, no cross-instrument comparison)
-**Result:** `blocked` — credentialed re-scoring and verdict recomputation are primary-only (P2.T2/P2.T3)
+**Result:** `verified` — phase work complete and honestly recorded; this does NOT mean the gate passed (the gate decision belongs to Phase 3)
 
 ## 1. Faithful artifact presence (P2.T1)
 
@@ -32,84 +32,108 @@ Both entries in `generation-summary.json` report `exit_code: 0`,
 `recipe_sha256 === committed_sha256`, and `blocking_findings: 0`
 (humanoid 35 info findings; scene 66 info findings).
 
-## 3. Digests (P2.T1)
+## 3. Digests (P2.T1 — resolved)
 
-Authoritative digests recorded by the Phase 1 render harness
-(`.conductor/evidence/art-v2/generation-summary.json`) — these are the source PNG
-/ recipe digests paired with the two changed assets:
+The authoritative source PNG / recipe digests recorded by the Phase 1 render
+harness (`.conductor/evidence/art-v2/generation-summary.json`):
 
 | Asset | `recipe_sha256` = `committed_sha256` |
 | --- | --- |
 | humanoid | `27fd32e616389b767d112ae68992ae2912eeca57cf8cd9f7daa7a70aacea0c2a` |
 | scene | `f48e72d7ecfda015c5de9623ed2e732cc648a2675d7b0b950406af7f42457a24` |
 
-Per-file SHA-256 of the four faithful artifact PNGs (`.8x.png`, `.debug.png`)
-is **PENDING-primary**: this subagent's shell denies the file-hash command
-(`Get-FileHash -Algorithm SHA256 …` → `permission.rejected: shell`), and node is
-explicitly out of scope. No digest value has been fabricated or guessed. The
-primary should compute and append the four values with:
-
-```
-Get-FileHash -Algorithm SHA256 -Path .conductor/evidence/art-v2/humanoid.8x.png,.conductor/evidence/art-v2/humanoid.debug.png,.conductor/evidence/art-v2/scene.8x.png,.conductor/evidence/art-v2/scene.debug.png
-```
+Per-file SHA-256 of the four faithful artifact PNGs, computed by the primary
+(the subagent's shell denied the file-hash command; resolved in the brief's
+PRIMARY-RESOLVED section):
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `humanoid.8x.png` | PENDING-primary |
-| `humanoid.debug.png` | PENDING-primary |
-| `scene.8x.png` | PENDING-primary |
-| `scene.debug.png` | PENDING-primary |
+| `humanoid.8x.png` | `46A6D3A220A83E87D96C75095D14ACC57D5B40869890CF8A1985B2EED69C8A1A` |
+| `humanoid.debug.png` | `1A9C1847C1030FEF4BA5F8A0AF77554AB4B541BF67DF6ACB884BA3FDFAAC391A` |
+| `scene.8x.png` | `477601A09A16563FE01BC0FCCC06659D7CC8A454A83D812CF6ACE7C37F5685AB` |
+| `scene.debug.png` | `931E132002ADFDEA9594921C7A025038B5D9CAC1582249D0ACF059DCCF2A77EC` |
 
-## 4. Scorer rows (P2.T2 — primary only)
+`test/art/scores.json` SHA-256 changed from baseline
+`E930EC6D0CBEC27144CA9E020C9B1603BC183E7CFFF7BF9FAE87C54A5F50AC07` to
+`F3127641F9B9136730F4DB62D0745E76225D9DCD57FF14BC8C2FEC8AB28B1F5D`
+(scorer-written, primary-reported).
 
-The four affected passes are re-scored with `--model gemini-3.5-flash-lite
---replace`; every per-pass `model`/`note`/score field and the verdict are written
-by `scripts/rubric.mjs`. This subagent did not run the scorer and did not edit
-`test/art/scores.json`.
+## 4. Scorer rows (P2.T2 — primary-run, complete)
 
-| Asset / pass | Artifact | Command | Model | Status |
-| --- | --- | --- | --- | --- |
-| humanoid A | `humanoid.8x.png` | `node scripts/rubric.mjs --asset humanoid --pass A --artifact .conductor/evidence/art-v2/humanoid.8x.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite humanoid A"` | gemini-3.5-flash-lite | PENDING |
-| humanoid B | `humanoid.debug.png` | `node scripts/rubric.mjs --asset humanoid --pass B --artifact .conductor/evidence/art-v2/humanoid.debug.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite humanoid B"` | gemini-3.5-flash-lite | PENDING |
-| scene A | `scene.8x.png` | `node scripts/rubric.mjs --asset scene --pass A --artifact .conductor/evidence/art-v2/scene.8x.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite scene A"` | gemini-3.5-flash-lite | PENDING |
-| scene B | `scene.debug.png` | `node scripts/rubric.mjs --asset scene --pass B --artifact .conductor/evidence/art-v2/scene.debug.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite scene B"` | gemini-3.5-flash-lite | PENDING |
+Criterion order: silhouette / value_separation / lighting / edge_language /
+cluster_discipline / palette_craft. All fields below were machine-written by
+`scripts/rubric.mjs --model gemini-3.5-flash-lite --replace`; no criterion score
+or rationale was hand-edited. Full rationales live in `test/art/scores.json`.
 
-Retry 503/429/non-JSON replies with backoff; never switch instruments.
+| Asset / pass | Artifact | Criterion scores | Attempts | `model` | `note` |
+| --- | --- | --- | --- | --- | --- |
+| humanoid A | `humanoid.8x.png` | 4 / 3 / 3 / 2 / 4 / 2 | 4 (3 transient retries) | gemini-3.5-flash-lite | gate-close-flash-lite humanoid A |
+| humanoid B | `humanoid.debug.png` | 4 / 3 / 3 / 3 / 4 / 3 | 1 | gemini-3.5-flash-lite | gate-close-flash-lite humanoid B |
+| scene A | `scene.8x.png` | 5 / 4 / 3 / 3 / 4 / 3 | 1 | gemini-3.5-flash-lite | gate-close-flash-lite scene A |
+| scene B | `scene.debug.png` | 5 / 4 / 3 / 3 / 4 / 3 | 1 | gemini-3.5-flash-lite | gate-close-flash-lite scene B |
 
-## 5. Verdict (recomputation pending)
+The three original below-floor `lighting=2` failures are cleared (all four
+passes now score `lighting=3`). However, humanoid A regressed from 3 to 2 on
+`edge_language` and `palette_craft`.
 
-`test/art/scores.json` remains the pre-track record: verdict `fail`, mean 3.67,
-`failures` = humanoid A `lighting=2`, humanoid B `lighting=2`, scene A
-`lighting=2`. It is untouched by this subagent. The primary will append the
-machine-recomputed mean/failures/result after the four commands above run; no
-pass is forced and no criterion value is hand-edited. Scores are on the
-flash-lite instrument and are not comparable to the 3.25 frozen baseline.
+## 5. Verdict (scorer-recomputed, honest)
 
-## 6. Local verification run by this subagent
+From `test/art/scores.json` `verdict` (machine-recomputed by the scorer):
 
-- `pnpm verify` → exit 0 (typecheck → lint → 119 test files / 1028 tests → build).
-  Biome reported one pre-existing, non-failing warning at
-  `test/recipe/version-1-2.test.ts:50` (`lint/style/noNonNullAssertion`), not
-  modified here.
-- `node scripts/rubric.mjs` / `node scripts/rubric-report.mjs`: NOT run (primary-only;
-  shell denies general `node` and the credential is never exposed to a subagent).
+| Field | Value |
+| --- | --- |
+| `result` | `fail` |
+| `mean` | 3.73 |
+| `threshold_mean` | 3.5 (cleared) |
+| `min_allowed` | 3 (floor clause binds) |
+| `failures` | 2 — `humanoid/A/edge_language=2`, `humanoid/A/palette_craft=2` |
+| `basis` | `independent` |
+
+The mean clears the 3.5 threshold but the floor clause still binds. No pass was
+forced and no score was re-rolled to fish for better results. Scores are on the
+flash-lite instrument and are not comparable to the 3.25 frozen baseline. The
+invest/accept decision is Phase 3's responsibility.
+
+**P2.T3 no-fabrication check (primary):** the ten unaffected passes were compared
+JSON-equal against the pre-track snapshot — `unaffected_checked=10 diffs=0`.
+Only the four intended passes changed, all with `model=gemini-3.5-flash-lite`.
+
+## 6. Primary-run command table
+
+| Command | Run by | Exit | Summary |
+| --- | --- | --- | --- |
+| `node scripts/rubric.mjs --asset humanoid --pass A --artifact .conductor/evidence/art-v2/humanoid.8x.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite humanoid A"` | primary | 0 | 4/3/3/2/4/2, OK on try 4 (transient retries) |
+| `node scripts/rubric.mjs --asset humanoid --pass B --artifact .conductor/evidence/art-v2/humanoid.debug.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite humanoid B"` | primary | 0 | 4/3/3/3/4/3, try 1 |
+| `node scripts/rubric.mjs --asset scene --pass A --artifact .conductor/evidence/art-v2/scene.8x.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite scene A"` | primary | 0 | 5/4/3/3/4/3, try 1 |
+| `node scripts/rubric.mjs --asset scene --pass B --artifact .conductor/evidence/art-v2/scene.debug.png --model gemini-3.5-flash-lite --replace --note "gate-close-flash-lite scene B"` | primary | 0 | 5/4/3/3/4/3, try 1 |
+| `Get-FileHash -Algorithm SHA256 -Path … (four artifacts)` | primary | 0 | resolved the P2.T1 hash blocker; values in §3 |
+| `node scripts/rubric-report.mjs` | primary (read-only) | not run by subagent | primary-only; this subagent did not run it |
+| `pnpm verify` | subagent | 0 | typecheck → lint → 119 files / 1028 tests → build; one pre-existing non-failing lint warning at `test/recipe/version-1-2.test.ts:50` |
+
+Credentials were supplied from the credential file via `PX_RUBRIC_CREDENTIALS`;
+the key was never printed or exposed to this subagent.
 
 ## 7. Acceptance criteria
 
 | ID | Criterion | Evidence | Status |
 | --- | --- | --- | --- |
-| FR-4 / AC-4 | four affected passes machine-re-scored on flash-lite with `--replace` | §4 — PENDING, primary runs the four commands | blocked |
-| NFR-1 | instrument of record flash-lite only | §4 model column; no instrument switch | satisfied pending scores |
-| NFR-2 | no hand-edited criterion scores/rationales | `scores.json` untouched by subagent; scorer writes all fields | satisfied pending scores |
-| NFR-5 | credentialed scoring primary-run only | §4/§6; no scorer run, no credential access | satisfied |
-| P2.T1 | faithful artifact digests recorded | §1–§3; paths confirmed, harness digests recorded; per-file SHA-256 PENDING-primary | partial |
+| FR-4 / AC-4 | four affected passes machine-re-scored with flash-lite `--replace` | §4; all four `model=gemini-3.5-flash-lite`, machine-written | done |
+| NFR-1 | instrument of record flash-lite only | §4 model column; no instrument switch | done |
+| NFR-2 | no hand-edited criterion scores/rationales | §4, §5; scorer wrote all fields, no re-roll | done |
+| NFR-5 | credentialed scoring primary-run only | §6 run-by column | done |
+| P2.T1 | faithful artifact digests recorded | §1–§3; paths confirmed, four SHA-256 values recorded | done |
+| P2.T3 | no score fabrication | §5; `unaffected_checked=10 diffs=0` | done |
+| FR-5 / AC-5 | honest recomputed verdict | §5; fail/3.73/2 failures, not forced | done (Phase 3 owns decision) |
 
 ## 8. Notes / deviations
 
-- Artifact-file SHA-256 values are intentionally left PENDING rather than
-  inferred; the only available hash command was denied by the shell, so no
-  value is asserted. Recorded as a blocker for the primary.
-- The digests in §3 are the source-PNG/recipe digests from
+- `test/art/scores.json` `verdict.note` is a stale free-text string: it still
+  describes the pre-track state ("Mean 3.67 … 3 below-floor criterion scores
+  remain (humanoid A/B lighting=2, scene A lighting=2)") while the structured
+  `result`/`mean`/`failures` fields are correctly recomputed (`fail`/3.73/2).
+  This subagent did not edit it — the brief reserves metadata edits in
+  `scores.json` to the primary. Flagged here for Phase 3 to reconcile.
+- The digests in §3's first table are the source-PNG/recipe digests from
   `generation-summary.json`, not hashes of the `.8x.png`/`.debug.png` files;
   they are labelled explicitly to avoid conflating the two.
 - `generation-report.txt` / `scoring*.log` contain stale pre-track digests and
