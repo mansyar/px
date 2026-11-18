@@ -2,11 +2,11 @@
   "id": "20261118-agent-legibility-verification",
   "title": "Agent Legibility Verification",
   "type": "chore",
-  "status": "in_progress",
+  "status": "complete",
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-18T11:24:28Z",
-  "updated_at": "2026-11-18T12:39:59Z",
+  "updated_at": "2026-11-18T12:44:22Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "chore/20261118-agent-legibility-verification",
@@ -22,10 +22,10 @@
   "review_verdict": "PASS",
   "review_rounds": 2,
   "doc_sync": "updated — post-review: R1 corrected only the integrated report's final-HEAD provenance (883518d); no product/tech-stack/guideline change required because the 2026-11-18 tech-stack note already records the honest PASS with disclosed strict-gate gaps; spec frozen",
-  "pr_url": null,
+  "pr_url": "https://github.com/mansyar/px/pull/17",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
-  "archived_at": null,
-  "archive_path": null
+  "archived_at": "2026-11-18T12:44:22Z",
+  "archive_path": "conductor/archive/20261118-agent-legibility-verification"
 }

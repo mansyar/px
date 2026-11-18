@@ -34,5 +34,5 @@
 
 - [x] **Track: Phase 1 Closeout Audit** - [20261118-phase1-closeout-audit](./archive/20261118-phase1-closeout-audit/index.md) - chore - medium - *PR #16, Phase 1 declared feature-complete; gate pass mean 3.82, zero below-floor, empty code delta*
 
-- [~] **Track: Agent Legibility Verification** - [20261118-agent-legibility-verification](./tracks/20261118-agent-legibility-verification/index.md) - chore - high
+- [x] **Track: Agent Legibility Verification** - [20261118-agent-legibility-verification](./archive/20261118-agent-legibility-verification/index.md) - chore - high - *PR #17, product metric verified: 9/11/12/11 calls, zero OOB/ORPHAN, silhouettes 5/4/5/5; PASS with two disclosed strict-gate gaps*
 
