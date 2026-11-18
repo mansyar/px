@@ -21,7 +21,7 @@
   "last_checkpoint": "d7c56727166d830c6a9907f0154eaa2340acc318",
   "review_verdict": null,
   "review_rounds": 0,
-  "doc_sync": "pending",
+  "doc_sync": "done — Phase 2 primary-owned reconciliation already applied the user-approved product.md correction (call-split claim) and dated Phase 1 feature-complete note, plus dated tech-stack clarifications; final §6 check found no further doc changes (product-guidelines.md has no scoring content; spec frozen; code delta empty)",
   "pr_url": null,
   "reverted_at": null,
   "revert_commit": null,
