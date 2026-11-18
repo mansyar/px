@@ -107,3 +107,25 @@ verdict from the stored scores — all still green.
   or `pr.md` was edited by this subagent.
 - `Result: verified` reflects that F1 is resolved, all configured checks pass, and
   the final `scores.json` SHA-256 is recorded (§2, §5). No outstanding `needs`.
+
+## Primary verification (conductor-implement)
+
+- **Date / branch:** 2026-11-18; `feat/20261118-gate-close-flash-lite`
+  (phase base `2099e11632f63ea79ca01ed80d77ac04e066c7c1`).
+- **Tree / scope:** clean; range `2099e11..HEAD` contains exactly the three
+  subagent-reported commits (`b350099`, `3bcfb82`, `cd3f5df`), no merge or
+  unreported/user commit. Only the two allowed files changed:
+  `test/art/scores.json` and `verification/phase-R1.md`.
+- **F1 resolved:** the clarification sentence is appended to `instrument.note`;
+  `scored_at` and `instrument.date` remain `2026-11-17`; the guarded assertion at
+  `test/art/rubric.test.ts:212` is green. No criterion score, rationale, verdict
+  field or per-pass field changed — all 14 passes still carry
+  `model=gemini-3.5-flash-lite`; verdict remains `fail` / mean 3.73 / 2 failures.
+- **Hash:** primary ran the denied `Get-FileHash -Algorithm SHA256 -Path
+  test/art/scores.json` → `9464B22096CCE322BC95A125BCAFE7194E8FA46045449D223C5687F4CBACF190`,
+  matching the recorded value (0 PENDING cells remain).
+- **Checks re-run by primary:** `pnpm verify` exit 0 (119 files / 1028 tests,
+  one pre-existing non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`).
+- **Squash guard:** eligible — all three range commits were reported by the
+  subagent, no merge/user commit.
+- **Result: verified** — F1 resolved under strict mode; no outstanding needs.

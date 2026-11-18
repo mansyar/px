@@ -107,8 +107,12 @@ The primary appends after acceptance:
   `conductor/tracks/20261118-gate-close-flash-lite/verification/phase-R1.md`
 - **Verification:** `pnpm verify`; confirm `scores.json` parses, all 14 passes
   remain machine-written, and the guarded `instrument.date === '2026-11-17'` is unchanged.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Resolve F1** — covers: F1
-  - [ ] **R1.T1.1:** Append a clarification to the existing `instrument.note` recording that `scored_at` / `instrument.date` intentionally preserve the 2026-11-17 asset-set scoring date and that the four gate-close passes were machine-re-scored on 2026-11-18.
-  - [ ] **R1.T1.2:** Do not modify `instrument.date` (guarded at 2026-11-17 by `test/art/rubric.test.ts:212`) or any criterion score/rationale; record the resulting `scores.json` SHA-256 in `verification/phase-R1.md`.
+- [x] **R1.T1: Resolve F1** — covers: F1
+  - [x] **R1.T1.1:** Append a clarification to the existing `instrument.note` recording that `scored_at` / `instrument.date` intentionally preserve the 2026-11-17 asset-set scoring date and that the four gate-close passes were machine-re-scored on 2026-11-18.
+  - [x] **R1.T1.2:** Do not modify `instrument.date` (guarded at 2026-11-17 by `test/art/rubric.test.ts:212`) or any criterion score/rationale; record the resulting `scores.json` SHA-256 in `verification/phase-R1.md`.
+
+**Result:** verified (F1 resolved under strict mode)
+**Checkpoint:** 261aca9
+**Evidence:** conductor/tracks/20261118-gate-close-flash-lite/verification/phase-R1.md
