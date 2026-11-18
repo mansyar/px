@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, FR-7, NFR-1, NFR-6, AC-1, AC-2
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/docs-brief.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/agent-runs.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-1.md`, `.conductor/evidence/agent-legibility/**`
 - **Verification:** `pnpm verify`; brief inventory contains only allowed docs; four transcripts exist with call counts ≤12 or honest failures (MCP-first, CLI parity).
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Assemble the docs-only brief** - covers: FR-1, NFR-1
   - [ ] **P1.T1.1: Inventory allowed sources** — CLI `--help` JSON, MCP tool descriptions, `docs/art-profiles.md`, `docs/lint-thresholds.md`, rubric silhouette anchors
