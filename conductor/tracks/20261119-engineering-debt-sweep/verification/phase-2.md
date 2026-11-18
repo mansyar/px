@@ -60,3 +60,13 @@ AC-1/AC-2 (Phase 1) and AC-5/AC-6 (Phase 3) are out of scope for this phase.
 - No credentialed scoring and no `pnpm rubric:calibrate` was run; `scores.json` untouched.
 - Primary-owned `plan.md` state updates remain the primary's responsibility; this
   finalization changed only the two evidence files.
+
+## Primary verification (conductor-implement)
+
+- Date: 2026-11-19 (UTC). Track `20261119-engineering-debt-sweep`, Phase 2, branch `chore/20261119-engineering-debt-sweep`.
+- Working tree clean before this note; phase range `6aec62ccef97785a786bf343d01907ae1ae91efd..HEAD` contains exactly the three reported commits (`d322a44`, `0e1b847`, `ae6c950`), no merge commits. Changed paths are the two evidence files plus the primary-owned `conductor/tech-stack.md` note — all within Touches or primary-owned docs.
+- `grep -c 'PENDING PRIMARY'` = 0 in both evidence files; `state-hygiene.md` and `phase-2.md` both report `Result: verified`; AC-3 and AC-4 are marked verified.
+- Primary-run results recorded verbatim: 12 stale run-state files removed, only `20261119-engineering-debt-sweep.json` retained, zero tracked deletions; dated tech-stack note at line 127 committed as `0e1b847`; archive comparison 215/215 checked, 0 mismatches, 0 missing, exit 0; `scores.json` SHA-256 unchanged `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D`; `pnpm verify` exit 0 (119 files / 1028 tests, one pre-existing out-of-scope warning, build clean).
+- Squash guard: SKIPPED. The range includes the primary-owned docs commit `0e1b847`, so task/evidence commits are retained as reported.
+- Conclusion: Phase 2 scope complete and honest; FR-2/FR-3/FR-4, AC-3/AC-4 and NFR-3/NFR-4 satisfied.
+
