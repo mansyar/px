@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-6, NFR-3, NFR-4, AC-1, AC-2, AC-3, AC-6, AC-7
 - **Touches:** `test/art/v2/humanoid/**`, `test/art/v2/scene/**`, `conductor/tracks/20261118-gate-close-flash-lite/verification/recipe-changes.md`, `.conductor/evidence/**` (gitignored)
 - **Verification:** `pnpm verify` (typecheck + lint + test + build); faithful render SHA-256 comparison (render twice, compare to committed sidecar)
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Re-author `humanoid` with the validated lever** — covers: FR-1
   - [ ] **P1.T1.1:** Apply warm/cool hue-stepped 5-stop ramps and one top-left `light` op before `auto_outline` (no `harmonize`), using only existing registered ops.
