@@ -108,3 +108,25 @@ the primary and preserved here as history rather than as outstanding blockers:
   (`edge_language` 2→3, `palette_craft` 2→4) on the single bounded scoring round, with
   no re-roll, no fishing for better scores, no hand-edited criterion score or
   rationale, and no instrument switch away from `gemini-3.5-flash-lite`.
+
+## Primary verification (conductor-implement)
+
+- **Date:** 2026-11-18
+- **Tree/commits:** range `ed9fd69..HEAD` contains three commits — the two reported by
+  the subagent (`7754d85`, `54e2209`) plus the primary's honest metadata reconciliation
+  (`9c1c6ac`). No merges. Squash is **skipped** per the §4.8 guard: the range contains a
+  primary commit the subagent did not report, so the task commits are retained.
+- **Files:** three files changed, all within Phase 2 `Touches` plus the scorer-owned
+  `test/art/scores.json` (two evidence docs + the score record). No plan/spec/metadata/
+  tracks/product/review/pr file was touched by the subagent.
+- **Scores integrity:** per-pass diff against the pre-track copy shows
+  `unaffected_checked=12 diffs=0`; only humanoid A/B changed, both with
+  `model=gemini-3.5-flash-lite` and the track `--note`. Structured verdict is
+  `result=pass`, `mean=3.82`, `failures=[]`, recomputed by the scorer.
+- **Primary checks:** `node scripts/rubric-report.mjs` exit 0 (7 assets / 14 passes,
+  `mean 3.82 · pass`); `pnpm verify` exit 0 (119 files / 1028 tests, one pre-existing
+  non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`); primary diff
+  script exit 0 with `12 diffs 0`.
+- **Final score record:** `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D`.
+- **Acceptance:** AC-1, AC-2, AC-4, AC-5, AC-6, AC-8 and NFR-4 satisfied. The 12-vs-10
+  count correction is recorded in §4 Deviations and in `plan.md` Verification.
