@@ -55,12 +55,9 @@
   - [x] **P2.T4.1:** Hash every file under `conductor/archive/` before and after the phase; assert byte-identical.
   - [x] **P2.T4.2:** Write `verification/state-hygiene.md` and `verification/phase-2.md`.
 
-<!--
-The primary appends after acceptance:
 **Result:** verified — 12 stale run-state files removed with zero tracked deletions; one dated live clarification added to `conductor/tech-stack.md`; archives byte-identical (215/215 checked, 0 mismatches); `scores.json` unchanged; `pnpm verify` exit 0. AC-3 and AC-4 satisfied. Squash skipped (primary-owned docs commit in range).
 **Checkpoint:** af2c362c4bf40554276a5c726bd0404db04cec50
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-2.md
--->
 
 ## Phase 3: Closeout decision and integrated record
 
@@ -78,12 +75,9 @@ The primary appends after acceptance:
   - [x] **P3.T2.1:** Write `verification/debt-sweep.md` with `DEBT SWEEP CLOSED`, residual accepted debt explicitly listed, exact commands and counts.
   - [x] **P3.T2.2:** Write `verification/phase-3.md` with Result, commands and the final evidence inventory.
 
-<!--
-The primary appends after acceptance:
 **Result:** verified — closeout decision DEBT SWEEP CLOSED recorded; all final checks green; archives byte-identical (215/215); `scores.json` unchanged; zero open PRs; 17 in-scope changed paths. AC-2, AC-4, AC-5 and AC-6 satisfied. Squash applied.
 **Checkpoint:** ec1968ea1acdb5a3bb952d479955d992495e757f
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-3.md
--->
 
 ## Phase R1: Review Fixes
 
@@ -92,11 +86,11 @@ The primary appends after acceptance:
 - **Covers:** F1
 - **Touches:** `plan.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; live-text content assertion on Phase 2/3 result blocks
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Uncomment the Phase 2 and Phase 3 acceptance blocks** — covers: F1
-  - [ ] **R1.T1.1:** Remove the `<!--`, "The primary appends after acceptance:" and `-->` wrappers around both blocks, leaving Result/Checkpoint/Evidence as live text matching Phase 1.
-  - [ ] **R1.T1.2:** Write `verification/phase-R1.md` with the fix, content assertion and `pnpm verify` result.
+- [x] **R1.T1: Uncomment the Phase 2 and Phase 3 acceptance blocks** — covers: F1
+  - [x] **R1.T1.1:** Remove the `<!--`, "The primary appends after acceptance:" and `-->` wrappers around both blocks, leaving Result/Checkpoint/Evidence as live text matching Phase 1.
+  - [x] **R1.T1.2:** Write `verification/phase-R1.md` with the fix, content assertion and `pnpm verify` result.
 
 <!--
 The primary appends after acceptance:
