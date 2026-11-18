@@ -1,7 +1,7 @@
 {
   "schema": 3,
   "rubric": "docs/rubric.md",
-  "scored_by": "scripts/rubric.mjs with gemini-3.5-flash-lite, run by the primary; two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet); craft-application re-score of the publishable gate on the promoted fallback instrument of record",
+  "scored_by": "scripts/rubric.mjs with gemini-3.5-flash-lite, run by the primary; two passes per asset (A on the exact 8x nearest-neighbour upscale, B on the engine debug sheet); gate-close-flash-lite re-score of four affected passes with the ten unaffected passes left byte-identical",
   "scored_at": "2026-11-17",
   "instrument": {
     "script": "scripts/rubric.mjs",
@@ -38,30 +38,24 @@
   ],
   "verdict": {
     "result": "fail",
-    "mean": 3.67,
+    "mean": 3.73,
     "threshold_mean": 3.5,
     "min_allowed": 3,
     "failures": [
       {
         "asset": "humanoid",
         "pass": "A",
-        "criterion": "lighting",
+        "criterion": "edge_language",
         "score": 2
       },
       {
         "asset": "humanoid",
-        "pass": "B",
-        "criterion": "lighting",
-        "score": 2
-      },
-      {
-        "asset": "scene",
         "pass": "A",
-        "criterion": "lighting",
+        "criterion": "palette_craft",
         "score": 2
       }
     ],
-    "note": "Craft-application re-score of the binding publishable gate (mean >= 3.5, no criterion below 3). Seven re-authored v2 assets scored with the unchanged rubric and two faithful views via scripts/rubric.mjs, all 14 passes on gemini-3.5-flash-lite (instrument of record promoted from gemini-4-hydrogen after the latter's free-tier daily quota was exhausted; explicit user authorization recorded in instrument.note). Mean 3.67 clears the 3.5 threshold, but 3 below-floor criterion scores remain (humanoid A/B lighting=2, scene A lighting=2), so the gate is still fail - the floor clause binds, not the mean. Compared with the original gemini-4-hydrogen baseline (mean 3.25, 22 below-floor) only directionally: scores do not transfer across instruments. No score was revised upward by hand and no below-floor finding was removed; all criterion scores and rationales were machine-written by the scorer. Prior records remain byte-for-byte in test/art/scores-before-intent.json and test/art/scores-agent-vision.json. The 4.0 exceptional tier remains documented as unreachable in docs/rubric.md and is not the gate here.",
+    "note": "Gate-close re-score of the binding publishable gate (mean >= 3.5, no criterion below 3). Four affected passes (humanoid A/B, scene A/B) re-scored on the instrument of record gemini-3.5-flash-lite via scripts/rubric.mjs --replace, run by the primary; the other ten passes were confirmed byte-identical to the prior record. All three original below-floor lighting=2 findings (humanoid A/B, scene A) are cleared and now score lighting=3; humanoid A regressed to edge_language=2 and palette_craft=2. Mean 3.73 clears the 3.5 threshold, but 2 below-floor criterion scores remain, so the gate is still fail - the floor clause binds, not the mean. Scores are NOT comparable to the gemini-4-hydrogen baseline (mean 3.25); instrument-of-record history is in instrument.note. No criterion score or rationale was revised by hand; all per-pass fields were machine-written by the scorer. This verdict.note was updated by the primary only to record the honest recomputed state (metadata-only edit permitted by NFR-2). Prior records remain byte-for-byte in test/art/scores-before-intent.json and test/art/scores-agent-vision.json. The 4.0 exceptional tier remains documented as unreachable in docs/rubric.md and is not the gate here.",
     "basis": "independent"
   },
   "assets": [
@@ -231,30 +225,30 @@
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "The humanoid figure and separate sword read clearly as a character at 1x scale."
+              "why": "The humanoid shape with a helmet and sword is clearly legible at 1x, though the blocky proportions are slightly stiff."
             },
             "value_separation": {
               "score": 3,
-              "why": "The parts generally separate, but some adjacent values in the armor and tunic blend closely together."
+              "why": "Body parts are separated by outlines, but some adjacent values in the armor and tunic merge too closely together."
             },
             "lighting": {
-              "score": 2,
-              "why": "Shading direction is inconsistent across the helmet, body, and sword elements."
+              "score": 3,
+              "why": "There is a general sense of overhead or flat lighting, but shading across the various masses is inconsistent and arbitrary."
             },
             "edge_language": {
-              "score": 3,
-              "why": "The heavy dark outlines are consistent, but internal details lack distinct treatment compared to the silhouette."
+              "score": 2,
+              "why": "The heavy black outlines are mostly consistent, but internal details lack deliberate and distinct edge treatments."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Most pixel groups form clean shapes, with very little scattered single-pixel noise."
+              "why": "The pixel clusters are clean and generally well-proportioned without random single-pixel noise."
             },
             "palette_craft": {
-              "score": 3,
-              "why": "The color choices are recognizable for a knight theme, but ramps step unevenly and lack cohesive temperature shifts."
+              "score": 2,
+              "why": "The colors feel somewhat arbitrary with harsh ramps and hues that do not harmonize effectively for the subject."
             }
           },
-          "note": "craft-application humanoid A"
+          "note": "gate-close-flash-lite humanoid A"
         },
         {
           "pass": "B",
@@ -266,30 +260,30 @@
           "scores": {
             "silhouette": {
               "score": 4,
-              "why": "The humanoid figure and sword are clearly recognisable at 1x scale primarily through their solid outline shape."
+              "why": "The character and sword are distinct and readable at 1x, though the blocky limbs blend slightly with the torso shape."
             },
             "value_separation": {
               "score": 3,
-              "why": "Major anatomical parts are separated adequately, but some adjacent shades are too close together in value to distinguish instantly."
+              "why": "Parts generally separate well, but the dark outline and deep blue torso merge into a single heavy mass on the sides."
             },
             "lighting": {
-              "score": 2,
-              "why": "Shading direction is inconsistent across the different masses, creating ambiguous form definition."
+              "score": 3,
+              "why": "Shading is somewhat inconsistent across the helmet and torso, lacking a unified and clear directional light source."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are consistent around the silhouette, but internal details blend too closely with the outer edges."
+              "why": "The heavy black outline is consistent, but inner details lack a distinct treatment to separate them cleanly from the silhouette."
             },
             "cluster_discipline": {
               "score": 4,
-              "why": "Most pixel groups form clean clusters well above minimum profile sizes with minimal single-pixel artifacts."
+              "why": "Forms are built from solid pixel clusters with minimal noise, though some small internal details border on single-pixel elements."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent and themed for the subject, but the blue and grey ramps step somewhat unevenly."
+              "why": "The palette is coherent with logical blue and metal ramps, but the values and hues lack deliberate emotional or lighting contrast."
             }
           },
-          "note": "craft-application humanoid B"
+          "note": "gate-close-flash-lite humanoid B"
         }
       ]
     },
@@ -535,30 +529,30 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The well structure, roof, and platform are instantly recognizable at 1x scale without needing color information."
+              "why": "The distinct shape of the roof, pillars, and circular well base makes the asset immediately identifiable at 1x scale without color."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Most parts separate well, but the dark brown shadow on the platform merges too closely in value with the ground underneath it."
+              "score": 4,
+              "why": "Most elements separate cleanly, though the dark shadow on the wooden platform blends somewhat closely with the surrounding outlines and dark base tones."
             },
             "lighting": {
-              "score": 2,
-              "why": "The lighting is inconsistent, featuring a flat roof split down the middle with different tones and conflicting shadow directions."
+              "score": 3,
+              "why": "Lighting is generally consistent from a single direction, but the roof shading uses horizontal bands that flatten the volume rather than following proper form."
             },
             "edge_language": {
               "score": 3,
-              "why": "The outline is generally consistent, but some dithered edges on the roof and structural lines lack deliberate separation."
+              "why": "Outlines are mostly consistent, but interior brick and roof tile details rely heavily on thin lines that blur the hierarchy between silhouette and surface texture."
             },
             "cluster_discipline": {
-              "score": 3,
-              "why": "While mostly clean, the dithered texturing on the roof introduces excessive single-pixel noise."
+              "score": 4,
+              "why": "Pixel placement is generally well-clustered with good readable shapes, avoiding excessive single-pixel noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The colors form coherent ramps, but the abrupt split on the roof and flat shadow tones prevent a cohesive atmospheric harmony."
+              "why": "The color palette is coherent and fits the subject, but some ramps lack smooth step transitions and appear slightly flat."
             }
           },
-          "note": "craft-application scene A"
+          "note": "gate-close-flash-lite scene A"
         },
         {
           "pass": "B",
@@ -570,30 +564,30 @@
           "scores": {
             "silhouette": {
               "score": 5,
-              "why": "The well structure and roof read clearly as a well even without colour information."
+              "why": "The structure of the well with its roof, pillars, base, and bucket is immediately identifiable as a standalone object without colour information."
             },
             "value_separation": {
-              "score": 3,
-              "why": "Major parts separate well, but adjacent tones in the stone wall and ground blur together in places."
+              "score": 4,
+              "why": "Most distinct parts of the well and ground separate well, though some adjacent tones on the roof and base are very close."
             },
             "lighting": {
               "score": 3,
-              "why": "The lighting is generally consistent from one direction, but some flat shading on the roof and posts lacks dimensional pop."
+              "why": "The lighting generally establishes a single top-down or slight angle source, but some flat surfaces lack consistent directional shadow mapping."
             },
             "edge_language": {
               "score": 3,
-              "why": "Outlines are mostly consistent, but some internal details blend into the silhouette without a clear distinction."
+              "why": "The outlines and structural edges are mostly consistent, but some material boundaries blend into the silhouette without distinct treatment."
             },
             "cluster_discipline": {
-              "score": 3,
-              "why": "Most forms use solid clusters, but the texture patterns rely slightly too much on repeating checkerboard noise."
+              "score": 4,
+              "why": "Shapes are formed by solid clusters and clean lines with minimal stray pixels or random confetti noise."
             },
             "palette_craft": {
               "score": 3,
-              "why": "The palette is coherent and suited to the scene, but ramps step unevenly across the wood and stone elements."
+              "why": "The colours create a coherent scene, but some ramps lack smooth even stepping and the temperature shifts could be more unified."
             }
           },
-          "note": "craft-application scene B"
+          "note": "gate-close-flash-lite scene B"
         }
       ]
     }

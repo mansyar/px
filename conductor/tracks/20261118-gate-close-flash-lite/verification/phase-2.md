@@ -110,3 +110,30 @@ Only the four intended passes changed, all with `model=gemini-3.5-flash-lite`.
   or `pr.md` was edited by this subagent.
 - `Result: verified` records that Phase 2's work is complete and honestly
   documented; it does not assert the publishable gate passed.
+
+## Primary verification (conductor-implement)
+
+- **Date / branch:** 2026-11-18; `feat/20261118-gate-close-flash-lite`
+  (phase base `1190aca9ca7811e780bb621a7f9872afe1d7812c`).
+- **Scoring (primary-only):** all four `node scripts/rubric.mjs --model
+  gemini-3.5-flash-lite --replace` commands run with the credential sourced from
+  the env path (never printed). Humanoid A needed 4 attempts due to transient
+  scorer errors; the other three succeeded on attempt 1. Scores machine-written:
+  humanoid A 4/3/3/2/4/2, humanoid B 4/3/3/3/4/3, scene A 5/4/3/3/4/3,
+  scene B 5/4/3/3/4/3 (order silhouette/value/lighting/edge/cluster/palette).
+- **No fabrication (P2.T3):** the ten unaffected passes were compared JSON-equal
+  against the pre-track snapshot (`unaffected_checked=10 diffs=0`); only the four
+  intended passes changed, all with `model=gemini-3.5-flash-lite`.
+- **Metadata-only honesty fix:** the stale `verdict.note` / `scored_by` free text
+  was updated by primary to match the scorer-recomputed fields (`fail`, mean 3.73,
+  2 failures); no criterion score or rationale was touched. `scores.json` SHA-256
+  `E930EC6D…` → `F3127641…` (pre-note-edit), final hash recorded in `rescore.md`.
+- **Checks re-run by primary:** `pnpm verify` exit 0 (119 files / 1028 tests, one
+  pre-existing non-failing Biome warning at `test/recipe/version-1-2.test.ts:50`);
+  `node scripts/rubric-report.mjs` confirms mean 3.73 / fail / 2 below-floor.
+- **Honest verdict:** all three original `lighting=2` failures cleared; humanoid A
+  regressed on `edge_language` and `palette_craft` (both 2). Floor clause binds;
+  the gate is NOT passed. Phase 3 owns the invest/accept decision.
+- **Squash guard:** range `1190aca..HEAD` contains exactly the two subagent-reported
+  commits, no merge or unreported/user commit — eligible for §4.8 squash.
+- **Result: verified** (work complete and honestly recorded; gate not passed).

@@ -53,10 +53,13 @@ PRIMARY-RESOLVED section):
 | `scene.8x.png` | `477601A09A16563FE01BC0FCCC06659D7CC8A454A83D812CF6ACE7C37F5685AB` |
 | `scene.debug.png` | `931E132002ADFDEA9594921C7A025038B5D9CAC1582249D0ACF059DCCF2A77EC` |
 
-`test/art/scores.json` SHA-256 changed from baseline
-`E930EC6D0CBEC27144CA9E020C9B1603BC183E7CFFF7BF9FAE87C54A5F50AC07` to
+`test/art/scores.json` SHA-256: baseline
+`E930EC6D0CBEC27144CA9E020C9B1603BC183E7CFFF7BF9FAE87C54A5F50AC07` →
 `F3127641F9B9136730F4DB62D0745E76225D9DCD57FF14BC8C2FEC8AB28B1F5D`
-(scorer-written, primary-reported).
+immediately after the four scorer writes → final
+`0D992F3A9B9112C4F7383F75784C9F6C0EA918348DFD7C6193946E9A79CED56C`
+after the primary's metadata-only `verdict.note` / `scored_by` honesty fix (no
+criterion score or rationale touched).
 
 ## 4. Scorer rows (P2.T2 — primary-run, complete)
 
