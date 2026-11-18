@@ -7,20 +7,22 @@
 - **Covers:** FR-3, NFR-3, NFR-7, AC-3, AC-7, AC-9
 - **Touches:** `test/art/v2/humanoid/**`, `verification/recipe-changes.md`, `verification/phase-1.md`, gitignored `.conductor/evidence/**`
 - **Verification:** `pnpm verify`; two-render digest equality against the new sidecar; generation-summary shows zero blocking findings; primary visual review recorded.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Re-author the humanoid palette** — covers: FR-3, NFR-3, AC-3
-  - [ ] **P1.T1.1:** Rebuild part ramps as warm/cool hue-stepped 5-stop ramps; keep the single top-left `light` before `auto_outline`, all nine parts, hero `torso`, value plan, `design.style=@project`, and design-block invariants.
-  - [ ] **P1.T1.2:** Keep only existing registered ops; recipe stays well under ~2000 ops.
-- [ ] **P1.T2: Render strict-clean and regenerate artifacts** — covers: FR-3, AC-3
-  - [ ] **P1.T2.1:** Copy root `px.style.json` beside the recipe in a temp workspace, render `--strict` twice to the same new digest, update `.sha256`, regenerate faithful `humanoid.8x.png` and `humanoid.debug.png` under `.conductor/evidence/art-v2/`, and record zero blocking findings.
-- [ ] **P1.T3: Prove byte-identity of all other assets** — covers: AC-7
-  - [ ] **P1.T3.1:** Diff-check the other five v2 recipes/sidecars and seven v1 originals; record their digests and the scoped humanoid waiver from the prior track in `verification/recipe-changes.md`.
-- [ ] **P1.T4: Primary visual self-review** — covers: NFR-7, AC-9
-  - [ ] **P1.T4.1:** Inspect `humanoid.8x.png` and `humanoid.debug.png` directly, compare with the pre-track baseline artifact, record an honest assessment in `verification/phase-1.md` with "no revision needed" or one bounded visual revision request.
-  - [ ] **P1.T4.2:** If a revision is requested, re-invoke the subagent once for the visual-only change and re-render/re-inspect before allowing Phase 2; no scoring is performed in this phase.
+- [x] **P1.T1: Re-author the humanoid palette** — covers: FR-3, NFR-3, AC-3
+  - [x] **P1.T1.1:** Rebuild part ramps as warm/cool hue-stepped 5-stop ramps; keep the single top-left `light` before `auto_outline`, all nine parts, hero `torso`, value plan, `design.style=@project`, and design-block invariants.
+  - [x] **P1.T1.2:** Keep only existing registered ops; recipe stays well under ~2000 ops.
+- [x] **P1.T2: Render strict-clean and regenerate artifacts** — covers: FR-3, AC-3
+  - [x] **P1.T2.1:** Copy root `px.style.json` beside the recipe in a temp workspace, render `--strict` twice to the same new digest, update `.sha256`, regenerate faithful `humanoid.8x.png` and `humanoid.debug.png` under `.conductor/evidence/art-v2/`, and record zero blocking findings.
+- [x] **P1.T3: Prove byte-identity of all other assets** — covers: AC-7
+  - [x] **P1.T3.1:** Diff-check the other five v2 recipes/sidecars and seven v1 originals; record their digests and the scoped humanoid waiver from the prior track in `verification/recipe-changes.md`.
+- [x] **P1.T4: Primary visual self-review** — covers: NFR-7, AC-9
+  - [x] **P1.T4.1:** Inspect `humanoid.8x.png` and `humanoid.debug.png` directly, compare with the pre-track baseline artifact, record an honest assessment in `verification/phase-1.md` with "no revision needed" or one bounded visual revision request.
+  - [x] **P1.T4.2:** If a revision is requested, re-invoke the subagent once for the visual-only change and re-render/re-inspect before allowing Phase 2; no scoring is performed in this phase. No revision was requested.
 
-<!-- primary appends Result / Checkpoint / Evidence below after acceptance -->
+**Result:** verified — strict-clean new digest `76c4ba9b…`; primary read all four A/B images directly and judged the candidate satisfactory with no revision; five other v2 assets and seven v1 originals byte-identical; `pnpm verify` exit 0.
+**Checkpoint:** `6af20cb39ccee6b2131c14e5b7b2022357069baf`
+**Evidence:** `conductor/tracks/20261118-gate-publishable-pass/verification/phase-1.md`
 
 ## Phase 2: Re-score the two affected passes and recompute the gate
 
