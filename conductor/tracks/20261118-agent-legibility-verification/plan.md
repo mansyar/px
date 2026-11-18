@@ -94,7 +94,7 @@ The primary appends after acceptance:
 - **Covers:** F1
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/integrated.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-R1.md`
 - **Verification:** `pnpm verify`; content assertion that both stale `8af7082` "final HEAD" statements name the actual final HEAD `883518d`.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Correct the integrated report's final-HEAD reference** - covers: F1
   - [ ] Replace line 6 and line 66 in `verification/integrated.md` so they name `883518d` as the final HEAD (checks re-run at `8af7082` and again at final HEAD `883518d` after the two docs-only commits).
