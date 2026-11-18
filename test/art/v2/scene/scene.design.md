@@ -2,9 +2,10 @@
 
 **Subject:** a wishing well at 256×256, roof and bucket over an open water surface.
 
-**Light:** one direction, `top-left`, in `design.light`. The gable is the deliberate exception:
-its two planes are papered with `roof_left` and `roof_right` ramps whose base tones differ,
-so the left plane reads as lit and the right as turned away from the same single light.
+**Light:** one direction, `top-left`, in `design.light`. The existing `light` pass (bevel, AO,
+rim, no second light) shapes the roof, wall and fittings from that one corner. The gable uses
+two related warm ramps, but neither roof plane declares a `facing`, so the light pass does not
+flatten either slope to a single plane role; the authored tone detail survives on both.
 
 **Hero part:** `wall`. It is the largest continuous cluster in the 256px frame and anchors
 the bucket, rim and water; giving it the deepest value plan (4 tones) keeps the well body
@@ -19,9 +20,10 @@ silhouette tends to look like a hard sticker edge, so the lit rim of the derived
 used for the outer boundary; the masonry courses and roof seam keep their authored tones
 without an added outline.
 
-**Facing:** `roof_left` faces `left`, `roof_right` faces `right`, `ground` faces `top` in its
-recipe slot; only the two gable planes were re-faced here because the ground face change
-created a value collision against the neighbouring dirt ramp.
+**Facing:** no part declares a plane facing. The old opposing `left` / `right` roof facings
+made plane shading flatten each slope to a single role, which read as a flat roof split down
+the ridge by conflicting shadow directions. With both removed, the shared top-left light pass
+shapes the two slopes from one direction and keeps their authored roofing detail.
 
 **Self-assessment:** the weakest visible aspect is the rope at large sizes — its hatch
 texture is sparse enough that the eye reads a dashed line rather than a twisted cord. The

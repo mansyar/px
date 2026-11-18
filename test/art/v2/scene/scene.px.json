@@ -206,14 +206,12 @@
     "roof_left": {
       "material": "roof_left",
       "gloss": "cloth",
-      "z": 2,
-      "facing": "left"
+      "z": 2
     },
     "roof_right": {
       "material": "roof_right",
       "gloss": "cloth",
-      "z": 2,
-      "facing": "right"
+      "z": 2
     },
     "rope": {
       "material": "rope",
