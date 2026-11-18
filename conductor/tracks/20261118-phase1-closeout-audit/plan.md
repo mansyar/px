@@ -104,11 +104,15 @@ The primary appends after acceptance:
 - **Covers:** F1, F2
 - **Touches:** verification/phase-1.md, verification/closeout-audit.md, verification/phase-3.md, verification/doc-reconciliation.md, verification/phase-2.md, verification/phase-R1.md
 - **Verification:** `pnpm verify` exit 0 plus read-only `git log --oneline <base>..HEAD` cross-check of every cited SHA; no score/rationale/verdict/checkpoint change
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Resolve F1 (commit-SHA provenance)** - covers: F1
-  - [ ] **R1.T1.1:** Replace pre-squash SHAs `473a1f6`/`d0d8580` (phase-1.md, closeout-audit.md) with real branch-history checkpoint `ee74e9e` and final HEAD `157bf6e`; remove false "git log lists exactly..." assertions
-  - [ ] **R1.T1.2:** Replace pre-squash SHA `a329aa0` (phase-3.md) with checkpoint `d7c5672` and final HEAD `157bf6e`; correct the associated log/re-run statements
-- [ ] **R1.T2: Resolve F2 (unresolved placeholders)** - covers: F2
-  - [ ] **R1.T2.1:** Replace the "record its SHA as the phase checkpoint at acceptance" parenthetical in doc-reconciliation.md:8, phase-2.md:8, phase-3.md:8 with the real checkpoint (`7b43fc3` / `d7c5672`) or delete it
-  - [ ] **R1.T2.2:** Run `pnpm verify`, write verification/phase-R1.md with real results and F1/F2 RESOLVED, commit `fix(conductor): Resolve review findings F1 and F2`, report JSON
+- [x] **R1.T1: Resolve F1 (commit-SHA provenance)** - covers: F1
+  - [x] **R1.T1.1:** Replace pre-squash SHAs `473a1f6`/`d0d8580` (phase-1.md, closeout-audit.md) with real branch-history checkpoint `ee74e9e` and final HEAD `157bf6e`; remove false "git log lists exactly..." assertions
+  - [x] **R1.T1.2:** Replace pre-squash SHA `a329aa0` (phase-3.md) with checkpoint `d7c5672` and final HEAD `157bf6e`; correct the associated log/re-run statements
+- [x] **R1.T2: Resolve F2 (unresolved placeholders)** - covers: F2
+  - [x] **R1.T2.1:** Replace the "record its SHA as the phase checkpoint at acceptance" parenthetical in doc-reconciliation.md:8, phase-2.md:8, phase-3.md:8 with the real checkpoint (`7b43fc3` / `d7c5672`) or delete it
+  - [x] **R1.T2.2:** Run `pnpm verify`, write verification/phase-R1.md with real results and F1/F2 RESOLVED, commit `fix(conductor): Resolve review findings F1 and F2`, report JSON
+
+**Result:** verified — F1 (dangling pre-squash SHAs with false `git log` assertions) and F2 (checkpoint placeholders) corrected to real branch-history checkpoints; zero stale references in the five corrected evidence files; primary `pnpm verify` exit 0; no score, rationale, verdict, code, or plan checkpoint changed. Squash skipped (primary verification commit in range).
+**Checkpoint:** 71126b2ef8445fe6c218ad9df281f9b28bf6f8ef
+**Evidence:** conductor/tracks/20261118-phase1-closeout-audit/verification/phase-R1.md
