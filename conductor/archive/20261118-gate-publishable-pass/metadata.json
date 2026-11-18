@@ -2,11 +2,11 @@
   "id": "20261118-gate-publishable-pass",
   "title": "Gate Publishable Pass",
   "type": "feature",
-  "status": "in_progress",
+  "status": "complete",
   "priority": "high",
   "depends_on": [],
   "created_at": "2026-11-18T05:32:16Z",
-  "updated_at": "2026-11-18T07:15:44Z",
+  "updated_at": "2026-11-18T07:17:53Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261118-gate-publishable-pass",
@@ -22,10 +22,10 @@
   "review_verdict": "PASS",
   "review_rounds": 1,
   "doc_sync": "updated — post-review: spec.md pass count corrected to twelve and verification/integrated.md requirement labels/evidence realigned in Phase R1; review.md verdict PASS after one fix round; tech-stack.md dated note 2026-11-18 (publishable gate pass) records the honest mean 3.82 pass, zero floor failures, twelve untouched passes and no structural change; product.md / product-guidelines.md unchanged",
-  "pr_url": null,
+  "pr_url": "https://github.com/mansyar/px/pull/15",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
-  "archived_at": null,
-  "archive_path": null
+  "archived_at": "2026-11-18T07:17:53Z",
+  "archive_path": "conductor/archive/20261118-gate-publishable-pass"
 }
