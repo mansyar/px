@@ -5,7 +5,7 @@
 - **Branch:** `chore/20261118-agent-legibility-verification`
 - **Range:** `12037ca4ce76844b3d64f8705992099b297fdf65..883518d6af10dd3c1c93dcffee8116b2eaf04220`
 - **Date:** `2026-11-18T12:27:31Z`
-- **Verdict:** `PASS WITH FINDINGS`
+- **Verdict:** `PASS` (after review-fix round 1 resolved the single Low finding)
 
 ## Summary
 
@@ -68,7 +68,7 @@ The track is substantively sound and honest. Four fresh, docs-only MCP-first age
 
 ### Low
 
-- **F1 — Stale final-HEAD reference in integrated evidence**
+- **F1 — Stale final-HEAD reference in integrated evidence (RESOLVED in R1, checkpoint `f0afe70`)**
   - **File:** `conductor/tracks/20261118-agent-legibility-verification/verification/integrated.md:6,66`
   - **What:** Records "Head commit: 8af7082 (final check run)" and "Terminal checks were re-run at final HEAD 8af7082", but the reviewed HEAD is `883518d`; `8af7082` predates the integrated-verification and doc-sync commits.
   - **Why:** An audit artifact about evidence provenance names the wrong final commit; documentation accuracy only — checks are unaffected because the two later commits are docs-only.
@@ -94,10 +94,11 @@ Humanoid/chest strict-lint craft failures are disclosed residual observations fr
 
 ## Doc sync
 
-`pending` — F1 will be fixed in review-fix round 1; post-review sync to follow.
+`updated` — R1 corrected only the final-HEAD provenance in `verification/integrated.md`; no product or tech-stack change was required because the existing dated note already records the honest PASS. No score, rationale, verdict, code or dependency changed.
 
 ## History
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 1 | 0 |
+| 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 1 (F1) |
