@@ -104,7 +104,7 @@ The primary appends after acceptance:
 - **Covers:** F1, F2
 - **Touches:** verification/phase-1.md, verification/closeout-audit.md, verification/phase-3.md, verification/doc-reconciliation.md, verification/phase-2.md, verification/phase-R1.md
 - **Verification:** `pnpm verify` exit 0 plus read-only `git log --oneline <base>..HEAD` cross-check of every cited SHA; no score/rationale/verdict/checkpoint change
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Resolve F1 (commit-SHA provenance)** - covers: F1
   - [ ] **R1.T1.1:** Replace pre-squash SHAs `473a1f6`/`d0d8580` (phase-1.md, closeout-audit.md) with real branch-history checkpoint `ee74e9e` and final HEAD `157bf6e`; remove false "git log lists exactly..." assertions
