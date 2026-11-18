@@ -71,7 +71,7 @@ The primary appends after acceptance:
 - **Covers:** FR-6, NFR-6, AC-6, AC-8
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/agent-legibility-decision.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-3.md`
 - **Verification:** `pnpm verify`; `node scripts/rubric-report.mjs`; `scores.json` hash unchanged; no issues filed and no merge decision taken.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Record the decision** - covers: FR-6, AC-6
   - [ ] **P3.T1.1: Decide pass only if all four assets meet call, lint and silhouette bars**; otherwise record a fail with per-asset gaps and follow-ups
