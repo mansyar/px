@@ -82,7 +82,7 @@ The track is substantively sound and honest. Four fresh, docs-only MCP-first age
 
 ## Plan compliance
 
-All three implementation phases are marked `verified` with Result, Checkpoint and Evidence (`e0893de`, `e507ac8`, `d67c950`); review-fix R1 is verified with checkpoint `f0afe70`. All 11 tasks are `[x]` and metadata reports 4/4 phases and 11/11 tasks with `status: in_progress` (expected until PR completion). Registry line 37 remains `[~]` until the completion commit archives the track.
+All five recorded phases (implementation `e0893de`, `e507ac8`, `d67c950`; review fixes `f0afe70`, `cea3338`) are marked `verified` with Result, Checkpoint and Evidence. All 12 tasks are `[x]` and metadata reports 5/5 phases and 12/12 tasks with `status: in_progress` (expected until PR completion). Registry line 37 remains `[~]` until the completion commit archives the track.
 
 ## Out of scope
 
@@ -94,7 +94,7 @@ Humanoid/chest strict-lint craft failures are disclosed residual observations fr
 
 ## Doc sync
 
-`updated` — R1 corrected only the final-HEAD provenance in `verification/integrated.md`; no product or tech-stack change was required because the existing dated note already records the honest PASS. No score, rationale, verdict, code or dependency changed.
+`updated` — R1 corrected only the final-HEAD provenance in `verification/integrated.md`; R2 and the final doc sync reconciled only this review record's own bookkeeping (F2/F3, including phase/task counts and the round history). No product or tech-stack change was required because the existing dated note already records the honest PASS. No score, rationale, verdict, check result, code or dependency changed.
 
 ## History
 
@@ -103,3 +103,4 @@ Humanoid/chest strict-lint craft failures are disclosed residual observations fr
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 1 | 0 |
 | 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 1 (F1) |
 | 3 (bookkeeping R2) | PASS | 0 | 0 | 0 | 0 | 1 (F2) |
+| 4 (final doc sync) | PASS | 0 | 0 | 0 | 0 | 1 (F3) |
