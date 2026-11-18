@@ -71,21 +71,21 @@ The primary appends after acceptance:
 - **Covers:** FR-6, NFR-6, AC-6, AC-8
 - **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/agent-legibility-decision.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-3.md`
 - **Verification:** `pnpm verify`; `node scripts/rubric-report.mjs`; `scores.json` hash unchanged; no issues filed and no merge decision taken.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Record the decision** - covers: FR-6, AC-6
-  - [ ] **P3.T1.1: Decide pass only if all four assets meet call, lint and silhouette bars**; otherwise record a fail with per-asset gaps and follow-ups
-  - [ ] **P3.T1.2: Record the bounded-stop statement** — one brief, one fresh run, one re-test maximum; no re-roll or forced pass
-- [ ] **P3.T2: Capture the final verification snapshot** - covers: NFR-6, AC-8
-  - [ ] **P3.T2.1: Re-run `pnpm verify` and `node scripts/rubric-report.mjs`** and record exit codes
-  - [ ] **P3.T2.2: Re-check the `scores.json` hash** and write `verification/agent-legibility-decision.md` and `verification/phase-3.md`
+- [x] **P3.T1: Record the decision** - covers: FR-6, AC-6
+  - [x] **P3.T1.1: Decide pass only if all four assets meet call, lint and silhouette bars**; otherwise record a fail with per-asset gaps and follow-ups
+  - [x] **P3.T1.2: Record the bounded-stop statement** — one brief, one fresh run, one re-test maximum; no re-roll or forced pass
+- [x] **P3.T2: Capture the final verification snapshot** - covers: NFR-6, AC-8
+  - [x] **P3.T2.1: Re-run `pnpm verify` and `node scripts/rubric-report.mjs`** and record exit codes
+  - [x] **P3.T2.2: Re-check the `scores.json` hash** and write `verification/agent-legibility-decision.md` and `verification/phase-3.md`
 
 <!--
 The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
-**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-3.md
 -->
+**Result:** verified — honest decision recorded as LEGIBILITY METRIC VERIFIED (PASS) with two disclosed strict-gate craft failures; all four assets within 12 calls, zero OOB/ORPHAN, silhouette 5/4/5/5; all final checks green; scores.json hash unchanged; no code delta. Squash applied (single reported commit).
+**Checkpoint:** d67c950cbfc49b40074ae9d228d7f4299d7fd2e8
+**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-3.md
 
 <!--
 Review fixes are appended by `conductor-review` as:
