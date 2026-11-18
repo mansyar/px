@@ -92,9 +92,6 @@
   - [x] **R1.T1.1:** Remove the `<!--`, "The primary appends after acceptance:" and `-->` wrappers around both blocks, leaving Result/Checkpoint/Evidence as live text matching Phase 1.
   - [x] **R1.T1.2:** Write `verification/phase-R1.md` with the fix, content assertion and `pnpm verify` result.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — F1 resolved; Phase 2 and Phase 3 acceptance blocks are live text with unchanged content; `pnpm verify` exit 0; no score, code, config or archive change.
+**Checkpoint:** 73eba3c8cf68df684dfde1100aa257f03570f7d8
 **Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-R1.md
--->
