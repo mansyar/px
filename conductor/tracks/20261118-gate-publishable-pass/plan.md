@@ -65,14 +65,19 @@
 
 <!-- primary appends Result / Checkpoint / Evidence below after acceptance -->
 
-<!--
-Review fixes are appended by conductor-review as:
+## Phase R1: Review Fixes
 
-## Phase R<n>: Review Fixes
-- **Goal:** ...
-- **Depends on:** <last phase>
-- **Covers:** ...
-- **Touches:** ...
-- **Verification:** ...
+- **Goal:** Resolve review findings F1 (stale "ten unaffected passes" count in `spec.md`) and F2 (shifted requirement-ID labels in `verification/integrated.md`).
+- **Depends on:** Phase 3
+- **Covers:** F1, F2
+- **Touches:** `spec.md`, `verification/integrated.md`, `verification/phase-R1.md`
+- **Verification:** `pnpm verify`
 - **Status:** pending
--->
+
+- [ ] **R1.T1: Resolve F1** — covers: F1
+  - [ ] **R1.T1.1:** Replace "ten" with "twelve" at `spec.md:38`, `:65`, and `:125`.
+- [ ] **R1.T2: Resolve F2** — covers: F2
+  - [ ] **R1.T2.1:** Relabel the `verification/integrated.md` requirements table to canonical spec FR-1..FR-6 / NFR-1..NFR-7 / AC-1..AC-9 definitions, preserving all evidence cells.
+  - [ ] **R1.T2.2:** Run `pnpm verify` and write `verification/phase-R1.md`; commit `fix(conductor): Resolve review findings F1 and F2`.
+
+<!-- primary appends Result / Checkpoint / Evidence below after acceptance -->

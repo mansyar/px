@@ -19,7 +19,7 @@
     "tasks_done": 9
   },
   "last_checkpoint": "11cb1975db155732cd248bf1c85b07e938cbc7ad",
-  "review_verdict": "PASS WITH FINDINGS",
+  "review_verdict": "BLOCK",
   "review_rounds": 1,
   "doc_sync": "done — tech-stack.md dated note 2026-11-18 (publishable gate pass) records the honest mean 3.82 pass, zero floor failures, twelve untouched passes and no structural change; product.md / product-guidelines.md unchanged (no product or guideline change); spec frozen",
   "pr_url": null,
