@@ -9,7 +9,7 @@
 
 ## Summary
 
-The track is substantively sound and honest. Four fresh, docs-only MCP-first agent runs (plus a bounded CLI parity check) met the product metric's call budget (9/11/12/11, parity 8), recorded zero `OUT_OF_BOUNDS`/`ORPHAN_PIXEL` findings, and achieved flash-lite `--dry-run` silhouettes 5/4/5/5. The humanoid and chest strict renders exited 3 (`E_LINT_GATE`) on craft findings and are disclosed, not hidden; no score, rationale, verdict or instrument was changed, `test/art/scores.json` remains byte-identical, and the non-conductor code delta is empty. One Low finding remains under strict mode: the integrated report names a stale "final HEAD" (`8af7082`) that predates the integrated-verification and doc-sync commits (actual HEAD `883518d`). It must be fixed before PR creation.
+The track is substantively sound and honest. Four fresh, docs-only MCP-first agent runs (plus a bounded CLI parity check) met the product metric's call budget (9/11/12/11, parity 8), recorded zero `OUT_OF_BOUNDS`/`ORPHAN_PIXEL` findings, and achieved flash-lite `--dry-run` silhouettes 5/4/5/5. The humanoid and chest strict renders exited 3 (`E_LINT_GATE`) on craft findings and are disclosed, not hidden; no score, rationale, verdict or instrument was changed, `test/art/scores.json` remains byte-identical, and the non-conductor code delta is empty. The single Low finding from round 1 (stale "final HEAD" `8af7082` in the integrated report) was resolved in review-fix round 1 at checkpoint `f0afe70`: both references now name `883518d`. Round 2 re-review found one Low bookkeeping inconsistency in this review record, resolved in round 2. Zero findings remain; the track is ready for PR creation.
 
 ## Verification
 
@@ -82,7 +82,7 @@ The track is substantively sound and honest. Four fresh, docs-only MCP-first age
 
 ## Plan compliance
 
-All three implementation phases are marked `verified` with Result, Checkpoint and Evidence (`e0893de`, `e507ac8`, `d67c950`). All 10 tasks are `[x]`; metadata reports 3/3 phases and 10/10 tasks with `status: in_progress`, which is expected at review stage. No review-fix phase has run yet. Registry line 37 is `[~]` for this track.
+All three implementation phases are marked `verified` with Result, Checkpoint and Evidence (`e0893de`, `e507ac8`, `d67c950`); review-fix R1 is verified with checkpoint `f0afe70`. All 11 tasks are `[x]` and metadata reports 4/4 phases and 11/11 tasks with `status: in_progress` (expected until PR completion). Registry line 37 remains `[~]` until the completion commit archives the track.
 
 ## Out of scope
 
@@ -102,3 +102,4 @@ Humanoid/chest strict-lint craft failures are disclosed residual observations fr
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 1 | 0 |
 | 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 1 (F1) |
+| 3 (bookkeeping R2) | PASS | 0 | 0 | 0 | 0 | 1 (F2) |
