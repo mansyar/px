@@ -46,17 +46,22 @@ The primary appends after acceptance:
 - **Covers:** FR-4, NFR-1, NFR-2, NFR-5, AC-4
 - **Touches:** `test/art/scores.json`, `conductor/tracks/20261118-gate-close-flash-lite/verification/rescore.md`, `.conductor/evidence/**` (gitignored)
 - **Verification:** `node scripts/rubric-report.mjs` (read-only report, primary-run); `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Generate faithful A/B artifacts for the two changed assets** — covers: FR-4
-  - [ ] **P2.T1.1:** Render pass A (exact 8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) from the updated recipes into `.conductor/evidence/`.
-  - [ ] **P2.T1.2:** Confirm the artifacts are `--strict` clean and record their digests in `verification/rescore.md`.
-- [ ] **P2.T2: Re-score the four passes with the instrument of record** — covers: FR-4
-  - [ ] **P2.T2.1:** Run `scripts/rubric.mjs` with `--model gemini-3.5-flash-lite --replace` for `humanoid` A/B and `scene` A/B (primary-run, credential from env, never printed).
-  - [ ] **P2.T2.2:** Retry 503/429/non-JSON replies with backoff; never switch instruments or hand-write scores.
-  - [ ] **P2.T2.3:** Verify the scorer wrote all model/note fields and recomputed the verdict.
-- [ ] **P2.T3: Confirm no score fabrication** — covers: NFR-2
-  - [ ] **P2.T3.1:** Diff the ten unaffected passes against the pre-track record and confirm they are byte-identical.
+- [x] **P2.T1: Generate faithful A/B artifacts for the two changed assets** — covers: FR-4
+  - [x] **P2.T1.1:** Render pass A (exact 8× nearest-neighbour on `#808080`) and pass B (engine debug sheet) from the updated recipes into `.conductor/evidence/`.
+  - [x] **P2.T1.2:** Confirm the artifacts are `--strict` clean and record their digests in `verification/rescore.md`.
+- [x] **P2.T2: Re-score the four passes with the instrument of record** — covers: FR-4
+  - [x] **P2.T2.1:** Run `scripts/rubric.mjs` with `--model gemini-3.5-flash-lite --replace` for `humanoid` A/B and `scene` A/B (primary-run, credential from env, never printed).
+  - [x] **P2.T2.2:** Retry 503/429/non-JSON replies with backoff; never switch instruments or hand-write scores.
+  - [x] **P2.T2.3:** Verify the scorer wrote all model/note fields and recomputed the verdict.
+- [x] **P2.T3: Confirm no score fabrication** — covers: NFR-2
+  - [x] **P2.T3.1:** Diff the ten unaffected passes against the pre-track record and confirm they are byte-identical.
+
+**Result:** verified (gate not passed — honest fail recorded for Phase 3 decision)
+**Checkpoint:** c78f022
+**Evidence:** conductor/tracks/20261118-gate-close-flash-lite/verification/phase-2.md
+**Squash:** skipped — range `1190aca..HEAD` contains primary commit `c78f022` not reported by the subagent; task commits retained.
 
 <!--
 The primary appends after acceptance:
