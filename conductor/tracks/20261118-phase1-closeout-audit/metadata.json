@@ -1,0 +1,31 @@
+{
+  "id": "20261118-phase1-closeout-audit",
+  "title": "Phase 1 Closeout Audit",
+  "type": "chore",
+  "status": "new",
+  "priority": "medium",
+  "depends_on": [],
+  "created_at": "2026-11-18T08:50:14Z",
+  "updated_at": "2026-11-18T08:50:14Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "chore/20261118-phase1-closeout-audit",
+  "base_branch": "main",
+  "base_sha": "0f866801e9271512d14bed154e60ee1c06c93c4b",
+  "progress": {
+    "phases_total": 3,
+    "phases_verified": 0,
+    "tasks_total": 10,
+    "tasks_done": 0
+  },
+  "last_checkpoint": null,
+  "review_verdict": null,
+  "review_rounds": 0,
+  "doc_sync": "pending",
+  "pr_url": null,
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null
+}
