@@ -72,7 +72,7 @@
 - **Covers:** F1, F2
 - **Touches:** `spec.md`, `verification/integrated.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Resolve F1** — covers: F1
   - [ ] **R1.T1.1:** Replace "ten" with "twelve" at `spec.md:38`, `:65`, and `:125`.
