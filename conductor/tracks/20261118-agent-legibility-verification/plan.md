@@ -103,3 +103,18 @@ The primary appends after acceptance:
 **Result:** verified — F1 resolved under strict mode; both stale "final HEAD" references now name `883518d`, no check result/score/requirement changed; primary `pnpm verify` and scoped coverage both exit 0; squash applied.
 **Checkpoint:** f0afe70b37a337c9586918a5aaf4c9cf4f0f54c4
 **Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-R1.md
+
+## Phase R2: Review Bookkeeping (round 2)
+
+- **Goal:** Resolve round-2 Low finding F2 (stale round-1 narrative in `review.md`) under strict mode, the last permitted fix round.
+- **Depends on:** Phase R1
+- **Covers:** F2
+- **Touches:** `conductor/tracks/20261118-agent-legibility-verification/review.md`
+- **Verification:** reviewer round-2 report; content assertion that Summary and Plan compliance reflect resolved state and 4/4 phases / 11/11 tasks.
+- **Status:** verified
+
+- [x] **R2.T1: Correct the two stale round-1 narrative lines in `review.md`** - covers: F2
+
+**Result:** verified — F2 resolved by primary-owned edit; round-1 Summary and Plan compliance now reflect the resolved state, History includes a round-3 PASS row; no check result, score, verdict or code changed.
+**Checkpoint:** cea3338131d2c1f76c268c83f17c8f0b6fb337df
+**Evidence:** conductor/tracks/20261118-agent-legibility-verification/review.md
