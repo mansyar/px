@@ -1,0 +1,31 @@
+{
+  "id": "20261119-engineering-debt-sweep",
+  "title": "Engineering Debt Sweep",
+  "type": "chore",
+  "status": "new",
+  "priority": "medium",
+  "depends_on": [],
+  "created_at": "2026-11-18T21:36:30Z",
+  "updated_at": "2026-11-18T21:36:30Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "chore/20261119-engineering-debt-sweep",
+  "base_branch": "main",
+  "base_sha": "2abb7cd0ee44d09ab68c04419c1207c2416668e7",
+  "progress": {
+    "phases_total": 3,
+    "phases_verified": 0,
+    "tasks_total": 10,
+    "tasks_done": 0
+  },
+  "last_checkpoint": null,
+  "review_verdict": null,
+  "review_rounds": 0,
+  "doc_sync": "pending",
+  "pr_url": null,
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null
+}

@@ -1,0 +1,104 @@
+# Engineering Debt Sweep — Implementation Plan
+
+> **Branch:** `chore/20261119-engineering-debt-sweep`
+> **Base:** `main` @ `2abb7cd0ee44d09ab68c04419c1207c2416668e7`
+>
+> Phase states are `pending`, `in_progress`, `verified`, `failed`, or `blocked`.
+> Only the primary agent writes this file. Phase subagents report results and the
+> primary records them.
+
+## Phase 1: Bring `scripts/` under Biome
+
+- **Goal:** `pnpm lint` covers all four helper scripts with zero findings, without weakening rules.
+- **Depends on:** none
+- **Covers:** FR-1, NFR-1, NFR-2, NFR-3, AC-1, AC-2
+- **Touches:** `biome.json`, `scripts/**/*.mjs`, `verification/scripts-coverage.md`, `verification/phase-1.md`
+- **Verification:** `pnpm exec biome check scripts/`; `pnpm lint`; `pnpm verify`
+- **Status:** pending
+
+- [ ] **P1.T1: Record the tooling baseline** — covers: FR-1
+  - [ ] **P1.T1.1:** Inventory the four `scripts/*.mjs` helpers and capture the current Biome include list.
+  - [ ] **P1.T1.2:** Record the excluded-path behaviour and the out-of-scope `checkJs` error count (158) as baseline evidence.
+- [ ] **P1.T2: Extend Biome coverage and fix findings** — covers: FR-1, NFR-1
+  - [ ] **P1.T2.1:** Add `scripts/**/*.mjs` to `biome.json` includes without changing linter rules or dependencies.
+  - [ ] **P1.T2.2:** Fix every resulting lint/format finding in the scripts; no suppressions, no escaped findings.
+- [ ] **P1.T3: Verify tooling and script smoke checks** — covers: NFR-2, AC-1, AC-2
+  - [ ] **P1.T3.1:** Confirm `pnpm exec biome check scripts/` processes four files with zero errors and `pnpm verify` exits 0.
+  - [ ] **P1.T3.2:** Smoke-check `pnpm rubric:report`, `pnpm rubric:calibrate`, `scripts/upscale.mjs` and `scripts/rubric.mjs --help` for unchanged exit status.
+- [ ] **P1.T4: Record phase evidence** — covers: FR-5
+  - [ ] **P1.T4.1:** Write `verification/scripts-coverage.md` with commands, finding counts, before/after diffs and smoke outputs.
+  - [ ] **P1.T4.2:** Write `verification/phase-1.md` with Result, commands and AC table.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-1.md
+-->
+
+## Phase 2: Runtime-state and live-doc hygiene
+
+- **Goal:** Stale run-state files removed; archived prose reconciled by a live dated note; archives untouched.
+- **Depends on:** Phase 1
+- **Covers:** FR-2, FR-3, FR-4, NFR-3, NFR-4, NFR-5, AC-3, AC-4
+- **Touches:** `.conductor/runs/**` (gitignored), `conductor/tech-stack.md` (primary-owned), `verification/state-hygiene.md`, `verification/phase-2.md`
+- **Verification:** run-file inventory vs registry; archive hash comparison; `pnpm verify`
+- **Status:** pending
+
+- [ ] **P2.T1: Inventory run-state files** — covers: FR-2
+  - [ ] **P2.T1.1:** List every `.conductor/runs/*.json` file with phase and status.
+  - [ ] **P2.T1.2:** Classify 4 `running` and 1 `failed` files as stale against `[x]` registry entries; identify the live track's file to retain.
+- [ ] **P2.T2: Remove only stale run state** — covers: FR-2, NFR-5
+  - [ ] **P2.T2.1:** Delete stale files; keep the current track's run file and all other evidence.
+  - [ ] **P2.T2.2:** Record before/after inventories and assert no file under `conductor/` was removed.
+- [ ] **P2.T3: Add the live dated clarification** — covers: FR-3
+  - [ ] **P2.T3.1:** Primary appends one dated note to `conductor/tech-stack.md` marking archive prose as point-in-time, naming the current mean 3.82 pass, twelve untouched passes, disclosed humanoid/chest strict-gate residuals, and the humanoid byte-identity waiver.
+  - [ ] **P2.T3.2:** Confirm no archived file and no product/guideline/spec file changed.
+- [ ] **P2.T4: Prove archive integrity and record phase evidence** — covers: FR-4, FR-5, NFR-4
+  - [ ] **P2.T4.1:** Hash every file under `conductor/archive/` before and after the phase; assert byte-identical.
+  - [ ] **P2.T4.2:** Write `verification/state-hygiene.md` and `verification/phase-2.md`.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-2.md
+-->
+
+## Phase 3: Closeout decision and integrated record
+
+- **Goal:** One honest closeout record proves every acceptance criterion and records the debt decision.
+- **Depends on:** Phase 2
+- **Covers:** FR-5, NFR-2, NFR-3, NFR-4, AC-2, AC-4, AC-5, AC-6
+- **Touches:** `verification/debt-sweep.md`, `verification/phase-3.md`
+- **Verification:** final `pnpm verify`; scoped coverage; `node scripts/rubric-report.mjs`; `scores.json` hash; `git diff --name-only` scope check
+- **Status:** pending
+
+- [ ] **P3.T1: Re-run final checks at the final HEAD** — covers: NFR-2, AC-2, AC-5
+  - [ ] **P3.T1.1:** Run `pnpm verify`, scoped coverage (`pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`) and `node scripts/rubric-report.mjs`.
+  - [ ] **P3.T1.2:** Confirm `scores.json` SHA-256 `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` and that changed paths stay within NFR-3.
+- [ ] **P3.T2: Record the closeout decision** — covers: FR-5, AC-6
+  - [ ] **P3.T2.1:** Write `verification/debt-sweep.md` with `DEBT SWEEP CLOSED`, residual accepted debt explicitly listed, exact commands and counts.
+  - [ ] **P3.T2.2:** Write `verification/phase-3.md` with Result, commands and the final evidence inventory.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261119-engineering-debt-sweep/verification/phase-3.md
+-->
+
+<!--
+Review fixes are appended by `conductor-review` as:
+
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve review findings ...
+- **Depends on:** Phase 3
+- **Covers:** review findings
+- **Touches:** ...
+- **Verification:** ...
+- **Status:** pending
+
+- [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
+-->
