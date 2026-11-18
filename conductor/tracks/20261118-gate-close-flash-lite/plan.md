@@ -107,7 +107,7 @@ The primary appends after acceptance:
   `conductor/tracks/20261118-gate-close-flash-lite/verification/phase-R1.md`
 - **Verification:** `pnpm verify`; confirm `scores.json` parses, all 14 passes
   remain machine-written, and the guarded `instrument.date === '2026-11-17'` is unchanged.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Resolve F1** — covers: F1
   - [ ] **R1.T1.1:** Append a clarification to the existing `instrument.note` recording that `scored_at` / `instrument.date` intentionally preserve the 2026-11-17 asset-set scoring date and that the four gate-close passes were machine-re-scored on 2026-11-18.
