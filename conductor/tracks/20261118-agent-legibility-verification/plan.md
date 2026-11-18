@@ -87,17 +87,22 @@ The primary appends after acceptance:
 **Checkpoint:** d67c950cbfc49b40074ae9d228d7f4299d7fd2e8
 **Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-3.md
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
 
-- **Goal:** Resolve review findings ...
+- **Goal:** Resolve the single Low finding F1 (stale final-HEAD reference in integrated evidence) under strict mode, without changing any check result, score, or requirement.
 - **Depends on:** Phase 3
-- **Covers:** review findings
-- **Touches:** ...
-- **Verification:** ...
+- **Covers:** F1
+- **Touches:** `conductor/tracks/20261118-agent-legibility-verification/verification/integrated.md`, `conductor/tracks/20261118-agent-legibility-verification/verification/phase-R1.md`
+- **Verification:** `pnpm verify`; content assertion that both stale `8af7082` "final HEAD" statements name the actual final HEAD `883518d`.
 - **Status:** pending
 
-- [ ] **R1.T1: Resolve <finding ID>** - covers: <finding ID>
+- [ ] **R1.T1: Correct the integrated report's final-HEAD reference** - covers: F1
+  - [ ] Replace line 6 and line 66 in `verification/integrated.md` so they name `883518d` as the final HEAD (checks re-run at `8af7082` and again at final HEAD `883518d` after the two docs-only commits).
+  - [ ] Write `verification/phase-R1.md` (Result verified, commands, F1 before/after, `pnpm verify` exit 0) and commit `fix(conductor): Resolve review finding F1`.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261118-agent-legibility-verification/verification/phase-R1.md
 -->
