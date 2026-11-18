@@ -5,11 +5,11 @@
 - **Branch:** `chore/20261119-engineering-debt-sweep`
 - **Range:** `2abb7cd0ee44d09ab68c04419c1207c2416668e7..233a07f025883d754046a85cf34c28f044fdf035`
 - **Date:** 2026-11-18T22:25:59Z
-- **Verdict:** PASS WITH FINDINGS (one Low presentation finding; fixed in review-fix round 1)
+- **Verdict:** PASS (after review-fix round 1 resolved the single Low finding)
 
 ## Summary
 
-The track delivers its three scoped debt items: seven `scripts/**/*.mjs` files are under Biome with zero findings and no rule weakened; 12 stale `.conductor/runs/*.json` files were removed with zero tracked deletions and the active run file retained; and a dated live clarification in `conductor/tech-stack.md` reconciles archived point-in-time prose. The published gate and all archives are byte-identical (`scores.json` SHA-256 `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D`; archive comparison 215/215, 0 mismatches). Code changes are behavior-preserving formatting/import normalization, split in-expression assignments, and removal of the dead `materialOf` helper. Strict mode requires the single Low finding (F1) to be fixed before PR; the fix is plan-presentation only.
+The track delivers its three scoped debt items: seven `scripts/**/*.mjs` files are under Biome with zero findings and no rule weakened; 12 stale `.conductor/runs/*.json` files were removed with zero tracked deletions and the active run file retained; and a dated live clarification in `conductor/tech-stack.md` reconciles archived point-in-time prose. The published gate and all archives are byte-identical (`scores.json` SHA-256 `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D`; archive comparison 215/215, 0 mismatches). Code changes are behavior-preserving formatting/import normalization, split in-expression assignments, and removal of the dead `materialOf` helper. Review round 1 found one Low presentation-only issue, F1; it was resolved in review-fix round 1 at checkpoint `73eba3c8cf68df684dfde1100aa257f03570f7d8`, and zero findings remain.
 
 ## Verification
 
@@ -53,7 +53,7 @@ None.
 
 ### Low
 
-**F1 — `conductor/tracks/20261119-engineering-debt-sweep/plan.md:58-63,81-86`.** The Phase 2 and Phase 3 Result/Checkpoint/Evidence blocks, including the stale instruction line "The primary appends after acceptance:", remain inside HTML comments, so they do not render as live plan content; Phase 1's equivalent block at lines 32-34 is live text and archived plans follow the same live-text convention. Content and checkpoints are correct. Fix: remove the `<!--`, the instruction line, and the `-->` wrapper for those two blocks, leaving Result/Checkpoint/Evidence as live text matching Phase 1. RESOLVED in R1 (checkpoint recorded in History).
+**F1 — `conductor/tracks/20261119-engineering-debt-sweep/plan.md:58-63,81-86`.** The Phase 2 and Phase 3 Result/Checkpoint/Evidence blocks, including the stale instruction line "The primary appends after acceptance:", remain inside HTML comments, so they do not render as live plan content; Phase 1's equivalent block at lines 32-34 is live text and archived plans follow the same live-text convention. Content and checkpoints are correct. Fix applied in R1 at checkpoint `73eba3c8cf68df684dfde1100aa257f03570f7d8`: removed the `<!--`, instruction line, and `-->` wrapper for those two blocks; Result/Checkpoint/Evidence are now live text matching Phase 1. Status: RESOLVED.
 
 ## Overrides
 
@@ -63,7 +63,7 @@ None.
 
 - Three implemented phases, all `Status: verified`, 10/10 tasks `[x]` with subtasks `[x]`; checkpoints a49c327 / af2c362 / ec1968 confirmed in git history.
 - Phase 1 and Phase 3 squash applied; Phase 2 squash skipped due to a primary-owned docs commit, recorded in plan.
-- No review-fix phase had run at review time; F1 is fixed in R1 under strict mode.
+- R1 verified at checkpoint `73eba3c8cf68df684dfde1100aa257f03570f7d8` with evidence `verification/phase-R1.md`; F1 fixed, zero findings remain. Implemented phases are 3 plus one review-fix phase; plan records 4 phases / 11 tasks, all `[x]`.
 
 ## Out of scope
 
@@ -75,10 +75,11 @@ No new debt introduced. Residual accepted debt is recorded honestly in `verifica
 
 ## Doc sync
 
-pending — updated post-review by the primary.
+updated — R1 made the Phase 2/3 acceptance blocks live text in `plan.md` and recorded it in `verification/phase-R1.md`; no product, tech-stack, guideline, score, code or archive change was required after review.
 
 ## History
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 0 | 1 (F1) | 0 |
+| 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 1 (F1) |
