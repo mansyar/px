@@ -48,17 +48,21 @@ The primary appends after acceptance:
 - **Covers:** FR-3, FR-4, FR-6, NFR-1, NFR-2, AC-3, AC-4, AC-6
 - **Touches:** `conductor/product.md`, `conductor/tech-stack.md`, `verification/doc-reconciliation.md`, `verification/phase-2.md` (doc edits are primary-owned: subagent reports denial, primary executes, subagent finalizes)
 - **Verification:** `pnpm verify`; targeted content assertions via read/grep
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Clarify superseded tech-stack statements** — covers: FR-3
-  - [ ] **P2.T1.1:** Mark the 2026-11-17 "4.0 gate remains hard" note as superseded by the publishable-tier decision without changing its text
-  - [ ] **P2.T1.2:** Mark the 2026-11-18 "3.73 is the current one" note as superseded by the 3.82 pass without changing its numbers
-- [ ] **P2.T2: Verify and correct the call-split claim** — covers: FR-3
-  - [ ] **P2.T2.1:** Check calibration evidence for an authoring/inspection call split; correct or cite honestly at `product.md:96`
-- [ ] **P2.T3: Declare Phase 1 feature-complete** — covers: FR-4
-  - [ ] **P2.T3.1:** Add a dated `product.md` note citing the passing publishable gate and the Phase 2 non-goal boundary
-- [ ] **P2.T4: Prove the code delta is empty** — covers: FR-6
-  - [ ] **P2.T4.1:** Confirm no `src/**`, `test/**`, `scripts/**`, manifest, lockfile, golden, `scores.json`, or recipe file changed; record in `verification/doc-reconciliation.md`
+- [x] **P2.T1: Clarify superseded tech-stack statements** — covers: FR-3
+  - [x] **P2.T1.1:** Mark the 2026-11-17 "4.0 gate remains hard" note as superseded by the publishable-tier decision without changing its text
+  - [x] **P2.T1.2:** Mark the 2026-11-18 "3.73 is the current one" note as superseded by the 3.82 pass without changing its numbers
+- [x] **P2.T2: Verify and correct the call-split claim** — covers: FR-3
+  - [x] **P2.T2.1:** Check calibration evidence for an authoring/inspection call split; correct or cite honestly at `product.md:96`
+- [x] **P2.T3: Declare Phase 1 feature-complete** — covers: FR-4
+  - [x] **P2.T3.1:** Add a dated `product.md` note citing the passing publishable gate and the Phase 2 non-goal boundary
+- [x] **P2.T4: Prove the code delta is empty** — covers: FR-6
+  - [x] **P2.T4.1:** Confirm no `src/**`, `test/**`, `scripts/**`, manifest, lockfile, golden, `scores.json`, or recipe file changed; record in `verification/doc-reconciliation.md`
+
+**Result:** verified — PP-1..PP-4 primary doc edits applied without rewriting history; unsupported call-split claim corrected; Phase 1 declaration added; code delta empty; `pnpm verify` exit 0. Squash skipped (primary commit in range).
+**Checkpoint:** 7b43fc36629467e38b6fd0b79da57672ac571f78
+**Evidence:** conductor/tracks/20261118-phase1-closeout-audit/verification/phase-2.md
 
 <!--
 The primary appends after acceptance:
