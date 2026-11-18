@@ -78,7 +78,7 @@ The primary appends after acceptance:
 - **Covers:** FR-5, NFR-4, AC-5, AC-7
 - **Touches:** `verification/closeout-decision.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; scoped coverage; determinism layer; `node scripts/rubric-report.mjs` (primary-run)
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Record the closeout decision** — covers: FR-5
   - [ ] **P3.T1.1:** Declare Phase 1 feature-complete with passing-gate evidence and remaining accepted debt
