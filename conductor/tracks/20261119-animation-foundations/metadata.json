@@ -24,7 +24,7 @@
     "tasks_done": 10
   },
   "last_checkpoint": "37e42231bf2f2c9c35a6d9957e4d26a79362391f",
-  "review_verdict": "PASS WITH FINDINGS",
+  "review_verdict": "BLOCK",
   "review_rounds": 1,
   "doc_sync": "done — tech-stack.md dated note 2026-11-19 (animation foundations) records the v1.4 frame schema, opt-in sheet export, additive metadata, golden fixture and honest PASS with the empty protected-digest delta; product.md and product-guidelines.md need no change (no product or guideline change, `docs/animation.md` is the agent-facing guide); spec frozen",
   "pr_url": null,
