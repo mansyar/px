@@ -60,7 +60,7 @@ No `.import/` cache was created after any run. Source: `godot-validation.md` §3
 
 Two earlier Godot executions failed and are recorded in Phase 1 evidence as resolved validator drafting defects, not product, export, metadata or anchor-contract defects:
 
-- **V1** (exit 1): GDScript parse-time type-inference errors at `validate.gd` lines 37, 38 and 109; no `ASSERT` line emitted. Fixed by adding explicit types (`meta: Variant`, `recipe: Variant`, `pivot_ok: bool`). See `godot-validation.md` §1a.
+- **V1a** (exit 1): GDScript parse-time type-inference errors at `validate.gd` lines 37, 38 and 109; no `ASSERT` line emitted. Fixed by adding explicit types (`meta: Variant`, `recipe: Variant`, `pivot_ok: bool`). See `godot-validation.md` §1a.
 - **V1b** (exit 1): `texture_loaded` expected 8×8 but the exported PNG is the full 16×16 canvas (`generic.canvas`); fixed by deriving expected dimensions from `generic.canvas`. No other assertion result is inferred from V1b. See `godot-validation.md` §1b.
 
 Neither run contributes an assertion result; V1c supplied the final all-PASS results. No re-roll or fishing for a favorable result occurred, and neither failure requires a follow-up issue.
