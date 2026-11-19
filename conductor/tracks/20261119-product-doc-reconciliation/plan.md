@@ -75,3 +75,17 @@ Review fixes are appended by `conductor-review` as:
 
 - [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
 -->
+
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve the one Low review finding F1 — the new tech-stack dated note must use the same digest shorthand as the notes it supersedes.
+- **Depends on:** Phase 2
+- **Covers:** F1
+- **Touches:** `conductor/tech-stack.md`, `conductor/tracks/20261119-product-doc-reconciliation/verification/phase-R1.md`
+- **Verification:** `pnpm verify`; character-code comparison of the digest tokens on tech-stack lines 131/133/135
+- **Status:** pending
+
+- [ ] **R1.T1: Normalize the reconciliation digest token** — covers: F1
+  - [ ] **R1.T1.1:** Replace the ASCII period in `E5CCE080.828D` on the 2026-11-19 reconciliation note with U+2026 so it reads `E5CCE080…828D`, matching the adjacent dated notes
+  - [ ] **R1.T1.2:** Verify by character code that all three notes use U+2026 and record the result in `verification/phase-R1.md`
+
