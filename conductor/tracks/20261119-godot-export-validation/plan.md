@@ -83,7 +83,7 @@
 - **Covers:** F1 (NFR-4)
 - **Touches:** `verification/integrated.md`, `verification/godot-validation.md`, `verification/decision.md`, `verification/phase-1.md`, `verification/phase-R1.md`
 - **Verification:** content assertion that every first-run label reads `V1a` and no bare first-run `V1` remains; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Standardize the first-run label** — covers: F1
   - [ ] **R1.T1.1:** Replace the bare first-run label with `V1a` in `godot-validation.md`, `decision.md` and `phase-1.md`, leaving V1b/V1c and all run substance intact.
