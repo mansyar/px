@@ -76,17 +76,22 @@
 **Checkpoint:** a6a9d3d7ba9976de1ce3c2ef00fdfe0ab88de3d6
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-3.md
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
 
-- **Goal:** Resolve review findings ...
+- **Goal:** Resolve review finding F1 — the inconsistent first-Godot-run label (V1 vs V1a) across evidence docs.
 - **Depends on:** Phase 3
-- **Covers:** review findings
-- **Touches:** ...
-- **Verification:** ...
+- **Covers:** F1 (NFR-4)
+- **Touches:** `verification/integrated.md`, `verification/godot-validation.md`, `verification/decision.md`, `verification/phase-1.md`, `verification/phase-R1.md`
+- **Verification:** content assertion that every first-run label reads `V1a` and no bare first-run `V1` remains; `pnpm verify`
 - **Status:** pending
 
-- [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
+- [ ] **R1.T1: Standardize the first-run label** — covers: F1
+  - [ ] **R1.T1.1:** Replace the bare first-run label with `V1a` in `godot-validation.md`, `decision.md` and `phase-1.md`, leaving V1b/V1c and all run substance intact.
+  - [ ] **R1.T1.2:** Write `verification/phase-R1.md` with the content assertion, `pnpm verify`, and the result.
+
+<!--
+The primary appends after acceptance:
+**Result:** verified
+**Checkpoint:** <short-sha>
+**Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-R1.md
 -->

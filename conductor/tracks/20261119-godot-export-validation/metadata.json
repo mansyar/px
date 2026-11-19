@@ -19,7 +19,7 @@
     "tasks_done": 9
   },
   "last_checkpoint": "a6a9d3d7ba9976de1ce3c2ef00fdfe0ab88de3d6",
-  "review_verdict": "PASS WITH FINDINGS",
+  "review_verdict": "BLOCK",
   "review_rounds": 1,
   "doc_sync": "done — tech-stack.md dated note 2026-11-19 (Godot 4 export validation) records the honest PASS in real Godot 4.7.2, the verified offset/anchor rule, the two validator-authoring defects, the --strict fixture deviation and the empty product delta; product.md and product-guidelines.md need no change (no product or guideline change; spec frozen); scores and archives untouched",
   "pr_url": null,
