@@ -195,6 +195,12 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', out: 'hero.png', values: 5 },
     value: '5',
   },
+  {
+    flag: 'onion',
+    tool: 'px_render',
+    params: { file: 'hero.px.json', out: 'hero.png', onion: 1 },
+    value: '1',
+  },
   { flag: 'strict', tool: 'px_validate', params: { file: 'hero.px.json', strict: true } },
   // Every tool declares `strict`, so every tool needs a row that proves it
   // forwards it; px_validate alone would leave the other tools unproven.
@@ -255,8 +261,6 @@ const NOT_AGENT_FLAGS = new Set([
   'family',
   'from',
   'steps',
-  // --onion is CLI-only until Phase 2 adds the px_render parameter and mapping.
-  'onion',
 ]);
 
 describe('MCP flag reachability', () => {
