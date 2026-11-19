@@ -71,9 +71,15 @@
 **Checkpoint:** c69576e
 **Evidence:** conductor/tracks/20261119-animation-playback/verification/phase-3.md
 
-<!--
-Review fixes are appended by `conductor-review` as:
-
 ## Phase R1: Review Fixes
-...
--->
+
+- **Goal:** Resolve review finding F1 (render envelope width/height for the onion sibling PNG).
+- **Depends on:** Phase 3
+- **Covers:** F1
+- **Touches:** `src/cli/commands.ts`, `test/mcp/parity.test.ts`, `verification/phase-R1.md`
+- **Verification:** `pnpm verify`; `pnpm exec vitest run test/mcp/parity.test.ts test/cli/onion.test.ts test/goldens/render.test.ts`
+- **Status:** pending
+
+- [ ] **R1.T1: Resolve F1** — covers: F1
+  - [ ] **R1.T1.1:** When the onion view is active, report the emitted sibling PNG's width (`result.width * ONION_PANELS`) in the envelope instead of frame 0's width; height is unchanged.
+  - [ ] **R1.T1.2:** Add a parity test asserting the recorded envelope `width`/`height` equal the sibling PNG's IHDR dimensions, and confirm normal views are unchanged.
