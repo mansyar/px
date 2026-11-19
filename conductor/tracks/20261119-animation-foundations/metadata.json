@@ -2,7 +2,7 @@
   "id": "20261119-animation-foundations",
   "title": "Animation Foundations",
   "type": "feature",
-  "status": "new",
+  "status": "in_progress",
   "priority": "medium",
   "depends_on": [
     "20261118-gate-publishable-pass",
@@ -11,7 +11,7 @@
     "20261119-godot-export-validation"
   ],
   "created_at": "2026-11-19T04:39:32Z",
-  "updated_at": "2026-11-19T04:39:32Z",
+  "updated_at": "2026-11-19T04:43:28Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261119-animation-foundations",
