@@ -58,21 +58,18 @@
 - **Covers:** NFR-1, NFR-2, NFR-4, AC-9, AC-10
 - **Touches:** `verification/decision.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; scoped coverage; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs`; scores hash; `git diff --name-only b3f984f..HEAD`.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Record the honest closeout decision** — covers: AC-10
-  - [ ] **P3.T1.1:** State pass/fail from measured Phase 1/2 evidence with exact commands, exits, digests and paths.
-  - [ ] **P3.T1.2:** Record limitations honestly (no playback runtime, interpolation, overlay, HTML/GIF/APNG, no new tool); no forced pass or re-baseline.
-- [ ] **P3.T2: Final verification snapshot** — covers: NFR-1, NFR-2, NFR-4, AC-9
-  - [ ] **P3.T2.1:** Re-run all configured checks at final HEAD and record results.
-  - [ ] **P3.T2.2:** Confirm `scores.json`, goldens, archives, CI config and tracked-change scope are unchanged.
+- [x] **P3.T1: Record the honest closeout decision** — covers: AC-10
+  - [x] **P3.T1.1:** State pass/fail from measured Phase 1/2 evidence with exact commands, exits, digests and paths.
+  - [x] **P3.T1.2:** Record limitations honestly (no playback runtime, interpolation, overlay, HTML/GIF/APNG, no new tool); no forced pass or re-baseline.
+- [x] **P3.T2: Final verification snapshot** — covers: NFR-1, NFR-2, NFR-4, AC-9
+  - [x] **P3.T2.1:** Re-run all configured checks at final HEAD and record results.
+  - [x] **P3.T2.2:** Confirm `scores.json`, goldens, archives, CI config and tracked-change scope are unchanged.
 
-<!--
-The primary appends after acceptance:
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** c69576e
 **Evidence:** conductor/tracks/20261119-animation-playback/verification/phase-3.md
--->
 
 <!--
 Review fixes are appended by `conductor-review` as:

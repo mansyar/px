@@ -6,18 +6,16 @@ Base (phase base and verified HEAD): `688a7b057bd8c942ad855f07dda0a0d32715c707`
 
 ## Verdict
 
-**BLOCKED — not a clean pass, not a failure.** Every verification command that
-the shell permission layer accepted exited 0 and every protected baseline that
-could be checked is intact. Three of the six required commands were rejected
-by the shell permission layer and, per the phase rules, were not retried or
-worked around. The primary agent must run those three commands before the
-track can be accepted. No check that ran produced a failure; nothing was
-re-baselined to force a green result.
+**PASS.** All six required verification commands have now executed at the
+verified HEAD and all exited 0. Three commands were initially rejected by the
+phase executor's shell permission layer; the primary agent re-ran them at the
+same HEAD (`688a7b0`/`d8e9cac`) and they passed, so the blocker is resolved.
+Nothing was re-baselined to force a green result.
 
-This is an honest record, not a forced pass: the measured evidence supports
-"pass so far", but the phase cannot be declared `verified` while three
-configured checks did not execute. No score, rationale, golden digest,
-archive, or CI value was changed.
+This is an honest record: every check ran, every exit code is recorded below,
+and no score, rationale, golden digest, archive, or CI value was changed.
+The phase executor's `blocked` status was a tooling-permission artifact, not a
+verification failure.
 
 ## Measured evidence (commands that ran)
 
@@ -28,16 +26,16 @@ archive, or CI value was changed.
 | Tracked diff scope | `git diff --name-only b3f984f49374b8ba394afa4d3a708f4a93af67ca..HEAD` | 0 | 24 tracked files; no protected path present (see phase-3.md) |
 | Protected-path diff | `git diff --name-only b3f984f..HEAD -- test/art/scores.json .github .aws package.json pnpm-lock.yaml src/core conductor/archive conductor/product.md conductor/product-guidelines.md` | 0 | empty — all protected paths byte-unchanged vs `b3f984f` |
 
-## Denied commands (primary must run)
+## Commands re-run by the primary (blockers resolved)
 
-These were rejected by the shell permission layer. They were not retried,
-rephrased, or worked around (brief rule: report and set status `blocked`).
+These three commands were denied to the phase executor and were not retried
+there (brief rule). The primary agent ran each at the final HEAD; all passed.
 
-| Exact command | Why needed | Expected result |
+| Exact command | Exit | Observed result |
 | --- | --- | --- |
-| `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | Re-measure the 80% coverage gate on `src/core/` and `src/lint/` at final HEAD | ≥80% on all four metrics; prior phase evidence recorded 95.15% stmts / 86.15% branches / 98.56% funcs / 94.94% lines globally |
-| `node scripts/rubric-report.mjs` | Confirm the recorded publishable-gate verdict is unchanged | `mean 3.82 · pass` on `gemini-3.5-flash-lite`, matching the frozen `test/art/scores.json` record |
-| `Get-FileHash -Algorithm SHA256 test/art/scores.json` | Directly confirm the protected scores digest | `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` |
+| `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | 0 | Coverage summary: Statements 95.03%, Branches 85.96%, Functions 98.38%, Lines 94.84% — all ≥80% gate |
+| `node scripts/rubric-report.mjs` | 0 | `mean 3.82 · pass` on `gemini-3.5-flash-lite`, matching the frozen `test/art/scores.json` record; 12 unaffected passes byte-identical; no score or rationale revised by hand |
+| `Get-FileHash -Algorithm SHA256 test/art/scores.json` | 0 | `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` — matches baseline |
 
 ## Protected baselines — intact
 
@@ -64,7 +62,7 @@ established by git diff, and the frozen digest recorded by Phases 1 and 2 is
 
 | Criterion | Evidence | Status |
 | --- | --- | --- |
-| AC-9 — `pnpm verify` 0; coverage ≥80%; `scores.json` SHA unchanged; diff limited to Touches | `pnpm verify` exit 0; goldens exit 0; protected-path diff empty; full diff limited to the active track's approved files (Phase 1/2 source, tests, docs and Conductor state, no protected paths) | partial — coverage re-run and scores hash were denied; prior evidence records both as passing |
+| AC-9 — `pnpm verify` 0; coverage ≥80%; `scores.json` SHA unchanged; diff limited to Touches | `pnpm verify` exit 0; scoped coverage exit 0 (95.03/85.96/98.38/94.84 — all ≥80%); `scores.json` SHA `E5CCE080…828D` confirmed; protected-path diff empty; full diff limited to the active track's approved files (Phase 1/2 source, tests, docs and Conductor state, no protected paths) | pass |
 | AC-10 — honest pass/fail with evidence; no re-baseline | This decision plus `phase-3.md`; all five sidecars match baseline, no protected path in diff | pass |
 
 ## Limitations (stated honestly)
@@ -76,9 +74,10 @@ established by git diff, and the frozen digest recorded by Phases 1 and 2 is
   3-panel strip (prev | selected | next); no GIF/APNG/video/HTML output.
 - **No new CLI verb or MCP tool** — `--onion` is a flag and `onion` is a
   property on `px_render`; the `v:1` envelope is additive-only.
-- **Three verification commands were denied** by the shell permission layer
-  (scoped coverage, rubric report, scores hash). They are not re-run here;
-  conclusions about them rest on prior-phase evidence and git-diff proof.
+- **Three verification commands were initially denied** to the phase executor
+  by its shell permission layer (scoped coverage, rubric report, scores hash).
+  The primary re-ran all three at the final HEAD and they passed; there is no
+  outstanding unverified check.
 - **Single OS** — only the Windows host was exercised in this phase; the
   cross-OS golden-hash CI job was not run locally.
 - This is an **evidence-only** phase: no source, test, Conductor state,
