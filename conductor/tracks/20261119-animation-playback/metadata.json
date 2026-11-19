@@ -1,0 +1,33 @@
+{
+  "id": "20261119-animation-playback",
+  "title": "Animation Inspection & Playback",
+  "type": "feature",
+  "status": "new",
+  "priority": "medium",
+  "depends_on": [
+    "20261119-animation-foundations"
+  ],
+  "created_at": "2026-11-19T07:48:50Z",
+  "updated_at": "2026-11-19T07:48:50Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "feat/20261119-animation-playback",
+  "base_branch": "main",
+  "base_sha": "b3f984f49374b8ba394afa4d3a708f4a93af67ca",
+  "progress": {
+    "phases_total": 3,
+    "phases_verified": 0,
+    "tasks_total": 8,
+    "tasks_done": 0
+  },
+  "last_checkpoint": null,
+  "review_verdict": null,
+  "review_rounds": 0,
+  "doc_sync": "pending",
+  "pr_url": null,
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": null,
+  "archive_path": null
+}
