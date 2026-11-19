@@ -58,6 +58,9 @@ Canonical terms. These are not interchangeable, and synonyms in output or docume
 | **anchor** | A named point in recipe coordinates (pivot, socket) |
 | **legend** | The character → slot mapping returned by `inspect` |
 | **golden** | A recipe plus its expected PNG SHA-256 |
+| **frame** | One compiled image in a framed recipe, ordered by the recipe's `frames`. Not "cell" or "still" |
+| **timeline** | The additive metadata block projecting frame indices, declared `duration_ms`, cumulative `start_ms` and `total_ms`. Not a playback clock |
+| **onion view** | The three-panel previous / selected / next inspection render selected by `--onion <index>`. Not an overlay or animation |
 
 ## Accessibility
 

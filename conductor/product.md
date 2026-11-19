@@ -48,7 +48,6 @@ The organizing principle is that **the recipe is the source of truth and the can
 
 **Out of scope (deferred):**
 
-- Animation, onion-skinning, sprite-sheet packing (Phase 2).
 - Tilemap auto-tiling and multi-tile world editing.
 - Interactive human GUI editor.
 - Translucent alpha (`alpha_mode: translucent` removed from Phase 1 entirely).
@@ -96,3 +95,5 @@ Solo developer, no external deadline, quality-first. Scope may be cut but not ru
 **Open:** none blocking. Calibration records judge-call counts (28 attempted, 6 rejected) and per-criterion low/high separation; it does not measure an authoring/inspection call split.
 
 **Dated note (2026-11-18, Phase 1 closeout).** Phase 1 is declared feature-complete. The publishable quality gate passes at mean 3.82 on `gemini-3.5-flash-lite` with zero below-floor criterion failures across seven assets / 14 passes, verified by the primary-run `node scripts/rubric-report.mjs` and recorded in `test/art/scores.json`. This declaration is a status note only: it makes no engine, op, linter, rubric, art, or dependency change. Phase 2 features remain deferred non-goals — animation, onion-skinning, sprite-sheet packing, tilemaps, GUI surfaces, translucent alpha, RNG, and npm publishing — and no Phase 2 work is started by this closeout.
+
+**Dated note (2026-11-19, animation scope reconciliation).** This note supersedes the animation deferral stated in the 2026-11-18 Phase 1 closeout note above. Track `20261119-animation-foundations` (PR #20) delivered the recipe `frames` model, deterministic sprite-sheet packing and strict all-frame gating. Track `20261119-animation-playback` (PR #21) delivered the `--onion <index>` three-panel neighbor inspection view and an additive `timeline` block in framed export metadata. Animation, onion-skinning and sprite-sheet packing are therefore delivered scope, not deferred work. Tilemaps, interactive human GUI, translucent alpha, RNG, npm publishing, playback runtime/player UI, interpolation, GIF/APNG/video encoders and engine exports beyond Godot 4 and the generic schema remain out of scope. This correction changes documentation only: no engine, op, linter, rubric, CI, score, golden, archive, recipe-schema or dependency change is made by it.
