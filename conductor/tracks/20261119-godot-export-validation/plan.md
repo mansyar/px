@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, NFR-1, NFR-3, NFR-4, NFR-5, AC-1, AC-2, AC-3, AC-4, AC-8
 - **Touches:** gitignored `.conductor/evidence/godot-export/**`, `verification/godot-validation.md`, `verification/phase-1.md`
 - **Verification:** `pnpm exec tsx src/cli.ts render --file hero.px.json --out hero.png --export --strict` in an isolated workspace; `C:\Godot\godot.exe --headless --path <project> --script validate.gd`; primary hash and `buildMetadata` comparison; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Export the golden hero fixture** — covers: FR-1
   - [ ] **P1.T1.1:** Copy `test/goldens/fixtures/hero.px.json` and root `px.style.json` into an isolated workspace under `.conductor/evidence/godot-export/export/`.
