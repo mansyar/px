@@ -38,27 +38,24 @@
 - **Covers:** FR-5, FR-6, FR-7, FR-8, NFR-1, NFR-2, NFR-3, NFR-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
 - **Touches:** `src/cli/commands.ts`, `src/meta/index.ts`, `src/mcp/tools.ts`, `src/cli/main.ts`, `docs/animation.md`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `test/goldens/render.test.ts`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/export-sheet.md`, `verification/phase-2.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/goldens/render.test.ts test/mcp/meta-export.test.ts test/mcp/parity.test.ts`; deterministic double render of the new fixture.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Deterministic sheet PNG export** — covers: FR-5, AC-5, AC-6
-  - [ ] **P2.T1.1:** When `--export` is used on a framed recipe, pack all frame canvases left-to-right into one row using the existing `encodePng` and write `<stem>.sheet.png`.
-  - [ ] **P2.T1.2:** Emit no sheet artifacts without `--export` or for single-frame recipes; keep `asset.png` bytes equal to frame 0.
-- [ ] **P2.T2: Additive sheet metadata** — covers: FR-6, AC-7
-  - [ ] **P2.T2.1:** Add a `sheet` block to generic metadata with frame index, id, x/y/width/height, trim, origin and optional duration; keep `v` and all existing fields unchanged.
-  - [ ] **P2.T2.2:** Write `<stem>.sheet.meta.json` beside the sheet PNG only when the sheet PNG is written.
-- [ ] **P2.T3: Golden fixture and determinism proof** — covers: FR-7, AC-6, AC-8
-  - [ ] **P2.T3.1:** Add a 2-frame `anim-duo` fixture with committed single-frame and sheet SHA-256 files; never re-baseline `hero.sha256`.
-  - [ ] **P2.T3.2:** Render twice and assert both digests match; extend the goldens determinism test without changing existing golden assertions.
-- [ ] **P2.T4: Agent-facing descriptions and docs** — covers: FR-8, AC-9
-  - [ ] **P2.T4.1:** Update `render` usage in `--help` and the MCP `px_render` tool description to mention framed sheet export; keep the response envelope unchanged.
-  - [ ] **P2.T4.2:** Add `docs/animation.md` describing the frame/sheet contract in canonical terminology; extend meta-export and parity tests for the additive field.
+- [x] **P2.T1: Deterministic sheet PNG export** — covers: FR-5, AC-5, AC-6
+  - [x] **P2.T1.1:** When `--export` is used on a framed recipe, pack all frame canvases left-to-right into one row using the existing `encodePng` and write `<stem>.sheet.png`.
+  - [x] **P2.T1.2:** Emit no sheet artifacts without `--export` or for single-frame recipes; keep `asset.png` bytes equal to frame 0.
+- [x] **P2.T2: Additive sheet metadata** — covers: FR-6, AC-7
+  - [x] **P2.T2.1:** Add a `sheet` block to generic metadata with frame index, id, x/y/width/height, trim, origin and optional duration; keep `v` and all existing fields unchanged.
+  - [x] **P2.T2.2:** Write `<stem>.sheet.meta.json` beside the sheet PNG only when the sheet PNG is written.
+- [x] **P2.T3: Golden fixture and determinism proof** — covers: FR-7, AC-6, AC-8
+  - [x] **P2.T3.1:** Add a 2-frame `anim-duo` fixture with committed single-frame and sheet SHA-256 files; never re-baseline `hero.sha256`.
+  - [x] **P2.T3.2:** Render twice and assert both digests match; extend the goldens determinism test without changing existing golden assertions.
+- [x] **P2.T4: Agent-facing descriptions and docs** — covers: FR-8, AC-9
+  - [x] **P2.T4.1:** Update `render` usage in `--help` and the MCP `px_render` tool description to mention framed sheet export; keep the response envelope unchanged.
+  - [x] **P2.T4.2:** Add `docs/animation.md` describing the frame/sheet contract in canonical terminology; extend meta-export and parity tests for the additive field.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified - deterministic sheet PNG and additive metadata shipped; anim-duo golden with committed frame-0 and sheet sidecars; double-render four hashes A=B; scoped tests and pnpm verify green; scores.json and hero.sha256 unchanged; AC-5..AC-10 satisfied. Squash applied (all four commits in range reported by the subagent).
+**Checkpoint:** be67c0380f297183fad8cb9396eb0f5a908e25c7
 **Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-2.md
--->
 
 ## Phase 3: Closeout decision and integrated record
 
