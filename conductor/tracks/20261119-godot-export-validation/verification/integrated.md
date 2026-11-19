@@ -4,7 +4,7 @@
 - Type / priority: chore / high
 - Branch: `chore/20261119-godot-export-validation`
 - Base: `0ea5c5357985b365e02b860d872e0de5bca93d84`
-- Final HEAD verified: `2715356` (post Phase 3 acceptance)
+- Final check HEAD: `2715356` (post Phase 3 acceptance; later doc-sync/review/completion commits are Conductor documentation only and do not affect any command, exit code or metric in this record)
 - Date: 2026-11-19
 
 ## Commands
