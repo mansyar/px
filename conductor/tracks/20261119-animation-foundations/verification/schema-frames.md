@@ -76,3 +76,12 @@ listed tracked files was modified, and the corresponding golden/parity tests pas
 | --- | --- | --- |
 | `pnpm verify` | 0 | typecheck, lint, 119 files / 1034 tests, build all pass |
 | `pnpm exec vitest run test/recipe/version-1-4.test.ts test/unit/recipe.test.ts test/unit/compile.test.ts` | 0 (primary) | RESOLVED BY PRIMARY: the subagent shell rejected `pnpm exec`; the primary ran the exact command from the project root — 2 test files / 29 tests pass. `test/recipe/**` is outside every vitest project include, so the executed equivalent assertions live in `test/unit/recipe.test.ts` and `test/unit/compile.test.ts`, which `pnpm verify` also runs |
+
+## R1 addendum — all-frame findings in the render path
+
+`src/cli/commands.ts` now feeds `lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop)`
+into `payload.findings`, so a warning confined to frame 1+ is reported and gates under
+`--strict`. The sheet pair is suppressed when `args.strict && lintBlocks(frameFindings, true)`;
+frame-0 PNG bytes, the metadata projection and `main.ts`'s strict gate are unchanged.
+The `LintFinding.frame` / `lintCompiledFrames` / `lintBlocks` contract documented above is
+therefore exercised end-to-end, not just at the lint unit. See `phase-R1.md`.

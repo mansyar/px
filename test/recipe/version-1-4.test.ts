@@ -1,3 +1,7 @@
+// NOTE: this dedicated file is intentionally outside every Vitest project
+// include, so CI does not execute it. The mirrored assertions in
+// test/unit/recipe.test.ts and test/unit/compile.test.ts are the coverage that
+// actually runs. Keep those in-scope mirrors in sync when editing anything here.
 /**
  * AC-1, AC-2, AC-4: version 1.4 adds an optional, version-gated `frames` array.
  * Frame 0 is the top-level `layers`; only additional frames live in `frames`, so

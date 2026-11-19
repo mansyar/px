@@ -1,11 +1,21 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
 import { compileRecipe } from '../../src/core/compile.js';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
 import { buildMetadata } from '../../src/meta/index.js';
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 interface Envelope {
   ok: boolean;
@@ -103,6 +113,12 @@ describe('render --export', () => {
 });
 
 describe('render --export on a framed recipe', () => {
+  beforeEach(() => {
+    // The restored design.style "@project" resolves px.style.json beside the
+    // recipe, so a temp workspace rendering the fixture needs that style too.
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(workspace, 'px.style.json'));
+  });
+
   const fixtures = join(process.cwd(), 'test', 'goldens', 'fixtures');
   const framed = readFileSync(join(fixtures, 'anim-duo.px.json'), 'utf8');
   const frameHash = readFileSync(join(fixtures, 'anim-duo.sha256'), 'utf8').trim();

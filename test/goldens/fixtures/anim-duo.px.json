@@ -6,6 +6,25 @@
     "height": 16,
     "alpha_mode": "binary"
   },
+  "design": {
+    "subject": "animated duo",
+    "light": "top-left",
+    "hierarchy": [
+      "body"
+    ],
+    "values": {
+      "body": 3
+    },
+    "edges": {
+      "silhouette": "outline",
+      "material": "none",
+      "detail": "none"
+    },
+    "materials": [
+      "body"
+    ],
+    "style": "@project"
+  },
   "palette": {
     "body": {
       "ramp": {
@@ -14,6 +33,12 @@
         "base": "#b13e53",
         "highlight": "#ef7d57"
       }
+    }
+  },
+  "parts": {
+    "body": {
+      "material": "body",
+      "gloss": "cloth"
     }
   },
   "anchors": {
@@ -28,6 +53,7 @@
       "ops": [
         {
           "op": "rect",
+          "part": "body",
           "x": 2,
           "y": 4,
           "w": 8,
@@ -36,6 +62,7 @@
         },
         {
           "op": "set_pixels",
+          "part": "body",
           "points": [
             [
               3,
@@ -60,6 +87,7 @@
           "ops": [
             {
               "op": "rect",
+              "part": "body",
               "x": 6,
               "y": 4,
               "w": 8,
@@ -68,6 +96,7 @@
             },
             {
               "op": "set_pixels",
+              "part": "body",
               "points": [
                 [
                   8,

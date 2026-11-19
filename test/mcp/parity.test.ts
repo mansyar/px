@@ -1,10 +1,13 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
 import { callTool, type ImageBlock, type Params, type TextBlock } from '../../src/mcp/tools.js';
 import { sha256Hex } from '../../src/render/render.js';
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 /**
  * P6.T2.2: the same recipe through the CLI and through MCP yields the same
@@ -405,6 +408,10 @@ describe('framed sheet export parity', () => {
     );
     writeFileSync(join(cliDir, 'anim-duo.px.json'), fixture);
     writeFileSync(join(mcpDir, 'anim-duo.px.json'), fixture);
+    // "@project" style resolves from the recipe directory, so both workspaces
+    // need the project style beside the copied fixture.
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(cliDir, 'px.style.json'));
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(mcpDir, 'px.style.json'));
 
     const cliEnvelope = cliStep([
       'render',

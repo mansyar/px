@@ -41,7 +41,7 @@ import {
   recipeParts,
 } from '../core/recipe/types.js';
 import { buildCritique, emptyCritiqueFingerprint } from '../critique/index.js';
-import { lintCompiled } from '../lint/index.js';
+import { lintBlocks, lintCompiled, lintCompiledFrames } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
 import {
   buildMetadata,
@@ -1107,6 +1107,10 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   // Lint against the backdrop the caller asked to check, so a part that melts
   // into the panel is reported for that panel. Absent means the default grey.
   const lintBackdrop = typeof backdrop === 'string' ? (parseHex(backdrop) ?? undefined) : undefined;
+  // Lint every frame so a warning confined to frame 1+ is reported and gates
+  // under --strict. Frame 0 findings stay byte-identical to lintCompiled and
+  // carry no `frame` field (lintCompiledFrames keeps frame 0 untagged).
+  const frameFindings = lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop);
 
   const payload: Record<string, unknown> = {
     file,
@@ -1115,7 +1119,7 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     height: result.height,
     bytes: outPng.length,
     sha256: sha256Hex(outPng),
-    findings: lintCompiled(result.compiled, lintBackdrop),
+    findings: frameFindings,
   };
   if (view !== undefined) {
     payload.view =
@@ -1145,7 +1149,14 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   if (args.metaExport) {
     payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd, effective);
-    if (effective.frames !== undefined && effective.frames.length > 0) {
+    // A blocking finding from any frame must suppress both sheet artifacts.
+    // The normal PNG and the single-frame metadata projection are unchanged;
+    // only the opt-in sheet pair is gated here, before main.ts returns exit 3.
+    if (
+      effective.frames !== undefined &&
+      effective.frames.length > 0 &&
+      !(args.strict && lintBlocks(frameFindings, true))
+    ) {
       payload.sheet = writeSheet(args.out, recipe, result.compiled, effective, cwd);
     }
   }

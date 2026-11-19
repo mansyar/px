@@ -89,3 +89,16 @@ twice and asserts both match. The digest artifact
   `A8FE8F44E481512998C45E6FCD384002F01AF4ED9B969DA52C6141E133F7ED62`.
 - No existing golden, archive, CI config, rubric or lint threshold was changed;
   no new dependency, engine op, CLI verb or MCP tool was introduced.
+
+## R1 addendum — shared design restored, digests unchanged
+
+F3 restored a recipe-level `design` block and a minimal `parts` block in
+`anim-duo.px.json` (shared by both frames; all four ops tagged `"part": "body"`
+so the declared part owns pixels rather than tripping `E_EMPTY_PART`). Design,
+parts and part tags affect metadata/deviations but not rasterized pixels, so
+`test/goldens/render.test.ts` still passes against the original committed
+frame-0 (`7c0c9b38…`) and sheet (`6189229c…`) digests — both `.sha256` sidecars
+were left unchanged. F1 additionally gates the sheet pair when a frame-1+
+warning is present under `--strict`. See `phase-R1.md` for the four out-of-Touches
+`test/mcp/{meta-export,parity}.test.ts` failures caused by `@project` style
+resolution in their scratch workspaces.

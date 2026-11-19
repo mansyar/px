@@ -9,7 +9,13 @@ interface Envelope {
   ok: boolean;
   command?: string;
   error?: { code: string; message: string; hint: string };
-  findings?: Array<{ code: string; severity: string; message: string; truncated?: boolean }>;
+  findings?: Array<{
+    code: string;
+    severity: string;
+    message: string;
+    truncated?: boolean;
+    frame?: number;
+  }>;
   [key: string]: unknown;
 }
 
@@ -42,6 +48,35 @@ function write(name: string, ops: unknown[], colors: string[] = ['#000000', '#ff
       palette: { main: { colors } },
       anchors: { pivot: [3, 3] },
       layers: [{ id: 'base', ops }],
+    }),
+    'utf8',
+  );
+}
+
+/**
+ * A v1.4 recipe with a clean frame 0 and an out-of-bounds warning confined to
+ * frame 1. `withFrames: false` writes the same frame-0 layers as a single-frame
+ * control, so the two renders can be compared byte for byte.
+ */
+function writeFramed(name: string, withFrames: boolean): void {
+  writeFileSync(
+    join(workspace, name),
+    JSON.stringify({
+      version: '1.4',
+      meta: { name: name.replace('.px.json', ''), width: 8, height: 8, alpha_mode: 'binary' },
+      palette: { main: { colors: ['#000000', '#ffffff'] } },
+      anchors: { pivot: [3, 3] },
+      layers: [{ id: 'base', ops: [['rect', 1, 1, 4, 4, 'main.0']] }],
+      ...(withFrames
+        ? {
+            frames: [
+              {
+                id: 'clip',
+                layers: [{ id: 'base', ops: [['rect', -2, -2, 4, 4, 'main.0']] }],
+              },
+            ],
+          }
+        : {}),
     }),
     'utf8',
   );
@@ -249,6 +284,48 @@ describe('strict mode', () => {
     const result = run(['validate', '--file', 'clean.px.json', '--strict']);
     expect(result.code).toBe(0);
     expect(result.envelope.ok).toBe(true);
+  });
+});
+
+describe('framed strict gating', () => {
+  it('reports a frame-1 finding, gates --strict and writes no sheet artifacts', () => {
+    writeFramed('anim.px.json', true);
+    const result = run([
+      'render',
+      '--file',
+      'anim.px.json',
+      '--out',
+      'anim.png',
+      '--export',
+      '--strict',
+    ]);
+
+    expect(result.code).toBe(3);
+    expect(result.envelope.ok).toBe(false);
+    expect(result.envelope.error?.code).toBe('E_LINT_GATE');
+    // The frame-1 warning reaches payload.findings, which main.ts gates on.
+    expect(result.envelope.findings?.some((finding) => finding.frame === 1)).toBe(true);
+    // Frame 0 still renders to a real PNG even though the gate blocks the sheet.
+    expect(result.envelope.sha256).toMatch(/^[0-9a-f]{64}$/);
+    const files = readdirSync(workspace);
+    expect(files.some((file) => file.endsWith('.sheet.png'))).toBe(false);
+    expect(files.some((file) => file.endsWith('.sheet.meta.json'))).toBe(false);
+  });
+
+  it('writes the sheet when not strict and keeps frame-0 bytes identical to a single-frame render', () => {
+    writeFramed('plain.px.json', false);
+    writeFramed('anim.px.json', true);
+
+    const plain = run(['render', '--file', 'plain.px.json', '--out', 'plain.png']);
+    const framed = run(['render', '--file', 'anim.px.json', '--out', 'anim.png', '--export']);
+
+    expect(plain.code).toBe(0);
+    expect(framed.code).toBe(0);
+    expect(framed.envelope.sha256).toBe(plain.envelope.sha256);
+    expect(framed.envelope.sheet).toBeDefined();
+    const files = readdirSync(workspace);
+    expect(files.some((file) => file.endsWith('.sheet.png'))).toBe(true);
+    expect(files.some((file) => file.endsWith('.sheet.meta.json'))).toBe(true);
   });
 });
 
