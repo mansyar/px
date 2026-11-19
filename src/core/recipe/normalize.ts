@@ -29,6 +29,7 @@ import {
   FACING_NAMES,
   type Facing,
   type FloodFillOp,
+  type Frame,
   GLOSS_PROFILES,
   type GlossProfile,
   type HarmonizeOp,
@@ -75,7 +76,17 @@ import {
 
 const OP_NAMES = Object.keys(OP_PARAM_ORDER) as OpName[];
 const META_KEYS = ['name', 'width', 'height', 'alpha_mode', 'profile'];
-const RECIPE_KEYS = ['version', 'meta', 'design', 'palette', 'parts', 'anchors', 'layers'];
+const RECIPE_KEYS = [
+  'version',
+  'meta',
+  'design',
+  'palette',
+  'parts',
+  'anchors',
+  'layers',
+  'frames',
+];
+const FRAME_KEYS = ['id', 'layers', 'duration'];
 const PART_KEYS = ['material', 'gloss', 'z', 'facing'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1720,6 +1731,70 @@ function normalizeLayers(raw: unknown): Layer[] {
   });
 }
 
+/**
+ * Additional frames are a 1.4 feature. Each frame owns its layers, so layer ids
+ * may repeat across frames; frame ids are unique within the recipe. The shape
+ * errors reuse `E_BAD_META` (the document-level code already used for unknown
+ * recipe keys) so no new error code is needed for a purely additive field.
+ */
+function normalizeFrames(raw: unknown): Frame[] | undefined {
+  if (raw === undefined) {
+    return undefined;
+  }
+  if (!Array.isArray(raw)) {
+    throw new PxError(
+      'E_BAD_META',
+      'Recipe frames is not an array',
+      'Declare "frames": [{"id": "<name>", "layers": [...]}].',
+    );
+  }
+  if (raw.length === 0) {
+    throw new PxError(
+      'E_BAD_META',
+      'Recipe frames is empty',
+      'Frame 0 is the top-level layers; list only additional frames, or omit "frames".',
+    );
+  }
+  const seen = new Set<string>();
+  return raw.map((entry, index) => {
+    if (!isRecord(entry)) {
+      throw new PxError(
+        'E_BAD_META',
+        `Frame ${index} is not an object`,
+        'A frame is {"id": "<name>", "layers": [...]} with an optional integer "duration".',
+      );
+    }
+    unknownKeys(entry, FRAME_KEYS, 'E_BAD_META', `Frame ${index}`);
+    const id = entry.id;
+    if (typeof id !== 'string' || id.trim() === '') {
+      throw new PxError(
+        'E_BAD_META',
+        `Frame ${index} has no id`,
+        'Give each frame a non-empty id such as "idle".',
+      );
+    }
+    if (seen.has(id)) {
+      throw new PxError(
+        'E_BAD_META',
+        `Frame id "${id}" appears more than once`,
+        'Frame ids are unique within a recipe; they identify the frame in lint findings and sheet metadata.',
+      );
+    }
+    seen.add(id);
+    const duration: unknown = entry.duration;
+    if (duration !== undefined && (typeof duration !== 'number' || !Number.isInteger(duration))) {
+      throw new PxError(
+        'E_BAD_META',
+        `Frame "${id}" has a non-integer duration`,
+        'Duration is an integer number of milliseconds; it is recorded but not interpreted.',
+      );
+    }
+    const layers = normalizeLayers(entry.layers);
+    validateOpIds(layers);
+    return { id, layers, ...(duration === undefined ? {} : { duration }) };
+  });
+}
+
 /** Op ids address ops across the whole recipe, so they must be unique globally. */
 function validateOpIds(layers: readonly Layer[]): void {
   const seen = new Map<string, { layer: string; index: number }>();
@@ -1766,6 +1841,10 @@ function versionRank(version: RecipeVersion): number {
       return 1;
     case '1.2':
       return 2;
+    case '1.3':
+      return 3;
+    case '1.4':
+      return 4;
     default:
       return 3;
   }
@@ -1941,6 +2020,16 @@ export function normalizeRecipe(raw: unknown, options: NormalizeOptions = {}): N
     );
   }
 
+  // Frames are a 1.4 feature. Reject rather than promote: a frame op may key on
+  // the version the same way other options do, and the literal is the contract.
+  if (raw.frames !== undefined && versionRank(version) < 4) {
+    throw new PxError(
+      'E_BAD_VERSION',
+      `Recipe declares frames with version ${JSON.stringify(version)}, but frames require schema 1.4`,
+      'Set "version": "1.4" to declare frames.',
+    );
+  }
+
   unknownKeys(raw, RECIPE_KEYS, 'E_BAD_META', 'Recipe');
 
   const meta = normalizeMeta(raw.meta);
@@ -1955,6 +2044,7 @@ export function normalizeRecipe(raw: unknown, options: NormalizeOptions = {}): N
   );
   const layers = normalizeLayers(raw.layers);
   validateOpIds(layers);
+  const frames = normalizeFrames(raw.frames);
 
   const warnings =
     meta.profile === undefined
@@ -1970,6 +2060,7 @@ export function normalizeRecipe(raw: unknown, options: NormalizeOptions = {}): N
       parts,
       anchors,
       layers,
+      ...(frames === undefined ? {} : { frames }),
     },
     warnings,
   };

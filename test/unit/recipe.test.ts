@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { compileRecipe, compileRecipeFrames } from '../../src/core/compile.js';
 import { PxError } from '../../src/core/errors.js';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
 import { serializeRecipe } from '../../src/core/recipe/serialize.js';
+import { lintBlocks, lintCompiled, lintCompiledFrames } from '../../src/lint/index.js';
 
 interface RecipeOverrides {
   [key: string]: unknown;
@@ -82,6 +84,28 @@ describe('canonical serialization', () => {
     );
     expect(error.code).toBe('E_BAD_PARAM');
     expect(error.message).toContain('pixel_perfect');
+  });
+
+  it('emits frames in a fixed position only when present', () => {
+    const framed = recipeText({
+      version: '1.4',
+      frames: [{ id: 'idle', layers: [{ id: 'base', ops: [] }], duration: 100 }],
+    });
+    const text = serializeRecipe(parseRecipe(framed).recipe);
+    const keys = ['"version"', '"meta"', '"palette"', '"anchors"', '"layers"', '"frames"'].map(
+      (key) => text.indexOf(key),
+    );
+    expect(keys).toEqual([...keys].sort((a, b) => a - b));
+    expect(text).toContain('"duration": 100');
+
+    const withoutFrames = serializeRecipe(parseRecipe(recipeText({ version: '1.4' })).recipe);
+    expect(withoutFrames).not.toContain('"frames"');
+    expect(serializeRecipe(parseRecipe(withoutFrames).recipe)).toBe(withoutFrames);
+  });
+
+  it('round-trips a v1.4 recipe without frames byte-for-byte', () => {
+    const once = serializeRecipe(parseRecipe(recipeText({ version: '1.4' })).recipe);
+    expect(serializeRecipe(parseRecipe(once).recipe)).toBe(once);
   });
 
   it('sorts palette families and ramp roles canonically', () => {
@@ -223,5 +247,66 @@ describe('validation', () => {
   it('rejects an unknown recipe key', () => {
     const error = codeOf(() => parseRecipe(recipeText({ extra: true })));
     expect(error.code).toBe('E_BAD_META');
+  });
+});
+
+describe('schema 1.4 frames', () => {
+  const clean = [{ id: 'base', ops: [] }];
+  const clip = [{ id: 'base', ops: [['rect', -2, 0, 4, 4, 'c.0']] }];
+
+  it('gates frames to 1.4 and validates the frame shape', () => {
+    for (const version of [1, '1.1', '1.2', '1.3']) {
+      const error = codeOf(() =>
+        parseRecipe(recipeText({ version, frames: [{ id: 'a', layers: clean }] })),
+      );
+      expect(error.code).toBe('E_BAD_VERSION');
+      expect(`${error.message} ${error.hint}`).toContain('1.4');
+    }
+    expect(codeOf(() => parseRecipe(recipeText({ version: '1.4', frames: [] }))).code).toBe(
+      'E_BAD_META',
+    );
+    expect(
+      codeOf(() =>
+        parseRecipe(
+          recipeText({
+            version: '1.4',
+            frames: [
+              { id: 'a', layers: clean },
+              { id: 'a', layers: clean },
+            ],
+          }),
+        ),
+      ).code,
+    ).toBe('E_BAD_META');
+    expect(
+      codeOf(() =>
+        parseRecipe(
+          recipeText({ version: '1.4', frames: [{ id: 'a', layers: clean, duration: 1.5 }] }),
+        ),
+      ).code,
+    ).toBe('E_BAD_META');
+    expect(
+      codeOf(() => parseRecipe(recipeText({ version: '1.4', frames: [{ id: 'a' }] }))).code,
+    ).toBe('E_BAD_LAYER');
+  });
+
+  it('tags additional-frame findings without changing frame 0', () => {
+    const legacy = lintCompiled(
+      compileRecipe(parseRecipe(recipeText({ version: '1.3', layers: clip })).recipe),
+    );
+    const all = lintCompiledFrames(
+      compileRecipeFrames(
+        parseRecipe(
+          recipeText({ version: '1.4', layers: clip, frames: [{ id: 'idle', layers: clip }] }),
+        ).recipe,
+      ),
+    );
+    expect(all.filter((finding) => finding.frame === undefined)).toEqual(legacy);
+    expect(
+      all
+        .filter((finding) => finding.frame === 1)
+        .some((finding) => finding.code === 'OUT_OF_BOUNDS'),
+    ).toBe(true);
+    expect(lintBlocks(all, true)).toBe(true);
   });
 });

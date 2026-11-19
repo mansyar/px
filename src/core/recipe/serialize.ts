@@ -12,6 +12,8 @@ import {
   DESIGN_EDGE_CLASSES,
   DESIGN_FIELDS,
   type Design,
+  type Frame,
+  type Layer,
   type Palette,
   type Parts,
   RAMP_ROLES,
@@ -281,6 +283,23 @@ export function canonicalOp(op: RawOp): Record<string, unknown> {
   return Object.assign(out, opParams(op));
 }
 
+/** Shared by frame 0 and every additional frame so their ops write identically. */
+function canonicalLayers(layers: readonly Layer[]): Record<string, unknown>[] {
+  return layers.map((layer) => ({
+    id: layer.id,
+    ops: layer.ops.map((op) => canonicalOp(op)),
+  }));
+}
+
+/** `id`, `layers`, then `duration` only when declared — a fixed canonical order. */
+function canonicalFrames(frames: readonly Frame[]): Record<string, unknown>[] {
+  return frames.map((frame) => ({
+    id: frame.id,
+    layers: canonicalLayers(frame.layers),
+    ...(frame.duration === undefined ? {} : { duration: frame.duration }),
+  }));
+}
+
 export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
   const parts = recipeParts(recipe);
   const hasParts = Object.keys(parts).length > 0;
@@ -296,10 +315,10 @@ export function canonicalRecipe(recipe: Recipe): Record<string, unknown> {
     out.parts = canonicalParts(parts);
   }
   out.anchors = canonicalAnchors(recipe.anchors);
-  out.layers = recipe.layers.map((layer) => ({
-    id: layer.id,
-    ops: layer.ops.map((op) => canonicalOp(op)),
-  }));
+  out.layers = canonicalLayers(recipe.layers);
+  if (recipe.frames !== undefined) {
+    out.frames = canonicalFrames(recipe.frames);
+  }
   return out;
 }
 

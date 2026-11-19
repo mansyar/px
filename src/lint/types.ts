@@ -32,6 +32,12 @@ export interface LintFinding {
   code: LintCode;
   severity: LintSeverity;
   message: string;
+  /**
+   * Zero-based frame index, present only on additional frames. Frame 0 is the
+   * top-level layers and carries no `frame`, so its findings stay byte-identical
+   * to the single-frame linter.
+   */
+  frame?: number;
   /** One offending pixel. Mutually exclusive with `coords` in practice. */
   coord?: LintCoord;
   /** The pixels of a run, capped at the configured limit. */
