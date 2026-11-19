@@ -42,7 +42,7 @@
 - **Covers:** FR-6, NFR-5, NFR-6, AC-5, AC-8
 - **Touches:** `verification/decision.md`, `verification/phase-2.md`
 - **Verification:** primary-run content assertion that the decision matches the recorded assertions and exit codes; `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Decide the outcome** — covers: FR-6
   - [ ] **P2.T1.1:** Derive PASS only if all Phase 1 assertions and integrity checks are green; otherwise record FAIL with the exact discrepancy.
