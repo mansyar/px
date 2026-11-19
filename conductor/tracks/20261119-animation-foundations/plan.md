@@ -84,7 +84,7 @@
 - **Covers:** F1, F2, F3 (FR-1, FR-2, FR-3, FR-4, FR-7, AC-1, AC-2, AC-3, AC-4, AC-8)
 - **Touches:** `src/cli/commands.ts`, `src/cli/main.ts` (only if needed), `test/lint/feedback-cli.test.ts`, `test/recipe/version-1-4.test.ts`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `verification/schema-frames.md`, `verification/export-sheet.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; scoped lint/render tests; primary `pnpm dev render` with byte-identical double render; `git diff --name-only` scope check
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Wire all-frame findings and strict gating into the render path** — fixes F1
   - [ ] **R1.T1.1:** Use `lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop)` for `runRender`'s `findings` so frame 1+ findings are reported with their frame index.
