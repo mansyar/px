@@ -145,3 +145,24 @@ Working tree clean at hand-off (`git status --porcelain` empty).
   "notes": "Implementation complete; pnpm verify (120 files / 1057 tests) and pnpm coverage (meta 95.08% stmts / 89.18% branches / 100% funcs / 95.08% lines) exit 0. Test-first confirmed. All protected digests, scores.json, archives and CI unchanged. Status is blocked only for the denied secondary scoped command, which the primary must run."
 }
 ```
+
+## Primary verification
+
+Verified independently by the primary agent (conductor-implement Section 4.7).
+
+| Check | Result |
+| --- | --- |
+| Working tree clean at hand-off | Yes |
+| Commits since phase base conventional, no merges | Yes — 4 conventional commits (`9ddbf79`, `7a210eb`, `0b48340`, `e3d8a0f`) |
+| Files vs Touches | All in Touches except `test/mcp/reachability.test.ts` (required by brief task P2.T2.1 to remove `onion` from `NOT_AGENT_FLAGS` and add the `px_render` mapping row), recorded as a deviation |
+| `pnpm verify` | exit 0 — 120 files / 1057 tests pass; only pre-existing lint warning in `test/recipe/version-1-2.test.ts` |
+| `pnpm exec vitest run test/mcp/meta-export.test.ts test/mcp/parity.test.ts` | exit 0 — 2 files / 16 tests pass (subagent shell blocker resolved at primary level) |
+| AC-4 | Confirmed — `px_render` gains an `onion` integer param + `argvFor` mapping; MCP_TOOLS count asserted at 11 (no new tool); CLI/MCP byte-identical envelopes and sibling PNG in parity tests |
+| AC-5 | Confirmed — timeline frame entries, frame-0 omission of `duration_ms` with `start_ms: 0`, single-frame emits no `timeline` key; frozen hero meta digest |
+| AC-6 | Confirmed — `v`, sheet, anchors, offset, palette, `recipe_hash` unchanged; `timeline` added only via conditional spread |
+| AC-7 | Confirmed — Phase 1 golden double-render still green; framed export double render asserted; all three protected digests unchanged |
+| AC-8 | Confirmed — `--help` usage/flags and `px_render` description/schema mention `--onion`; `docs/animation.md` updated; envelope `v:1` additive-only |
+| AC-9 | Confirmed — `pnpm verify` 0; scoped coverage reported by subagent ≥80% (meta 95.08/89.18/100/95.08); `scores.json` SHA `E5CCE080…`; diff limited to approved files |
+| Protected digests / scores / archives / CI / dependencies | All unchanged; no diff in `.aws`, `.github`, `package.json`, `pnpm-lock.yaml`, `src/core`, `src/render`, `conductor/product.md`, `conductor/tech-stack.md` |
+
+Primary verdict: **verified** — the sole blocker was a permission denial on the secondary command, now resolved by the primary running it successfully. Accepting Phase 2.
