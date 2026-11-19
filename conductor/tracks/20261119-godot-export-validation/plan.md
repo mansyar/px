@@ -14,29 +14,26 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, NFR-1, NFR-3, NFR-4, NFR-5, AC-1, AC-2, AC-3, AC-4, AC-8
 - **Touches:** gitignored `.conductor/evidence/godot-export/**`, `verification/godot-validation.md`, `verification/phase-1.md`
 - **Verification:** `pnpm exec tsx src/cli.ts render --file hero.px.json --out hero.png --export --strict` in an isolated workspace; `C:\Godot\godot.exe --headless --path <project> --script validate.gd`; primary hash and `buildMetadata` comparison; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Export the golden hero fixture** — covers: FR-1
-  - [ ] **P1.T1.1:** Copy `test/goldens/fixtures/hero.px.json` and root `px.style.json` into an isolated workspace under `.conductor/evidence/godot-export/export/`.
-  - [ ] **P1.T1.2:** Run `render --export --strict`; record exit, stdout/stderr, generated `hero.png` and `hero.meta.json`.
-  - [ ] **P1.T1.3:** Confirm PNG SHA-256 equals `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb` (golden `hero.sha256`).
-- [ ] **P1.T2: Run the headless Godot validator** — covers: FR-2, FR-3, FR-4
-  - [ ] **P1.T2.1:** Create `project.godot`, copy the exported PNG/meta and canonical recipe into a gitignored Godot project directory, and author `validate.gd`.
-  - [ ] **P1.T2.2:** Assert texture loads at trimmed 8×8; `texture_path`, `filter:false`, `centered:false`; `offset == generic.origin == [-trim.x,-trim.y]`; `anchor + offset == anchor - trim`; hero pivot `(8,8)` maps to local `(4,4)` inside the texture.
-  - [ ] **P1.T2.3:** Run `C:\Godot\godot.exe --headless --path <project> --script validate.gd`; record Godot version, exact command, exit code, full stdout/stderr, and a true/false result per assertion. One bounded retry only for transient startup failure.
-- [ ] **P1.T3: Verify integrity in the primary process** — covers: FR-5
-  - [ ] **P1.T3.1:** Confirm `--export` and Godot import leave the PNG hash unchanged.
-  - [ ] **P1.T3.2:** Compare exported metadata with `buildMetadata` output and confirm `generic.recipe_hash` matches canonical recipe bytes.
-- [ ] **P1.T4: Write Phase 1 evidence** — covers: NFR-4, AC-8
-  - [ ] **P1.T4.1:** Write `verification/godot-validation.md` with commands, exits, hashes, Godot version, assertion table, and the exact artifact paths.
-  - [ ] **P1.T4.2:** Write `verification/phase-1.md` with Result, command table, AC table, deviations, and `PENDING PRIMARY` markers for commands only the primary may run.
+- [x] **P1.T1: Export the golden hero fixture** — covers: FR-1
+  - [x] **P1.T1.1:** Copy `test/goldens/fixtures/hero.px.json` and root `px.style.json` into an isolated workspace under `.conductor/evidence/godot-export/export/`.
+  - [x] **P1.T1.2:** Run `render --export --strict`; record exit, stdout/stderr, generated `hero.png` and `hero.meta.json`.
+  - [x] **P1.T1.3:** Confirm PNG SHA-256 equals `8d9074157a61e030355daa15489ed85fd37a73074087ee77cc45aeef28f027cb` (golden `hero.sha256`).
+- [x] **P1.T2: Run the headless Godot validator** — covers: FR-2, FR-3, FR-4
+  - [x] **P1.T2.1:** Create `project.godot`, copy the exported PNG/meta and canonical recipe into a gitignored Godot project directory, and author `validate.gd`.
+  - [x] **P1.T2.2:** Assert texture loads at trimmed 8×8; `texture_path`, `filter:false`, `centered:false`; `offset == generic.origin == [-trim.x,-trim.y]`; `anchor + offset == anchor - trim`; hero pivot `(8,8)` maps to local `(4,4)` inside the texture.
+  - [x] **P1.T2.3:** Run `C:\Godot\godot.exe --headless --path <project> --script validate.gd`; record Godot version, exact command, exit code, full stdout/stderr, and a true/false result per assertion. One bounded retry only for transient startup failure.
+- [x] **P1.T3: Verify integrity in the primary process** — covers: FR-5
+  - [x] **P1.T3.1:** Confirm `--export` and Godot import leave the PNG hash unchanged.
+  - [x] **P1.T3.2:** Compare exported metadata with `buildMetadata` output and confirm `generic.recipe_hash` matches canonical recipe bytes.
+- [x] **P1.T4: Write Phase 1 evidence** — covers: NFR-4, AC-8
+  - [x] **P1.T4.1:** Write `verification/godot-validation.md` with commands, exits, hashes, Godot version, assertion table, and the exact artifact paths.
+  - [x] **P1.T4.2:** Write `verification/phase-1.md` with Result, command table, AC table, deviations, and `PENDING PRIMARY` markers for commands only the primary may run.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — export PNG equals golden hash, metadata deep-equals buildMetadata, headless Godot 4.7.2 exits 0 with all five assertions PASS (GODOT_VALIDATION=PASS), PNG/meta untouched after import, scores hash unchanged; two earlier failures were validator defects and are recorded as resolved, no product change. AC-1, AC-2, AC-3, AC-4 and AC-8 satisfied. Squash applied (all four commits in range reported by the subagent).
+**Checkpoint:** 18004de1f669c989945aea52c7ad85960987ef9f
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-1.md
--->
 
 ## Phase 2: Record the honest decision and bounded stop
 
