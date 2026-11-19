@@ -58,7 +58,7 @@
 - **Covers:** NFR-1, NFR-2, NFR-4, AC-9, AC-10
 - **Touches:** `verification/decision.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; scoped coverage; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs`; scores hash; `git diff --name-only b3f984f..HEAD`.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Record the honest closeout decision** — covers: AC-10
   - [ ] **P3.T1.1:** State pass/fail from measured Phase 1/2 evidence with exact commands, exits, digests and paths.
