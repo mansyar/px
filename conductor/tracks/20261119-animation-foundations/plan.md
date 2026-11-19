@@ -12,27 +12,24 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, NFR-1, NFR-3, NFR-4, AC-1, AC-2, AC-3, AC-4, AC-10
 - **Touches:** `src/core/recipe/types.ts`, `src/core/recipe/normalize.ts`, `src/core/recipe/serialize.ts`, `src/core/compile.ts`, `src/lint/types.ts`, `src/lint/index.ts`, `test/recipe/version-1-4.test.ts`, `test/unit/recipe.test.ts`, `test/unit/compile.test.ts`, `verification/schema-frames.md`, `verification/phase-1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/recipe/version-1-4.test.ts test/unit/recipe.test.ts test/unit/compile.test.ts`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Add version 1.4 and `frames` validation** — covers: FR-1, AC-1
-  - [ ] **P1.T1.1:** Extend `RecipeVersion`/`ACCEPTED_VERSIONS` and `versionRank`; add the `frames` key to `RECIPE_KEYS` and gate it to ≥1.4 with an error naming the required version.
-  - [ ] **P1.T1.2:** Validate frame shape: non-empty unique `id`, optional integer `duration`, required `layers`; reject empty `frames` arrays.
-- [ ] **P1.T2: Canonical frame serialization** — covers: FR-2, AC-2
-  - [ ] **P1.T2.1:** Emit `frames` in `canonicalRecipe` at a fixed position only when present; preserve existing key order for all other recipes.
-  - [ ] **P1.T2.2:** Prove byte-identical round-trip for framed v1.4 and unchanged round-trip for v1.3/v1.4-without-frames.
-- [ ] **P1.T3: Multi-frame compile preserving frame 0** — covers: FR-3, AC-3
-  - [ ] **P1.T3.1:** Compile top-level `layers` as frame 0 and each `frames[i].layers` through the same stateless op pipeline, sharing base canvas/palette/design.
-  - [ ] **P1.T3.2:** Assert frame 0 flattened/layers/owners and render SHA equal the legacy single-frame result; assert additional-frame pixel hashes.
-- [ ] **P1.T4: Per-frame lint and Phase 1 regression proof** — covers: FR-4, NFR-1, NFR-3, AC-4, AC-10
-  - [ ] **P1.T4.1:** Add an optional `frame` field to `LintFinding`; order by frame index, then existing severity/code/coord; keep frame-0 findings unchanged.
-  - [ ] **P1.T4.2:** Keep version-1.2/1.3 tests, `hero.sha256`, goldens and gate scores unchanged; record evidence in `verification/schema-frames.md` and `verification/phase-1.md`.
+- [x] **P1.T1: Add version 1.4 and `frames` validation** — covers: FR-1, AC-1
+  - [x] **P1.T1.1:** Extend `RecipeVersion`/`ACCEPTED_VERSIONS` and `versionRank`; add the `frames` key to `RECIPE_KEYS` and gate it to ≥1.4 with an error naming the required version.
+  - [x] **P1.T1.2:** Validate frame shape: non-empty unique `id`, optional integer `duration`, required `layers`; reject empty `frames` arrays.
+- [x] **P1.T2: Canonical frame serialization** — covers: FR-2, AC-2
+  - [x] **P1.T2.1:** Emit `frames` in `canonicalRecipe` at a fixed position only when present; preserve existing key order for all other recipes.
+  - [x] **P1.T2.2:** Prove byte-identical round-trip for framed v1.4 and unchanged round-trip for v1.3/v1.4-without-frames.
+- [x] **P1.T3: Multi-frame compile preserving frame 0** — covers: FR-3, AC-3
+  - [x] **P1.T3.1:** Compile top-level `layers` as frame 0 and each `frames[i].layers` through the same stateless op pipeline, sharing base canvas/palette/design.
+  - [x] **P1.T3.2:** Assert frame 0 flattened/layers/owners and render SHA equal the legacy single-frame result; assert additional-frame pixel hashes.
+- [x] **P1.T4: Per-frame lint and Phase 1 regression proof** — covers: FR-4, NFR-1, NFR-3, AC-4, AC-10
+  - [x] **P1.T4.1:** Add an optional `frame` field to `LintFinding`; order by frame index, then existing severity/code/coord; keep frame-0 findings unchanged.
+  - [x] **P1.T4.2:** Keep version-1.2/1.3 tests, `hero.sha256`, goldens and gate scores unchanged; record evidence in `verification/schema-frames.md` and `verification/phase-1.md`.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — version 1.4 with optional `frames` parses, canonicalizes and compiles deterministically; frame 0 remains byte-identical; per-frame lint findings are stable and ordered; both required verification commands pass (primary resolved the subagent's shell denial); all baseline digests unchanged. AC-1, AC-2, AC-3, AC-4 and AC-10 satisfied. Squash applied (all seven phase commits reported by the subagent).
+**Checkpoint:** 5cc61039886438e23dca5322e485439ba66ebc23
 **Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-1.md
--->
 
 ## Phase 2: Sheet export, additive metadata, fixture and docs
 
