@@ -38,7 +38,7 @@
 - **Covers:** FR-5, FR-6, FR-7, FR-8, NFR-1, NFR-2, NFR-3, NFR-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
 - **Touches:** `src/cli/commands.ts`, `src/meta/index.ts`, `src/mcp/tools.ts`, `src/cli/main.ts`, `docs/animation.md`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `test/goldens/render.test.ts`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/export-sheet.md`, `verification/phase-2.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/goldens/render.test.ts test/mcp/meta-export.test.ts test/mcp/parity.test.ts`; deterministic double render of the new fixture.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Deterministic sheet PNG export** — covers: FR-5, AC-5, AC-6
   - [ ] **P2.T1.1:** When `--export` is used on a framed recipe, pack all frame canvases left-to-right into one row using the existing `encodePng` and write `<stem>.sheet.png`.
