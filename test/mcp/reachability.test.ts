@@ -255,6 +255,8 @@ const NOT_AGENT_FLAGS = new Set([
   'family',
   'from',
   'steps',
+  // --onion is CLI-only until Phase 2 adds the px_render parameter and mapping.
+  'onion',
 ]);
 
 describe('MCP flag reachability', () => {

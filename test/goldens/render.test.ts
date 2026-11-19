@@ -69,6 +69,60 @@ describe('golden anim-duo', () => {
     expect(sha256Hex(secondSheet.png)).toBe(expectedSheet);
   });
 
+  it('renders the onion strip deterministically with blank boundary panels', async () => {
+    const expected0 = readFileSync(join(FIXTURES, 'anim-duo.onion0.sha256'), 'utf8').trim();
+    const expected1 = readFileSync(join(FIXTURES, 'anim-duo.onion1.sha256'), 'utf8').trim();
+    expect(expected0).toMatch(/^[0-9a-f]{64}$/);
+    expect(expected1).toMatch(/^[0-9a-f]{64}$/);
+
+    const { compileRecipeFrames } = await import('../../src/core/compile.js');
+    const { renderOnion } = await import('../../src/render/views.js');
+    const { decodePng } = await import('../../src/render/png.js');
+    const { renderRecipe } = await import('../../src/render/render.js');
+    const frames = compileRecipeFrames(parsed.recipe);
+
+    const first0 = renderOnion(frames, 0);
+    const second0 = renderOnion(frames, 0);
+    const first1 = renderOnion(frames, 1);
+    const second1 = renderOnion(frames, 1);
+
+    expect(sha256Hex(first0.png)).toBe(expected0);
+    expect(sha256Hex(second0.png)).toBe(expected0);
+    expect(sha256Hex(first1.png)).toBe(expected1);
+    expect(sha256Hex(second1.png)).toBe(expected1);
+
+    // Three full 16x16 canvases side by side, driven by the same rasterizer.
+    const strip0 = decodePng(first0.png);
+    expect([strip0.width, strip0.height]).toEqual([48, 16]);
+
+    const blank = (rgba: Uint8Array, panel: number): boolean => {
+      for (let row = 0; row < 16; row += 1) {
+        for (let col = 0; col < 16; col += 1) {
+          if ((rgba[(row * 48 + panel * 16 + col) * 4 + 3] ?? 0) !== 0) {
+            return false;
+          }
+        }
+      }
+      return true;
+    };
+    expect(blank(strip0.rgba, 0)).toBe(true);
+    expect(blank(strip0.rgba, 1)).toBe(false);
+    expect(blank(strip0.rgba, 2)).toBe(false);
+
+    const strip1 = decodePng(first1.png);
+    expect(blank(strip1.rgba, 0)).toBe(false);
+    expect(blank(strip1.rgba, 1)).toBe(false);
+    expect(blank(strip1.rgba, 2)).toBe(true);
+
+    // The selected center panel equals the committed frame-0 render exactly.
+    const frame0 = renderRecipe(parsed.recipe).rgba;
+    for (let row = 0; row < 16; row += 1) {
+      expect(strip0.rgba.slice((row * 48 + 16) * 4, (row * 48 + 32) * 4)).toEqual(
+        frame0.slice(row * 16 * 4, (row + 1) * 16 * 4),
+      );
+    }
+  });
+
   it('describes both frames in pack order', async () => {
     const { renderSheet } = await import('../../src/cli/commands.js');
     const sheet = renderSheet(parsed.recipe);

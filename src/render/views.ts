@@ -9,7 +9,7 @@
  */
 
 import { UNOWNED } from '../core/canvas.js';
-import type { CompiledRecipe } from '../core/compile.js';
+import type { CompiledFrame, CompiledRecipe } from '../core/compile.js';
 import { PxError } from '../core/errors.js';
 import { bandRole, rankProjections } from '../core/ops/ramp.js';
 import { buildSlotRoles, TRANSPARENT_SLOT } from '../core/palette.js';
@@ -39,12 +39,23 @@ export interface RenderView {
   rgba: Uint8Array;
 }
 
-export type ViewSpec = { kind: 'blockout' } | { kind: 'values'; steps: number };
+export type ViewSpec =
+  | { kind: 'blockout' }
+  | { kind: 'values'; steps: number }
+  | { kind: 'onion'; index: number };
+
+/** The onion strip is always prev | selected | next, at full canvas size. */
+export const ONION_PANELS = 3;
 
 /** Where a view PNG goes: a sibling of `--out`, never `--out` itself. */
 export function viewPath(out: string, view: ViewSpec): string {
   const stem = out.endsWith('.png') ? out.slice(0, -'.png'.length) : out;
-  const suffix = view.kind === 'blockout' ? 'blockout' : `values${view.steps}`;
+  const suffix =
+    view.kind === 'blockout'
+      ? 'blockout'
+      : view.kind === 'values'
+        ? `values${view.steps}`
+        : `onion${view.index}`;
   const candidate = `${stem}.${suffix}.png`;
   return candidate === out ? `${stem}.${suffix}-view.png` : candidate;
 }
@@ -67,6 +78,29 @@ export function parseSteps(value: string | undefined): number {
     );
   }
   return steps;
+}
+
+/** Parse `--onion N` once. The concrete upper bound depends on the recipe; the
+ * CLI passes `frameCount` to name it, and rechecks the range after reading the
+ * recipe so an out-of-range index is caught before any file is written. */
+export function parseOnionIndex(value: string | undefined, frameCount?: number): number {
+  const range = frameCount === undefined ? '[0, frames.length]' : `[0, ${frameCount}]`;
+  if (value === undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      '--onion is missing a frame index',
+      `Pass --onion with a non-negative whole-number frame index in ${range}.`,
+    );
+  }
+  const index = Number(value);
+  if (!Number.isInteger(index) || index < 0 || value.trim() === '') {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `--onion is ${value}, expected a non-negative whole number`,
+      `Pass --onion with a whole-number frame index in ${range}.`,
+    );
+  }
+  return index;
 }
 
 /**
@@ -166,7 +200,53 @@ export function renderView(
   rgba: Uint8Array,
   lightDir: LightDir,
 ): RenderView {
+  if (view.kind === 'onion') {
+    // A frames-aware view cannot be built from a single CompiledRecipe. The CLI
+    // dispatches it through renderOnion instead; this guard keeps the contract
+    // of this single-compiled entry point explicit.
+    throw new PxError(
+      'E_INTERNAL',
+      'renderView cannot build an onion view from one compiled recipe',
+      'Use renderOnion with the compiled frame list.',
+    );
+  }
   return view.kind === 'blockout'
     ? renderBlockout(compiled, lightDir)
     : renderValues(compiled.width, compiled.height, rgba, view.steps);
+}
+
+/**
+ * Composite prev | selected | next into one strip, each panel a full canvas.
+ * This is a frames-aware view with its own dispatch: it never changes the
+ * single-compiled `renderView`/`renderDebugSheet` contracts. Panels outside the
+ * frame range stay fully transparent (the zero-filled buffer), giving a
+ * deterministic blank at the boundaries. No RNG, clocks or host ordering.
+ */
+export function renderOnion(frames: readonly CompiledFrame[], index: number): RenderView {
+  const selected = frames[index];
+  if (frames.length === 0 || selected === undefined) {
+    throw new PxError(
+      'E_BAD_PARAM',
+      `--onion ${index} is not a compiled frame`,
+      `Pass --onion with an index from 0 to ${Math.max(0, frames.length - 1)}.`,
+    );
+  }
+  const { width, height } = selected.compiled;
+  const rgba = new Uint8Array(width * ONION_PANELS * height * 4);
+  const sources = [index - 1, index, index + 1];
+  sources.forEach((sourceIndex, panel) => {
+    const frame = frames[sourceIndex];
+    if (frame === undefined) {
+      return;
+    }
+    const frameRgba = rasterizeSlots(frame.compiled.flattened, width, height, frame.compiled.slots);
+    const rowBytes = width * 4;
+    for (let row = 0; row < height; row += 1) {
+      rgba.set(
+        frameRgba.subarray(row * rowBytes, (row + 1) * rowBytes),
+        (row * width * ONION_PANELS + panel * width) * 4,
+      );
+    }
+  });
+  return { png: encodePng(width * ONION_PANELS, height, rgba), rgba };
 }

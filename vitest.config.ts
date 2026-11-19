@@ -18,6 +18,7 @@ export default defineConfig({
             'test/facing/**/*.test.ts',
             'test/lint/**/*.test.ts',
             'test/brief/**/*.test.ts',
+            'test/cli/**/*.test.ts',
             'test/render/**/*.test.ts',
             'test/ops/**/*.test.ts',
             'test/light/**/*.test.ts',
