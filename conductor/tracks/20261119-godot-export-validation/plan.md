@@ -64,20 +64,17 @@
 - **Covers:** FR-7, NFR-2, NFR-6, AC-6, AC-7, AC-8
 - **Touches:** `verification/final-checks.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs`; `Get-FileHash -Algorithm SHA256 test/art/scores.json`; `git diff --name-only 0ea5c53..HEAD`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Run final checks** — covers: FR-7, NFR-2, NFR-6
-  - [ ] **P3.T1.1:** Re-run verify, scoped coverage, goldens, and rubric report at final HEAD; record exit codes and metrics.
-  - [ ] **P3.T1.2:** Confirm `scores.json` hash `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` and that the diff contains only Conductor state/verification paths.
-- [ ] **P3.T2: Write the closeout record** — covers: AC-6, AC-7, AC-8
-  - [ ] **P3.T2.1:** Write `verification/final-checks.md` and `verification/phase-3.md` with the final command table, AC table, scope proof, and Result.
+- [x] **P3.T1: Run final checks** — covers: FR-7, NFR-2, NFR-6
+  - [x] **P3.T1.1:** Re-run verify, scoped coverage, goldens, and rubric report at final HEAD; record exit codes and metrics.
+  - [x] **P3.T1.2:** Confirm `scores.json` hash `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` and that the diff contains only Conductor state/verification paths.
+- [x] **P3.T2: Write the closeout record** — covers: AC-6, AC-7, AC-8
+  - [x] **P3.T2.1:** Write `verification/final-checks.md` and `verification/phase-3.md` with the final command table, AC table, scope proof, and Result.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified - all configured final checks re-run green at final HEAD (pnpm verify 119/1028; scoped coverage 95.02/85.72/98.33/94.82%; goldens 1/2; rubric mean 3.82 pass); scores hash unchanged; 11 changed paths all Conductor state/verification; zero open PRs. Phase 2 PASS decision stands. AC-6, AC-7 and AC-8 satisfied. Squash applied.
+**Checkpoint:** a6a9d3d7ba9976de1ce3c2ef00fdfe0ab88de3d6
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-3.md
--->
 
 <!--
 Review fixes are appended by `conductor-review` as:
