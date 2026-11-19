@@ -44,5 +44,5 @@
 
 - [x] **Track: Animation Inspection & Playback** - [20261119-animation-playback](./archive/20261119-animation-playback/index.md) - feature - medium
 
-- [ ] **Track: Product Documentation Reconciliation** — [20261119-product-doc-reconciliation](./tracks/20261119-product-doc-reconciliation/index.md) — chore — low
+- [~] **Track: Product Documentation Reconciliation** — [20261119-product-doc-reconciliation](./tracks/20261119-product-doc-reconciliation/index.md) — chore — low
 
