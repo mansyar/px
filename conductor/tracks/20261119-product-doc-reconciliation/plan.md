@@ -42,7 +42,7 @@ The primary appends after acceptance:
 - **Covers:** FR-3, FR-4, AC-3, AC-4, AC-5, AC-6, NFR-1, NFR-2, NFR-3
 - **Touches:** `.conductor/runs/20261119-animation-playback.json` (gitignored runtime state), `conductor/tracks/20261119-product-doc-reconciliation/verification/phase-2.md`
 - **Verification:** `pnpm verify`; supporting checks: `git diff --name-only <base_sha>..HEAD` restricted to protected paths, `Get-FileHash -Algorithm SHA256 test/art/scores.json`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Close stale runtime run state** — covers: FR-3
   - [ ] **P2.T1.1:** Set the playback run record to `status: "complete"` without staging it or editing any other run file
