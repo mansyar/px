@@ -12,24 +12,21 @@
 - **Covers:** FR-1, FR-2, NFR-1, NFR-3, NFR-4, AC-1, AC-2, AC-3
 - **Touches:** `src/render/views.ts`, `src/cli/args.ts`, `src/cli/commands.ts`, `test/render/views.test.ts`, `test/cli/`, `test/goldens/fixtures/anim-duo.onion<index>.sha256`, `test/goldens/render.test.ts`, `verification/onion-view.md`, `verification/phase-1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/render/views.test.ts test/goldens/render.test.ts`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Onion view primitive** — covers: FR-2
-  - [ ] **P1.T1.1:** Add `{kind:'onion', index:number}` to `ViewSpec`, a sibling path suffix in `viewPath`, and a frames-aware renderer that composites prev | selected | next through the existing rasterizer/encoder with blank transparent boundary panels.
-  - [ ] **P1.T1.2:** Reuse the already-computed `compileRecipeFrames(effective)` rather than recompiling; keep `renderView`/`renderDebugSheet` single-compiled contracts intact via a separate dispatch path.
-- [ ] **P1.T2: Flag and CLI plumbing** — covers: FR-1, AC-1, AC-3
-  - [ ] **P1.T2.1:** Add `--onion <index>` value flag to `args.ts` (`VALUE_FLAGS`, `ParsedArgs`, setter); require a framed recipe and validate integer `[0, frames.length]` with an actionable error.
-  - [ ] **P1.T2.2:** Wire `renderViewSpec`/`runRender` to select the onion view, write the sibling PNG, preserve the no-`--debug`/no-`--export` rule, and report the view in the envelope.
-- [ ] **P1.T3: Golden evidence and Phase 1 regression proof** — covers: FR-5 (partial), AC-2, AC-3
-  - [ ] **P1.T3.1:** Add a committed onion-view SHA-256 sidecar and a double-render assertion mirroring `render.test.ts:50-70`; assert strip geometry and blank boundaries.
-  - [ ] **P1.T3.2:** Confirm `hero.sha256`, `anim-duo.sha256`, `anim-duo.sheet.sha256`, frame-0 bytes and `scores.json` unchanged; record evidence in `verification/onion-view.md` and `verification/phase-1.md`.
+- [x] **P1.T1: Onion view primitive** — covers: FR-2
+  - [x] **P1.T1.1:** Add `{kind:'onion', index:number}` to `ViewSpec`, a sibling path suffix in `viewPath`, and a frames-aware renderer that composites prev | selected | next through the existing rasterizer/encoder with blank transparent boundary panels.
+  - [x] **P1.T1.2:** Reuse the already-computed `compileRecipeFrames(effective)` rather than recompiling; keep `renderView`/`renderDebugSheet` single-compiled contracts intact via a separate dispatch path.
+- [x] **P1.T2: Flag and CLI plumbing** — covers: FR-1, AC-1, AC-3
+  - [x] **P1.T2.1:** Add `--onion <index>` value flag to `args.ts` (`VALUE_FLAGS`, `ParsedArgs`, setter); require a framed recipe and validate integer `[0, frames.length]` with an actionable error.
+  - [x] **P1.T2.2:** Wire `renderViewSpec`/`runRender` to select the onion view, write the sibling PNG, preserve the no-`--debug`/no-`--export` rule, and report the view in the envelope.
+- [x] **P1.T3: Golden evidence and Phase 1 regression proof** — covers: FR-5 (partial), AC-2, AC-3
+  - [x] **P1.T3.1:** Add a committed onion-view SHA-256 sidecar and a double-render assertion mirroring `render.test.ts:50-70`; assert strip geometry and blank boundaries.
+  - [x] **P1.T3.2:** Confirm `hero.sha256`, `anim-duo.sha256`, `anim-duo.sheet.sha256`, frame-0 bytes and `scores.json` unchanged; record evidence in `verification/onion-view.md` and `verification/phase-1.md`.
 
-<!--
-The primary appends after acceptance:
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** 3285f28
 **Evidence:** conductor/tracks/20261119-animation-playback/verification/phase-1.md
--->
 
 ## Phase 2: Timeline metadata and agent-facing surfaces
 

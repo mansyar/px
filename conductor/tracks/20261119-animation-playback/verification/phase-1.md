@@ -134,3 +134,26 @@ with the missing `parseOnionIndex`/`renderOnion` exports and the unsupported
   "notes": "Phase 1 complete. Test-first confirmed via failing typecheck before implementation. Protected digests unchanged. Phase 2 must add the MCP onion parameter/mapping and remove onion from NOT_AGENT_FLAGS."
 }
 ```
+
+## Primary verification
+
+Verified independently by the primary agent (not solely the phase subagent), per
+conductor-implement Section 4.7.
+
+| Check | Result |
+| --- | --- |
+| Working tree clean at hand-off | Yes — `git status --porcelain` count 0 |
+| Commits since phase base are conventional, no merge commits | Yes — 4 conventional commits (`d579bc8`, `be2c77b`, `5bde9ee`, `9a24a2d`) |
+| Changed files vs Touches | All in Touches except two justified deviations (`vitest.config.ts` project include for `test/cli/**`; `test/mcp/reachability.test.ts` temporary `NOT_AGENT_FLAGS` entry), both recorded above |
+| `pnpm verify` (typecheck → lint → test → build) | exit 0 — 120 files / 1052 tests pass; only pre-existing lint warning in `test/recipe/version-1-2.test.ts` (untouched) |
+| `pnpm exec vitest run test/render/views.test.ts test/goldens/render.test.ts` | exit 0 — 2 files / 14 tests pass (subagent shell blocker resolved at primary level) |
+| AC-1 (valid/invalid index, framed requirement) | Confirmed by `test/cli/onion.test.ts` cases (lines 155-180) |
+| AC-2 (sibling path, no overwrite, double-render SHA, blank boundaries) | Confirmed by `test/cli/onion.test.ts` lines 99-139 and `test/goldens/render.test.ts` onion case |
+| AC-3 (`--debug`/`--export` rejection, normal bytes unchanged) | Confirmed by `test/cli/onion.test.ts` lines 141-153 and byte comparison at 125 |
+| Protected golden sidecars byte-identical | Yes — `hero.sha256`, `anim-duo.sha256`, `anim-duo.sheet.sha256` contents unchanged and not in diff |
+| `scores.json` SHA unchanged | Yes — `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` |
+| Archives / CI config / `package.json` dependencies unchanged | Yes — no diff in `.aws`, `.github`, or `package.json`; dependency remains `@modelcontextprotocol/sdk` 1.32.2 only |
+| Single-compiled view contracts preserved | Yes — `renderView` rejects `onion` explicitly; new frames-aware `renderOnion` has separate dispatch; `renderDebugSheet` untouched |
+| No new CLI verb / MCP tool / schema / encoder | Yes — diff limited to render views, CLI args/commands and tests |
+
+Primary verdict: **verified**. Accepting Phase 1.
