@@ -71,3 +71,22 @@ Progress: 3/3 phases verified, 8/8 tasks done.
 
 The implementation is complete and verified across all layers (static, unit,
 integration, smoke, determinism). Ready for doc sync and `conductor-review`.
+
+## Post-review re-verification (Phase R1)
+
+Review round 1 raised one Low finding (F1: onion envelope `width` reported
+frame-0 width). Phase R1 fixed the root cause in `src/cli/commands.ts` and added
+behavioral regression assertions in `test/mcp/parity.test.ts` (squash `7196ab9`).
+At the resulting final HEAD the primary re-ran:
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `pnpm verify` | 0 | 120 files / 1057 tests; only the pre-existing `test/recipe/version-1-2.test.ts:50` warning |
+| `pnpm exec vitest run test/mcp/parity.test.ts test/cli/onion.test.ts test/goldens/render.test.ts` | 0 | 3 files / 19 tests |
+| `Get-FileHash -Algorithm SHA256 test/art/scores.json` | 0 | `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` |
+
+No protected baseline, PNG byte, golden digest, envelope key, dependency, tool
+or schema changed. The round-2 re-review verdict is **PASS** with zero findings
+(`review.md`). This section supersedes the original `Final verification HEAD:
+48f88dd…` above with the post-review state (R1 squash `7196ab9`, review record
+`7a9203a`); no user-facing product doc needed an update after R1.

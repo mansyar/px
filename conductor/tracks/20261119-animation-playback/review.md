@@ -86,7 +86,7 @@ No in-scope regressions. The pre-existing Biome warning in `test/recipe/version-
 
 ## Doc sync
 
-`none` — R1 changed only the envelope `width` expression and a regression test; no user-facing docs required an update. `docs/animation.md` and the `conductor/tech-stack.md` dated note were already synchronized in Phase 2 and the Section 6 doc-sync commit (`1688af7`).
+`updated` — R1 changed only the envelope `width` expression and a regression test; no user-facing product docs required an update. `docs/animation.md` and the `conductor/tech-stack.md` dated note were already synchronized in Phase 2 and the Section 6 doc-sync commit (`1688af7`). Post-review, `verification/integrated.md` was refreshed with the final-HEAD re-verification results so the integrated record matches the shipped tree.
 
 ## History
 
