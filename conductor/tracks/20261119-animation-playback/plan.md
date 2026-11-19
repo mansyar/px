@@ -12,7 +12,7 @@
 - **Covers:** FR-1, FR-2, NFR-1, NFR-3, NFR-4, AC-1, AC-2, AC-3
 - **Touches:** `src/render/views.ts`, `src/cli/args.ts`, `src/cli/commands.ts`, `test/render/views.test.ts`, `test/cli/`, `test/goldens/fixtures/anim-duo.onion<index>.sha256`, `test/goldens/render.test.ts`, `verification/onion-view.md`, `verification/phase-1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/render/views.test.ts test/goldens/render.test.ts`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Onion view primitive** — covers: FR-2
   - [ ] **P1.T1.1:** Add `{kind:'onion', index:number}` to `ViewSpec`, a sibling path suffix in `viewPath`, and a frames-aware renderer that composites prev | selected | next through the existing rasterizer/encoder with blank transparent boundary panels.
