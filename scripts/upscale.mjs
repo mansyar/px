@@ -178,9 +178,11 @@ let factor = 8;
 for (let index = 0; index < argv.length; index += 1) {
   const token = argv[index];
   if (token === '--out') {
-    out = argv[(index += 1)];
+    index += 1;
+    out = argv[index];
   } else if (token === '--factor') {
-    factor = Number.parseInt(argv[(index += 1)] ?? '', 10);
+    index += 1;
+    factor = Number.parseInt(argv[index] ?? '', 10);
   } else if (token.startsWith('--')) {
     console.error(`unknown argument: ${token}`);
     console.error(usage());

@@ -1,0 +1,31 @@
+{
+  "id": "20261119-engineering-debt-sweep",
+  "title": "Engineering Debt Sweep",
+  "type": "chore",
+  "status": "complete",
+  "priority": "medium",
+  "depends_on": [],
+  "created_at": "2026-11-18T21:36:30Z",
+  "updated_at": "2026-11-18T22:35:17Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "chore/20261119-engineering-debt-sweep",
+  "base_branch": "main",
+  "base_sha": "2abb7cd0ee44d09ab68c04419c1207c2416668e7",
+  "progress": {
+    "phases_total": 4,
+    "phases_verified": 4,
+    "tasks_total": 11,
+    "tasks_done": 11
+  },
+  "last_checkpoint": "73eba3c8cf68df684dfde1100aa257f03570f7d8",
+  "review_verdict": "PASS",
+  "review_rounds": 1,
+  "doc_sync": "updated — post-review: R1 made Phase 2/3 acceptance blocks live text in plan.md and recorded it in verification/phase-R1.md; no product, tech-stack, guideline, score, code or archive change required; spec frozen",
+  "pr_url": "https://github.com/mansyar/px/pull/18",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": "2026-11-18T22:35:17Z",
+  "archive_path": "conductor/archive/20261119-engineering-debt-sweep"
+}

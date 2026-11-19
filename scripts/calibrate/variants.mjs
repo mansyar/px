@@ -14,13 +14,13 @@
  *
  *   node scripts/calibrate/variants.mjs [--no-render]
  */
-import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, basename, join } from "node:path";
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 
-const BASE = "test/art/chest/chest.px.json";
-const OUT = ".conductor/evidence/calibration/variants";
-const GLYPHS = ["0", "1", "2", "3", "4"];
+const BASE = 'test/art/chest/chest.px.json';
+const OUT = '.conductor/evidence/calibration/variants';
+const GLYPHS = ['0', '1', '2', '3', '4'];
 
 /** Per-part shading weights used for the `lighting` high variant. */
 const HAND = {
@@ -30,21 +30,21 @@ const HAND = {
   lock: [0.8, 0.2, 0, 3],
 };
 
-const load = () => JSON.parse(readFileSync(BASE, "utf8"));
+const load = () => JSON.parse(readFileSync(BASE, 'utf8'));
 
 function ops(recipe) {
   return recipe.layers.flatMap((layer) => layer.ops);
 }
 
 function blits(recipe) {
-  return ops(recipe).filter((op) => op.op === "ascii_blit");
+  return ops(recipe).filter((op) => op.op === 'ascii_blit');
 }
 
 function cells(op) {
   const out = [];
   for (let row = 0; row < op.grid.length; row += 1) {
     for (let col = 0; col < op.grid[row].length; col += 1) {
-      if (op.grid[row][col] !== ".") {
+      if (op.grid[row][col] !== '.') {
         out.push({ row, col, x: op.x + col, y: op.y + row, char: op.grid[row][col] });
       }
     }
@@ -55,7 +55,7 @@ function cells(op) {
 function setCell(op, cell, char) {
   const rows = op.grid.map((line) => [...line]);
   rows[cell.row][cell.col] = char;
-  op.grid = rows.map((row) => row.join(""));
+  op.grid = rows.map((row) => row.join(''));
 }
 
 function materialOf(recipe, part) {
@@ -72,10 +72,10 @@ function toneLegend(material) {
 function flatten(recipe) {
   for (const op of blits(recipe)) {
     const material = materialOf(recipe, op.part);
-    op.grid = op.grid.map((line) => line.replace(/[^.]/g, "2"));
+    op.grid = op.grid.map((line) => line.replace(/[^.]/g, '2'));
     op.legend = { 2: `${material}.t2` };
   }
-  return ["every painted cell rewritten to the family base tone", "legend reduced to t2"];
+  return ['every painted cell rewritten to the family base tone', 'legend reduced to t2'];
 }
 
 function rgbToHsl(r, g, b) {
@@ -109,9 +109,9 @@ function hslToHex(h, s, l) {
     .map((c) =>
       Math.round(Math.max(0, Math.min(1, c)) * 255)
         .toString(16)
-        .padStart(2, "0"),
+        .padStart(2, '0'),
     )
-    .join("")}`;
+    .join('')}`;
 }
 
 /**
@@ -121,16 +121,18 @@ function hslToHex(h, s, l) {
  */
 function valueCollapse(recipe) {
   flatten(recipe);
-  const used = ["body", "lid", "bands", "lock"];
+  const used = ['body', 'lid', 'bands', 'lock'];
   const bases = used.map((family) => recipe.palette[family].derive.base);
-  const hls = bases.map((hex) => rgbToHsl(...[1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255)));
+  const hls = bases.map((hex) =>
+    rgbToHsl(...[1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255)),
+  );
   const target = hls.reduce((sum, [, , l]) => sum + l, 0) / hls.length;
   used.forEach((family, i) => {
     const [h, s] = hls[i];
     recipe.palette[family].derive.base = hslToHex(h, s, target);
   });
   return [
-    "every painted cell rewritten to the family base tone",
+    'every painted cell rewritten to the family base tone',
     `all four family bases set to lightness ${target.toFixed(3)} with hue kept`,
   ];
 }
@@ -155,7 +157,7 @@ function shade(recipe) {
     }
     op.legend = toneLegend(materialOf(recipe, op.part));
   }
-  return ["tone per cell from a single top-left ramp", "legend expanded to t0..t4"];
+  return ['tone per cell from a single top-left ramp', 'legend expanded to t0..t4'];
 }
 
 /** Replace the drawing with a solid rounded blob of the same bounds. */
@@ -167,10 +169,10 @@ function blob(recipe) {
   const y1 = Math.max(...painted.map((c) => c.y));
   const width = recipe.meta.width;
   const height = recipe.meta.height;
-  const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => "."));
+  const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => '.'));
   for (let y = y0 + 1; y <= y1 - 1; y += 1) {
     for (let x = x0 + 1; x <= x1 - 1; x += 1) {
-      grid[y][x] = "2";
+      grid[y][x] = '2';
     }
   }
   for (const [cx, cy] of [
@@ -179,27 +181,30 @@ function blob(recipe) {
     [x0 + 1, y1 - 1],
     [x1 - 1, y1 - 1],
   ]) {
-    grid[cy][cx] = ".";
+    grid[cy][cx] = '.';
   }
   // A declared part must own pixels, so the blob keeps only the body.
   recipe.parts = { body: recipe.parts.body };
   recipe.layers = [
     {
-      id: "base",
+      id: 'base',
       ops: [
         {
-          op: "ascii_blit",
-          part: "body",
+          op: 'ascii_blit',
+          part: 'body',
           x: 0,
           y: 0,
-          grid: grid.map((row) => row.join("")),
-          legend: { 2: `${materialOf(recipe, "body")}.t2` },
+          grid: grid.map((row) => row.join('')),
+          legend: { 2: `${materialOf(recipe, 'body')}.t2` },
         },
-        { op: "auto_outline", mode: "4-way", where: "outer", color: "ink.outline" },
+        { op: 'auto_outline', mode: '4-way', where: 'outer', color: 'ink.outline' },
       ],
     },
   ];
-  return [`geometry replaced by a ${x1 - x0 - 1}x${y1 - y0 - 1} rounded blob`, "all parts but body removed"];
+  return [
+    `geometry replaced by a ${x1 - x0 - 1}x${y1 - y0 - 1} rounded blob`,
+    'all parts but body removed',
+  ];
 }
 
 /**
@@ -210,15 +215,15 @@ function deEdge(recipe) {
   for (const op of blits(recipe)) {
     for (const cell of cells(op)) {
       const seed = (cell.x * 5 + cell.y * 7) % 11;
-      if (seed < 2) setCell(op, cell, "4");
-      else if (seed < 4) setCell(op, cell, "0");
+      if (seed < 2) setCell(op, cell, '4');
+      else if (seed < 4) setCell(op, cell, '0');
     }
   }
   recipe.layers = recipe.layers.map((layer) => ({
     ...layer,
-    ops: layer.ops.filter((op) => op.op !== "auto_outline"),
+    ops: layer.ops.filter((op) => op.op !== 'auto_outline'),
   }));
-  return ["outline tones rewritten to the base tone", "auto_outline pass removed"];
+  return ['outline tones rewritten to the base tone', 'auto_outline pass removed'];
 }
 
 /**
@@ -228,10 +233,10 @@ function deEdge(recipe) {
 function confetti(recipe) {
   for (const op of blits(recipe)) {
     for (const cell of cells(op)) {
-      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? "0" : "4");
+      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? '0' : '4');
     }
   }
-  return ["every painted cell alternates between two extreme tones in a 1px checkerboard"];
+  return ['every painted cell alternates between two extreme tones in a 1px checkerboard'];
 }
 
 /**
@@ -239,11 +244,11 @@ function confetti(recipe) {
  * in 1 px stripes, so hue and value change without any reason in the subject.
  */
 function warringHues(recipe) {
-  const donor = { body: "lock", lid: "bands", bands: "lock", lock: "body" };
+  const donor = { body: 'lock', lid: 'bands', bands: 'lock', lock: 'body' };
   for (const op of blits(recipe)) {
-    const material = materialOf(recipe, donor[op.part] ?? "body");
+    const material = materialOf(recipe, donor[op.part] ?? 'body');
     for (const cell of cells(op)) {
-      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? "0" : "4");
+      setCell(op, cell, (cell.x + cell.y) % 2 === 0 ? '0' : '4');
     }
     op.legend = toneLegend(material);
   }
@@ -251,12 +256,12 @@ function warringHues(recipe) {
 }
 
 const VARIANTS = [
-  { criterion: "silhouette", low: blob, high: null },
-  { criterion: "value_separation", low: valueCollapse, high: null },
-  { criterion: "lighting", low: flatten, high: shade },
-  { criterion: "edge_language", low: deEdge, high: null },
-  { criterion: "cluster_discipline", low: confetti, high: null },
-  { criterion: "palette_craft", low: warringHues, high: null },
+  { criterion: 'silhouette', low: blob, high: null },
+  { criterion: 'value_separation', low: valueCollapse, high: null },
+  { criterion: 'lighting', low: flatten, high: shade },
+  { criterion: 'edge_language', low: deEdge, high: null },
+  { criterion: 'cluster_discipline', low: confetti, high: null },
+  { criterion: 'palette_craft', low: warringHues, high: null },
 ];
 
 /* ------------------------------------------------------------------- render */
@@ -267,27 +272,37 @@ const VARIANTS = [
  * `.cmd` shim; POSIX resolves it on PATH directly.
  */
 function run(command, args) {
-  if (process.platform === "win32") {
-    return spawnSync(process.env.ComSpec ?? "cmd.exe", ["/d", "/s", "/c", command, ...args], {
-      encoding: "utf8",
+  if (process.platform === 'win32') {
+    return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', command, ...args], {
+      encoding: 'utf8',
       windowsHide: true,
     });
   }
-  return spawnSync(command, args, { encoding: "utf8" });
+  return spawnSync(command, args, { encoding: 'utf8' });
 }
 
 function render(recipePath) {
-  const png = recipePath.replace(/\.px\.json$/, ".png");
-  const result = run("pnpm", ["exec", "tsx", "src/cli.ts", "render", "--file", recipePath, "--out", png, "--debug"]);
+  const png = recipePath.replace(/\.px\.json$/, '.png');
+  const result = run('pnpm', [
+    'exec',
+    'tsx',
+    'src/cli.ts',
+    'render',
+    '--file',
+    recipePath,
+    '--out',
+    png,
+    '--debug',
+  ]);
   if (result.status !== 0) {
     throw new Error(`render failed for ${recipePath}\n${result.stdout}\n${result.stderr}`);
   }
-  const upscaled = run("pnpm", ["exec", "tsx", "scripts/upscale.mjs", png]);
+  const upscaled = run('pnpm', ['exec', 'tsx', 'scripts/upscale.mjs', png]);
   if (upscaled.status !== 0) {
     throw new Error(`upscale failed for ${png}\n${upscaled.stdout}\n${upscaled.stderr}`);
   }
   const dir = dirname(png);
-  const stem = basename(png, ".png");
+  const stem = basename(png, '.png');
   const files = readdirSync(dir);
   return {
     png,
@@ -302,7 +317,7 @@ function audit(base, variant) {
   const changes = [];
   const baseFams = Object.keys(base.palette).sort();
   const varFams = Object.keys(variant.palette).sort();
-  if (baseFams.join() !== varFams.join()) changes.push("palette families added or removed");
+  if (baseFams.join() !== varFams.join()) changes.push('palette families added or removed');
   for (const family of baseFams.filter((f) => varFams.includes(f))) {
     const a = JSON.stringify(base.palette[family]);
     const b = JSON.stringify(variant.palette[family]);
@@ -315,14 +330,14 @@ function audit(base, variant) {
   }
   const baseParts = Object.keys(base.parts).sort();
   const varParts = Object.keys(variant.parts).sort();
-  if (baseParts.join() !== varParts.join()) changes.push("parts added or removed");
+  if (baseParts.join() !== varParts.join()) changes.push('parts added or removed');
   for (const [part, def] of Object.entries(variant.parts)) {
     const before = base.parts[part];
     if (JSON.stringify(before) !== JSON.stringify(def)) changes.push(`parts.${part}`);
   }
   let cellDiffs = 0;
   for (const op of varOps) {
-    const before = baseOps.find((b) => b.op === "ascii_blit" && b.part === op.part);
+    const before = baseOps.find((b) => b.op === 'ascii_blit' && b.part === op.part);
     if (!before) continue;
     for (const cell of cells(op)) {
       const char = before.grid[cell.row]?.[cell.col];
@@ -335,7 +350,7 @@ function audit(base, variant) {
 
 /* --------------------------------------------------------------------- main */
 
-const renderArtifacts = !process.argv.includes("--no-render");
+const renderArtifacts = !process.argv.includes('--no-render');
 const base = load();
 mkdirSync(OUT, { recursive: true });
 const report = [];
@@ -343,19 +358,19 @@ const report = [];
 for (const variant of VARIANTS) {
   const dir = join(OUT, variant.criterion);
   mkdirSync(dir, { recursive: true });
-  for (const level of ["low", "high"]) {
+  for (const level of ['low', 'high']) {
     const mutate = variant[level];
     const recipe = structuredClone(base);
-    const notes = mutate ? mutate(recipe) : ["identical to the base recipe"];
+    const notes = mutate ? mutate(recipe) : ['identical to the base recipe'];
     const path = join(dir, `${level}.px.json`);
-    writeFileSync(path, `${JSON.stringify(recipe, null, 2)}\n`, "utf8");
+    writeFileSync(path, `${JSON.stringify(recipe, null, 2)}\n`, 'utf8');
     const changes = audit(base, recipe);
     const entry = { criterion: variant.criterion, level, recipe: path, changes, notes };
     if (renderArtifacts) entry.artifacts = render(path);
     report.push(entry);
-    console.log(`${variant.criterion}/${level}: ${changes.join("; ") || "no change"}`);
+    console.log(`${variant.criterion}/${level}: ${changes.join('; ') || 'no change'}`);
   }
 }
 
-writeFileSync(join(OUT, "audit.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
+writeFileSync(join(OUT, 'audit.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 console.log(`\n${report.length} variants written under ${OUT}`);
