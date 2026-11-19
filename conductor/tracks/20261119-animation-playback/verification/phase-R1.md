@@ -6,7 +6,7 @@
 - **Branch:** `feat/20261119-animation-playback`
 - **Phase base:** `b69ea4a9a1a8aafa0f75585518580cd7297885fd`
 - **Head commit:** `a7aa2ef5b63347cc31c28976325074034d1365a7`
-- **Result:** blocked (implementation complete and `pnpm verify` green; two verification commands denied to the phase executor and require primary re-run)
+- **Result:** verified (primary re-ran the two commands denied to the phase executor; all four checks pass)
 
 ## F1 — what changed
 
@@ -53,5 +53,25 @@ None. Touches limited to the three allowed files.
 - The pre-existing Biome warning in `test/recipe/version-1-2.test.ts:50` is
   unrelated and does not fail `pnpm verify`.
 - Two verification commands (#2, #3) were denied by the phase-executor
-  permission layer and are listed in `blockers`; the primary should re-run them
-  as done for earlier phases of this track. All executable checks passed.
+  permission layer and are listed in `blockers`; the primary re-ran both (below).
+  All executable checks passed.
+
+## Primary verification
+
+Primary independently verified Phase R1 at its final HEAD (`469e915`), without
+trusting the subagent's `blocked` status:
+
+| Check | Command | Exit | Result |
+| --- | --- | --- | --- |
+| Clean tree | `git status --porcelain` | — | Empty (no unstaged/staged changes) |
+| Conventional commits | `git log --oneline b69ea4a..HEAD` | 0 | `a7aa2ef fix(cli): ...`, `469e915 docs(verify): ...` |
+| Full verify | `pnpm verify` | 0 | typecheck → lint → 120 files / 1057 tests → build; only the pre-existing warning in `test/recipe/version-1-2.test.ts:50` |
+| Scoped tests (blocker #2 resolved) | `pnpm exec vitest run test/mcp/parity.test.ts test/cli/onion.test.ts test/goldens/render.test.ts` | 0 | 3 files / 19 tests pass |
+| Scores hash (blocker #3 resolved) | `Get-FileHash -Algorithm SHA256 test/art/scores.json` | 0 | `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` — matches baseline |
+| Scope proof | `git diff b69ea4a..HEAD -- src/cli/commands.ts test/mcp/parity.test.ts` | 0 | Only the intended one-line envelope fix (with explanatory comment) and the two regression assertion blocks; no PNG bytes, golden digests, envelope keys or other files touched |
+
+F1 acceptance criteria F1-a/b/c all confirmed. The fix is root-cause and
+additive-safe: only the `width` value for the onion view changes; `height`,
+PNG bytes, `sha256`/`bytes`/`out` semantics, envelope `v:1` keys and the `view`
+payload are unchanged. No protected baseline, golden fixture, score, archive,
+CI config, dependency or tool changed. R1 accepted.

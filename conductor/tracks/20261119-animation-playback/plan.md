@@ -78,8 +78,12 @@
 - **Covers:** F1
 - **Touches:** `src/cli/commands.ts`, `test/mcp/parity.test.ts`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/mcp/parity.test.ts test/cli/onion.test.ts test/goldens/render.test.ts`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Resolve F1** — covers: F1
-  - [ ] **R1.T1.1:** When the onion view is active, report the emitted sibling PNG's width (`result.width * ONION_PANELS`) in the envelope instead of frame 0's width; height is unchanged.
-  - [ ] **R1.T1.2:** Add a parity test asserting the recorded envelope `width`/`height` equal the sibling PNG's IHDR dimensions, and confirm normal views are unchanged.
+- [x] **R1.T1: Resolve F1** — covers: F1
+  - [x] **R1.T1.1:** When the onion view is active, report the emitted sibling PNG's width (`result.width * ONION_PANELS`) in the envelope instead of frame 0's width; height is unchanged.
+  - [x] **R1.T1.2:** Add a parity test asserting the recorded envelope `width`/`height` equal the sibling PNG's IHDR dimensions, and confirm normal views are unchanged.
+
+**Result:** verified
+**Checkpoint:** 7196ab9
+**Evidence:** conductor/tracks/20261119-animation-playback/verification/phase-R1.md
