@@ -83,15 +83,12 @@
 - **Covers:** F1 (NFR-4)
 - **Touches:** `verification/integrated.md`, `verification/godot-validation.md`, `verification/decision.md`, `verification/phase-1.md`, `verification/phase-R1.md`
 - **Verification:** content assertion that every first-run label reads `V1a` and no bare first-run `V1` remains; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Standardize the first-run label** — covers: F1
-  - [ ] **R1.T1.1:** Replace the bare first-run label with `V1a` in `godot-validation.md`, `decision.md` and `phase-1.md`, leaving V1b/V1c and all run substance intact.
-  - [ ] **R1.T1.2:** Write `verification/phase-R1.md` with the content assertion, `pnpm verify`, and the result.
+- [x] **R1.T1: Standardize the first-run label** — covers: F1
+  - [x] **R1.T1.1:** Replace the bare first-run label with `V1a` in `godot-validation.md`, `decision.md` and `phase-1.md`, leaving V1b/V1c and all run substance intact.
+  - [x] **R1.T1.2:** Write `verification/phase-R1.md` with the content assertion, `pnpm verify`, and the result.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified - F1 resolved: first Godot run labelled V1a consistently across all evidence docs; content assertion and pnpm verify green; no run result, hash, score or product code changed. Squash applied.
+**Checkpoint:** 5cb2a83198d232c5db003c09de56539a66a2c72a
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-R1.md
--->
