@@ -78,7 +78,7 @@
 - **Covers:** F1
 - **Touches:** `src/cli/commands.ts`, `test/mcp/parity.test.ts`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/mcp/parity.test.ts test/cli/onion.test.ts test/goldens/render.test.ts`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **R1.T1: Resolve F1** — covers: F1
   - [ ] **R1.T1.1:** When the onion view is active, report the emitted sibling PNG's width (`result.width * ONION_PANELS`) in the envelope instead of frame 0's width; height is unchanged.
