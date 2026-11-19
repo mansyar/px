@@ -12,7 +12,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, NFR-1, NFR-3, NFR-4, AC-1, AC-2, AC-3, AC-4, AC-10
 - **Touches:** `src/core/recipe/types.ts`, `src/core/recipe/normalize.ts`, `src/core/recipe/serialize.ts`, `src/core/compile.ts`, `src/lint/types.ts`, `src/lint/index.ts`, `test/recipe/version-1-4.test.ts`, `test/unit/recipe.test.ts`, `test/unit/compile.test.ts`, `verification/schema-frames.md`, `verification/phase-1.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/recipe/version-1-4.test.ts test/unit/recipe.test.ts test/unit/compile.test.ts`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Add version 1.4 and `frames` validation** — covers: FR-1, AC-1
   - [ ] **P1.T1.1:** Extend `RecipeVersion`/`ACCEPTED_VERSIONS` and `versionRank`; add the `frames` key to `RECIPE_KEYS` and gate it to ≥1.4 with an error naming the required version.
