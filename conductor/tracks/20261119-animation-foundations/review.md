@@ -70,3 +70,6 @@ updated — R1 recorded all three fixes in `verification/phase-R1.md` and update
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | PASS WITH FINDINGS | 0 | 0 | 1 | 2 | 0 |
 | 2 (Review Fixes R1) | PASS | 0 | 0 | 0 | 0 | 3 (F1, F2, F3) |
+| 3 (round-2 re-review) | PASS | 0 | 0 | 0 | 0 | 0 |
+
+Round-2 reviewer `needs` were all resolved by the primary: protected digests re-computed to `E5CCE080…828D` and `A8FE8F44…ED62`; the pre-squash commits `7864ecf`/`1d1c0de` are no longer ancestors (exit 1 each); HEAD is `1b3e2871801834b6be1eae6c8fd1c21ad3646ca8`. No new finding.
