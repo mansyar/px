@@ -14,15 +14,19 @@
 - **Covers:** FR-1, FR-2, AC-1, AC-2, NFR-4
 - **Touches:** `conductor/product.md`, `conductor/product-guidelines.md`, `conductor/tracks/20261119-product-doc-reconciliation/verification/phase-1.md`
 - **Verification:** `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Correct product scope declaration** — covers: FR-1
-  - [ ] **P1.T1.1:** Remove animation, onion-skinning and sprite-sheet packing from the deferred non-goals while preserving genuinely deferred items
-  - [ ] **P1.T1.2:** Append a dated note (2026-11-19) that explicitly supersedes the 2026-11-18 deferral statement and names the shipped tracks and PRs #20/#21
-  - [ ] **P1.T1.3:** Confirm no other dated note or historical annotation was rewritten and no contradictory Phase 2 phrasing remains
-- [ ] **P1.T2: Add canonical animation terminology** — covers: FR-2
-  - [ ] **P1.T2.1:** Add `frame`, `timeline` and `onion view` rows to the terminology table with definitions drawn from `docs/animation.md`
-  - [ ] **P1.T2.2:** Confirm the new rows use the canonical terms consistently and introduce no conflicting synonyms
+- [x] **P1.T1: Correct product scope declaration** — covers: FR-1
+  - [x] **P1.T1.1:** Remove animation, onion-skinning and sprite-sheet packing from the deferred non-goals while preserving genuinely deferred items
+  - [x] **P1.T1.2:** Append a dated note (2026-11-19) that explicitly supersedes the 2026-11-18 deferral statement and names the shipped tracks and PRs #20/#21
+  - [x] **P1.T1.3:** Confirm no other dated note or historical annotation was rewritten and no contradictory Phase 2 phrasing remains
+- [x] **P1.T2: Add canonical animation terminology** — covers: FR-2
+  - [x] **P1.T2.1:** Add `frame`, `timeline` and `onion view` rows to the terminology table with definitions drawn from `docs/animation.md`
+  - [x] **P1.T2.2:** Confirm the new rows use the canonical terms consistently and introduce no conflicting synonyms
+
+**Result:** verified
+**Checkpoint:** 1b89bc3
+**Evidence:** conductor/tracks/20261119-product-doc-reconciliation/verification/phase-1.md
 
 <!--
 The primary appends after acceptance:
