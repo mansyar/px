@@ -40,3 +40,5 @@
 
 - [x] **Track: Godot 4 Export Validation** - [20261119-godot-export-validation](./archive/20261119-godot-export-validation/index.md) - chore - high — *PR #19, Godot 4.7.2 headless PASS, five assertions, no product change*
 
+- [ ] **Track: Animation Foundations** - [20261119-animation-foundations](./tracks/20261119-animation-foundations/index.md) - feature - medium
+
