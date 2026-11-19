@@ -443,6 +443,14 @@ describe('framed sheet export parity', () => {
     });
 
     expect(envelope).toEqual(cliEnvelope);
+    // F1: a normal (non-view) render still reports the frame-0 dimensions,
+    // which match the emitted --out PNG's IHDR (anim-duo is 16x16).
+    const framePng = bytes(cliDir, 'out/anim-duo.png');
+    expect(framePng.readUInt32BE(16)).toBe(16);
+    expect(framePng.readUInt32BE(20)).toBe(16);
+    expect(cliEnvelope.width).toBe(framePng.readUInt32BE(16));
+    expect(cliEnvelope.height).toBe(framePng.readUInt32BE(20));
+
     const sheet = cliEnvelope.sheet as { out: string; sha256: string };
     expect(sheet.out).toBe('out/anim-duo.sheet.png');
     expect(sheet.sha256).toMatch(/^[0-9a-f]{64}$/);
@@ -509,6 +517,14 @@ describe('framed sheet export parity', () => {
       | ImageBlock
       | undefined;
     expect(image?.data).toBe(bytes(cliDir, sibling).toString('base64'));
+
+    // F1 regression: the envelope must size the emitted sibling PNG, not
+    // frame 0. anim-duo is 16x16, so the 3-panel onion strip is 48x16.
+    const siblingPng = bytes(cliDir, sibling);
+    expect(siblingPng.readUInt32BE(16)).toBe(48);
+    expect(siblingPng.readUInt32BE(20)).toBe(16);
+    expect(envelope.width).toBe(siblingPng.readUInt32BE(16));
+    expect(envelope.height).toBe(siblingPng.readUInt32BE(20));
   });
 });
 

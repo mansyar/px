@@ -1151,7 +1151,9 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   const payload: Record<string, unknown> = {
     file,
     out: outFile,
-    width: result.width,
+    // The onion view emits a 3-panel sibling strip, so the envelope must
+    // report the emitted PNG's width rather than frame 0's canvas width.
+    width: view?.kind === 'onion' ? result.width * ONION_PANELS : result.width,
     height: result.height,
     bytes: outPng.length,
     sha256: sha256Hex(outPng),
