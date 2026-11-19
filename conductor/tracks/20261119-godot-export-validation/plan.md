@@ -92,3 +92,20 @@
 **Result:** verified - F1 resolved: first Godot run labelled V1a consistently across all evidence docs; content assertion and pnpm verify green; no run result, hash, score or product code changed. Squash applied.
 **Checkpoint:** 5cb2a83198d232c5db003c09de56539a66a2c72a
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-R1.md
+
+## Phase R2: Review Bookkeeping (round 2)
+
+- **Goal:** Resolve round-2 Low finding F1-R2 — the incorrect V1a match count in `verification/phase-R1.md` C2.
+- **Depends on:** Phase R1
+- **Covers:** F1-R2 (NFR-4)
+- **Touches:** `verification/phase-R1.md`
+- **Verification:** content assertion that the C2 row records `godot-validation 7` and matches the actual grep count (2/7/1/4); `pnpm verify`
+- **Status:** verified
+
+- [x] **R2.T1: Correct the round-2 V1a count** — covers: F1-R2
+  - [x] **R2.T1.1:** Change the C2 row from `godot-validation 8` to `godot-validation 7`, leaving all run results, hashes and other counts untouched.
+  - [x] **R2.T1.2:** Confirm the actual `godot-validation.md` V1a count is 7 and `pnpm verify` exits 0.
+
+**Result:** verified - F1-R2 resolved: C2 row now records `godot-validation 7`, matching the actual grep count and the primary-verification line; primary `pnpm verify` exit 0; no run result, hash, score or product code changed.
+**Checkpoint:** 073a160744228014bc02cd46a85124a59f743e97
+**Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-R1.md
