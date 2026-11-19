@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, AC-1, AC-2, NFR-4
 - **Touches:** `conductor/product.md`, `conductor/product-guidelines.md`, `conductor/tracks/20261119-product-doc-reconciliation/verification/phase-1.md`
 - **Verification:** `pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Correct product scope declaration** — covers: FR-1
   - [ ] **P1.T1.1:** Remove animation, onion-skinning and sprite-sheet packing from the deferred non-goals while preserving genuinely deferred items
