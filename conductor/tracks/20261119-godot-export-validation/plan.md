@@ -42,23 +42,20 @@
 - **Covers:** FR-6, NFR-5, NFR-6, AC-5, AC-8
 - **Touches:** `verification/decision.md`, `verification/phase-2.md`
 - **Verification:** primary-run content assertion that the decision matches the recorded assertions and exit codes; `pnpm verify`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Decide the outcome** — covers: FR-6
-  - [ ] **P2.T1.1:** Derive PASS only if all Phase 1 assertions and integrity checks are green; otherwise record FAIL with the exact discrepancy.
-  - [ ] **P2.T1.2:** State explicitly that no engine, metadata, score, or recipe change was made, and that a real defect requires a separate track.
-- [ ] **P2.T2: Record limitations and follow-up** — covers: NFR-5, NFR-6
-  - [ ] **P2.T2.1:** List unexercised cases (e.g. empty trim, other Godot versions, GUI import) as limitations, not passes.
-  - [ ] **P2.T2.2:** Record any follow-up as prose only — no GitHub issue creation and no merge action.
-- [ ] **P2.T3: Write Phase 2 evidence** — covers: AC-5, AC-8
-  - [ ] **P2.T3.1:** Write `verification/decision.md` and `verification/phase-2.md` with the decision, evidence links, command table, AC table, and deviations.
+- [x] **P2.T1: Decide the outcome** — covers: FR-6
+  - [x] **P2.T1.1:** Derive PASS only if all Phase 1 assertions and integrity checks are green; otherwise record FAIL with the exact discrepancy.
+  - [x] **P2.T1.2:** State explicitly that no engine, metadata, score, or recipe change was made, and that a real defect requires a separate track.
+- [x] **P2.T2: Record limitations and follow-up** — covers: NFR-5, NFR-6
+  - [x] **P2.T2.1:** List unexercised cases (e.g. empty trim, other Godot versions, GUI import) as limitations, not passes.
+  - [x] **P2.T2.2:** Record any follow-up as prose only — no GitHub issue creation and no merge action.
+- [x] **P2.T3: Write Phase 2 evidence** — covers: AC-5, AC-8
+  - [x] **P2.T3.1:** Write `verification/decision.md` and `verification/phase-2.md` with the decision, evidence links, command table, AC table, and deviations.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified - honest PASS decision recorded from Phase 1 evidence (Godot 4.7.2 all five assertions PASS; golden PNG byte-identical before and after import; metadata deep-equal to buildMetadata). Two earlier failures were validator drafting defects, disclosed and resolved; no product, engine, score, recipe, golden or product-doc change. Primary pnpm verify exit 0; scores hash unchanged. AC-5 and AC-8 satisfied. Squash applied.
+**Checkpoint:** 9fbbda5504064a5dd4ed168984a3db67084163b2
 **Evidence:** conductor/tracks/20261119-godot-export-validation/verification/phase-2.md
--->
 
 ## Phase 3: Final verification snapshot and closeout
 
