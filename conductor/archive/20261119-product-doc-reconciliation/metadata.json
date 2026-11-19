@@ -2,14 +2,14 @@
   "id": "20261119-product-doc-reconciliation",
   "title": "Product Documentation Reconciliation",
   "type": "chore",
-  "status": "in_progress",
+  "status": "complete",
   "priority": "low",
   "depends_on": [
     "20261119-animation-foundations",
     "20261119-animation-playback"
   ],
   "created_at": "2026-11-19T13:10:28Z",
-  "updated_at": "2026-11-19T14:22:26Z",
+  "updated_at": "2026-11-19T14:26:43Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "chore/20261119-product-doc-reconciliation",
@@ -23,12 +23,12 @@
   },
   "last_checkpoint": "dd1be47",
   "review_verdict": "PASS",
-  "review_rounds": 1,
+  "review_rounds": 2,
   "doc_sync": "updated",
-  "pr_url": null,
+  "pr_url": "https://github.com/mansyar/px/pull/22",
   "reverted_at": null,
   "revert_commit": null,
   "revert_pr_url": null,
-  "archived_at": null,
-  "archive_path": null
+  "archived_at": "2026-11-19T14:26:43Z",
+  "archive_path": "conductor/archive/20261119-product-doc-reconciliation"
 }
