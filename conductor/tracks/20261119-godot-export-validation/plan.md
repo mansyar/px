@@ -64,7 +64,7 @@
 - **Covers:** FR-7, NFR-2, NFR-6, AC-6, AC-7, AC-8
 - **Touches:** `verification/final-checks.md`, `verification/phase-3.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs`; `Get-FileHash -Algorithm SHA256 test/art/scores.json`; `git diff --name-only 0ea5c53..HEAD`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Run final checks** — covers: FR-7, NFR-2, NFR-6
   - [ ] **P3.T1.1:** Re-run verify, scoped coverage, goldens, and rubric report at final HEAD; record exit codes and metrics.
