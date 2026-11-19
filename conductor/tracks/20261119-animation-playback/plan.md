@@ -35,7 +35,7 @@
 - **Covers:** FR-3, FR-4, FR-5 (timeline assertion), FR-6, NFR-1, NFR-2, NFR-3, NFR-4, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9
 - **Touches:** `src/meta/index.ts`, `src/cli/commands.ts`, `src/cli/main.ts`, `src/mcp/tools.ts`, `docs/animation.md`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/timeline.md`, `verification/phase-2.md`
 - **Verification:** `pnpm verify`; `pnpm exec vitest run test/mcp/meta-export.test.ts test/mcp/parity.test.ts`; deterministic double render of framed export.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Additive timeline metadata** — covers: FR-3, FR-4, AC-5, AC-6
   - [ ] **P2.T1.1:** Derive an ordered `timeline` array from the existing sheet-frame/duration source with per-frame `index`, `id`, `duration_ms`, `start_ms` and `total_ms`; frame 0 omits `duration_ms` and contributes 0.
