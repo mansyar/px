@@ -38,5 +38,5 @@
 
 - [x] **Track: Engineering Debt Sweep** - [20261119-engineering-debt-sweep](./archive/20261119-engineering-debt-sweep/index.md) - chore - medium — *PR #18, three accepted gaps closed; gate and archives unchanged*
 
-- [~] **Track: Godot 4 Export Validation** - [20261119-godot-export-validation](./tracks/20261119-godot-export-validation/index.md) - chore - high
+- [x] **Track: Godot 4 Export Validation** - [20261119-godot-export-validation](./archive/20261119-godot-export-validation/index.md) - chore - high — *PR #19, Godot 4.7.2 headless PASS, five assertions, no product change*
 
