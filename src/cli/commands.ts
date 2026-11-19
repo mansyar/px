@@ -6,7 +6,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { briefScaffold } from '../brief/index.js';
-import { type CompiledRecipe, compileRecipe, type Deviation } from '../core/compile.js';
+import {
+  type CompiledRecipe,
+  compileRecipe,
+  compileRecipeFrames,
+  type Deviation,
+} from '../core/compile.js';
 import { resolveDesign } from '../core/design.js';
 import { diffRgba } from '../core/diff.js';
 import { causeMessage, PxError, type PxWarning } from '../core/errors.js';
@@ -36,14 +41,21 @@ import {
   recipeParts,
 } from '../core/recipe/types.js';
 import { buildCritique, emptyCritiqueFingerprint } from '../critique/index.js';
-import { lintCompiled } from '../lint/index.js';
+import { lintBlocks, lintCompiled, lintCompiledFrames } from '../lint/index.js';
 import { trimBounds } from '../meta/bounds.js';
-import { buildMetadata, metadataPath, serializeMetadata } from '../meta/index.js';
+import {
+  buildMetadata,
+  buildSheetFrames,
+  metadataPath,
+  type SheetFrame,
+  serializeMetadata,
+} from '../meta/index.js';
 import { DERIVATION_NOTE, deriveRamps, PALETTE_NAMES, paletteByName } from '../palettes/index.js';
 import { applySwaps } from '../palettes/swap.js';
 import { parseStepCount, synthesizeFamily } from '../palettes/synthesize.js';
 import { BACKDROP_FORMS, renderDebugSheet } from '../render/debug/sheet.js';
-import { decodePng } from '../render/png.js';
+import { rasterizeSlots } from '../render/flatten.js';
+import { decodePng, encodePng } from '../render/png.js';
 import { renderRecipe, sha256Hex } from '../render/render.js';
 import {
   BLOCKOUT_BANDS,
@@ -1095,6 +1107,10 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   // Lint against the backdrop the caller asked to check, so a part that melts
   // into the panel is reported for that panel. Absent means the default grey.
   const lintBackdrop = typeof backdrop === 'string' ? (parseHex(backdrop) ?? undefined) : undefined;
+  // Lint every frame so a warning confined to frame 1+ is reported and gates
+  // under --strict. Frame 0 findings stay byte-identical to lintCompiled and
+  // carry no `frame` field (lintCompiledFrames keeps frame 0 untagged).
+  const frameFindings = lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop);
 
   const payload: Record<string, unknown> = {
     file,
@@ -1103,7 +1119,7 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
     height: result.height,
     bytes: outPng.length,
     sha256: sha256Hex(outPng),
-    findings: lintCompiled(result.compiled, lintBackdrop),
+    findings: frameFindings,
   };
   if (view !== undefined) {
     payload.view =
@@ -1133,6 +1149,16 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   if (args.metaExport) {
     payload.metadata = writeMetadata(args.out, recipe, result.compiled, cwd, effective);
+    // A blocking finding from any frame must suppress both sheet artifacts.
+    // The normal PNG and the single-frame metadata projection are unchanged;
+    // only the opt-in sheet pair is gated here, before main.ts returns exit 3.
+    if (
+      effective.frames !== undefined &&
+      effective.frames.length > 0 &&
+      !(args.strict && lintBlocks(frameFindings, true))
+    ) {
+      payload.sheet = writeSheet(args.out, recipe, result.compiled, effective, cwd);
+    }
   }
   return payload;
 }
@@ -1238,7 +1264,9 @@ export function runDiff(args: ParsedArgs, cwd: string): Record<string, unknown> 
 /**
  * `render --export` writes the metadata beside the PNG, named from the PNG
  * stem, and reports the same `{out, bytes, sha256}` shape as the debug sheet so
- * a client never has to guess whether a file was written.
+ * a client never has to guess whether a file was written. `sheet` is passed
+ * only for a framed recipe's sheet meta; omitting it keeps single-frame output
+ * byte-identical.
  */
 function writeMetadata(
   out: string,
@@ -1246,8 +1274,9 @@ function writeMetadata(
   compiled: CompiledRecipe,
   cwd: string,
   paletteRecipe: Recipe = recipe,
+  sheet?: readonly SheetFrame[],
 ): Record<string, unknown> {
-  const metadata = buildMetadata(recipe, compiled, out, paletteRecipe);
+  const metadata = buildMetadata(recipe, compiled, out, paletteRecipe, sheet);
   const text = serializeMetadata(metadata);
   const file = metadataPath(out);
   const target = resolve(cwd, file);
@@ -1282,6 +1311,80 @@ function writeDebugSheet(
     height: sheet.height,
     bytes: sheet.png.length,
     sha256: sha256Hex(sheet.png),
+  };
+}
+
+/** `hero.png` pairs with `hero.sheet.png`; the normal PNG stays frame 0. */
+export function sheetPath(out: string): string {
+  return out.endsWith('.png') ? `${out.slice(0, -'.png'.length)}.sheet.png` : `${out}.sheet.png`;
+}
+
+export interface SheetRender {
+  png: Uint8Array;
+  width: number;
+  height: number;
+  frames: SheetFrame[];
+}
+
+/**
+ * Pack every compiled frame into one left-to-right row. Each frame keeps its
+ * full canvas; frames shorter than the tallest are transparently padded. The
+ * output is a pure function of the recipe: no RNG, clocks or host ordering.
+ */
+export function renderSheet(recipe: Recipe): SheetRender {
+  const compiledFrames = compileRecipeFrames(recipe);
+  const declared = recipe.frames ?? [];
+  const frames = buildSheetFrames(
+    compiledFrames.map((frame) => ({
+      index: frame.index,
+      compiled: frame.compiled,
+      ...(frame.id === undefined ? {} : { id: frame.id }),
+      ...(frame.index === 0 ? {} : { duration: declared[frame.index - 1]?.duration }),
+    })),
+  );
+  const width = frames.reduce((sum, frame) => sum + frame.width, 0);
+  const height = frames.reduce((max, frame) => Math.max(max, frame.height), 0);
+  const rgba = new Uint8Array(width * height * 4);
+  compiledFrames.forEach((frame, index) => {
+    const rect = frames[index];
+    if (rect === undefined) {
+      return;
+    }
+    const frameRgba = rasterizeSlots(
+      frame.compiled.flattened,
+      frame.compiled.width,
+      frame.compiled.height,
+      frame.compiled.slots,
+    );
+    const rowBytes = frame.compiled.width * 4;
+    for (let row = 0; row < frame.compiled.height; row += 1) {
+      rgba.set(
+        frameRgba.subarray(row * rowBytes, (row + 1) * rowBytes),
+        (row * width + rect.x) * 4,
+      );
+    }
+  });
+  return { png: encodePng(width, height, rgba), width, height, frames };
+}
+
+/** `--export` on a framed recipe writes the packed PNG and its additive meta. */
+function writeSheet(
+  out: string,
+  recipe: Recipe,
+  frame0: CompiledRecipe,
+  paletteRecipe: Recipe,
+  cwd: string,
+): Record<string, unknown> {
+  const sheet = renderSheet(paletteRecipe);
+  const pngFile = sheetPath(out);
+  writeOut(resolve(cwd, pngFile), sheet.png);
+  return {
+    out: pngFile,
+    width: sheet.width,
+    height: sheet.height,
+    bytes: sheet.png.length,
+    sha256: sha256Hex(sheet.png),
+    metadata: writeMetadata(pngFile, recipe, frame0, cwd, paletteRecipe, sheet.frames),
   };
 }
 

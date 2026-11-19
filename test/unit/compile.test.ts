@@ -1,9 +1,18 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { compileRecipe } from '../../src/core/compile.js';
+import { compileRecipe, compileRecipeFrames } from '../../src/core/compile.js';
 import { PxError } from '../../src/core/errors.js';
 import { parseRecipe } from '../../src/core/recipe/parse.js';
 import type { Recipe } from '../../src/core/recipe/types.js';
 import { rasterizeSlots } from '../../src/render/flatten.js';
+import { encodePng } from '../../src/render/png.js';
+
+function renderSha(compiled: ReturnType<typeof compileRecipe>): string {
+  const rgba = rasterizeSlots(compiled.flattened, compiled.width, compiled.height, compiled.slots);
+  return createHash('sha256')
+    .update(encodePng(compiled.width, compiled.height, rgba))
+    .digest('hex');
+}
 
 function recipeWithColors(colors: string[]): string {
   return JSON.stringify({
@@ -92,6 +101,65 @@ describe('compile', () => {
     expect(warnings[0]?.layer).toBe('base');
     expect(warnings[0]?.op_index).toBe(0);
     expect(compiled.layers[0]?.canvas.paintedCount()).toBe(4);
+  });
+
+  it('compiles frame 0 identically to the legacy single frame and hashes extra frames deterministically', () => {
+    const legacyText = recipeWithColors(['#000000', '#ffffff']);
+    const legacy = compileRecipe(parseRecipe(legacyText).recipe);
+
+    const framed = JSON.parse(legacyText) as Record<string, unknown>;
+    framed.version = '1.4';
+    framed.frames = [
+      { id: 'idle', layers: [{ id: 'base', ops: [['rect', 0, 0, 2, 2, 'main.1']] }] },
+      {
+        id: 'walk',
+        layers: [{ id: 'base', ops: [['rect', 4, 4, 2, 2, 'main.1']] }],
+        duration: 100,
+      },
+    ];
+    const framedText = JSON.stringify(framed);
+    const frames = compileRecipeFrames(parseRecipe(framedText).recipe);
+
+    expect(frames.map((frame) => frame.index)).toEqual([0, 1, 2]);
+    expect(frames.map((frame) => frame.id)).toEqual([undefined, 'idle', 'walk']);
+    const first = frames[0];
+    expect(first).toBeDefined();
+    if (first === undefined) return;
+    expect(first.compiled.flattened).toEqual(legacy.flattened);
+    expect(first.compiled.layers.map((layer) => layer.id)).toEqual(
+      legacy.layers.map((layer) => layer.id),
+    );
+    expect(first.compiled.owners).toEqual(legacy.owners);
+    expect(first.compiled.slots.names).toEqual(legacy.slots.names);
+    expect(renderSha(first.compiled)).toBe(renderSha(legacy));
+
+    const hashes = frames.slice(1).map((frame) => renderSha(frame.compiled));
+    expect(new Set(hashes).size).toBe(2);
+    expect(hashes[0]).not.toBe(renderSha(legacy));
+    const again = compileRecipeFrames(parseRecipe(framedText).recipe);
+    expect(again.slice(1).map((frame) => renderSha(frame.compiled))).toEqual(hashes);
+  });
+
+  it('shares the base canvas, palette and clipping rule with every frame', () => {
+    const text = JSON.stringify({
+      version: '1.4',
+      meta: { name: 'shared', width: 8, height: 8, alpha_mode: 'binary' },
+      palette: { main: { colors: ['#000000'] } },
+      anchors: {},
+      layers: [{ id: 'base', ops: [['rect', 0, 0, 2, 2, 'main.0']] }],
+      frames: [{ id: 'clip', layers: [{ id: 'base', ops: [['rect', -2, -2, 4, 4, 'main.0']] }] }],
+    });
+    const frames = compileRecipeFrames(parseRecipe(text).recipe);
+    const extra = frames[1];
+    expect(extra).toBeDefined();
+    if (extra === undefined) return;
+    expect(extra.compiled.width).toBe(8);
+    expect(extra.compiled.height).toBe(8);
+    expect(extra.compiled.slots.names).toEqual(frames[0]?.compiled.slots.names);
+    const clipped = extra.compiled.warnings.filter((warning) => warning.code === 'W_OUT_OF_BOUNDS');
+    expect(clipped).toHaveLength(1);
+    expect(clipped[0]?.layer).toBe('base');
+    expect(extra.compiled.layers[0]?.canvas.paintedCount()).toBe(4);
   });
 
   it('rejects a slot that a programmatic recipe never declared', () => {

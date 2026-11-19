@@ -1,0 +1,102 @@
+# Animation Foundations — Implementation Plan
+
+> **Branch:** `feat/20261119-animation-foundations`
+> **Base:** `main` @ `d082eae6b958da29bf67cada67b46d3b3b86684a`
+>
+> Phase states are `pending`, `in_progress`, `verified`, `failed`, or `blocked`. Only the primary agent writes this file; phase subagents report results and the primary records them.
+
+## Phase 1: Version-gated frame schema and compile
+
+- **Goal:** v1.4 recipes with an optional `frames` array parse, canonicalize and compile deterministically, with frame 0 byte-identical to today and every frame linted in stable order.
+- **Depends on:** none
+- **Covers:** FR-1, FR-2, FR-3, FR-4, NFR-1, NFR-3, NFR-4, AC-1, AC-2, AC-3, AC-4, AC-10
+- **Touches:** `src/core/recipe/types.ts`, `src/core/recipe/normalize.ts`, `src/core/recipe/serialize.ts`, `src/core/compile.ts`, `src/lint/types.ts`, `src/lint/index.ts`, `test/recipe/version-1-4.test.ts`, `test/unit/recipe.test.ts`, `test/unit/compile.test.ts`, `verification/schema-frames.md`, `verification/phase-1.md`
+- **Verification:** `pnpm verify`; `pnpm exec vitest run test/recipe/version-1-4.test.ts test/unit/recipe.test.ts test/unit/compile.test.ts`
+- **Status:** verified
+
+- [x] **P1.T1: Add version 1.4 and `frames` validation** — covers: FR-1, AC-1
+  - [x] **P1.T1.1:** Extend `RecipeVersion`/`ACCEPTED_VERSIONS` and `versionRank`; add the `frames` key to `RECIPE_KEYS` and gate it to ≥1.4 with an error naming the required version.
+  - [x] **P1.T1.2:** Validate frame shape: non-empty unique `id`, optional integer `duration`, required `layers`; reject empty `frames` arrays.
+- [x] **P1.T2: Canonical frame serialization** — covers: FR-2, AC-2
+  - [x] **P1.T2.1:** Emit `frames` in `canonicalRecipe` at a fixed position only when present; preserve existing key order for all other recipes.
+  - [x] **P1.T2.2:** Prove byte-identical round-trip for framed v1.4 and unchanged round-trip for v1.3/v1.4-without-frames.
+- [x] **P1.T3: Multi-frame compile preserving frame 0** — covers: FR-3, AC-3
+  - [x] **P1.T3.1:** Compile top-level `layers` as frame 0 and each `frames[i].layers` through the same stateless op pipeline, sharing base canvas/palette/design.
+  - [x] **P1.T3.2:** Assert frame 0 flattened/layers/owners and render SHA equal the legacy single-frame result; assert additional-frame pixel hashes.
+- [x] **P1.T4: Per-frame lint and Phase 1 regression proof** — covers: FR-4, NFR-1, NFR-3, AC-4, AC-10
+  - [x] **P1.T4.1:** Add an optional `frame` field to `LintFinding`; order by frame index, then existing severity/code/coord; keep frame-0 findings unchanged.
+  - [x] **P1.T4.2:** Keep version-1.2/1.3 tests, `hero.sha256`, goldens and gate scores unchanged; record evidence in `verification/schema-frames.md` and `verification/phase-1.md`.
+
+**Result:** verified — version 1.4 with optional `frames` parses, canonicalizes and compiles deterministically; frame 0 remains byte-identical; per-frame lint findings are stable and ordered; both required verification commands pass (primary resolved the subagent's shell denial); all baseline digests unchanged. AC-1, AC-2, AC-3, AC-4 and AC-10 satisfied. Squash applied (all seven phase commits reported by the subagent).
+**Checkpoint:** 5cc61039886438e23dca5322e485439ba66ebc23
+**Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-1.md
+
+## Phase 2: Sheet export, additive metadata, fixture and docs
+
+- **Goal:** a framed recipe rendered with `--export` produces a deterministic sheet PNG and additive sheet metadata without changing any single-frame export byte or envelope.
+- **Depends on:** Phase 1
+- **Covers:** FR-5, FR-6, FR-7, FR-8, NFR-1, NFR-2, NFR-3, NFR-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10
+- **Touches:** `src/cli/commands.ts`, `src/meta/index.ts`, `src/mcp/tools.ts`, `src/cli/main.ts`, `docs/animation.md`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `test/goldens/render.test.ts`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/export-sheet.md`, `verification/phase-2.md`
+- **Verification:** `pnpm verify`; `pnpm exec vitest run test/goldens/render.test.ts test/mcp/meta-export.test.ts test/mcp/parity.test.ts`; deterministic double render of the new fixture.
+- **Status:** verified
+
+- [x] **P2.T1: Deterministic sheet PNG export** — covers: FR-5, AC-5, AC-6
+  - [x] **P2.T1.1:** When `--export` is used on a framed recipe, pack all frame canvases left-to-right into one row using the existing `encodePng` and write `<stem>.sheet.png`.
+  - [x] **P2.T1.2:** Emit no sheet artifacts without `--export` or for single-frame recipes; keep `asset.png` bytes equal to frame 0.
+- [x] **P2.T2: Additive sheet metadata** — covers: FR-6, AC-7
+  - [x] **P2.T2.1:** Add a `sheet` block to generic metadata with frame index, id, x/y/width/height, trim, origin and optional duration; keep `v` and all existing fields unchanged.
+  - [x] **P2.T2.2:** Write `<stem>.sheet.meta.json` beside the sheet PNG only when the sheet PNG is written.
+- [x] **P2.T3: Golden fixture and determinism proof** — covers: FR-7, AC-6, AC-8
+  - [x] **P2.T3.1:** Add a 2-frame `anim-duo` fixture with committed single-frame and sheet SHA-256 files; never re-baseline `hero.sha256`.
+  - [x] **P2.T3.2:** Render twice and assert both digests match; extend the goldens determinism test without changing existing golden assertions.
+- [x] **P2.T4: Agent-facing descriptions and docs** — covers: FR-8, AC-9
+  - [x] **P2.T4.1:** Update `render` usage in `--help` and the MCP `px_render` tool description to mention framed sheet export; keep the response envelope unchanged.
+  - [x] **P2.T4.2:** Add `docs/animation.md` describing the frame/sheet contract in canonical terminology; extend meta-export and parity tests for the additive field.
+
+**Result:** verified - deterministic sheet PNG and additive metadata shipped; anim-duo golden with committed frame-0 and sheet sidecars; double-render four hashes A=B; scoped tests and pnpm verify green; scores.json and hero.sha256 unchanged; AC-5..AC-10 satisfied. Squash applied (all four commits in range reported by the subagent).
+**Checkpoint:** be67c0380f297183fad8cb9396eb0f5a908e25c7
+**Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-2.md
+
+## Phase 3: Closeout decision and integrated record
+
+- **Goal:** record an honest pass/fail decision with final checks and prove that no Phase 1 artifact, score, golden or archive changed.
+- **Depends on:** Phase 2
+- **Covers:** NFR-1, NFR-2, NFR-4, AC-10, AC-11
+- **Touches:** `verification/decision.md`, `verification/phase-3.md`
+- **Verification:** `pnpm verify`; scoped coverage; `pnpm vitest run --project goldens`; `node scripts/rubric-report.mjs`; scores hash; `git diff --name-only d082eae..HEAD`.
+- **Status:** verified
+
+- [x] **P3.T1: Record the honest closeout decision** — covers: AC-11
+  - [x] **P3.T1.1:** State the pass/fail verdict from measured Phase 1/2 evidence, with exact commands, exits, digests and paths.
+  - [x] **P3.T1.2:** Record any limitation honestly; no forced pass, no re-roll, no score or digest edit.
+- [x] **P3.T2: Final verification snapshot** — covers: NFR-1, NFR-2, NFR-4, AC-10
+  - [x] **P3.T2.1:** Re-run all configured checks at final HEAD and record results.
+  - [x] **P3.T2.2:** Confirm `scores.json`, goldens, archives and tracked-change scope are unchanged.
+
+**Result:** verified - honest closeout PASS recorded from Phase 1/2 evidence; all configured checks green, scoped coverage above 80%, protected baselines unchanged, 29-path diff limited to Conductor state and approved Touches, zero open PRs. AC-10 and AC-11 satisfied. Squash applied (single reported commit).
+**Checkpoint:** 37e42231bf2f2c9c35a6d9957e4d26a79362391f
+**Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-3.md
+
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve round-1 review findings F1 (Medium: end-to-end `--strict` gating on every frame), F2 (Low: non-executing v1.4 test file), and F3 (Low: golden fixture does not exercise shared design).
+- **Depends on:** Phase 3
+- **Covers:** F1, F2, F3 (FR-1, FR-2, FR-3, FR-4, FR-7, AC-1, AC-2, AC-3, AC-4, AC-8)
+- **Touches:** `src/cli/commands.ts`, `src/cli/main.ts` (only if needed), `test/lint/feedback-cli.test.ts`, `test/recipe/version-1-4.test.ts`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/schema-frames.md`, `verification/export-sheet.md`, `verification/phase-R1.md`
+- **Verification:** `pnpm verify`; scoped lint/render tests; primary `pnpm dev render` with byte-identical double render; `git diff --name-only` scope check
+- **Status:** verified
+
+- [x] **R1.T1: Wire all-frame findings and strict gating into the render path** — fixes F1
+  - [x] **R1.T1.1:** Use `lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop)` for `runRender`'s `findings` so frame 1+ findings are reported with their frame index.
+  - [x] **R1.T1.2:** Suppress `<stem>.sheet.png` / `<stem>.sheet.meta.json` when `args.strict && lintBlocks(findings, true)`; add an integration test through `runCli` asserting exit 3 and no sheet files.
+- [x] **R1.T2: Mark the dedicated v1.4 test file as non-executing** — fixes F2
+  - [x] **R1.T2.1:** Add a header comment to `test/recipe/version-1-4.test.ts` stating it is outside all vitest project includes and that mirrored in-scope unit tests are what CI runs; no assertion change.
+- [x] **R1.T3: Restore a minimal shared design in the anim-duo golden** — fixes F3
+  - [x] **R1.T3.1:** Add a declared `parts` entry plus a minimal `design` block (hierarchy/values/edges/materials) to `anim-duo.px.json` so both frames render under one recipe-level design without weakening validation.
+  - [x] **R1.T3.2:** Re-render the fixture twice and commit fresh `anim-duo.sha256` / `anim-duo.sheet.sha256` digests; confirm hero/scores digests unchanged.
+- [x] **R1.T4: Record the fix evidence** — Evidence
+  - [x] **R1.T4.1:** Fill `verification/phase-R1.md` with real command results, per-finding resolution and hashes; run `pnpm verify`; commit only in-Touches files.
+
+**Result:** verified — F1 (all-frame lint findings under `--strict` with sheet suppression), F2 (non-executing test header) and F3 (declared design/parts in the golden) are resolved; primary-run scoped vitest 3 files/25 tests and `pnpm verify` 119 files/1043 tests green; double-render digests unchanged and protected hashes intact. Squash applied.
+**Checkpoint:** 2a4ca4e
+**Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-R1.md

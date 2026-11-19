@@ -1,10 +1,13 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
 import { callTool, type ImageBlock, type Params, type TextBlock } from '../../src/mcp/tools.js';
 import { sha256Hex } from '../../src/render/render.js';
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 /**
  * P6.T2.2: the same recipe through the CLI and through MCP yields the same
@@ -394,5 +397,50 @@ describe('parts and explicit-role palettes through both surfaces', () => {
     expect(bytes(cliDir, 'parts.px.json').toString()).toBe(
       bytes(mcpDir, 'parts.px.json').toString(),
     );
+  });
+});
+
+/** FR-5/FR-6: the framed sheet export is one implementation behind both surfaces. */
+describe('framed sheet export parity', () => {
+  it('renders the same frame-0 pair, sheet PNG and sheet meta through both paths', () => {
+    const fixture = readFileSync(
+      join(process.cwd(), 'test', 'goldens', 'fixtures', 'anim-duo.px.json'),
+    );
+    writeFileSync(join(cliDir, 'anim-duo.px.json'), fixture);
+    writeFileSync(join(mcpDir, 'anim-duo.px.json'), fixture);
+    // "@project" style resolves from the recipe directory, so both workspaces
+    // need the project style beside the copied fixture.
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(cliDir, 'px.style.json'));
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(mcpDir, 'px.style.json'));
+
+    const cliEnvelope = cliStep([
+      'render',
+      '--file',
+      'anim-duo.px.json',
+      '--out',
+      'out/anim-duo.png',
+      '--export',
+    ]);
+    const { envelope } = mcpStep('px_render', {
+      file: 'anim-duo.px.json',
+      out: 'out/anim-duo.png',
+      export: true,
+    });
+
+    expect(envelope).toEqual(cliEnvelope);
+    const sheet = cliEnvelope.sheet as { out: string; sha256: string };
+    expect(sheet.out).toBe('out/anim-duo.sheet.png');
+    expect(sheet.sha256).toMatch(/^[0-9a-f]{64}$/);
+
+    for (const path of [
+      'out/anim-duo.png',
+      'out/anim-duo.meta.json',
+      'out/anim-duo.sheet.png',
+      'out/anim-duo.sheet.meta.json',
+    ]) {
+      expect(bytes(mcpDir, path)).toEqual(bytes(cliDir, path));
+    }
+    expect(sha256Hex(bytes(cliDir, 'out/anim-duo.png'))).toBe(cliEnvelope.sha256);
+    expect(sha256Hex(bytes(cliDir, 'out/anim-duo.sheet.png'))).toBe(sheet.sha256);
   });
 });

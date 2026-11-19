@@ -1,10 +1,10 @@
 /**
  * Lint orchestration: run every rule, then put the findings in one canonical
- * order. Ordering is severity descending, code alphabetically, coordinate
- * row-major — never locale-dependent, so two machines agree byte for byte.
+ * order. Ordering is frame index, then severity, code and coordinate row-major —
+ * never locale-dependent, so two machines agree byte for byte.
  */
 
-import type { CompiledRecipe } from '../core/compile.js';
+import type { CompiledFrame, CompiledRecipe } from '../core/compile.js';
 import type { Rgba } from '../core/palette.js';
 import { outOfBoundsRule } from './bounds.js';
 import { lowContrastRule } from './contrast.js';
@@ -51,6 +51,10 @@ function compareCoords(a: LintCoord | null, b: LintCoord | null): number {
 }
 
 export function compareFindings(a: LintFinding, b: LintFinding): number {
+  const frame = (a.frame ?? 0) - (b.frame ?? 0);
+  if (frame !== 0) {
+    return frame;
+  }
   const rank = SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity];
   if (rank !== 0) {
     return rank;
@@ -87,6 +91,24 @@ export function lintCompiled(compiled: CompiledRecipe, backdrop?: Rgba): LintFin
     parts: compiled.parts,
     ...(backdrop === undefined ? {} : { backdrop }),
   });
+}
+
+/**
+ * Lint every compiled frame and return one ordered list. Frame 0 findings are
+ * returned unchanged; additional frames carry their index in `frame`. Any
+ * warning from any frame still fails a `--strict` run through `lintBlocks`.
+ */
+export function lintCompiledFrames(
+  frames: readonly CompiledFrame[],
+  backdrop?: Rgba,
+): LintFinding[] {
+  return frames
+    .flatMap((frame) =>
+      lintCompiled(frame.compiled, backdrop).map((finding) =>
+        frame.index === 0 ? finding : { ...finding, frame: frame.index },
+      ),
+    )
+    .sort(compareFindings);
 }
 
 export { FindingCollector } from './collector.js';

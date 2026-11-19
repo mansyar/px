@@ -1,0 +1,118 @@
+{
+  "version": "1.4",
+  "meta": {
+    "name": "anim-duo",
+    "width": 16,
+    "height": 16,
+    "alpha_mode": "binary"
+  },
+  "design": {
+    "subject": "animated duo",
+    "light": "top-left",
+    "hierarchy": [
+      "body"
+    ],
+    "values": {
+      "body": 3
+    },
+    "edges": {
+      "silhouette": "outline",
+      "material": "none",
+      "detail": "none"
+    },
+    "materials": [
+      "body"
+    ],
+    "style": "@project"
+  },
+  "palette": {
+    "body": {
+      "ramp": {
+        "outline": "#1a1c2c",
+        "shadow": "#5d275d",
+        "base": "#b13e53",
+        "highlight": "#ef7d57"
+      }
+    }
+  },
+  "parts": {
+    "body": {
+      "material": "body",
+      "gloss": "cloth"
+    }
+  },
+  "anchors": {
+    "pivot": [
+      8,
+      8
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": [
+        {
+          "op": "rect",
+          "part": "body",
+          "x": 2,
+          "y": 4,
+          "w": 8,
+          "h": 8,
+          "color": "body.base"
+        },
+        {
+          "op": "set_pixels",
+          "part": "body",
+          "points": [
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "color": "body.outline"
+        }
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "id": "shift",
+      "layers": [
+        {
+          "id": "base",
+          "ops": [
+            {
+              "op": "rect",
+              "part": "body",
+              "x": 6,
+              "y": 4,
+              "w": 8,
+              "h": 8,
+              "color": "body.base"
+            },
+            {
+              "op": "set_pixels",
+              "part": "body",
+              "points": [
+                [
+                  8,
+                  6
+                ],
+                [
+                  9,
+                  6
+                ]
+              ],
+              "color": "body.highlight"
+            }
+          ]
+        }
+      ],
+      "duration": 120
+    }
+  ]
+}

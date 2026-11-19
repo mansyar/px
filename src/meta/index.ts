@@ -37,6 +37,20 @@ export interface GodotMetadata {
   anchors: Record<string, [number, number]>;
 }
 
+/** One frame's slice of a packed sprite sheet. Purely additive metadata. */
+export interface SheetFrame {
+  index: number;
+  /** Frame 0 is the top-level layers and carries no declared id. */
+  id?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  trim: TrimBox;
+  origin: { x: number; y: number };
+  duration?: number;
+}
+
 export interface GenericMetadata {
   canvas: { width: number; height: number };
   trim: TrimBox;
@@ -45,6 +59,8 @@ export interface GenericMetadata {
   anchors: Record<string, { x: number; y: number }>;
   palette: PaletteManifestEntry[];
   recipe_hash: string;
+  /** Present only for a framed recipe exported with `--export`. */
+  sheet?: SheetFrame[];
 }
 
 export interface AssetMetadata {
@@ -52,6 +68,46 @@ export interface AssetMetadata {
   name: string;
   godot: GodotMetadata;
   generic: GenericMetadata;
+}
+
+/** A compiled frame plus the declared id/duration, fed to `buildSheetFrames`. */
+export interface SheetFrameSource {
+  index: number;
+  compiled: CompiledRecipe;
+  id?: string;
+  duration?: number;
+}
+
+/**
+ * Frame rects in pack order: x is the cumulative width of preceding frames, y
+ * is always 0. Trim/origin mirror `buildMetadata` so a frame in the sheet reads
+ * the same as the same frame rendered on its own.
+ */
+export function buildSheetFrames(sources: readonly SheetFrameSource[]): SheetFrame[] {
+  let x = 0;
+  return sources.map((source) => {
+    const trim =
+      trimBounds(source.compiled.flattened, source.compiled.width, source.compiled.height) ??
+      EMPTY_TRIM;
+    const frame: SheetFrame = {
+      index: source.index,
+      x,
+      y: 0,
+      width: source.compiled.width,
+      height: source.compiled.height,
+      trim,
+      // `0 - 0` rather than `-0`, matching the single-frame metadata rule.
+      origin: { x: 0 - trim.x, y: 0 - trim.y },
+    };
+    if (source.id !== undefined) {
+      frame.id = source.id;
+    }
+    if (source.duration !== undefined) {
+      frame.duration = source.duration;
+    }
+    x += source.compiled.width;
+    return frame;
+  });
 }
 
 /** SHA-256 of the canonical recipe text, prefixed so the field is self-describing. */
@@ -108,6 +164,7 @@ export function buildMetadata(
   compiled: CompiledRecipe,
   texturePath: string,
   paletteRecipe: Recipe = recipe,
+  sheet?: readonly SheetFrame[],
 ): AssetMetadata {
   const trim = trimBounds(compiled.flattened, compiled.width, compiled.height) ?? EMPTY_TRIM;
   // `0 - 0` rather than `-0`: the negation must never put negative zero in JSON.
@@ -145,6 +202,9 @@ export function buildMetadata(
       // describes the recipe file, so a swap changes the first and not the second.
       palette: paletteManifest(paletteRecipe),
       recipe_hash: recipeHash(recipe),
+      // Spread so a single-frame export has no `sheet` key at all, keeping its
+      // metadata byte-identical to the pre-animation projection.
+      ...(sheet !== undefined && sheet.length > 0 ? { sheet: [...sheet] } : {}),
     },
   };
 }

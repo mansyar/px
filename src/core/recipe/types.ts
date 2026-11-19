@@ -519,14 +519,25 @@ export interface Layer {
 }
 
 /**
+ * An additional animation frame (schema 1.4). Frame 0 stays the top-level
+ * `layers`, so a `frames` entry never repeats it. `duration` is recorded for a
+ * future playback slice and is never interpreted by the compiler.
+ */
+export interface Frame {
+  id: string;
+  layers: Layer[];
+  duration?: number;
+}
+
+/**
  * The version literal a recipe was read with. `1` is the legacy numeric form of
  * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
  * byte-identical after a read-write cycle (FR-1).
  */
-export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2' | '1.3';
+export type RecipeVersion = 1 | '1.0' | '1.1' | '1.2' | '1.3' | '1.4';
 
 /** Versions this engine accepts on input. */
-export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2', '1.3'];
+export const ACCEPTED_VERSIONS: readonly RecipeVersion[] = [1, '1.0', '1.1', '1.2', '1.3', '1.4'];
 
 /** The version a recipe is written with once it declares parts. */
 export const LATEST_RECIPE_VERSION: RecipeVersion = '1.1';
@@ -597,6 +608,8 @@ export interface Recipe {
   parts?: Parts;
   anchors: Anchors;
   layers: Layer[];
+  /** Additional frames only; present only on a 1.4+ recipe that declares them. */
+  frames?: Frame[];
 }
 
 /** Declared parts, with the absent case folded to an empty map. */

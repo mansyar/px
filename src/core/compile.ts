@@ -24,7 +24,7 @@ import {
   partStats,
 } from './parts.js';
 import { profileFor, profileNumbers, type ScaleProfile } from './profile.js';
-import { type Recipe, recipeParts } from './recipe/types.js';
+import { type Layer, type Recipe, recipeParts } from './recipe/types.js';
 import { resolveOpCoords } from './refs.js';
 
 export interface CompiledLayer {
@@ -101,7 +101,13 @@ function nameList(names: readonly string[]): string {
   return `parts ${quoted.join(', ')} and ${last}`;
 }
 
-export function compileRecipe(recipe: Recipe): CompiledRecipe {
+/**
+ * The op pipeline is stateless: it reads the recipe for palette, parts, anchors
+ * and design, and writes only into fresh canvases for the given layers. Called
+ * once per frame with the same recipe so every frame shares the base canvas,
+ * palette and design while keeping its own pixels.
+ */
+function compileLayers(recipe: Recipe, sourceLayers: readonly Layer[]): CompiledRecipe {
   const { width, height } = recipe.meta;
   const slots = buildSlotTable(recipe.palette);
   const roles = buildSlotRoles(slots);
@@ -116,14 +122,14 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
   let cleanupNoops = 0;
   let partOverwrites = 0;
 
-  const layers: CompiledLayer[] = recipe.layers.map((layer) => ({
+  const layers: CompiledLayer[] = sourceLayers.map((layer) => ({
     id: layer.id,
     canvas: new SlotCanvas(width, height),
   }));
   const byId = new Map(layers.map((layer) => [layer.id, layer.canvas]));
   const canvases = layers.map((layer) => layer.canvas);
 
-  recipe.layers.forEach((layer, layerIndex) => {
+  sourceLayers.forEach((layer, layerIndex) => {
     const target = layers[layerIndex];
     if (target === undefined) {
       return;
@@ -278,4 +284,33 @@ export function compileRecipe(recipe: Recipe): CompiledRecipe {
     ...(deviations.length > 0 ? { deviations } : {}),
     warnings,
   };
+}
+
+/** Compile the recipe the way a single-frame caller always has. */
+export function compileRecipe(recipe: Recipe): CompiledRecipe {
+  return compileLayers(recipe, recipe.layers);
+}
+
+/** One compiled frame. Index 0 is frame 0 (the top-level layers), with no id. */
+export interface CompiledFrame {
+  index: number;
+  id?: string;
+  compiled: CompiledRecipe;
+}
+
+/**
+ * Compile frame 0 and every additional frame through the same pipeline. Frame 0
+ * is byte-for-byte the legacy `compileRecipe` result; each declared id is
+ * carried alongside its frame for lint findings and sheet metadata.
+ */
+export function compileRecipeFrames(recipe: Recipe): CompiledFrame[] {
+  const frames: CompiledFrame[] = [{ index: 0, compiled: compileLayers(recipe, recipe.layers) }];
+  recipe.frames?.forEach((frame, index) => {
+    frames.push({
+      index: index + 1,
+      id: frame.id,
+      compiled: compileLayers(recipe, frame.layers),
+    });
+  });
+  return frames;
 }
