@@ -56,3 +56,16 @@
 ## Conclusion
 
 All six acceptance criteria pass at `1e1b847`. The documentation-only track leaves source, tests, scripts, `docs/animation.md`, manifests, lockfile, CI config, protected digests, goldens and archives byte-identical to `71e65a37`. Ready for doc sync and review.
+
+## Post-review final verification (HEAD `bd239d6`)
+
+After R1, the final review record and post-review doc sync, the primary re-ran the affected checks at final HEAD `bd239d6a0d6734b6c1cd83668a3d1490c87058f8`:
+
+| Check | Result |
+| --- | --- |
+| `pnpm verify` | exit 0 — typecheck, lint, 120 files / 1057 tests, build; only the pre-existing `test/recipe/version-1-2.test.ts:50` warning |
+| `Get-FileHash -Algorithm SHA256 -Path test/art/scores.json` | `E5CCE08003A5F35EE8782225275E491D8EDAA2729C871A1BCD685C73166C828D` |
+| `git diff --name-only 71e65a37..HEAD -- src test scripts docs/animation.md package.json pnpm-lock.yaml .github .aws` | empty — no protected path changed |
+| Character codes at `conductor/tech-stack.md:131/133/135` | `2026` on all three lines; F1 remains fixed |
+
+Review verdict is `PASS` after 2 rounds with 1 Low finding fixed in R1 (`verification/phase-R1.md`, checkpoint `dd1be47`). No protected baseline, source file, test, golden, score, archive, CI config, dependency or schema changed after integrated verification.
