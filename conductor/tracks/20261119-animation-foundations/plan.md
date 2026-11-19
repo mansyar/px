@@ -82,24 +82,21 @@
 - **Goal:** Resolve round-1 review findings F1 (Medium: end-to-end `--strict` gating on every frame), F2 (Low: non-executing v1.4 test file), and F3 (Low: golden fixture does not exercise shared design).
 - **Depends on:** Phase 3
 - **Covers:** F1, F2, F3 (FR-1, FR-2, FR-3, FR-4, FR-7, AC-1, AC-2, AC-3, AC-4, AC-8)
-- **Touches:** `src/cli/commands.ts`, `src/cli/main.ts` (only if needed), `test/lint/feedback-cli.test.ts`, `test/recipe/version-1-4.test.ts`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `verification/schema-frames.md`, `verification/export-sheet.md`, `verification/phase-R1.md`
+- **Touches:** `src/cli/commands.ts`, `src/cli/main.ts` (only if needed), `test/lint/feedback-cli.test.ts`, `test/recipe/version-1-4.test.ts`, `test/goldens/fixtures/anim-duo.px.json`, `test/goldens/fixtures/anim-duo.sha256`, `test/goldens/fixtures/anim-duo.sheet.sha256`, `test/mcp/meta-export.test.ts`, `test/mcp/parity.test.ts`, `verification/schema-frames.md`, `verification/export-sheet.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; scoped lint/render tests; primary `pnpm dev render` with byte-identical double render; `git diff --name-only` scope check
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **R1.T1: Wire all-frame findings and strict gating into the render path** — fixes F1
-  - [ ] **R1.T1.1:** Use `lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop)` for `runRender`'s `findings` so frame 1+ findings are reported with their frame index.
-  - [ ] **R1.T1.2:** Suppress `<stem>.sheet.png` / `<stem>.sheet.meta.json` when `args.strict && lintBlocks(findings, true)`; add an integration test through `runCli` asserting exit 3 and no sheet files.
-- [ ] **R1.T2: Mark the dedicated v1.4 test file as non-executing** — fixes F2
-  - [ ] **R1.T2.1:** Add a header comment to `test/recipe/version-1-4.test.ts` stating it is outside all vitest project includes and that mirrored in-scope unit tests are what CI runs; no assertion change.
-- [ ] **R1.T3: Restore a minimal shared design in the anim-duo golden** — fixes F3
-  - [ ] **R1.T3.1:** Add a declared `parts` entry plus a minimal `design` block (hierarchy/values/edges/materials) to `anim-duo.px.json` so both frames render under one recipe-level design without weakening validation.
-  - [ ] **R1.T3.2:** Re-render the fixture twice and commit fresh `anim-duo.sha256` / `anim-duo.sheet.sha256` digests; confirm hero/scores digests unchanged.
-- [ ] **R1.T4: Record the fix evidence** — Evidence
-  - [ ] **R1.T4.1:** Fill `verification/phase-R1.md` with real command results, per-finding resolution and hashes; run `pnpm verify`; commit only in-Touches files.
+- [x] **R1.T1: Wire all-frame findings and strict gating into the render path** — fixes F1
+  - [x] **R1.T1.1:** Use `lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop)` for `runRender`'s `findings` so frame 1+ findings are reported with their frame index.
+  - [x] **R1.T1.2:** Suppress `<stem>.sheet.png` / `<stem>.sheet.meta.json` when `args.strict && lintBlocks(findings, true)`; add an integration test through `runCli` asserting exit 3 and no sheet files.
+- [x] **R1.T2: Mark the dedicated v1.4 test file as non-executing** — fixes F2
+  - [x] **R1.T2.1:** Add a header comment to `test/recipe/version-1-4.test.ts` stating it is outside all vitest project includes and that mirrored in-scope unit tests are what CI runs; no assertion change.
+- [x] **R1.T3: Restore a minimal shared design in the anim-duo golden** — fixes F3
+  - [x] **R1.T3.1:** Add a declared `parts` entry plus a minimal `design` block (hierarchy/values/edges/materials) to `anim-duo.px.json` so both frames render under one recipe-level design without weakening validation.
+  - [x] **R1.T3.2:** Re-render the fixture twice and commit fresh `anim-duo.sha256` / `anim-duo.sheet.sha256` digests; confirm hero/scores digests unchanged.
+- [x] **R1.T4: Record the fix evidence** — Evidence
+  - [x] **R1.T4.1:** Fill `verification/phase-R1.md` with real command results, per-finding resolution and hashes; run `pnpm verify`; commit only in-Touches files.
 
-<!--
-The primary appends after acceptance:
-**Result:** verified
-**Checkpoint:** <short-sha>
+**Result:** verified — F1 (all-frame lint findings under `--strict` with sheet suppression), F2 (non-executing test header) and F3 (declared design/parts in the golden) are resolved; primary-run scoped vitest 3 files/25 tests and `pnpm verify` 119 files/1043 tests green; double-render digests unchanged and protected hashes intact. Squash applied.
+**Checkpoint:** 2a4ca4e
 **Evidence:** conductor/tracks/20261119-animation-foundations/verification/phase-R1.md
--->
