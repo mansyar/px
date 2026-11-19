@@ -46,7 +46,7 @@ function helpPayload(): Record<string, unknown> {
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]... [--summary]',
-      'px render --file <path> --out <png> [--swap from=to]... [--debug [--backdrop hex|null]] [--export] [--blockout | --values n]  # views write a sibling PNG, never --out',
+      'px render --file <path> --out <png> [--swap from=to]... [--debug [--backdrop hex|null]] [--export] [--blockout | --values n]  # --export on a framed recipe also writes <stem>.sheet.png + <stem>.sheet.meta.json; views write a sibling PNG, never --out',
       'px diff --file <path> --against <png|sha256:hex> [--out <png>]',
       'px synthesize --file <path> --family <name> --from <hex> --steps n [--force]',
       'px validate --file <path>',

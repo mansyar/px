@@ -262,7 +262,8 @@ export const TOOL_DEFINITIONS: Tool[] = [
   },
   {
     name: 'px_render',
-    description: 'Write the 1x PNG and return it, with findings and optional metadata.',
+    description:
+      'Write the 1x PNG and return it, with findings and optional metadata. With export=true on a framed recipe (version 1.4 with frames), also writes a single-row <stem>.sheet.png and an additive <stem>.sheet.meta.json beside the normal PNG; the normal PNG stays frame 0 and is unchanged.',
     inputSchema: schema(
       {
         file: FILE,

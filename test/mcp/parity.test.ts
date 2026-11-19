@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -394,5 +394,46 @@ describe('parts and explicit-role palettes through both surfaces', () => {
     expect(bytes(cliDir, 'parts.px.json').toString()).toBe(
       bytes(mcpDir, 'parts.px.json').toString(),
     );
+  });
+});
+
+/** FR-5/FR-6: the framed sheet export is one implementation behind both surfaces. */
+describe('framed sheet export parity', () => {
+  it('renders the same frame-0 pair, sheet PNG and sheet meta through both paths', () => {
+    const fixture = readFileSync(
+      join(process.cwd(), 'test', 'goldens', 'fixtures', 'anim-duo.px.json'),
+    );
+    writeFileSync(join(cliDir, 'anim-duo.px.json'), fixture);
+    writeFileSync(join(mcpDir, 'anim-duo.px.json'), fixture);
+
+    const cliEnvelope = cliStep([
+      'render',
+      '--file',
+      'anim-duo.px.json',
+      '--out',
+      'out/anim-duo.png',
+      '--export',
+    ]);
+    const { envelope } = mcpStep('px_render', {
+      file: 'anim-duo.px.json',
+      out: 'out/anim-duo.png',
+      export: true,
+    });
+
+    expect(envelope).toEqual(cliEnvelope);
+    const sheet = cliEnvelope.sheet as { out: string; sha256: string };
+    expect(sheet.out).toBe('out/anim-duo.sheet.png');
+    expect(sheet.sha256).toMatch(/^[0-9a-f]{64}$/);
+
+    for (const path of [
+      'out/anim-duo.png',
+      'out/anim-duo.meta.json',
+      'out/anim-duo.sheet.png',
+      'out/anim-duo.sheet.meta.json',
+    ]) {
+      expect(bytes(mcpDir, path)).toEqual(bytes(cliDir, path));
+    }
+    expect(sha256Hex(bytes(cliDir, 'out/anim-duo.png'))).toBe(cliEnvelope.sha256);
+    expect(sha256Hex(bytes(cliDir, 'out/anim-duo.sheet.png'))).toBe(sheet.sha256);
   });
 });
