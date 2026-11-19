@@ -1,10 +1,25 @@
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
-import { callTool, type ImageBlock, type Params, type TextBlock } from '../../src/mcp/tools.js';
+import {
+  argvFor,
+  callTool,
+  type ImageBlock,
+  MCP_TOOLS,
+  type Params,
+  type TextBlock,
+  TOOL_DEFINITIONS,
+} from '../../src/mcp/tools.js';
 import { sha256Hex } from '../../src/render/render.js';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -428,6 +443,14 @@ describe('framed sheet export parity', () => {
     });
 
     expect(envelope).toEqual(cliEnvelope);
+    // F1: a normal (non-view) render still reports the frame-0 dimensions,
+    // which match the emitted --out PNG's IHDR (anim-duo is 16x16).
+    const framePng = bytes(cliDir, 'out/anim-duo.png');
+    expect(framePng.readUInt32BE(16)).toBe(16);
+    expect(framePng.readUInt32BE(20)).toBe(16);
+    expect(cliEnvelope.width).toBe(framePng.readUInt32BE(16));
+    expect(cliEnvelope.height).toBe(framePng.readUInt32BE(20));
+
     const sheet = cliEnvelope.sheet as { out: string; sha256: string };
     expect(sheet.out).toBe('out/anim-duo.sheet.png');
     expect(sheet.sha256).toMatch(/^[0-9a-f]{64}$/);
@@ -442,5 +465,96 @@ describe('framed sheet export parity', () => {
     }
     expect(sha256Hex(bytes(cliDir, 'out/anim-duo.png'))).toBe(cliEnvelope.sha256);
     expect(sha256Hex(bytes(cliDir, 'out/anim-duo.sheet.png'))).toBe(sheet.sha256);
+
+    // FR-4 / AC-8: the same additive timeline travels through both surfaces.
+    const cliMeta = JSON.parse(bytes(cliDir, 'out/anim-duo.meta.json').toString('utf8')) as {
+      generic: { timeline?: { total_ms: number; frames: Array<{ index: number }> } };
+    };
+    const mcpMeta = JSON.parse(
+      bytes(mcpDir, 'out/anim-duo.meta.json').toString('utf8'),
+    ) as typeof cliMeta;
+    expect(cliMeta.generic.timeline?.total_ms).toBe(120);
+    expect(cliMeta.generic.timeline?.frames).toHaveLength(2);
+    expect(mcpMeta).toEqual(cliMeta);
+  });
+
+  it('renders the same onion sibling PNG and envelope through both paths', () => {
+    const fixture = readFileSync(
+      join(process.cwd(), 'test', 'goldens', 'fixtures', 'anim-duo.px.json'),
+    );
+    writeFileSync(join(cliDir, 'anim-duo.px.json'), fixture);
+    writeFileSync(join(mcpDir, 'anim-duo.px.json'), fixture);
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(cliDir, 'px.style.json'));
+    copyFileSync(join(REPO_ROOT, 'px.style.json'), join(mcpDir, 'px.style.json'));
+
+    const cliEnvelope = cliStep([
+      'render',
+      '--file',
+      'anim-duo.px.json',
+      '--out',
+      'out/anim-duo.png',
+      '--onion',
+      '1',
+    ]);
+    const { envelope, content } = mcpStep('px_render', {
+      file: 'anim-duo.px.json',
+      out: 'out/anim-duo.png',
+      onion: 1,
+    });
+
+    expect(envelope).toEqual(cliEnvelope);
+    expect(envelope.out).toBe('out/anim-duo.onion1.png');
+    expect(envelope.view).toMatchObject({ kind: 'onion', index: 1 });
+    const sibling = 'out/anim-duo.onion1.png';
+    expect(bytes(mcpDir, sibling)).toEqual(bytes(cliDir, sibling));
+    expect(sha256Hex(bytes(cliDir, sibling))).toBe(envelope.sha256);
+    expect(existsSync(join(cliDir, 'out/anim-duo.png'))).toBe(false);
+    expect(existsSync(join(mcpDir, 'out/anim-duo.png'))).toBe(false);
+
+    // The MCP image block is the onion sibling the envelope names, not the
+    // normal --out path the caller passed.
+    const image = content.find((block) => (block as ImageBlock).type === 'image') as
+      | ImageBlock
+      | undefined;
+    expect(image?.data).toBe(bytes(cliDir, sibling).toString('base64'));
+
+    // F1 regression: the envelope must size the emitted sibling PNG, not
+    // frame 0. anim-duo is 16x16, so the 3-panel onion strip is 48x16.
+    const siblingPng = bytes(cliDir, sibling);
+    expect(siblingPng.readUInt32BE(16)).toBe(48);
+    expect(siblingPng.readUInt32BE(20)).toBe(16);
+    expect(envelope.width).toBe(siblingPng.readUInt32BE(16));
+    expect(envelope.height).toBe(siblingPng.readUInt32BE(20));
+  });
+});
+
+/** FR-6 / AC-4 / AC-8: the view is discoverable on both surfaces, additively. */
+describe('agent-facing animation surfaces', () => {
+  it('documents --onion in CLI help and in the MCP px_render schema', () => {
+    const help = cliStep(['--help']);
+    const renderUsage = (help.usage as string[]).find((line) => line.startsWith('px render'));
+    expect(renderUsage).toContain('--onion <index>');
+    expect(help.flags).toContain('--onion');
+
+    const render = TOOL_DEFINITIONS.find((tool) => tool.name === 'px_render');
+    expect(render?.description).toContain('--onion');
+    const onion = render?.inputSchema.properties?.onion as
+      | { type?: string; minimum?: number; description?: string }
+      | undefined;
+    expect(onion?.type).toBe('integer');
+    expect(onion?.minimum).toBe(0);
+    expect(onion?.description).toContain('--onion');
+
+    // No new tool: the published surface is exactly the same eleven verbs.
+    expect(MCP_TOOLS).toHaveLength(11);
+    expect(argvFor('px_render', { file: 'hero.px.json', out: 'hero.png', onion: 1 })).toEqual([
+      'render',
+      '--file',
+      'hero.px.json',
+      '--out',
+      'hero.png',
+      '--onion',
+      '1',
+    ]);
   });
 });

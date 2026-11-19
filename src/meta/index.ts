@@ -51,6 +51,24 @@ export interface SheetFrame {
   duration?: number;
 }
 
+/** One frame's placement on the recording timeline. Purely additive metadata. */
+export interface TimelineFrame {
+  index: number;
+  /** Additional frames carry their declared id; frame 0 is the top-level layers. */
+  id?: string;
+  /** Declared duration in milliseconds; frame 0 and undeclared frames omit it. */
+  duration_ms?: number;
+  /** Sum of the declared durations of every preceding frame; frame 0 starts at 0. */
+  start_ms: number;
+}
+
+/** Deterministic recording timeline for a framed recipe. */
+export interface Timeline {
+  frames: TimelineFrame[];
+  /** Sum of every declared duration; 0 when none of the frames declare one. */
+  total_ms: number;
+}
+
 export interface GenericMetadata {
   canvas: { width: number; height: number };
   trim: TrimBox;
@@ -61,6 +79,8 @@ export interface GenericMetadata {
   recipe_hash: string;
   /** Present only for a framed recipe exported with `--export`. */
   sheet?: SheetFrame[];
+  /** Present only for a framed recipe; a pure, ordered projection of its durations. */
+  timeline?: Timeline;
 }
 
 export interface AssetMetadata {
@@ -108,6 +128,32 @@ export function buildSheetFrames(sources: readonly SheetFrameSource[]): SheetFra
     x += source.compiled.width;
     return frame;
   });
+}
+
+/**
+ * Derive the timeline from the recipe's declared frames. Frame 0 is implicit —
+ * it is the top-level layers, carries no id or duration — and every declared
+ * frame follows it at index + 1. `start_ms` accumulates only declared durations,
+ * so an undeclared duration contributes 0 without adding a `duration_ms` key.
+ * No clock, RNG, path or locale is consulted: the same recipe yields the same
+ * bytes on every render (NFR-3).
+ */
+export function buildTimeline(recipe: Recipe): Timeline | undefined {
+  const frames = recipe.frames;
+  if (frames === undefined || frames.length === 0) {
+    return undefined;
+  }
+  const timelineFrames: TimelineFrame[] = [{ index: 0, start_ms: 0 }];
+  let elapsed = 0;
+  frames.forEach((frame, offset) => {
+    const entry: TimelineFrame = { index: offset + 1, id: frame.id, start_ms: elapsed };
+    if (frame.duration !== undefined) {
+      entry.duration_ms = frame.duration;
+    }
+    timelineFrames.push(entry);
+    elapsed += frame.duration ?? 0;
+  });
+  return { frames: timelineFrames, total_ms: elapsed };
 }
 
 /** SHA-256 of the canonical recipe text, prefixed so the field is self-describing. */
@@ -170,6 +216,7 @@ export function buildMetadata(
   // `0 - 0` rather than `-0`: the negation must never put negative zero in JSON.
   const originX = 0 - trim.x;
   const originY = 0 - trim.y;
+  const timeline = buildTimeline(recipe);
   const anchors = Object.keys(recipe.anchors).sort();
   const godotAnchors: Record<string, [number, number]> = {};
   const genericAnchors: Record<string, { x: number; y: number }> = {};
@@ -205,6 +252,8 @@ export function buildMetadata(
       // Spread so a single-frame export has no `sheet` key at all, keeping its
       // metadata byte-identical to the pre-animation projection.
       ...(sheet !== undefined && sheet.length > 0 ? { sheet: [...sheet] } : {}),
+      // Same additive rule for the timeline: no key at all without frames.
+      ...(timeline !== undefined ? { timeline } : {}),
     },
   };
 }

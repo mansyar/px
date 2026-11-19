@@ -60,7 +60,10 @@ import { renderRecipe, sha256Hex } from '../render/render.js';
 import {
   BLOCKOUT_BANDS,
   BLOCKOUT_ROLES,
+  ONION_PANELS,
+  parseOnionIndex,
   parseSteps,
+  renderOnion,
   renderView,
   VALUES_MAPPING,
   type ViewSpec,
@@ -869,11 +872,20 @@ function renderViewSpec(args: ParsedArgs): ViewSpec | undefined {
       'Ask for one view at a time, e.g. --blockout or --values 5.',
     );
   }
+  if (args.onion !== undefined && (args.blockout || args.values !== undefined)) {
+    throw usageError(
+      '--onion cannot be combined with --blockout or --values',
+      'Ask for one view at a time, e.g. --onion 1.',
+    );
+  }
   if (args.blockout) {
     return { kind: 'blockout' };
   }
   if (args.values !== undefined) {
     return { kind: 'values', steps: parseSteps(args.values) };
+  }
+  if (args.onion !== undefined) {
+    return { kind: 'onion', index: parseOnionIndex(args.onion) };
   }
   return undefined;
 }
@@ -1095,13 +1107,37 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   }
   const result = renderRecipe(effective);
 
+  // Compile the frame list once. Frame 0 is byte-identical to the legacy
+  // compile; the onion view and frame-aware lint both consume this same list.
+  const compiledFrames = compileRecipeFrames(effective);
+
+  if (view?.kind === 'onion') {
+    const frameCount = effective.frames?.length ?? 0;
+    if (frameCount === 0) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        '--onion needs a framed recipe',
+        'Add at least one frame to the recipe before asking for an onion view.',
+      );
+    }
+    if (view.index > frameCount) {
+      throw new PxError(
+        'E_BAD_PARAM',
+        `--onion ${view.index} is out of range; valid indices are [0, ${frameCount}]`,
+        `Pass --onion with an integer from 0 to ${frameCount}.`,
+      );
+    }
+  }
+
   // The view is drawn from this same compiled sprite. `result.png` is never
   // touched, so a committed digest and the caller's --out file stay untouched.
   const outFile = view === undefined ? args.out : viewPath(args.out, view);
   const outPng =
     view === undefined
       ? result.png
-      : renderView(view, result.compiled, result.rgba, effective.design?.light ?? 'top-left').png;
+      : view.kind === 'onion'
+        ? renderOnion(compiledFrames, view.index).png
+        : renderView(view, result.compiled, result.rgba, effective.design?.light ?? 'top-left').png;
   writeOut(resolve(cwd, outFile), outPng);
 
   // Lint against the backdrop the caller asked to check, so a part that melts
@@ -1110,12 +1146,14 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
   // Lint every frame so a warning confined to frame 1+ is reported and gates
   // under --strict. Frame 0 findings stay byte-identical to lintCompiled and
   // carry no `frame` field (lintCompiledFrames keeps frame 0 untagged).
-  const frameFindings = lintCompiledFrames(compileRecipeFrames(effective), lintBackdrop);
+  const frameFindings = lintCompiledFrames(compiledFrames, lintBackdrop);
 
   const payload: Record<string, unknown> = {
     file,
     out: outFile,
-    width: result.width,
+    // The onion view emits a 3-panel sibling strip, so the envelope must
+    // report the emitted PNG's width rather than frame 0's canvas width.
+    width: view?.kind === 'onion' ? result.width * ONION_PANELS : result.width,
     height: result.height,
     bytes: outPng.length,
     sha256: sha256Hex(outPng),
@@ -1132,7 +1170,9 @@ export function runRender(args: ParsedArgs, cwd: string): Record<string, unknown
             ao: false,
             texture: false,
           }
-        : { kind: 'values', steps: view.steps, mapping: VALUES_MAPPING };
+        : view.kind === 'onion'
+          ? { kind: 'onion', index: view.index, panels: ONION_PANELS }
+          : { kind: 'values', steps: view.steps, mapping: VALUES_MAPPING };
   }
   if (result.compiled.parts.length > 0) {
     payload.parts = result.compiled.parts;

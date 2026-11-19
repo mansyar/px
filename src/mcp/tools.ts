@@ -263,7 +263,7 @@ export const TOOL_DEFINITIONS: Tool[] = [
   {
     name: 'px_render',
     description:
-      'Write the 1x PNG and return it, with findings and optional metadata. With export=true on a framed recipe (version 1.4 with frames), also writes a single-row <stem>.sheet.png and an additive <stem>.sheet.meta.json beside the normal PNG; the normal PNG stays frame 0 and is unchanged.',
+      'Write the 1x PNG and return it, with findings and optional metadata. With export=true on a framed recipe (version 1.4 with frames), also writes a single-row <stem>.sheet.png and an additive <stem>.sheet.meta.json beside the normal PNG; the normal PNG stays frame 0 and is unchanged. With --onion <index> on a framed recipe, writes a sibling <stem>.onion<index>.png prev/selected/next strip instead; the normal PNG stays frame 0 and is unchanged.',
     inputSchema: schema(
       {
         file: FILE,
@@ -292,6 +292,12 @@ export const TOOL_DEFINITIONS: Tool[] = [
           maximum: 8,
           description:
             'Judgement view: posterise the render into this many grey steps by fixed relative-luma mapping. Writes a sibling PNG, never --out; cannot combine with debug, export or blockout.',
+        },
+        onion: {
+          type: 'integer',
+          minimum: 0,
+          description:
+            'Judgement view selected by --onion <index>: three full-canvas panels showing the previous, selected and next frames side by side, with out-of-range panels transparent. Writes a sibling PNG, never --out; needs a framed recipe; cannot combine with debug, export, blockout or values.',
         },
         strict: STRICT,
       },
@@ -490,6 +496,7 @@ export function argvFor(tool: string, params: Params): string[] {
       repeatedFlag(argv, 'swap', params.swap);
       booleanFlag(argv, 'blockout', params.blockout);
       flag(argv, 'values', str(params.values));
+      flag(argv, 'onion', str(params.onion));
       break;
     }
     case 'px_diff': {

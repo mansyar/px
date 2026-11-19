@@ -13,6 +13,8 @@ export interface ParsedArgs {
   /** Render-view selectors. These are not verbs: they only change the PNG. */
   blockout: boolean;
   values?: string;
+  /** Zero-based frame index for the onion neighbor-strip view. */
+  onion?: string;
   file?: string;
   layer?: string;
   ops?: string;
@@ -78,6 +80,7 @@ export const VALUE_FLAGS: readonly string[] = [
   'subject',
   'size',
   'values',
+  'onion',
   'file',
   'layer',
   'ops',
@@ -131,6 +134,9 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
       return;
     case 'values':
       parsed.values = value;
+      return;
+    case 'onion':
+      parsed.onion = value;
       return;
     case 'file':
       parsed.file = value;
@@ -216,7 +222,7 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --subject, --size, --values, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
+        'Flags that take a value are --subject, --size, --values, --onion, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }
