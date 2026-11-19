@@ -32,7 +32,7 @@ Edits made (label-only string replacements):
 | # | Command / assertion | Expected | Result |
 | --- | --- | --- | --- |
 | C1 | Content assertion — no bare first-run `V1` token across `verification/{integrated,godot-validation,decision,phase-1}.md` (grep `\bV1\b(?!a|b|c)`; equivalent `\bV1\b` used, since `\b` after `1` already excludes the word-char suffixes `a`/`b`/`c`) | 0 matches | **PASS** — 0 matches |
-| C2 | Content assertion — `V1a` present in each of `integrated.md`, `godot-validation.md`, `decision.md`, `phase-1.md` | ≥ 1 match per file | **PASS** — integrated 2, godot-validation 8, decision 1, phase-1 4 |
+| C2 | Content assertion — `V1a` present in each of `integrated.md`, `godot-validation.md`, `decision.md`, `phase-1.md` | ≥ 1 match per file | **PASS** — integrated 2, godot-validation 7, decision 1, phase-1 4 |
 | C3 | `pnpm verify` (`pnpm typecheck && pnpm lint && pnpm test && pnpm build`) | exit 0 | **PASS** — exit 0; typecheck clean; Biome 223 files, one pre-existing non-failing `noNonNullAssertion` warning at `test/recipe/version-1-2.test.ts:50`; 119 files / 1028 tests pass; build clean |
 
 C1 and C2 were run with the native grep tool against the `verification/` directory (Markdown files only). C3 was run at the phase-R1 worktree; its single lint warning is pre-existing, non-failing and unrelated to this track.
