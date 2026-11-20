@@ -59,7 +59,7 @@
 - **Covers:** FR-7 · AC-9
 - **Touches:** `src/mcp/tools.ts`, `test/mcp/frame.test.ts`, `test/smoke/binaries.test.ts`
 - **Verification:** `pnpm vitest run --project unit && pnpm vitest run --project smoke && pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: `px_frame` tool delegating to the core engine** — covers: FR-7
 - [ ] **P3.T2: CLI-vs-MCP byte-parity tests** — covers: AC-9
