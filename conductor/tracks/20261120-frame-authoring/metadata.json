@@ -6,7 +6,7 @@
   "priority": "medium",
   "depends_on": [],
   "created_at": "2026-11-20T09:52:08Z",
-  "updated_at": "2026-11-20T11:05:00Z",
+  "updated_at": "2026-11-20T11:15:00Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "feat/20261120-frame-authoring",
@@ -14,11 +14,11 @@
   "base_sha": "d6715dd634c48891571e2514d9027ac50eded4c6",
   "progress": {
     "phases_total": 4,
-    "phases_verified": 3,
+    "phases_verified": 4,
     "tasks_total": 10,
-    "tasks_done": 9
+    "tasks_done": 10
   },
-  "last_checkpoint": "b07fbea12ba2491206c53cad7c3b0b46ce9692e7",
+  "last_checkpoint": "2eb2159f062256693c3f7acee52343df82bdfe61",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",

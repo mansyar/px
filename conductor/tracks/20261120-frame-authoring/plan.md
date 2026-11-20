@@ -78,12 +78,12 @@
 - **Covers:** FR-7, FR-10, NFR-3 · AC-9, AC-12
 - **Touches:** `docs/animation.md`
 - **Verification:** `pnpm verify && pnpm vitest run --project goldens && pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P4.T1: Document `px frame` / `px_frame` in `docs/animation.md`** — covers: FR-7, FR-10
+- [x] **P4.T1: Document `px frame` / `px_frame` in `docs/animation.md`** — covers: FR-7, FR-10
 
 <!--
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** 2eb2159
 **Evidence:** conductor/tracks/20261120-frame-authoring/verification/phase-4.md
 -->
