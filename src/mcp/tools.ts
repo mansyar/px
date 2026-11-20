@@ -39,6 +39,7 @@ export const MCP_TOOLS: readonly string[] = [
   'px_init',
   'px_draw',
   'px_edit',
+  'px_frame',
   'px_fix',
   'px_anchor',
   'px_inspect',
@@ -214,6 +215,56 @@ export const TOOL_DEFINITIONS: Tool[] = [
         strict: STRICT,
       },
       ['file', 'ops'],
+    ),
+  },
+  {
+    name: 'px_frame',
+    description:
+      'Author animation frames in a v1.4 recipe. The subcommand picks one of add, edit, remove, list, set-duration or move; all other parameters map to the matching px frame flags. Frame 0 is the base and cannot be removed; --from clones the base or another frame, and explicit --ops take precedence over --from. Omit --duration to clear a frame duration.',
+    inputSchema: schema(
+      {
+        subcommand: {
+          type: 'string',
+          enum: ['add', 'edit', 'remove', 'list', 'set-duration', 'move'],
+          description: 'The frame operation to perform.',
+        },
+        file: FILE,
+        out: {
+          type: 'string',
+          description: 'Optional path to write the recipe to, leaving the source untouched.',
+        },
+        frame: {
+          description:
+            'Frame to address: 0 for the base, a logical index from 1, or an exact frame id.',
+          anyOf: [{ type: 'string' }, { type: 'integer' }],
+        },
+        from: {
+          description: 'Clone source for add: a frame index or id.',
+          anyOf: [{ type: 'string' }, { type: 'integer' }],
+        },
+        ops: {
+          description: 'Op objects or compact tuples, as an array or a JSON string.',
+          anyOf: [{ type: 'array' }, { type: 'string' }],
+        },
+        op_index: { type: 'integer', description: 'Zero-based op index to replace in a frame.' },
+        layer: {
+          type: 'string',
+          description: 'Layer holding the ops; defaults to the first layer.',
+        },
+        to: { type: 'integer', description: 'Zero-based destination index for move.' },
+        duration: {
+          type: 'number',
+          description: 'Frame duration in milliseconds; a positive integer. Omit it to clear.',
+        },
+        replace: {
+          type: 'boolean',
+          default: false,
+          description: 'Replace the whole ops list instead of one op index.',
+        },
+        id: { type: 'string', description: 'Id to assign to a newly added frame.' },
+        strict: STRICT,
+      },
+      ['subcommand', 'file'],
     ),
   },
   {
@@ -449,6 +500,26 @@ export function argvFor(tool: string, params: Params): string[] {
       flag(argv, 'op-index', str(params.op_index));
       flag(argv, 'ops', opsArg(params.ops));
       flag(argv, 'out', str(params.out));
+      break;
+    }
+    case 'px_frame': {
+      argv.push('frame');
+      // The subcommand is the verb's second positional, not a flag.
+      const subcommand = str(params.subcommand);
+      if (subcommand !== undefined) {
+        argv.push(subcommand);
+      }
+      flag(argv, 'file', file);
+      flag(argv, 'out', str(params.out));
+      flag(argv, 'id', str(params.id));
+      flag(argv, 'from', str(params.from));
+      flag(argv, 'ops', opsArg(params.ops));
+      flag(argv, 'op-index', str(params.op_index));
+      flag(argv, 'layer', str(params.layer));
+      flag(argv, 'frame', str(params.frame));
+      flag(argv, 'to', str(params.to));
+      flag(argv, 'duration', str(params.duration));
+      booleanFlag(argv, 'replace', params.replace);
       break;
     }
     case 'px_anchor': {

@@ -61,12 +61,13 @@ afterAll(async () => {
 });
 
 describe('px-mcp over stdio', () => {
-  it('completes the initialize handshake and lists eleven tools', async () => {
+  it('completes the initialize handshake and lists twelve tools', async () => {
     expect(client.getServerVersion()?.name).toBe('px');
     const listed = await client.listTools();
     const names = listed.tools.map((tool) => tool.name).sort();
     expect(names).toContain('px_critique');
     expect(names).toContain('px_fix');
+    expect(names).toContain('px_frame');
     expect(names).toEqual([
       'px_anchor',
       'px_brief',
@@ -75,6 +76,7 @@ describe('px-mcp over stdio', () => {
       'px_draw',
       'px_edit',
       'px_fix',
+      'px_frame',
       'px_init',
       'px_inspect',
       'px_render',
@@ -140,6 +142,31 @@ describe('px-mcp over stdio', () => {
     // Opt-in only: the 1x PNG plus the 8x sheet, never more.
     expect(imagesOf(withDebug)).toHaveLength(2);
   }, 30000);
+
+  it('reaches the frame authoring verb through px_frame over stdio', async () => {
+    const init = (await client.callTool({
+      name: 'px_init',
+      arguments: { file: 'frames.px.json', name: 'frames', width: 12, height: 12 },
+    })) as ToolCallResult;
+    expect(envelopeOf(init)).toMatchObject({ ok: true, command: 'init' });
+
+    const added = (await client.callTool({
+      name: 'px_frame',
+      arguments: { subcommand: 'add', file: 'frames.px.json', from: 0, id: 'walk', duration: 120 },
+    })) as ToolCallResult;
+    expect(envelopeOf(added)).toMatchObject({
+      ok: true,
+      command: 'frame',
+      subcommand: 'add',
+      frame: 'walk',
+    });
+
+    const listed = (await client.callTool({
+      name: 'px_frame',
+      arguments: { subcommand: 'list', file: 'frames.px.json' },
+    })) as ToolCallResult;
+    expect(envelopeOf(listed)).toMatchObject({ ok: true, subcommand: 'list' });
+  }, 20000);
 
   it('reports a failed call as an error envelope, not a crash', async () => {
     const missing = (await client.callTool({
