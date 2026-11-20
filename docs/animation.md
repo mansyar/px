@@ -68,7 +68,14 @@ same `v:1` envelope as its CLI equivalent, and the recipe bytes are identical.
 ### Selectors and invariants
 
 - `--frame` (and the `--from` clone source) address a frame by logical index or
-  exact id: `0` is the base, and logical `i + 1` is `frames[i]`.
+  exact id: `0` is the base, and logical `i + 1` is `frames[i]`. A declared id
+  always wins over the index reading, so a frame whose id is `"5"` is selected
+  by `--frame 5` / `--from 5` even when its logical position differs — including
+  after `move` or `remove` shifted the ids out of sync. With no id match, `0` is
+  the base and a canonical number is a logical index.
+- `add` requires at least one source: `--from` and/or `--ops`. Supplying neither
+  is a usage error (`E_USAGE`); the `(--from <index|id> | --ops <json-array>)`
+  form in the syntax above is mandatory.
 - Frame 0 is **immutable**: no command can edit, remove, retime or move it. It
   is only a read-only clone source for `frame add --from 0`.
 - `--to` is a zero-based position **inside `frames`**, not a logical frame

@@ -39,6 +39,7 @@ interface SheetMeta {
 const FOUR_OPS =
   '[["rect",1,1,3,3,"steel.base"],["rect",2,2,3,3,"steel.shadow"],["rect",3,3,3,3,"steel.outline"],["rect",4,4,3,3,"steel.highlight"]]';
 const ONE_OP = '[["rect",2,2,2,2,"steel.base"]]';
+const EXPECTED_ONE_OP = { op: 'rect', x: 2, y: 2, w: 2, h: 2, color: 'steel.base' };
 
 let workspace = '';
 
@@ -466,5 +467,138 @@ describe('px frame CLI', () => {
       duration_ms: 80,
       start_ms: 120,
     });
+  });
+
+  // F1: a numeric-string id must win over the logical index of the same value,
+  // so a valid id never silently addresses the wrong frame.
+  it('F1: numeric-string ids resolve by id for edit and remove', () => {
+    const name = 'numeric-id.px.json';
+    init(name);
+    drawFrame0(name);
+    // Logical 1 has id "5", logical 2 has id "1": each id's numeric value
+    // differs from its logical position, so index reading targets the wrong frame.
+    expect(addClone(name, '5').code).toBe(0);
+    expect(addClone(name, '1').code).toBe(0);
+
+    // --frame 5 must edit the frame with id "5" (logical 1), not logical index 5
+    // (out of range for two frames).
+    const edited = run([
+      'frame',
+      'edit',
+      '--file',
+      name,
+      '--frame',
+      '5',
+      '--replace',
+      '--ops',
+      ONE_OP,
+    ]);
+    expect(edited.code).toBe(0);
+    expect(edited.envelope.frame).toBe('5');
+    expect(recipeOf(name).frames?.find((frame) => frame.id === '5')?.layers[0]?.ops).toEqual([
+      EXPECTED_ONE_OP,
+    ]);
+    expect(recipeOf(name).frames?.find((frame) => frame.id === '1')?.layers[0]?.ops).toHaveLength(
+      4,
+    );
+
+    // --frame 1 must remove the frame with id "1" (logical 2), not logical index 1
+    // (the frame with id "5").
+    const removed = run(['frame', 'remove', '--file', name, '--frame', '1']);
+    expect(removed.code).toBe(0);
+    expect(recipeOf(name).frames?.map((frame) => frame.id)).toEqual(['5']);
+  });
+
+  it('F1: a numeric-string id still resolves by id after a move reorders frames', () => {
+    const name = 'numeric-id-move.px.json';
+    init(name);
+    drawFrame0(name);
+    expect(addClone(name, 'anchor').code).toBe(0);
+    expect(addClone(name, '7').code).toBe(0);
+    expect(addClone(name, '3').code).toBe(0);
+    // frames: ["anchor", "7", "3"]. Move "anchor" to the end -> ["7", "3", "anchor"].
+    // Setup uses a non-numeric selector so the drift is created without relying on F1.
+    expect(run(['frame', 'move', '--file', name, '--frame', 'anchor', '--to', '2']).code).toBe(0);
+    expect(recipeOf(name).frames?.map((frame) => frame.id)).toEqual(['7', '3', 'anchor']);
+
+    // After the move, id "7" sits at logical position 1, not 7. Selecting
+    // --frame 7 must still target the frame with id "7".
+    const removed = run(['frame', 'remove', '--file', name, '--frame', '7']);
+    expect(removed.code).toBe(0);
+    expect(recipeOf(name).frames?.map((frame) => frame.id)).toEqual(['3', 'anchor']);
+  });
+
+  it('F1: a numeric-string id still resolves by id after a remove shifts positions', () => {
+    const name = 'numeric-id-remove.px.json';
+    init(name);
+    drawFrame0(name);
+    expect(addClone(name, 'anchor').code).toBe(0);
+    expect(addClone(name, '9').code).toBe(0);
+    expect(addClone(name, '4').code).toBe(0);
+    // frames: ["anchor", "9", "4"]. Remove "anchor" -> ["9", "4"]; ids now drift
+    // from positions ("9" is logical 1, "4" is logical 2).
+    expect(run(['frame', 'remove', '--file', name, '--frame', 'anchor']).code).toBe(0);
+    expect(recipeOf(name).frames?.map((frame) => frame.id)).toEqual(['9', '4']);
+
+    // --frame 4 must edit id "4" (now logical 2), not logical index 4 (out of range).
+    const edited = run([
+      'frame',
+      'edit',
+      '--file',
+      name,
+      '--frame',
+      '4',
+      '--replace',
+      '--ops',
+      ONE_OP,
+    ]);
+    expect(edited.code).toBe(0);
+    expect(recipeOf(name).frames?.find((frame) => frame.id === '4')?.layers[0]?.ops).toEqual([
+      EXPECTED_ONE_OP,
+    ]);
+    expect(recipeOf(name).frames?.find((frame) => frame.id === '9')?.layers[0]?.ops).toHaveLength(
+      4,
+    );
+  });
+
+  it('F1: numeric-string ids resolve by id for --from, set-duration and move', () => {
+    const name = 'numeric-id-uniform.px.json';
+    init(name);
+    drawFrame0(name);
+    expect(addClone(name, '6').code).toBe(0); // logical 1, id "6"
+    expect(addClone(name, '8').code).toBe(0); // logical 2, id "8"
+    // Make id "6" distinct so the --from clone assertion is meaningful.
+    expect(
+      run(['frame', 'edit', '--file', name, '--frame', '6', '--replace', '--ops', ONE_OP]).code,
+    ).toBe(0);
+
+    // --from 6 clones the frame with id "6", not logical index 6.
+    const added = run(['frame', 'add', '--file', name, '--from', '6', '--id', 'copy']);
+    expect(added.code).toBe(0);
+    expect(recipeOf(name).frames?.find((frame) => frame.id === 'copy')?.layers[0]?.ops).toEqual([
+      EXPECTED_ONE_OP,
+    ]);
+
+    // set-duration --frame 8 targets id "8", not logical index 8.
+    expect(
+      run(['frame', 'set-duration', '--file', name, '--frame', '8', '--duration', '120']).code,
+    ).toBe(0);
+    expect(recipeOf(name).frames?.find((frame) => frame.id === '8')?.duration).toBe(120);
+
+    // move --frame 6 targets id "6", moving it to the last declared position.
+    expect(run(['frame', 'move', '--file', name, '--frame', '6', '--to', '2']).code).toBe(0);
+    expect(recipeOf(name).frames?.map((frame) => frame.id)).toEqual(['8', 'copy', '6']);
+  });
+
+  // F2: the documented add syntax presents one source as required.
+  it('F2: frame add requires --from or --ops and writes nothing when both are absent', () => {
+    const name = 'add-no-source.px.json';
+    init(name);
+    const before = textOf(name);
+    const result = run(['frame', 'add', '--file', name, '--id', 'empty']);
+    expect(result.code).toBe(1);
+    expect(result.envelope.ok).toBe(false);
+    expect(result.envelope.error?.code).toBe('E_USAGE');
+    expect(textOf(name)).toBe(before);
   });
 });

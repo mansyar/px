@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { runCli } from '../../src/cli/main.js';
+import { parseRecipe } from '../../src/core/recipe/parse.js';
 import {
   argvFor,
   callTool,
@@ -201,6 +202,30 @@ describe('px_frame byte parity', () => {
     expect(mcpEnvelope.error?.code).toBe('E_BAD_PARAM');
     expect(readFileSync(join(cliDir, FILE), 'utf8')).toBe(baseText);
     expect(readFileSync(join(mcpDir, FILE), 'utf8')).toBe(baseText);
+  });
+
+  it('F1: a numeric-string id selector maps through argv with byte parity', () => {
+    // Give both workspaces a frame whose numeric id differs from its position.
+    for (const dir of [cliDir, mcpDir]) {
+      expect(cliRun(dir, ['frame', 'add', '--file', FILE, '--from', '0', '--id', '5']).code).toBe(
+        0,
+      );
+    }
+    // frames: walk(1), run(2), 5(3). --frame 5 must target id "5", not index 5.
+    parityStep(['frame', 'edit', '--file', FILE, '--frame', '5', '--replace', '--ops', ONE_OP], {
+      subcommand: 'edit',
+      file: FILE,
+      frame: '5',
+      replace: true,
+      ops: SINGLE_OP,
+    });
+    const cliText = readFileSync(join(cliDir, FILE), 'utf8');
+    expect(cliText).toBe(readFileSync(join(mcpDir, FILE), 'utf8'));
+    const edited = parseRecipe(cliText).recipe;
+    expect(edited.frames?.find((frame) => frame.id === '5')?.layers[0]?.ops).toEqual([
+      { op: 'rect', x: 2, y: 2, w: 2, h: 2, color: 'steel.base' },
+    ]);
+    expect(edited.frames?.find((frame) => frame.id === 'walk')?.layers[0]?.ops).toHaveLength(4);
   });
 });
 

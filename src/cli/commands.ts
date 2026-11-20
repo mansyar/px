@@ -1496,16 +1496,22 @@ function frameSubcommand(args: ParsedArgs): FrameSubcommand {
 }
 
 /**
- * Numeric-looking arguments are logical frame indices; anything else is an
- * exact, case-sensitive frame id. Keeping the original spelling for ids avoids
- * silently rewriting `"01"` into frame 1.
+ * Resolve a raw selector to a declared frame id first, then a logical index.
+ * Ids may be any non-empty string (including a canonical number like "5") and
+ * can drift from their position after move/remove, so an id match must win over
+ * the numeric-index reading. With no id match the original rule applies: a
+ * canonical number is a logical index, any other spelling an exact id (so "01"
+ * is never silently rewritten into frame 1).
  */
-function frameSelector(value: string | undefined, flag: string): FrameSelector {
+function frameSelector(value: string | undefined, flag: string, recipe: Recipe): FrameSelector {
   if (value === undefined || value === '') {
     throw usageError(
       `Missing --${flag}`,
       'Address a frame with 0 for frame 0, a logical index from 1, or an exact frame id.',
     );
+  }
+  if ((recipe.frames ?? []).some((frame) => frame.id === value)) {
+    return value;
   }
   const numeric = Number(value);
   return Number.isInteger(numeric) && String(numeric) === value ? numeric : value;
@@ -1560,8 +1566,14 @@ export function runFrame(args: ParsedArgs, cwd: string): Record<string, unknown>
         ...(sourceWarnings.length > 0 ? { warnings: sourceWarnings } : {}),
       };
     case 'add': {
+      if (args.from === undefined && args.ops === undefined) {
+        throw usageError(
+          'Missing --from or --ops',
+          'Use "px frame add --file <recipe> (--from <index|id> | --ops <json-array>)": supply a clone source or explicit ops.',
+        );
+      }
       const duration = frameNumberFlag(args.duration, 'duration');
-      const from = args.from === undefined ? undefined : frameSelector(args.from, 'from');
+      const from = args.from === undefined ? undefined : frameSelector(args.from, 'from', recipe);
       const layers = args.ops === undefined ? undefined : frameLayers(args);
       next = addFrame(recipe, {
         ...(args.id === undefined ? {} : { id: args.id }),
@@ -1577,7 +1589,7 @@ export function runFrame(args: ParsedArgs, cwd: string): Record<string, unknown>
       break;
     }
     case 'edit': {
-      const selector = frameSelector(args.frame, 'frame');
+      const selector = frameSelector(args.frame, 'frame', recipe);
       const opIndex = frameNumberFlag(args.opIndex, 'op-index');
       next = editFrame(recipe, {
         frame: selector,
@@ -1594,20 +1606,20 @@ export function runFrame(args: ParsedArgs, cwd: string): Record<string, unknown>
       break;
     }
     case 'remove': {
-      const selector = frameSelector(args.frame, 'frame');
+      const selector = frameSelector(args.frame, 'frame', recipe);
       next = removeFrame(recipe, selector);
       details = { frame: args.frame };
       break;
     }
     case 'set-duration': {
-      const selector = frameSelector(args.frame, 'frame');
+      const selector = frameSelector(args.frame, 'frame', recipe);
       const duration = frameNumberFlag(args.duration, 'duration');
       next = setFrameDuration(recipe, selector, duration);
       details = { frame: args.frame, duration: duration ?? null };
       break;
     }
     case 'move': {
-      const selector = frameSelector(args.frame, 'frame');
+      const selector = frameSelector(args.frame, 'frame', recipe);
       const to = frameNumberFlag(args.to, 'to');
       if (to === undefined) {
         throw usageError(
