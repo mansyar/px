@@ -40,7 +40,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-8, FR-9, FR-10 · AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-10, AC-11, AC-12
 - **Touches:** `src/cli/main.ts`, `src/cli/commands.ts`, `src/cli/args.ts`, `test/integration/frame.test.ts`
 - **Verification:** `pnpm vitest run --project integration && pnpm verify`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Verb dispatch and argument parsing** — covers: FR-1, FR-2, FR-3, FR-4, FR-5, FR-6
 - [ ] **P2.T2: `runFrame` wiring to the core engine** — covers: FR-8, FR-9
