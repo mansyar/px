@@ -545,8 +545,8 @@ describe('agent-facing animation surfaces', () => {
     expect(onion?.minimum).toBe(0);
     expect(onion?.description).toContain('--onion');
 
-    // No new tool: the published surface is exactly the same eleven verbs.
-    expect(MCP_TOOLS).toHaveLength(11);
+    // Phase 3 adds px_frame: the published surface is twelve verbs.
+    expect(MCP_TOOLS).toHaveLength(12);
     expect(argvFor('px_render', { file: 'hero.px.json', out: 'hero.png', onion: 1 })).toEqual([
       'render',
       '--file',

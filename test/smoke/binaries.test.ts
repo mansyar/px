@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { argvFor, isToolName, MCP_TOOLS } from '../../src/mcp/tools.js';
 
 const root = process.cwd();
 
@@ -31,6 +32,19 @@ describe('package surface', () => {
 
   it('points both bins at build output', () => {
     expect(manifest.bin).toEqual({ px: './dist/cli.js', 'px-mcp': './dist/mcp/server.js' });
+  });
+});
+
+describe('px-mcp tool surface', () => {
+  it('registers px_frame and maps it to a reachable frame argv', () => {
+    expect(MCP_TOOLS).toContain('px_frame');
+    expect(isToolName('px_frame')).toBe(true);
+    expect(argvFor('px_frame', { subcommand: 'list', file: 'hero.px.json' })).toEqual([
+      'frame',
+      'list',
+      '--file',
+      'hero.px.json',
+    ]);
   });
 });
 

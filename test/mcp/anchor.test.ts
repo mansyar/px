@@ -158,6 +158,7 @@ describe('px anchor', () => {
       'init',
       'draw',
       'edit',
+      'frame',
       'anchor',
       'inspect',
       'render',

@@ -250,6 +250,73 @@ const MAPPINGS: Mapping[] = [
     params: { file: 'hero.px.json', against: 'prev.png', out: 'now.png' },
     value: 'now.png',
   },
+  // Phase 3: px_frame maps the frame verb's subcommand and every flag. The
+  // subcommand is a positional, not a flag, so its row has no `value` check.
+  { flag: 'subcommand', tool: 'px_frame', params: { subcommand: 'list', file: 'hero.px.json' } },
+  {
+    flag: 'out',
+    tool: 'px_frame',
+    params: { subcommand: 'add', file: 'hero.px.json', out: 'copy.px.json' },
+    value: 'copy.px.json',
+  },
+  {
+    flag: 'id',
+    tool: 'px_frame',
+    params: { subcommand: 'add', file: 'hero.px.json', id: 'walk' },
+    value: 'walk',
+  },
+  {
+    flag: 'from',
+    tool: 'px_frame',
+    params: { subcommand: 'add', file: 'hero.px.json', from: '0' },
+    value: '0',
+  },
+  {
+    flag: 'ops',
+    tool: 'px_frame',
+    params: { subcommand: 'add', file: 'hero.px.json', ops: [] },
+    value: '[]',
+  },
+  {
+    flag: 'op-index',
+    tool: 'px_frame',
+    params: { subcommand: 'edit', file: 'hero.px.json', ops: [], op_index: 0 },
+    value: '0',
+  },
+  {
+    flag: 'layer',
+    tool: 'px_frame',
+    params: { subcommand: 'edit', file: 'hero.px.json', ops: [], layer: 'base' },
+    value: 'base',
+  },
+  {
+    flag: 'frame',
+    tool: 'px_frame',
+    params: { subcommand: 'remove', file: 'hero.px.json', frame: '1' },
+    value: '1',
+  },
+  {
+    flag: 'to',
+    tool: 'px_frame',
+    params: { subcommand: 'move', file: 'hero.px.json', frame: '1', to: 0 },
+    value: '0',
+  },
+  {
+    flag: 'duration',
+    tool: 'px_frame',
+    params: { subcommand: 'set-duration', file: 'hero.px.json', frame: '1', duration: 120 },
+    value: '120',
+  },
+  {
+    flag: 'replace',
+    tool: 'px_frame',
+    params: { subcommand: 'edit', file: 'hero.px.json', ops: [], replace: true },
+  },
+  {
+    flag: 'strict',
+    tool: 'px_frame',
+    params: { subcommand: 'list', file: 'hero.px.json', strict: true },
+  },
 ];
 
 const NOT_AGENT_FLAGS = new Set([
@@ -257,21 +324,24 @@ const NOT_AGENT_FLAGS = new Set([
   'color',
   'help',
   // `px synthesize` edits one recipe in place; agents synthesise at creation
-  // time via `px_init.synthesize`, so the verb has no tool of its own.
+  // time via `px_init.synthesize`, so the verb has no tool of its own. `from` is
+  // also reachable through px_frame.add, but stays excluded because the
+  // synthesize verb itself has no tool.
   'family',
   'from',
   'steps',
 ]);
 
 describe('MCP flag reachability', () => {
-  it('publishes eleven tools, each with a definition', () => {
+  it('publishes twelve tools, each with a definition', () => {
     expect([...MCP_TOOLS].sort()).toEqual(TOOL_DEFINITIONS.map((tool) => tool.name).sort());
-    expect(MCP_TOOLS).toHaveLength(11);
+    expect(MCP_TOOLS).toHaveLength(12);
     expect(MCP_TOOLS).toContain('px_brief');
     expect(MCP_TOOLS).toContain('px_validate');
     expect(MCP_TOOLS).toContain('px_diff');
     expect(MCP_TOOLS).toContain('px_critique');
     expect(MCP_TOOLS).toContain('px_fix');
+    expect(MCP_TOOLS).toContain('px_frame');
   });
 
   it('publishes the feedback verbs with every parameter their CLI flags need', () => {

@@ -16,6 +16,7 @@ import {
   runDraw,
   runEdit,
   runFix,
+  runFrame,
   runInit,
   runInspect,
   runRender,
@@ -44,6 +45,12 @@ function helpPayload(): Record<string, unknown> {
       'px init --file <path> [--name <name>] [--width n] [--height n] [--palette hex,hex,...|name|json-object] [--parts json-or-file] [--design json-or-file] [--profile name] [--derive-ramps] [--synthesize name=#hex:steps]... [--force]',
       'px draw --file <path> [--layer <id>] --ops <json-array> [--out <path>]',
       'px edit --file <path> [--layer <id>] (--id <op-id> | --op-index n) --ops <json-array> [--out <path>]',
+      'px frame add --file <path> (--from <index|id> | --ops <json-array>) [--id <id>] [--duration n] [--layer <id>] [--out <path>]  # --ops wins over --from when both are given',
+      'px frame edit --file <path> --frame <index|id> [--layer <id>] (--op-index n | --replace) --ops <json-array> [--out <path>]',
+      'px frame remove --file <path> --frame <index|id> [--out <path>]  # frame 0 cannot be removed',
+      'px frame list --file <path>  # one row per frame, including frame 0',
+      'px frame set-duration --file <path> --frame <index|id> [--duration n] [--out <path>]  # omit --duration to clear',
+      'px frame move --file <path> --frame <index|id> --to <index> [--out <path>]  # --to is zero-based within the declared frames',
       'px anchor --file <path> --name <anchor> --x n --y n [--out <path>]',
       'px inspect --file <path> [--region x,y,w,h]... [--summary]',
       'px render --file <path> --out <png> [--swap from=to]... [--debug [--backdrop hex|null]] [--export] [--blockout | --values n | --onion <index>]  # --export on a framed recipe also writes <stem>.sheet.png + <stem>.sheet.meta.json (with an additive timeline); views write a sibling PNG, never --out',
@@ -60,6 +67,10 @@ function helpPayload(): Record<string, unknown> {
       '--size',
       '--values',
       '--onion',
+      '--frame',
+      '--to',
+      '--duration',
+      '--replace',
       '--blockout',
       '--pretty',
       '--color',
@@ -116,6 +127,8 @@ function dispatch(command: string, args: ParsedArgs, cwd: string): Record<string
       return runDraw(args, cwd);
     case 'edit':
       return runEdit(args, cwd);
+    case 'frame':
+      return runFrame(args, cwd);
     case 'anchor':
       return runAnchor(args, cwd);
     case 'inspect':

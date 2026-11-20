@@ -530,6 +530,49 @@ export interface Frame {
 }
 
 /**
+ * A logical frame index (0 = frame 0, 1..N = declared frames) or a frame id.
+ * Move destinations are instead zero-based positions inside `frames`, since
+ * frame 0 can never be reordered.
+ */
+export type FrameSelector = number | string;
+
+/** Inputs for the pure `addFrame` authoring operation. */
+export interface AddFrameOptions {
+  /** Frame id; generated deterministically when omitted. */
+  id?: string;
+  /** Positive integer duration in milliseconds; omitted when absent. */
+  duration?: number;
+  /** Frame to deep-clone the layers from. Use 0 for frame 0. */
+  from?: FrameSelector;
+  /** Raw layer definitions, normalized with the shared op normalizer. */
+  layers?: unknown;
+}
+
+/** Inputs for the pure `editFrame` authoring operation. */
+export interface EditFrameOptions {
+  /** Declared frame to edit. Frame 0 is immutable. */
+  frame: FrameSelector;
+  /** Layer id or zero-based layer index within the frame; defaults to the first layer. */
+  layer?: string | number;
+  /** Zero-based op index to replace; required unless `replace` is set. */
+  opIndex?: number;
+  /** Replace the whole ops list of the addressed layer instead of one op. */
+  replace?: boolean;
+  /** Raw op or list of ops, normalized with the shared op normalizer. */
+  ops: unknown;
+}
+
+/** One row of a frame listing, including the base frame at index 0. */
+export interface FrameRow {
+  index: number;
+  /** Frame 0 has no declared id. */
+  id: string | null;
+  duration?: number;
+  layers: number;
+  ops: number;
+}
+
+/**
  * The version literal a recipe was read with. `1` is the legacy numeric form of
  * 1.0; both it and `"1.0"` are preserved verbatim on write so a 1.0 recipe is
  * byte-identical after a read-write cycle (FR-1).

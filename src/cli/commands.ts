@@ -25,6 +25,15 @@ import {
 } from '../core/palette.js';
 import { partDetails } from '../core/parts.js';
 import { parseScaleProfile } from '../core/profile.js';
+import {
+  addFrame,
+  editFrame,
+  type FrameSelector,
+  listFrames,
+  moveFrame,
+  removeFrame,
+  setFrameDuration,
+} from '../core/recipe/frames.js';
 import { normalizeOp } from '../core/recipe/normalize.js';
 import { parseRecipe } from '../core/recipe/parse.js';
 import { serializeRecipe } from '../core/recipe/serialize.js';
@@ -1468,5 +1477,173 @@ export function runValidate(args: ParsedArgs, cwd: string): Record<string, unkno
       ? {}
       : { deviations: compiled.deviations }),
     warnings: [...warnings, ...compiled.warnings],
+  };
+}
+
+const FRAME_SUBCOMMANDS = ['add', 'edit', 'remove', 'list', 'set-duration', 'move'] as const;
+type FrameSubcommand = (typeof FRAME_SUBCOMMANDS)[number];
+
+function frameSubcommand(args: ParsedArgs): FrameSubcommand {
+  const match = FRAME_SUBCOMMANDS.find((name) => name === args.frameCommand);
+  if (match === undefined) {
+    const value = args.frameCommand;
+    throw usageError(
+      value === undefined ? 'Missing frame subcommand' : `Unknown frame subcommand "${value}"`,
+      `Use one of: px frame ${FRAME_SUBCOMMANDS.join(', ')}.`,
+    );
+  }
+  return match;
+}
+
+/**
+ * Resolve a raw selector to a declared frame id first, then a logical index.
+ * Ids may be any non-empty string (including a canonical number like "5") and
+ * can drift from their position after move/remove, so an id match must win over
+ * the numeric-index reading. With no id match the original rule applies: a
+ * canonical number is a logical index, any other spelling an exact id (so "01"
+ * is never silently rewritten into frame 1).
+ */
+function frameSelector(value: string | undefined, flag: string, recipe: Recipe): FrameSelector {
+  if (value === undefined || value === '') {
+    throw usageError(
+      `Missing --${flag}`,
+      'Address a frame with 0 for frame 0, a logical index from 1, or an exact frame id.',
+    );
+  }
+  if ((recipe.frames ?? []).some((frame) => frame.id === value)) {
+    return value;
+  }
+  const numeric = Number(value);
+  return Number.isInteger(numeric) && String(numeric) === value ? numeric : value;
+}
+
+/** Numbers reach the core engine unrounded so its own metadata rules decide. */
+function frameNumberFlag(value: string | undefined, flag: string): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    throw usageError(`--${flag} is not a number: "${value}"`, `Pass --${flag} as a number.`);
+  }
+  return numeric;
+}
+
+function frameOps(args: ParsedArgs): unknown[] {
+  if (args.ops === undefined) {
+    throw usageError(
+      'Missing --ops',
+      'Pass --ops as a JSON array of op objects or compact tuples.',
+    );
+  }
+  return parseOpList(args.ops);
+}
+
+/** A flat op list becomes one frame layer; --layer names it. */
+function frameLayers(args: ParsedArgs): unknown[] {
+  return [{ id: args.layer ?? DEFAULT_LAYER_ID, ops: frameOps(args) }];
+}
+
+/**
+ * Frame authoring CLI. Every mutation goes through the pure core engine, is
+ * serialized and re-parsed for structural validation, and only then written.
+ * A thrown error therefore always leaves the recipe on disk unchanged.
+ */
+export function runFrame(args: ParsedArgs, cwd: string): Record<string, unknown> {
+  const subcommand = frameSubcommand(args);
+  const file = requireFile(args);
+  const target = resolve(cwd, file);
+  const { recipe, warnings: sourceWarnings } = readSource(target, file);
+
+  let next: Recipe;
+  let details: Record<string, unknown>;
+  switch (subcommand) {
+    case 'list':
+      return {
+        file,
+        subcommand,
+        frames: listFrames(recipe),
+        ...(sourceWarnings.length > 0 ? { warnings: sourceWarnings } : {}),
+      };
+    case 'add': {
+      if (args.from === undefined && args.ops === undefined) {
+        throw usageError(
+          'Missing --from or --ops',
+          'Use "px frame add --file <recipe> (--from <index|id> | --ops <json-array>)": supply a clone source or explicit ops.',
+        );
+      }
+      const duration = frameNumberFlag(args.duration, 'duration');
+      const from = args.from === undefined ? undefined : frameSelector(args.from, 'from', recipe);
+      const layers = args.ops === undefined ? undefined : frameLayers(args);
+      next = addFrame(recipe, {
+        ...(args.id === undefined ? {} : { id: args.id }),
+        ...(duration === undefined ? {} : { duration }),
+        ...(from === undefined ? {} : { from }),
+        ...(layers === undefined ? {} : { layers }),
+      });
+      details = {
+        frame: next.frames?.[next.frames.length - 1]?.id ?? null,
+        ...(from === undefined ? {} : { from: args.from }),
+        ...(duration === undefined ? {} : { duration }),
+      };
+      break;
+    }
+    case 'edit': {
+      const selector = frameSelector(args.frame, 'frame', recipe);
+      const opIndex = frameNumberFlag(args.opIndex, 'op-index');
+      next = editFrame(recipe, {
+        frame: selector,
+        ...(args.layer === undefined ? {} : { layer: args.layer }),
+        ...(opIndex === undefined ? {} : { opIndex }),
+        ops: frameOps(args),
+        replace: args.replace,
+      });
+      details = {
+        frame: args.frame,
+        replace: args.replace,
+        ...(opIndex === undefined ? {} : { op_index: opIndex }),
+      };
+      break;
+    }
+    case 'remove': {
+      const selector = frameSelector(args.frame, 'frame', recipe);
+      next = removeFrame(recipe, selector);
+      details = { frame: args.frame };
+      break;
+    }
+    case 'set-duration': {
+      const selector = frameSelector(args.frame, 'frame', recipe);
+      const duration = frameNumberFlag(args.duration, 'duration');
+      next = setFrameDuration(recipe, selector, duration);
+      details = { frame: args.frame, duration: duration ?? null };
+      break;
+    }
+    case 'move': {
+      const selector = frameSelector(args.frame, 'frame', recipe);
+      const to = frameNumberFlag(args.to, 'to');
+      if (to === undefined) {
+        throw usageError(
+          'Missing --to',
+          'Pass a zero-based position inside the declared frames, e.g. --to 0.',
+        );
+      }
+      next = moveFrame(recipe, selector, to);
+      details = { frame: args.frame, to };
+      break;
+    }
+  }
+
+  const text = serializeRecipe(next);
+  const parsed = parseRecipe(text, { baseDir: dirname(target) });
+  const outFile = args.out ?? file;
+  writeOut(resolve(cwd, outFile), text);
+
+  const allWarnings = mergeWarnings(sourceWarnings, parsed.warnings);
+  return {
+    file: outFile,
+    subcommand,
+    ...details,
+    frames: listFrames(parsed.recipe),
+    ...(allWarnings.length > 0 ? { warnings: allWarnings } : {}),
   };
 }

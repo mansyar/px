@@ -27,6 +27,89 @@ never re-declares them.
 metadata; `duration` is recorded for a future playback slice and is **never**
 interpreted by the compiler. Frame 0 has no declared id.
 
+## Authoring frames
+
+A recipe's `frames` can be written through supported tools instead of being
+edited by hand. The `frame` CLI verb and the `px_frame` MCP tool expose the
+same six operations with identical semantics and byte-identical output: both
+call one core implementation, which normalizes ops, re-validates the recipe and
+serializes it deterministically before writing. A rejected operation writes
+nothing.
+
+| Subcommand | Purpose |
+| --- | --- |
+| `add` | create a declared frame from a `--from` clone and/or explicit `--ops`; `--id` and `--duration` optional |
+| `edit` | replace one op (`--op-index`) or the whole ops list (`--replace`) in a declared frame |
+| `remove` | delete a declared frame by id or index; frame 0 is refused |
+| `list` | report one row per frame, including frame 0, with index, id, duration and layer/ops counts |
+| `set-duration` | set a positive integer duration; omit `--duration` to clear it |
+| `move` | reorder a declared frame to a zero-based `--to` position inside `frames` |
+
+Command syntax — every form takes `--file <recipe>` and an optional
+`--out <path>` that writes the result elsewhere and leaves the source untouched:
+
+```
+px frame add --file <recipe> (--from <index|id> | --ops <json-array>) [--id <id>] [--duration n] [--layer <id>] [--out <path>]
+px frame edit --file <recipe> --frame <index|id> [--layer <id>] (--op-index n | --replace) --ops <json-array> [--out <path>]
+px frame remove --file <recipe> --frame <index|id> [--out <path>]
+px frame list --file <recipe>
+px frame set-duration --file <recipe> --frame <index|id> [--duration n] [--out <path>]
+px frame move --file <recipe> --frame <index|id> --to <index> [--out <path>]
+```
+
+Over MCP the same surface is one tool, `px_frame`, with parameters
+`subcommand`, `file`, `out`, `id`, `from`, `ops`, `op_index`, `layer`, `frame`,
+`to`, `duration` and `replace` (plus the standard `strict` flag shared by the
+other tools). `subcommand` and `file` are required; the rest are optional and
+map to the same-named CLI flag (`op_index` → `--op-index`). `ops` accepts op
+objects or compact tuples, as an array or a JSON string. Each call returns the
+same `v:1` envelope as its CLI equivalent, and the recipe bytes are identical.
+
+### Selectors and invariants
+
+- `--frame` (and the `--from` clone source) address a frame by logical index or
+  exact id: `0` is the base, and logical `i + 1` is `frames[i]`. A declared id
+  always wins over the index reading, so a frame whose id is `"5"` is selected
+  by `--frame 5` / `--from 5` even when its logical position differs — including
+  after `move` or `remove` shifted the ids out of sync. With no id match, `0` is
+  the base and a canonical number is a logical index.
+- `add` requires at least one source: `--from` and/or `--ops`. Supplying neither
+  is a usage error (`E_USAGE`); the `(--from <index|id> | --ops <json-array>)`
+  form in the syntax above is mandatory.
+- Frame 0 is **immutable**: no command can edit, remove, retime or move it. It
+  is only a read-only clone source for `frame add --from 0`.
+- `--to` is a zero-based position **inside `frames`**, not a logical frame
+  index — `--to 0` means "first declared frame". Out-of-range destinations and
+  attempts to move frame 0 are rejected.
+- When `add` receives both `--from` and `--ops`, the explicit `--ops` win: the
+  clone source is ignored and exactly the supplied layers/ops are written.
+- `set-duration` with no `--duration` clears the duration, omitting the key;
+  durations must be positive integers.
+- Ops default to the first layer; `--layer <id>` selects another. Bad ids,
+  unknown targets, out-of-range indices and malformed ops fail before any
+  write, leaving the recipe unchanged.
+
+### Minimal worked example
+
+Starting from a recipe created with `px init`:
+
+```
+px frame add --file walk.px.json --from 0 --id step --duration 120
+px frame set-duration --file walk.px.json --frame step --duration 80
+px frame list --file walk.px.json
+px render --file walk.px.json --out walk.png --export
+```
+
+The first command deep-clones frame 0 into a new declared frame (frame 0 is
+untouched); the second retimes it; the third prints the base plus the declared
+frame with its id, duration and layer/ops counts. The final command consumes
+the authored frames unchanged: `walk.sheet.png` and `walk.sheet.meta.json` are
+written beside `walk.png`. The sheet meta's `sheet` block records each frame's
+index, id, position, size, trim, origin and duration, and the additive
+`timeline` block (present in both metas) sums the declared durations into
+`start_ms` and `total_ms` (frame 0 contributes zero). Repeating the same
+authoring commands yields byte-identical recipes and sheets.
+
 ## What `render` writes
 
 `--export` on a single-frame recipe behaves exactly as before: `<stem>.png` and
@@ -49,9 +132,9 @@ normal PNG; the two sheet paths are derived from its stem.
 
 The response envelope stays `v:1` and additive-only. A framed export adds one
 payload key, `sheet`, reporting `{out, width, height, bytes, sha256, metadata}`
-so a client never has to guess whether the sheet files were written. There is no
-new CLI verb and no new MCP tool: `px render --export` and `px_render` with
-`export: true` are the only entry points.
+so a client never has to guess whether the sheet files were written. `px render
+--export` and `px_render` with `export: true` are the only export entry points;
+the authoring commands above change only the recipe, never export artifacts.
 
 ## Sheet geometry
 
@@ -149,5 +232,5 @@ the boundaries.
 The view is reachable from both surfaces with identical envelopes and bytes:
 `px render --file <recipe> --out <png> --onion <index>` on the CLI, and
 `px_render` with `{file, out, onion: <index>}` over MCP. The MCP `onion`
-parameter is an optional integer published in `px_render` — there is no new MCP
-tool and no new CLI verb.
+parameter is an optional integer published in `px_render` — the view adds no
+tool or verb of its own.
