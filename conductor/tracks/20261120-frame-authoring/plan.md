@@ -14,7 +14,7 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-8, FR-9 · AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-10, AC-11
 - **Touches:** `src/core/recipe/frames.ts`, `src/core/recipe/types.ts`, `test/unit/frames.test.ts`
 - **Verification:** `pnpm vitest run --project unit && pnpm typecheck && pnpm lint && pnpm build`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Frame mutation API** — covers: FR-1, FR-2, FR-3, FR-4, FR-5, FR-6
   - [ ] **P1.T1.1:** `addFrame` with `--from` deep-clone and/or explicit ops
