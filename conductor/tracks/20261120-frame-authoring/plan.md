@@ -87,3 +87,16 @@
 **Checkpoint:** 2eb2159
 **Evidence:** conductor/tracks/20261120-frame-authoring/verification/phase-4.md
 -->
+
+## Phase R1: Review fixes
+
+- **Goal:** Resolve review findings F1 (numeric-string frame ids are unreachable as selectors) and F2 (`frame add` silently creates an empty frame).
+- **Depends on:** Phase 4
+- **Covers:** F1, F2
+- **Touches:** `src/cli/commands.ts`, `test/integration/frame.test.ts`, `test/mcp/frame.test.ts`, `docs/animation.md`
+- **Verification:** `pnpm verify && pnpm vitest run --project unit && pnpm vitest run --project integration && pnpm vitest run --project smoke && pnpm vitest run --project goldens && pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`
+- **Status:** pending
+
+- [ ] **R1.T1: Resolve numeric-string selectors against declared frame ids first** — covers: F1
+- [ ] **R1.T2: Require `--from` or `--ops` for `frame add` and document the rule** — covers: F2
+
