@@ -78,7 +78,7 @@
 - **Covers:** FR-7, FR-10, NFR-3 · AC-9, AC-12
 - **Touches:** `docs/animation.md`
 - **Verification:** `pnpm verify && pnpm vitest run --project goldens && pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens`
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P4.T1: Document `px frame` / `px_frame` in `docs/animation.md`** — covers: FR-7, FR-10
 
