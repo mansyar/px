@@ -3,30 +3,31 @@
 - **Track:** `20261120-frame-authoring`
 - **Type:** `feature`
 - **Branch:** `feat/20261120-frame-authoring`
-- **Range:** `d6715dd634c48891571e2514d9027ac50eded4c6..f255d8a0cdf48099a5929858b8bd50c9e3615ebc`
+- **Range:** `d6715dd634c48891571e2514d9027ac50eded4c6..02aae40cbb8f230a518a557c91ef6499e323a438`
 - **Date:** 2026-11-20
-- **Verdict:** `BLOCK` (round 1 — two fixable findings; see History)
-- **Pre-review doc sync:** `updated` — see `conductor/tech-stack.md` dated note 2026-11-20.
+- **Verdict:** `PASS` (round 2 — both round-1 findings fixed and independently re-reviewed; see History)
+- **Doc sync:** `updated` — see `conductor/tech-stack.md` dated note 2026-11-20.
 
 ## Summary
 
 All four phases, all 10 tasks, every FR/NFR/AC, and all configured checks pass.
-The read-only reviewer found no Critical or High defects but reported one Medium
-numeric-string frame-id selector bug (a valid id can be misread as a logical
-index, targeting the wrong frame) and one Low docs/behavior mismatch (`frame
-add` silently accepts neither `--from` nor `--ops`). Both are objective, local,
-and in scope, so they are fixed in review phase R1 rather than deferred.
+The round-1 read-only reviewer found no Critical or High defects but reported
+one Medium numeric-string frame-id selector bug (a valid id could be misread as
+a logical index, targeting the wrong frame) and one Low docs/behavior mismatch
+(`frame add` silently accepted neither `--from` nor `--ops`). Both were fixed in
+review phase R1, verified with the full configured gate, and independently
+re-reviewed in round 2 with verdict PASS. No new findings or regressions.
 
 ## Verification
 
 | Layer | Command | Result | Evidence |
 | --- | --- | --- | --- |
-| test | `pnpm verify` | pass | `verification/integrated.md` — 123 files / 1105 tests; also re-run at review HEAD |
+| test | `pnpm verify` | pass | `verification/integrated.md`; re-run at review HEAD — 123 files / 1111 tests |
 | typecheck | `pnpm typecheck` (via `pnpm verify`) | pass | no errors |
 | lint / format | `pnpm lint` / `pnpm biome check .` (via `pnpm verify`) | pass | one pre-existing non-blocking `noNonNullAssertion` warning at `test/recipe/version-1-2.test.ts:50` |
 | build | `pnpm build` (via `pnpm verify`) | pass | `tsc -p tsconfig.build.json` |
 | determinism | `pnpm vitest run --project goldens` | pass | 1 file / 6 tests, no re-baseline |
-| coverage | `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | pass | 120 files / 1073 tests; 94.89% stmts, 85.81% branches, 98.3% funcs, 94.69% lines (gate 80%) |
+| coverage | `pnpm exec vitest run --coverage --project unit --project integration --project smoke --project goldens` | pass | 120 files / 1079 tests; 94.89% stmts, 85.81% branches, 98.3% funcs, 94.69% lines (gate 80%) |
 
 ## Requirements
 
@@ -34,12 +35,12 @@ and in scope, so they are fixed in review phase R1 rather than deferred.
 | --- | --- | --- | --- |
 | FR-1 | P1.T1, P2.T1–T2 | `test/unit/frames.test.ts`, `test/integration/frame.test.ts` (AC-1/AC-2) | covered |
 | FR-2 | P1.T1, P2.T2 | unit `editFrame` tests, AC-3/AC-4 | covered |
-| FR-3 | P1.T1, P2.T2 | unit `removeFrame`, AC-5 | covered (F1 edge case under repair) |
+| FR-3 | P1.T1, P2.T2 | unit `removeFrame`, AC-5 | covered (F1 edge case fixed in R1) |
 | FR-4 | P1.T1, P2.T2 | unit `listFrames`, AC-6 | covered |
 | FR-5 | P1.T1, P2.T2 | unit `setFrameDuration`, AC-7 | covered |
 | FR-6 | P1.T1, P2.T2 | unit `moveFrame`, AC-8 | covered |
 | FR-7 | P3.T1, P3.T3, P4.T1 | `test/mcp/frame.test.ts`, `test/smoke/{binaries,mcp-stdio}.test.ts` | covered |
-| FR-8 | P1.T2, P2.T2 | unit guardrails, AC-10 (byte-for-byte no-write) | covered (F1 edge case under repair) |
+| FR-8 | P1.T2, P2.T2 | unit guardrails, AC-10 (byte-for-byte no-write) | covered (F1 edge case fixed in R1) |
 | FR-9 | P1.T2, P2.T2 | unit determinism, AC-11, `serialize.ts` canonical order | covered |
 | FR-10 | P2.T3, P4.T1 | AC-12 (sheet + `timeline.total_ms` = 200), `docs/animation.md` | covered |
 | NFR-1 | P1.T3, P2.T3 | unit + integration byte-identical sequences | covered |
@@ -64,23 +65,21 @@ and in scope, so they are fixed in review phase R1 rather than deferred.
 
 ### Medium
 
-- **F1 — Numeric-string frame ids are unreachable as selectors**
-  - **File:** `src/cli/commands.ts:1498-1512` (`frameSelector`); consumed at `:1564`, `:1580`, `:1597`, `:1603`, `:1610`
-  - **What:** `Number.isInteger(Number(v)) && String(Number(v)) === v` unconditionally treats a canonical numeric string as a logical index. A declared frame with `--id "5"` cannot be addressed by `--frame 5` / `--from 5`; the command targets a different frame or errors as unknown.
-  - **Why:** `spec.md:91` allows any non-empty string id. Wrong-frame edit/remove/move is a data-integrity defect when a numeric id differs from the frame's logical position, especially after `move`/`remove`.
-  - **Fix:** Resolve the raw selector against declared frame ids first; fall back to numeric-index interpretation otherwise. Add tests with a numeric id whose value differs from its logical position, including after `move`/`remove`.
-  - **Requirement:** FR-3, FR-8, AC-5, AC-10
-  - **Test gap:** CLI integration test for numeric-string id selection after reorder/removal; MCP parity is structural but must keep byte-identical behavior.
+- **F1 — Numeric-string frame ids were unreachable as selectors — FIXED in R1**
+  - **File:** `src/cli/commands.ts:1506-1518` (`frameSelector`)
+  - **What:** The original selector unconditionally treated a canonical numeric string as a logical index, so a frame with `--id "5"` could not be addressed by `--frame 5` / `--from 5`.
+  - **Fix:** `frameSelector` now resolves declared ids first (`(recipe.frames ?? []).some((frame) => frame.id === value)`) and only falls back to the numeric-index rule when no id matches. All five call sites now pass `recipe`: `--from` add (`:1576`), edit (`:1592`), remove (`:1609`), set-duration (`:1615`), move (`:1622`).
+  - **Verification:** `test/integration/frame.test.ts` asserts the correct frame was mutated and its sibling left untouched, covering id/index drift after `move` and `remove` and the `--from`/`set-duration`/`move` sites — these fail under the old code. `test/mcp/frame.test.ts` adds byte parity for a numeric-string id whose value differs from its position.
+  - **Requirement:** FR-3, FR-8, AC-5, AC-10 — covered.
 
 ### Low
 
-- **F2 — `frame add` with neither `--from` nor `--ops` silently creates an empty frame**
-  - **File:** `src/core/recipe/frames.ts:244-252`; CLI help `src/cli/main.ts:48`
-  - **What:** The documented syntax `(--from <index|id> | --ops <json-array>)` presents one source as required, but `addFrame` falls back to `[{id:'base', ops:[]}]` and the CLI accepts it.
-  - **Why:** Docs/behavior mismatch; an agent omitting both receives a silent empty frame instead of an actionable usage error.
-  - **Fix:** Require at least one of `--from` / `--ops` in the `add` case of `runFrame` with `E_USAGE`, and add one integration test for the chosen behavior.
-  - **Requirement:** FR-1
-  - **Test gap:** integration test for `frame add` with neither flag.
+- **F2 — `frame add` with neither `--from` nor `--ops` silently created an empty frame — FIXED in R1**
+  - **File:** `src/cli/commands.ts:1568-1574` (`runFrame` add case)
+  - **What:** The documented syntax `(--from <index|id> | --ops <json-array>)` presents one source as required, but the CLI previously accepted neither.
+  - **Fix:** Throws `E_USAGE` (`Missing --from or --ops`) before any write. The core `addFrame` fallback is intentionally retained; enforcement belongs at the CLI/MCP boundary since MCP routes through the same CLI path. `docs/animation.md:76-78` documents the requirement.
+  - **Verification:** `test/integration/frame.test.ts` asserts exit code 1, `E_USAGE`, and a byte-for-byte unchanged recipe file.
+  - **Requirement:** FR-1 — covered.
 
 ## Overrides
 
@@ -88,7 +87,7 @@ and in scope, so they are fixed in review phase R1 rather than deferred.
 
 ## Plan compliance
 
-All four phases carry `Result: verified`, a concrete checkpoint (`7beee44`, `95c554d`, `b07fbea`, `2eb2159`) and a verification evidence file. All 10 top-level `[x]` tasks and their sub-tasks are implemented and checked; no task was dropped. The final code diff is the union of the phases' `Touches` plus the recorded deviations: Phase 2 `test/mcp/anchor.test.ts` and `test/mcp/reachability.test.ts` (staged exclusions), Phase 3 `test/mcp/reachability.test.ts` (staged deviation resolved), `test/mcp/parity.test.ts`, `test/smoke/mcp-stdio.test.ts`. All intentional and documented. No code changed after phase 4; later commits touch only Conductor state/prose.
+All four phases carry `Result: verified`, a concrete checkpoint (`7beee44`, `95c554d`, `b07fbea`, `2eb2159`) and a verification evidence file. All 10 top-level `[x]` tasks and their sub-tasks are implemented and checked; no task was dropped. Review phase R1 is verified at checkpoint `02aae40` with `verification/phase-R1.md`. The final code diff is the union of the phases' `Touches` plus the recorded deviations: Phase 2 `test/mcp/anchor.test.ts` and `test/mcp/reachability.test.ts` (staged exclusions), Phase 3 `test/mcp/reachability.test.ts` (staged deviation resolved), `test/mcp/parity.test.ts`, `test/smoke/mcp-stdio.test.ts`, and R1 `src/cli/commands.ts`, `test/integration/frame.test.ts`, `test/mcp/frame.test.ts`, `docs/animation.md`. All intentional and documented.
 
 ## Out of scope
 
@@ -108,3 +107,4 @@ All four phases carry `Result: verified`, a concrete checkpoint (`7beee44`, `95c
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | BLOCK (reviewer proposed PASS WITH FINDINGS; both findings elected for repair) | 0 | 0 | 1 | 1 | 0 |
+| 2 | PASS (R1 delta independently re-reviewed: F1 and F2 fixed, no new findings) | 0 | 0 | 0 | 0 | 2 |
