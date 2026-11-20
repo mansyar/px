@@ -261,6 +261,12 @@ const NOT_AGENT_FLAGS = new Set([
   'family',
   'from',
   'steps',
+  // Phase 2 adds these flags with the CLI frame verb. Phase 3's px_frame tool
+  // will make them agent-reachable, and this exclusion list must lose them.
+  'frame',
+  'to',
+  'duration',
+  'replace',
 ]);
 
 describe('MCP flag reachability', () => {

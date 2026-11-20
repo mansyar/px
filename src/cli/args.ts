@@ -9,6 +9,15 @@ export interface ParsedArgs {
   command: string;
   /** Brief subject, from the second positional or from --subject. */
   subject?: string;
+  /** Frame verb subcommand, from the second positional. */
+  frameCommand?: string;
+  /** Frame target for the frame verb: a logical index or an exact frame id. */
+  frame?: string;
+  /** Zero-based destination inside the declared frames, for `frame move`. */
+  to?: string;
+  /** Frame duration in milliseconds; omitting it clears the duration. */
+  duration?: string;
+  replace: boolean;
   size?: string;
   /** Render-view selectors. These are not verbs: they only change the PNG. */
   blockout: boolean;
@@ -60,6 +69,7 @@ export const COMMANDS: readonly string[] = [
   'init',
   'draw',
   'edit',
+  'frame',
   'anchor',
   'inspect',
   'render',
@@ -81,6 +91,9 @@ export const VALUE_FLAGS: readonly string[] = [
   'size',
   'values',
   'onion',
+  'frame',
+  'to',
+  'duration',
   'file',
   'layer',
   'ops',
@@ -121,6 +134,7 @@ export const BOOLEAN_FLAGS: readonly string[] = [
   'strict',
   'export',
   'summary',
+  'replace',
   'derive-ramps',
 ];
 
@@ -137,6 +151,15 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
       return;
     case 'onion':
       parsed.onion = value;
+      return;
+    case 'frame':
+      parsed.frame = value;
+      return;
+    case 'to':
+      parsed.to = value;
+      return;
+    case 'duration':
+      parsed.duration = value;
       return;
     case 'file':
       parsed.file = value;
@@ -222,7 +245,7 @@ function setValueFlag(parsed: ParsedArgs, name: string, value: string): void {
     default:
       throw usageError(
         `Unknown flag --${name}`,
-        'Flags that take a value are --subject, --size, --values, --onion, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
+        'Flags that take a value are --subject, --size, --values, --onion, --frame, --to, --duration, --file, --layer, --ops, --region, --out, --finding, --sha256, --streak, --previous, --name, --width, --height, --palette, --parts, --design, --profile, --id, --op-index, --x, --y, --backdrop, --against, --family, --from, --steps, --synthesize, --swap.',
       );
   }
 }
@@ -253,6 +276,9 @@ function setBooleanFlag(parsed: ParsedArgs, name: string): void {
     case 'summary':
       parsed.summary = true;
       return;
+    case 'replace':
+      parsed.replace = true;
+      return;
     case 'derive-ramps':
       parsed.deriveRamps = true;
       return;
@@ -279,6 +305,7 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
     swap: [],
     pretty: false,
     force: false,
+    replace: false,
     help: false,
     debug: false,
     strict: false,
@@ -324,17 +351,22 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
   }
 
   const command = positionals[0] ?? '';
-  // `brief` is the only verb with a subject argument: `px brief character --size 32`.
-  // Every other verb keeps the one-positional shape its callers rely on.
-  if (positionals.length > 2 || (positionals.length > 1 && command !== 'brief')) {
+  // `brief` takes a subject and `frame` takes a subcommand as their second
+  // positional. Every other verb keeps the one-positional shape its callers rely on.
+  const takesSecondPositional = command === 'brief' || command === 'frame';
+  if (positionals.length > 2 || (positionals.length > 1 && !takesSecondPositional)) {
     throw usageError(
       `Unexpected argument "${positionals[positionals.length - 1] ?? ''}"`,
       `px takes one command: ${COMMANDS.join(', ')}.`,
     );
   }
   parsed.command = command;
-  if (command === 'brief' && positionals[1] !== undefined) {
-    parsed.subject = positionals[1];
+  if (positionals[1] !== undefined) {
+    if (command === 'brief') {
+      parsed.subject = positionals[1];
+    } else if (command === 'frame') {
+      parsed.frameCommand = positionals[1];
+    }
   }
   return parsed;
 }
