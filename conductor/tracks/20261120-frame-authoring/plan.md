@@ -14,22 +14,22 @@
 - **Covers:** FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-8, FR-9 · AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-10, AC-11
 - **Touches:** `src/core/recipe/frames.ts`, `src/core/recipe/types.ts`, `test/unit/frames.test.ts`
 - **Verification:** `pnpm vitest run --project unit && pnpm typecheck && pnpm lint && pnpm build`
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Frame mutation API** — covers: FR-1, FR-2, FR-3, FR-4, FR-5, FR-6
-  - [ ] **P1.T1.1:** `addFrame` with `--from` deep-clone and/or explicit ops
-  - [ ] **P1.T1.2:** `editFrame` by op index and whole-frame replace
-  - [ ] **P1.T1.3:** `removeFrame`, `listFrames`, `setFrameDuration`, `moveFrame`
-- [ ] **P1.T2: Guardrails and normalization** — covers: FR-8, FR-9
-  - [ ] **P1.T2.1:** Reject duplicate ids, bad durations, unknown targets, out-of-range moves, malformed ops
-  - [ ] **P1.T2.2:** Reuse existing op normalization; deterministic serialization; frame 0 immutability
-- [ ] **P1.T3: Unit tests** — covers: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-10, AC-11
-  - [ ] **P1.T3.1:** Table-driven tests per operation and guardrail
-  - [ ] **P1.T3.2:** Repeated identical sequences produce identical bytes and a valid recipe
+- [x] **P1.T1: Frame mutation API** — covers: FR-1, FR-2, FR-3, FR-4, FR-5, FR-6
+  - [x] **P1.T1.1:** `addFrame` with `--from` deep-clone and/or explicit ops
+  - [x] **P1.T1.2:** `editFrame` by op index and whole-frame replace
+  - [x] **P1.T1.3:** `removeFrame`, `listFrames`, `setFrameDuration`, `moveFrame`
+- [x] **P1.T2: Guardrails and normalization** — covers: FR-8, FR-9
+  - [x] **P1.T2.1:** Reject duplicate ids, bad durations, unknown targets, out-of-range moves, malformed ops
+  - [x] **P1.T2.2:** Reuse existing op normalization; deterministic serialization; frame 0 immutability
+- [x] **P1.T3: Unit tests** — covers: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-10, AC-11
+  - [x] **P1.T3.1:** Table-driven tests per operation and guardrail
+  - [x] **P1.T3.2:** Repeated identical sequences produce identical bytes and a valid recipe
 
 <!--
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** 7beee44
 **Evidence:** conductor/tracks/20261120-frame-authoring/verification/phase-1.md
 -->
 
