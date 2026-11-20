@@ -46,5 +46,5 @@
 
 - [x] **Track: Product Documentation Reconciliation** - [20261119-product-doc-reconciliation](./archive/20261119-product-doc-reconciliation/index.md) - chore - low
 
-- [~] **Track: Frame Authoring for CLI and MCP** — [20261120-frame-authoring](./tracks/20261120-frame-authoring/index.md) — feature — medium
+- [x] **Track: Frame Authoring for CLI and MCP** — [20261120-frame-authoring](./archive/20261120-frame-authoring/index.md) — feature — medium
 
