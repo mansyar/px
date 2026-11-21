@@ -1,0 +1,63 @@
+{
+  "version": "1.4",
+  "meta": {
+    "name": "flame",
+    "width": 16,
+    "height": 16,
+    "alpha_mode": "binary"
+  },
+  "palette": {
+    "steel": {
+      "ramp": {
+        "outline": "#1a1c2c",
+        "shadow": "#5d275d",
+        "base": "#b13e53",
+        "highlight": "#ef7d57"
+      }
+    }
+  },
+  "anchors": {
+    "pivot": [
+      8,
+      8
+    ]
+  },
+  "layers": [
+    {
+      "id": "base",
+      "ops": []
+    }
+  ],
+  "frames": [
+    {
+      "id": "flame-flicker-1",
+      "layers": [
+        {
+          "id": "base",
+          "ops": []
+        }
+      ],
+      "duration": 120
+    },
+    {
+      "id": "flame-flicker-2",
+      "layers": [
+        {
+          "id": "base",
+          "ops": []
+        }
+      ],
+      "duration": 100
+    },
+    {
+      "id": "flame-flicker-3",
+      "layers": [
+        {
+          "id": "base",
+          "ops": []
+        }
+      ],
+      "duration": 140
+    }
+  ]
+}

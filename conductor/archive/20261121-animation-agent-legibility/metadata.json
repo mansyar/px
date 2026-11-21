@@ -1,0 +1,31 @@
+{
+  "id": "20261121-animation-agent-legibility",
+  "title": "Animation Agent Legibility Verification",
+  "type": "chore",
+  "status": "complete",
+  "priority": "high",
+  "depends_on": ["20261120-frame-authoring"],
+  "created_at": "2026-11-21T05:54:10Z",
+  "updated_at": "2026-11-21T07:20:00Z",
+  "spec": "spec.md",
+  "plan": "plan.md",
+  "branch": "chore/20261121-animation-agent-legibility",
+  "base_branch": "main",
+  "base_sha": "4cc05bad23f3a11cd680922da0b15ba868d27842",
+  "progress": {
+    "phases_total": 4,
+    "phases_verified": 4,
+    "tasks_total": 9,
+    "tasks_done": 9
+  },
+  "last_checkpoint": "4cebbfde4a3e2897059d5045ec3cc067af174c73",
+  "review_verdict": "PASS",
+  "review_rounds": 2,
+  "doc_sync": "none",
+  "pr_url": "https://github.com/mansyar/px/pull/24",
+  "reverted_at": null,
+  "revert_commit": null,
+  "revert_pr_url": null,
+  "archived_at": "2026-11-21T07:20:00Z",
+  "archive_path": "conductor/archive/20261121-animation-agent-legibility"
+}

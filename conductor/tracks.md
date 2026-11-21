@@ -48,3 +48,5 @@
 
 - [x] **Track: Frame Authoring for CLI and MCP** — [20261120-frame-authoring](./archive/20261120-frame-authoring/index.md) — feature — medium
 
+- [x] **Track: Animation Agent Legibility Verification** — [20261121-animation-agent-legibility](./archive/20261121-animation-agent-legibility/index.md) — chore — high
+

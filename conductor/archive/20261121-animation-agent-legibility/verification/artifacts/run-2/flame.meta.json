@@ -1,0 +1,112 @@
+{
+  "v": 1,
+  "name": "flame",
+  "godot": {
+    "texture_path": "flame.png",
+    "filter": false,
+    "centered": false,
+    "offset": [
+      0,
+      0
+    ],
+    "anchors": {
+      "pivot": [
+        8,
+        8
+      ]
+    }
+  },
+  "generic": {
+    "canvas": {
+      "width": 16,
+      "height": 16
+    },
+    "trim": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    },
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "alpha_mode": "binary",
+    "anchors": {
+      "pivot": {
+        "x": 8,
+        "y": 8
+      }
+    },
+    "palette": [
+      {
+        "key": "steel.outline",
+        "hex": "#1a1c2c",
+        "rgba": [
+          26,
+          28,
+          44,
+          255
+        ]
+      },
+      {
+        "key": "steel.shadow",
+        "hex": "#5d275d",
+        "rgba": [
+          93,
+          39,
+          93,
+          255
+        ]
+      },
+      {
+        "key": "steel.base",
+        "hex": "#b13e53",
+        "rgba": [
+          177,
+          62,
+          83,
+          255
+        ]
+      },
+      {
+        "key": "steel.highlight",
+        "hex": "#ef7d57",
+        "rgba": [
+          239,
+          125,
+          87,
+          255
+        ]
+      }
+    ],
+    "recipe_hash": "sha256:bb80778c63ded794374212397efa849474ba5b139cd8861282de2c31b7bad577",
+    "timeline": {
+      "frames": [
+        {
+          "index": 0,
+          "start_ms": 0
+        },
+        {
+          "index": 1,
+          "id": "flame-flicker-1",
+          "start_ms": 0,
+          "duration_ms": 120
+        },
+        {
+          "index": 2,
+          "id": "flame-flicker-2",
+          "start_ms": 120,
+          "duration_ms": 100
+        },
+        {
+          "index": 3,
+          "id": "flame-flicker-3",
+          "start_ms": 220,
+          "duration_ms": 140
+        }
+      ],
+      "total_ms": 360
+    }
+  }
+}
