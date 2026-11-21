@@ -70,7 +70,7 @@ The primary appends after acceptance:
 - **Covers:** FR-8, NFR-2, NFR-3, AC-8, AC-9, AC-10
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-legibility.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-3.md`
 - **Verification:** `pnpm verify`; `agent-legibility.md` contains a PASS/FAIL verdict and paths to every artifact; `git diff --stat <base-sha>..HEAD` shows no paths outside `conductor/`; no dependency manifest changed.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P3.T1: Write the final evidence report** — covers: FR-8, AC-8
   - [ ] **P3.T1.1:** Record the verdict from the hard gates and link every artifact.
