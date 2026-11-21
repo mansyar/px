@@ -4,7 +4,7 @@
 - Phase: 3 — Record the verdict and confirm scope
 - Date: 2026-11-21
 - Branch: `chore/20261121-animation-agent-legibility`
-- Verification point (base / head): `4cc05bad23f3a11cd680922da0b15ba868d27842` .. `e50a92f9f99e1202c21aba5c1ca4377dff60d27c`
+- Verification point (base): `4cc05bad23f3a11cd680922da0b15ba868d27842`; Phase 3 checkpoint: `02ed63732c522eebe7f4ce8876751ef75096d334` (report authored at pre-commit working state `e50a92f9f99e1202c21aba5c1ca4377dff60d27c`; final HEAD is re-confirmed at completion/review).
 - Covers: FR-8, NFR-2, NFR-3, AC-8, AC-9, AC-10
 
 ## Verdict: PASS
@@ -58,7 +58,7 @@ Determinism and phase evidence:
 
 ## Scope confirmation
 
-- `git diff --stat 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` shows every committed path under `conductor/`; verbatim output is recorded in `phase-3.md`.
+- Scope is confirmed by the reproducible command `git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD`, which lists only `conductor/` paths with no dependency manifest; the count grows with each Conductor-state commit (review-time snapshot: 27 files / 1978 insertions at HEAD `f4797c6beccda146c3cdcad77ed409d4b803c9aa`).
 - `git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` lists no dependency manifest (`package.json`, `pnpm-lock.yaml`, etc.), so no runtime dependency was added (AC-9, AC-10, NFR-2, NFR-4).
 - `pnpm verify` exits 0 (one pre-existing, non-blocking Biome warning in `test/recipe/version-1-2.test.ts:50`).
 
@@ -87,3 +87,12 @@ None is a hard gate, so none changes the PASS verdict.
 4. **Pre-existing Biome warning.** `pnpm verify` reports one non-blocking
    `lint/style/noNonNullAssertion` warning in `test/recipe/version-1-2.test.ts:50`;
    it predates this track and was not suppressed.
+5. **Fresh-agent subcommand coverage is narrower than the parity matrix.** Both
+   fresh-agent transcripts (`artifacts/run-1/calls.md`, `artifacts/run-2/calls.md`)
+   show the agent invoked only: read brief, `frame --help`, mkdir, `init`,
+   `frame add` (×3, durations supplied at add time), `frame list`, write.
+   `frame edit`, `frame set-duration`, `frame remove`, `frame move`, and
+   `render --export` were NOT invoked by the agent; the four mutation subcommands
+   are documentation-and-parity-checked only (FR-7/AC-7), and export was run by
+   the verifier in Phase 2. Non-gating: the hard gates do not require every
+   subcommand to be exercised by a fresh agent, so `Verdict: PASS` is unchanged.

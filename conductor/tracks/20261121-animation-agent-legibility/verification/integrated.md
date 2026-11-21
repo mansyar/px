@@ -3,7 +3,7 @@
 - Track: `20261121-animation-agent-legibility` — Animation Agent Legibility Verification
 - Branch: `chore/20261121-animation-agent-legibility`
 - Base SHA: `4cc05bad23f3a11cd680922da0b15ba868d27842`
-- Verification point: `0fabc98` (all three phases accepted and squashed)
+- Verification point: `0fabc98` (pre-commit working state with all three phases accepted and squashed); recorded at reachable commit `97e47b0`
 - Date: 2026-11-21
 - Result: **pass**
 

@@ -80,7 +80,7 @@ source file, doc, golden, rubric, threshold, manifest or CI file was changed.
   `f69146f2…`, sheet metadata `d7b75d7c…` — all three pairs identical across
   runs.
 - Diff scope: clean tree; all 15 changed files between the phase base
-  `10d3bcd` and HEAD `a283113` are under this track's `verification/` Touches;
+  `10d3bcd` and phase checkpoint `21929ac...` (pre-squash working state `a283113`) are under this track's `verification/` Touches;
   no `src/`, `docs/`, golden, rubric, threshold, manifest, or CI file changed.
 - AC-2..AC-6 checked against `spec.md`: all pass on the structural hard gates.
   The empty-ops caveat is recorded above and must be carried into the Phase 3

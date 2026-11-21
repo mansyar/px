@@ -21,8 +21,8 @@ in this phase's `Touches` were written.
 | Layer | Command | Exit | Summary |
 | --- | --- | --- | --- |
 | Integrated verification | `pnpm verify` | 0 | `typecheck → lint → test → build` all passed: 123 files / 1111 tests. One pre-existing non-blocking Biome warning (`lint/style/noNonNullAssertion` in `test/recipe/version-1-2.test.ts:50`); not suppressed. |
-| Scope (P3.T2.1) | `git diff --stat 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` | 0 | 25 committed paths, all under `conductor/`; verbatim output below. |
-| Scope (P3.T2.2) | `git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` | 0 | No dependency manifest among the 25 paths; verbatim output below. |
+| Scope (P3.T2.1) | `git diff --stat 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` | 0 | 25 paths at the Phase-3 verification-point snapshot, all under `conductor/`; snapshot below. |
+| Scope (P3.T2.2) | `git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` | 0 | No dependency manifest among those 25 paths; snapshot below. |
 | Content assertion | read `verification/agent-legibility.md` | 0 | Unambiguous `Verdict: PASS` line plus an artifact index linking brief, parity matrix, both transcripts, both recipes, both sheet PNGs, both timeline metadata files, determinism report, and all phase evidence files. |
 
 ## Acceptance criteria
@@ -47,10 +47,16 @@ All hard gates pass ⇒ `Verdict: PASS`. Requirement mapping: FR-8 / NFR-3 / AC-
 satisfied by `agent-legibility.md`; NFR-2 / AC-9 and NFR-4 / AC-10 satisfied by
 the scope diff below.
 
-## Verbatim scope diffs
+## Scope diffs (Phase-3 verification-point snapshot)
 
-`git diff --stat 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` (final committed
-state against the track base):
+The blocks below are a **Phase-3 verification-point snapshot** (25 files /
+1921 insertions at that pre-commit working state), not a current-HEAD diff. Later
+Conductor-state commits (`integrated.md`, `review.md`, R1 evidence) increase the
+count; the durable claim is the reproducible command plus the invariant that
+every listed path is under `conductor/`, not the bare snapshot count.
+
+`git diff --stat 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` (Phase-3
+verification-point snapshot against the track base):
 
 ```
  conductor/tracks.md                                |   2 +
@@ -81,7 +87,7 @@ state against the track base):
  25 files changed, 1921 insertions(+)
 ```
 
-`git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` (verbatim):
+`git diff --name-only 4cc05bad23f3a11cd680922da0b15ba868d27842..HEAD` (Phase-3 verification-point snapshot):
 
 ```
 conductor/tracks.md
@@ -140,7 +146,7 @@ decision was required; no file outside the two Touches paths was modified.
 
 ## Primary verification
 
-Primary independently re-ran at the final HEAD (`74cfde8`):
+Primary independently re-ran at the phase checkpoint `02ed637...` (pre-commit working state `74cfde8`):
 
 - `pnpm verify` → exit 0 (`tsc --noEmit`, Biome 229 files with one pre-existing
   non-blocking `lint/style/noNonNullAssertion` warning at

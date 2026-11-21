@@ -130,9 +130,12 @@ require human docs not to drift.
   explicit decision; it is recorded because the product metric values it.
 - **Assumption:** "Fresh agent" means a new subagent with no prior conversation,
   receiving only the curated docs brief and the asset goal.
-- **Assumption:** The benchmark asset is a 16×16 four-frame flame; the subject
-  was chosen to exercise frame add/edit/set-duration/export within a small
-  canvas budget.
+- **Assumption:** The benchmark asset is a 16×16 four-frame flame; within a small
+  canvas budget the fresh agent exercised only `frame add` (with durations
+  supplied at add time), `frame list`, and `init`, as shown in both transcripts.
+  The remaining subcommands (`edit`/`set-duration`/`remove`/`move`) are covered
+  only by the three-surface documentation parity matrix (FR-7/AC-7), and
+  `render --export` was performed by the verifier in Phase 2, not the fresh agent.
 - **Assumption:** Hard gates are the only verdict inputs; any discovered defect
   is filed as a follow-up rather than fixed in-track.
 

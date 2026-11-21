@@ -76,7 +76,7 @@ decision was required.
   (typecheck, Biome with 1 pre-existing non-blocking warning at
   `test/recipe/version-1-2.test.ts:50`, 123 files / 1111 tests, build).
 - Diff scope check: clean tree; only the three declared Touches changed between
-  the phase base `7519bf0` and HEAD `fce7b0e` — `docs-brief.md`,
+  the phase base `7519bf0` and phase checkpoint `f42e931...` (pre-squash working state `fce7b0e`) — `docs-brief.md`,
   `parity-matrix.md`, `phase-1.md`. No `src/`, `docs/`, golden, rubric, lint
   threshold, CI, or Conductor-state file outside track verification was touched.
 - AC-1 and AC-7 checked against `spec.md` lines 93 and 99: both satisfied by the
