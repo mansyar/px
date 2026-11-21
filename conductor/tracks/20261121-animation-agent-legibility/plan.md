@@ -16,20 +16,20 @@
 - **Covers:** FR-1, FR-7, NFR-1, AC-1, AC-7
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/docs-brief.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/parity-matrix.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-1.md`
 - **Verification:** `pnpm verify`; content assertion that `docs-brief.md` lists every source file consulted and `parity-matrix.md` names all six subcommands (`add`, `edit`, `remove`, `list`, `set-duration`, `move`) and all frame flags on all three surfaces.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P1.T1: Assemble the docs-only brief** — covers: FR-1, AC-1
-  - [ ] **P1.T1.1:** Capture CLI `frame --help` JSON and the full `px_frame` MCP tool description.
-  - [ ] **P1.T1.2:** Record the exact paths of `docs/animation.md`, `docs/art-profiles.md`, `docs/lint-thresholds.md`, and the product-guidelines canonical-description rule.
-  - [ ] **P1.T1.3:** Write the brief as the sole material the fresh agent will receive, plus the 16×16 four-frame flame asset goal.
-- [ ] **P1.T2: Produce the three-surface parity matrix** — covers: FR-7, AC-7
-  - [ ] **P1.T2.1:** Map each of the six subcommands and every flag across CLI help, MCP `px_frame`, and `docs/animation.md`.
-  - [ ] **P1.T2.2:** Mark each cell present/absent and note any drift verbatim.
+- [x] **P1.T1: Assemble the docs-only brief** — covers: FR-1, AC-1
+  - [x] **P1.T1.1:** Capture CLI `frame --help` JSON and the full `px_frame` MCP tool description.
+  - [x] **P1.T1.2:** Record the exact paths of `docs/animation.md`, `docs/art-profiles.md`, `docs/lint-thresholds.md`, and the product-guidelines canonical-description rule.
+  - [x] **P1.T1.3:** Write the brief as the sole material the fresh agent will receive, plus the 16×16 four-frame flame asset goal.
+- [x] **P1.T2: Produce the three-surface parity matrix** — covers: FR-7, AC-7
+  - [x] **P1.T2.1:** Map each of the six subcommands and every flag across CLI help, MCP `px_frame`, and `docs/animation.md`.
+  - [x] **P1.T2.2:** Mark each cell present/absent and note any drift verbatim.
 
 <!--
 The primary appends after acceptance:
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** f42e931
 **Evidence:** conductor/tracks/20261121-animation-agent-legibility/verification/phase-1.md
 -->
 

@@ -6,7 +6,7 @@
   "priority": "high",
   "depends_on": ["20261120-frame-authoring"],
   "created_at": "2026-11-21T05:54:10Z",
-  "updated_at": "2026-11-21T06:01:58Z",
+  "updated_at": "2026-11-21T06:12:00Z",
   "spec": "spec.md",
   "plan": "plan.md",
   "branch": "chore/20261121-animation-agent-legibility",
@@ -14,11 +14,11 @@
   "base_sha": "4cc05bad23f3a11cd680922da0b15ba868d27842",
   "progress": {
     "phases_total": 3,
-    "phases_verified": 0,
+    "phases_verified": 1,
     "tasks_total": 7,
-    "tasks_done": 0
+    "tasks_done": 2
   },
-  "last_checkpoint": null,
+  "last_checkpoint": "f42e931fe6ada10c19701e4f4efead82b6ae588d",
   "review_verdict": null,
   "review_rounds": 0,
   "doc_sync": "pending",
