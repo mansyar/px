@@ -107,7 +107,11 @@ Review fixes are appended by `conductor-review` as:
 - **Covers:** F1, F2 (AC-8, AC-9, FR-2, AC-2)
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/spec.md`, `verification/agent-legibility.md`, `verification/phase-1.md`, `verification/phase-2.md`, `verification/phase-3.md`, `verification/integrated.md`, `verification/phase-R1.md`
 - **Verification:** `pnpm verify`; every recorded hash reachable via `git log --all` or explicitly labelled a pre-squash working state with a reachable checkpoint; scope claim recorded as a reproducible command plus the all-paths-under-`conductor/` invariant rather than a brittle count; spec transcript claim matches both `calls.md`.
-- **Status:** pending
+- **Status:** verified
 
-- [ ] **R1.T1: Resolve F1** — covers: F1, AC-8, AC-9
-- [ ] **R1.T2: Resolve F2** — covers: F2, FR-2, AC-2
+- [x] **R1.T1: Resolve F1** — covers: F1, AC-8, AC-9
+- [x] **R1.T2: Resolve F2** — covers: F2, FR-2, AC-2
+
+**Result:** verified
+**Checkpoint:** 4cebbfd
+**Evidence:** conductor/tracks/20261121-animation-agent-legibility/verification/phase-R1.md
