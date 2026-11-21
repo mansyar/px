@@ -42,7 +42,7 @@ The primary appends after acceptance:
 - **Covers:** FR-2, FR-3, FR-4, FR-5, FR-6, NFR-4, AC-2, AC-3, AC-4, AC-5, AC-6
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-runs.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/determinism.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/artifacts/**`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-2.md`
 - **Verification:** `pnpm verify`; two ordered call transcripts with counts; strict validation of each recipe reports zero `OUT_OF_BOUNDS` and zero `ORPHAN_PIXEL`; each export yields a sheet PNG and sheet metadata with a `timeline` block; byte comparison (SHA-256) of recipe, sheet, and timeline is recorded as identical or with the exact diff.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P2.T1: Run two fresh subagent benchmarks** — covers: FR-2, FR-3, AC-2, AC-3
   - [ ] **P2.T1.1:** Launch a new subagent with no prior conversation, giving it only the docs-only brief and the asset goal.
