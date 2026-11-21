@@ -3,9 +3,9 @@
 - **Track:** `20261121-animation-agent-legibility`
 - **Type:** chore
 - **Branch:** `chore/20261121-animation-agent-legibility`
-- **Range:** `4cc05bad23f3a11cd680922da0b15ba868d27842..f4797c6beccda146c3cdcad77ed409d4b803c9aa`
+- **Range:** `4cc05bad23f3a11cd680922da0b15ba868d27842..e1a9272` (R1 delta `6d950f9..4cebbfd`, squashed)
 - **Date:** 2026-11-21
-- **Verdict:** `BLOCK` (round 1 — two mechanically-fixable Medium findings; reviewer proposed PASS WITH FINDINGS)
+- **Verdict:** `PASS` (round 2 — both Medium findings fixed in R1 and independently re-reviewed; no new findings or regressions)
 
 ## Summary
 
@@ -16,11 +16,14 @@ export produced a 64×16 sheet PNG plus sheet metadata with `timeline`
 (independently confirmed by the primary with SHA-256 and by the reviewer with
 `git diff --no-index`), and the three-surface parity matrix covers six
 subcommands × twelve flags. AC-1..AC-10 are covered. No Critical or High
-findings. Two Medium findings concern evidence integrity, not the verdict
+findings. Two Medium findings concerned evidence integrity, not the verdict
 arithmetic: F1 — stale/unreachable verification-point hashes and a stale scope
-diff in the final report; F2 — the spec claims more frame subcommands were
-exercised by the fresh agent than the transcripts show. Both are mechanically
-fixable within Conductor state; a single Review Fixes round (R1) is appended.
+diff in the final report; F2 — the spec claimed more frame subcommands were
+exercised by the fresh agent than the transcripts show. Both were fixed in a
+single Review Fixes round (R1) and independently re-reviewed with PASS: every
+transient hash is relabeled as a working state paired with a reachable
+checkpoint, the scope claim is now a reproducible command plus an invariant,
+and the spec matches both call transcripts. No new findings or regressions.
 
 ## Verification
 
@@ -72,13 +75,22 @@ fixable within Conductor state; a single Review Fixes round (R1) is appended.
 
 ### Medium
 
-- **F1 — Stale/unreachable verification-point hashes and scope diff in evidence**
-  - **File:** `verification/agent-legibility.md:7,61` (also `phase-1.md:79`, `phase-2.md:83`, `phase-3.md:143`, `integrated.md:6`)
+- **F1 — Stale/unreachable verification-point hashes and scope diff in evidence — FIXED in R1**
+  - **File:** `verification/agent-legibility.md:7,61` (also `phase-1.md:79`, `phase-2.md:83`, `phase-3.md:143,149`, `integrated.md:6`)
   - **What:** The final report records pre-squash working-state hashes as HEAD (`e50a92f…`, `74cfde8…`, `fce7b0e…`, `a283113…`) that are not reachable commits; `integrated.md:6` records `0fabc98` though committed later at `97e47b0`. The "verbatim" scope diff at `phase-3.md:52-82` states 25 files / 1921 insertions, but the HEAD diff is 27 files / 1978 insertions after `integrated.md` and `review.md` were added.
   - **Why:** AC-8/AC-9 are evidenced by these records; a reader cannot reproduce the stated verification point and the scope output understates the committed diff. The substantive conclusion (all paths under `conductor/`) still holds, so the verdict is unaffected.
   - **Fix:** Relabel transient hashes as pre-squash working states paired with reachable phase-checkpoint SHAs (`f42e931`, `21929ac`, `02ed637`); label the scope diff as a verification-point snapshot and record the reproducible command plus the invariant (all paths under `conductor/`, no dependency manifest) rather than a brittle count that grows with each Conductor-state commit.
   - **Requirement:** AC-8, AC-9
   - **Test gap:** none (static evidence; primary re-checks recorded hashes against `git log` after the fix).
+  - **Disposition (round 2):** all seven edits applied and GREEN; every reachable hash confirmed via `git log --all`, every transient hash explicitly labeled a pre-squash/pre-commit working state. Scope claim now a reproducible command + invariant. Verified by primary and independent re-review — FIXED.
+
+- **F2 — Spec overstates fresh-agent-exercised subcommands — FIXED in R1**
+  - **File:** `spec.md:133-138`; follow-up added in `verification/agent-legibility.md` (follow-up 5)
+  - **What:** The assumption claimed the flame asset was chosen to exercise `frame add/edit/set-duration/export`, but both transcripts show the fresh agent invoked only `init`, `frame add` (×3, durations at add time), and `frame list`; `render --export` was run by the verifier in Phase 2.
+  - **Why:** Overstated benchmark scope; AC-2/AC-3 rest on an accurate record of what the agent actually invoked.
+  - **Fix:** Rewrite the assumption to match the transcripts (add/list/init exercised; edit/set-duration/remove/move covered only by the FR-7/AC-7 parity matrix; export verifier-run) and record the narrower coverage as a non-gating follow-up.
+  - **Requirement:** FR-2, AC-2, AC-3
+  - **Disposition (round 2):** spec.md rewritten by primary (executor was permission-denied on this primary-owned file); follow-up recorded; `Verdict: PASS` unchanged. Confirmed against both `calls.md` — FIXED.
 
 ### Low
 
@@ -90,7 +102,7 @@ fixable within Conductor state; a single Review Fixes round (R1) is appended.
 
 ## Plan compliance
 
-All three phases have `Result: verified`, `Checkpoint`, and `Evidence`; all 7 tasks are `[x]` and were implemented. The final diff stays within the union of phase Touches plus Conductor-state commits (integrated evidence, doc-sync stub). No task was dropped. R1 fix phase appended below.
+All three phases have `Result: verified`, `Checkpoint`, and `Evidence`; all 7 tasks are `[x]` and were implemented. The R1 fix phase is verified at checkpoint `4cebbfd` with `verification/phase-R1.md`. The final diff stays within the union of phase Touches plus Conductor-state commits (integrated evidence, doc-sync stub, R1 evidence). No task was dropped.
 
 ## Out of scope
 
@@ -109,4 +121,5 @@ Engine, CLI, MCP, human docs, goldens, rubric, lint thresholds, CI, and dependen
 
 | Round | Verdict | Critical | High | Medium | Low | Fixed |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | BLOCK (fixes pending) | 0 | 0 | 2 | 0 | 0 |
+| 1 | BLOCK (two Medium evidence findings; reviewer proposed PASS WITH FINDINGS) | 0 | 0 | 2 | 0 | 0 |
+| 2 | PASS (R1 delta independently re-reviewed: F1 and F2 fixed, no new findings) | 0 | 0 | 0 | 0 | 2 |
