@@ -13,7 +13,7 @@
   and a parity matrix covers all six frame subcommands and every flag across CLI
   help, MCP `px_frame`, and `docs/animation.md`.
 - **Depends on:** none
-- **Covers:** FR-1, FR-7, AC-1, AC-7
+- **Covers:** FR-1, FR-7, NFR-1, AC-1, AC-7
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/docs-brief.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/parity-matrix.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-1.md`
 - **Verification:** `pnpm verify`; content assertion that `docs-brief.md` lists every source file consulted and `parity-matrix.md` names all six subcommands (`add`, `edit`, `remove`, `list`, `set-duration`, `move`) and all frame flags on all three surfaces.
 - **Status:** pending
@@ -39,7 +39,7 @@ The primary appends after acceptance:
   brief alone; both recipes pass strict validation and export, and the two runs
   are byte-identical across recipe, sheet PNG, and timeline metadata.
 - **Depends on:** Phase 1
-- **Covers:** FR-2, FR-3, FR-4, FR-5, FR-6, AC-2, AC-3, AC-4, AC-5, AC-6
+- **Covers:** FR-2, FR-3, FR-4, FR-5, FR-6, NFR-4, AC-2, AC-3, AC-4, AC-5, AC-6
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-runs.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/determinism.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/artifacts/**`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-2.md`
 - **Verification:** `pnpm verify`; two ordered call transcripts with counts; strict validation of each recipe reports zero `OUT_OF_BOUNDS` and zero `ORPHAN_PIXEL`; each export yields a sheet PNG and sheet metadata with a `timeline` block; byte comparison (SHA-256) of recipe, sheet, and timeline is recorded as identical or with the exact diff.
 - **Status:** pending
@@ -67,7 +67,7 @@ The primary appends after acceptance:
   follow-up notes for any gap, and a confirmed diff showing no changes outside
   Conductor state.
 - **Depends on:** Phase 2
-- **Covers:** FR-8, AC-8, AC-9, AC-10
+- **Covers:** FR-8, NFR-2, NFR-3, AC-8, AC-9, AC-10
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-legibility.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-3.md`
 - **Verification:** `pnpm verify`; `agent-legibility.md` contains a PASS/FAIL verdict and paths to every artifact; `git diff --stat <base-sha>..HEAD` shows no paths outside `conductor/`; no dependency manifest changed.
 - **Status:** pending
