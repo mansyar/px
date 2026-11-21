@@ -42,22 +42,22 @@ The primary appends after acceptance:
 - **Covers:** FR-2, FR-3, FR-4, FR-5, FR-6, NFR-4, AC-2, AC-3, AC-4, AC-5, AC-6
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-runs.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/determinism.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/artifacts/**`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-2.md`
 - **Verification:** `pnpm verify`; two ordered call transcripts with counts; strict validation of each recipe reports zero `OUT_OF_BOUNDS` and zero `ORPHAN_PIXEL`; each export yields a sheet PNG and sheet metadata with a `timeline` block; byte comparison (SHA-256) of recipe, sheet, and timeline is recorded as identical or with the exact diff.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P2.T1: Run two fresh subagent benchmarks** — covers: FR-2, FR-3, AC-2, AC-3
-  - [ ] **P2.T1.1:** Launch a new subagent with no prior conversation, giving it only the docs-only brief and the asset goal.
-  - [ ] **P2.T1.2:** Repeat with a second fresh subagent and record the ordered call sequence and count for each run.
-- [ ] **P2.T2: Strict-validate and export each recipe** — covers: FR-4, FR-5, AC-4, AC-5
-  - [ ] **P2.T2.1:** Run strict validation; record `OUT_OF_BOUNDS`/`ORPHAN_PIXEL` counts and confirm informational findings are non-blocking.
-  - [ ] **P2.T2.2:** Run `render --export`; retain sheet PNG and sheet metadata with `timeline`.
-- [ ] **P2.T3: Compare bytes across the two runs** — covers: FR-6, AC-6
-  - [ ] **P2.T3.1:** Record SHA-256 for recipe JSON, sheet PNG, and timeline metadata in both runs.
-  - [ ] **P2.T3.2:** Record equality or the exact differing artifact.
+- [x] **P2.T1: Run two fresh subagent benchmarks** — covers: FR-2, FR-3, AC-2, AC-3
+  - [x] **P2.T1.1:** Launch a new subagent with no prior conversation, giving it only the docs-only brief and the asset goal.
+  - [x] **P2.T1.2:** Repeat with a second fresh subagent and record the ordered call sequence and count for each run.
+- [x] **P2.T2: Strict-validate and export each recipe** — covers: FR-4, FR-5, AC-4, AC-5
+  - [x] **P2.T2.1:** Run strict validation; record `OUT_OF_BOUNDS`/`ORPHAN_PIXEL` counts and confirm informational findings are non-blocking.
+  - [x] **P2.T2.2:** Run `render --export`; retain sheet PNG and sheet metadata with `timeline`.
+- [x] **P2.T3: Compare bytes across the two runs** — covers: FR-6, AC-6
+  - [x] **P2.T3.1:** Record SHA-256 for recipe JSON, sheet PNG, and timeline metadata in both runs.
+  - [x] **P2.T3.2:** Record equality or the exact differing artifact.
 
 <!--
 The primary appends after acceptance:
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** 21929ac
 **Evidence:** conductor/tracks/20261121-animation-agent-legibility/verification/phase-2.md
 -->
 
