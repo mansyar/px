@@ -70,21 +70,18 @@ The primary appends after acceptance:
 - **Covers:** FR-8, NFR-2, NFR-3, AC-8, AC-9, AC-10
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/agent-legibility.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-3.md`
 - **Verification:** `pnpm verify`; `agent-legibility.md` contains a PASS/FAIL verdict and paths to every artifact; `git diff --stat <base-sha>..HEAD` shows no paths outside `conductor/`; no dependency manifest changed.
-- **Status:** in_progress
+- **Status:** verified
 
-- [ ] **P3.T1: Write the final evidence report** — covers: FR-8, AC-8
-  - [ ] **P3.T1.1:** Record the verdict from the hard gates and link every artifact.
-  - [ ] **P3.T1.2:** List any gaps as follow-up notes without fixing them in-track.
-- [ ] **P3.T2: Confirm the evidence-only scope boundary** — covers: AC-9, AC-10
-  - [ ] **P3.T2.1:** Confirm the diff against base touches only Conductor state.
-  - [ ] **P3.T2.2:** Confirm no dependency manifest changed and no runtime dependency was added.
+- [x] **P3.T1: Write the final evidence report** — covers: FR-8, AC-8
+  - [x] **P3.T1.1:** Record the verdict from the hard gates and link every artifact.
+  - [x] **P3.T1.2:** List any gaps as follow-up notes without fixing them in-track.
+- [x] **P3.T2: Confirm the evidence-only scope boundary** — covers: AC-9, AC-10
+  - [x] **P3.T2.1:** Confirm the diff against base touches only Conductor state.
+  - [x] **P3.T2.2:** Confirm no dependency manifest changed and no runtime dependency was added.
 
-<!--
-The primary appends after acceptance:
 **Result:** verified
-**Checkpoint:** <short-sha>
+**Checkpoint:** 02ed637
 **Evidence:** conductor/tracks/20261121-animation-agent-legibility/verification/phase-3.md
--->
 
 <!--
 Review fixes are appended by `conductor-review` as:
