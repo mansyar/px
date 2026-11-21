@@ -97,3 +97,17 @@ Review fixes are appended by `conductor-review` as:
 
 - [ ] **R1.T1: Resolve <finding ID>** — covers: <finding ID>
 -->
+
+## Phase R1: Review Fixes
+
+- **Goal:** Resolve F1 (stale/unreachable verification-point hashes and scope diff)
+  and F2 (spec overstates fresh-agent-exercised subcommands) with honest,
+  reproducible evidence records — all inside Conductor state.
+- **Depends on:** Phase 3
+- **Covers:** F1, F2 (AC-8, AC-9, FR-2, AC-2)
+- **Touches:** `conductor/tracks/20261121-animation-agent-legibility/spec.md`, `verification/agent-legibility.md`, `verification/phase-1.md`, `verification/phase-2.md`, `verification/phase-3.md`, `verification/integrated.md`, `verification/phase-R1.md`
+- **Verification:** `pnpm verify`; every recorded hash reachable via `git log --all` or explicitly labelled a pre-squash working state with a reachable checkpoint; scope claim recorded as a reproducible command plus the all-paths-under-`conductor/` invariant rather than a brittle count; spec transcript claim matches both `calls.md`.
+- **Status:** pending
+
+- [ ] **R1.T1: Resolve F1** — covers: F1, AC-8, AC-9
+- [ ] **R1.T2: Resolve F2** — covers: F2, FR-2, AC-2
