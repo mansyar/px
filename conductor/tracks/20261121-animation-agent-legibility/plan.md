@@ -16,7 +16,7 @@
 - **Covers:** FR-1, FR-7, NFR-1, AC-1, AC-7
 - **Touches:** `conductor/tracks/20261121-animation-agent-legibility/verification/docs-brief.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/parity-matrix.md`, `conductor/tracks/20261121-animation-agent-legibility/verification/phase-1.md`
 - **Verification:** `pnpm verify`; content assertion that `docs-brief.md` lists every source file consulted and `parity-matrix.md` names all six subcommands (`add`, `edit`, `remove`, `list`, `set-duration`, `move`) and all frame flags on all three surfaces.
-- **Status:** pending
+- **Status:** in_progress
 
 - [ ] **P1.T1: Assemble the docs-only brief** — covers: FR-1, AC-1
   - [ ] **P1.T1.1:** Capture CLI `frame --help` JSON and the full `px_frame` MCP tool description.
